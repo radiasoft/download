@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Static file returned to start install from http://radiasoft.download
+# Usage: curl radiasoft.download | bash -s [vagrant|docker] <container>
 #
 curl -s -S -L \
     https://raw.githubusercontent.com/radiasoft/download/master/bin/install.sh \
