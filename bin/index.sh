@@ -4,4 +4,4 @@
 #
 curl -s -S -L \
     https://raw.githubusercontent.com/radiasoft/download/master/bin/install.sh \
-    | bash -s "$@"
+    | exec bash -s "$@"

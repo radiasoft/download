@@ -10,17 +10,25 @@ vagrant_boot() {
 #!/bin/bash
 echo '
 
-Point your browser to: http://127.0.0.1:$vagrant_port
+Point your browser to:
+
+http://127.0.0.1:$vagrant_port/srw
 
 '
-exec ./bivio_vagrant_ssh sirepo service http --port $vagrant_port --run-dir /vagrant
+exec ./.bivio_vagrant_ssh sirepo service http --port $vagrant_port --run-dir /vagrant
 EOF
             ;;
         *)
-            sh "$cmd"
+            cat > "$cmd" <<'EOF'
+#!/bin/bash
+exec ./.bivio_vagrant_ssh "$@"
+EOF
     esac
     chmod +x "$cmd"
-    "./$cmd"
+    echo "Making sure your $install_container virtual machine is running..."
+    ./.bivio_vagrant_ssh echo Done
+    echo "Running ./$cmd"
+    exec "./$cmd"
 }
 
 vagrant_check() {
@@ -31,8 +39,8 @@ vagrant_check() {
 }
 
 vagrant_download_ssh() {
-    curl -s -S -L https://raw.githubusercontent.com/biviosoftware/home-env/master/bin/bivio_vagrant_ssh > bivio_vagrant_ssh
-    chmod +x bivio_vagrant_ssh
+    curl -s -S -L https://raw.githubusercontent.com/biviosoftware/home-env/master/bin/bivio_vagrant_ssh > .bivio_vagrant_ssh
+    chmod +x .bivio_vagrant_ssh
 }
 
 vagrant_file() {
@@ -50,10 +58,10 @@ Vagrant.configure(2) do |config|
 end
 EOF
     # Too bad "update" doesn't just "add" if not installed...
-    if vagrant box list | grep -s -q "^$box[[:space:]]"; then
+    if vagrant box list | grep -s -q "^$install_container[[:space:]]"; then
         vagrant box update || true
     else
-        vagrant box add "$box"
+        vagrant box add "$install_container"
     fi
     # The final Vagrantfile, which will be "fixed up" by bivio_vagrant_ssh
     local forward=

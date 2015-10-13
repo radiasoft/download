@@ -11,7 +11,7 @@ Please create a new directory, cd to it, and re-run this command.'
 
 install_err() {
     install_msg "$@"
-    install_msg "Please contact support@radiasoft.net if you don't know what to do next."
+    install_msg "If you don't know what to do, please contact support@radiasoft.net."
     exit 1
 }
 
@@ -24,7 +24,7 @@ install_err_trap() {
 install_main() {
     trap install_err_trap ERR
     install_check
-    install_vars
+    install_vars "$@"
     local cmd=$install_type.sh
     local file=$(dirname "$0")/$cmd
     local eval
@@ -33,7 +33,7 @@ install_main() {
     else
         eval=$(curl -L -s -S "$install_url/$cmd")
     fi
-    eval "$(eval)"
+    eval "$eval"
 }
 
 install_msg() {
@@ -70,7 +70,7 @@ install_vars() {
     while [[ "$1" ]]; do
         case "$1" in
             python2|beamsim|sirepo)
-                install_container=$1
+                install_container=radiasoft/$1
                 ;;
             vagrant|docker)
                 install_type=$1
@@ -80,7 +80,7 @@ install_vars() {
                 ;;
         esac
         shift
-    esac
+    done
     if [[ ! $install_container ]]; then
         install_usage "Please supply a container name: beamsim, python2, or sirepo"
     fi
