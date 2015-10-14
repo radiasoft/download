@@ -33,10 +33,10 @@ EOF
     # Too bad "update" doesn't just "add" if not installed...
     if vagrant box list | grep -s -q "^$install_image[[:space:]]"; then
         install_info "Updating $install_image"
-        vagrant box update || true
+        install_exec vagrant box update
     else
         install_info "Downloading $install_image"
-        vagrant box add "$install_image"
+        install_exec vagrant box add "$install_image"
     fi
     # The final Vagrantfile, which will be "fixed up" by bivio_vagrant_ssh
     local forward=
