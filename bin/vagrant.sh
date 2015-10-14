@@ -27,7 +27,7 @@ EOF
     chmod +x "$cmd"
     echo "Making sure your $install_image virtual machine is running..."
     ./.bivio_vagrant_ssh echo Done
-    echo "Running ./$cmd"
+    echo "Starting ./$cmd"
     exec "./$cmd"
 }
 
@@ -80,5 +80,4 @@ vagrant_main() {
     vagrant_boot
 }
 
-set -e
 vagrant_main
