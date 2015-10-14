@@ -18,7 +18,11 @@ docker_run_main() {
     if [[ $docker_prompt ]]; then
         echo "$docker_prompt" 1>&2
     fi
-    docker run -i -t --name="$docker_container" -v "$PWD":/vagrant \
+    local tty=
+    if [[ -t 0 ]]; then
+        tty=-t
+    fi
+    docker run -i $tty --name="$docker_container" -v "$PWD":/vagrant \
         ${docker_port+-p $docker_port:$docker_port} "$docker_image" \
         /su-vagrant "$(id -u)" "$(id -g)" "$docker_cmd"
 }
