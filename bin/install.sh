@@ -24,7 +24,7 @@ install_download() {
         fi
         res=$(curl -L -s -S "$url")
     fi
-    if [[ ! $res =~ ^#!/bin/bash ]]; then
+    if [[ ! $res =~ ^#! ]]; then
         install_err "Unable to download $url"
     fi
     echo "$res"
