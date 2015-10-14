@@ -23,7 +23,7 @@ docker_run_main() {
         tty=-t
     fi
     docker run -i $tty --name="$docker_container" -v "$PWD":/vagrant \
-        ${docker_port+-p $docker_port:$docker_port} "$docker_image" \
+        ${docker_port:+-p $docker_port:$docker_port} "$docker_image" \
         /su-vagrant "$(id -u)" "$(id -g)" "$docker_cmd"
 }
 
