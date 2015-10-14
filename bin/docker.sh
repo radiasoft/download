@@ -16,11 +16,9 @@ docker_script() {
     if [[ $install_image =~ /sirepo$ ]]; then
         cmd="sirepo service http --port $install_forward_port --run-dir /vagrant"
         prompt="
-
 Point your browser to:
 
 http://127.0.0.1:$install_forward_port/srw
-
 "
     fi
     cat > "$docker_script" <<EOF
