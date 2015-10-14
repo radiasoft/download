@@ -1,6 +1,9 @@
 #!/bin/bash
 #
-# Wrapper for running docker with correct user/group permissions
+# This is an include file in script created by docker.sh
+#
+# Start docker with port and volume. Will destroy old container if exists and
+# isn't running.
 #
 
 docker_run_check() {

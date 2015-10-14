@@ -5,7 +5,7 @@
 set -e
 
 install_check() {
-    if [[ $(ls -A) ]]; then
+    if [[ $(ls -A | grep -v install.log) ]]; then
         install_err 'Current directory is not empty.
 Please create a new directory, cd to it, and re-run this command.'
     fi
@@ -18,10 +18,12 @@ install_download() {
     local res
     if [[ -r $file ]]; then
         res=$(<$file)
+        install_log cat "$file"
     else
         if [[ $url == $base ]]; then
             url=$install_url/$base
         fi
+        install_log curl -L -s -S "$url"
         res=$(curl -L -s -S "$url")
     fi
     if [[ ! $res =~ ^#! ]]; then
@@ -39,11 +41,39 @@ If you don't know what to do, please contact support@radiasoft.net."
 install_err_trap() {
     set +e
     trap - ERR
+    instal_log 'Error trap'
     install_err 'Unexpected error; Install failed.'
 }
 
+install_exec() {
+    install_log "$@"
+    if [[ $install_verbose ]]; then
+        "$@" 2>&1 | tee -a $install_log_file
+    else
+        "$@" >> $install_log_file 2>&1
+    fi
+}
+
+install_info() {
+    local f=install_msg
+    if [[ $install_verbose ]]; then
+        install_log "$@" ...
+    fi
+    #TODO(robnagler) $install_silent
+    $f "$@" ...
+}
+
+install_log() {
+    echo "$(date -u '+%m/%d/%Y %H:%M:%S')" "$@" >> $install_log_file
+    if [[ $install_verbose ]]; then
+        install_msg "$@"
+    fi
+}
+
 install_main() {
+    install_log_file=$PWD/install.log
     trap install_err_trap ERR
+    install_log install_main
     install_check
     install_vars "$@"
     eval "$(install_download $install_type.sh)"
@@ -82,6 +112,7 @@ install_vars() {
     esac
     install_image=
     install_forward_port=
+    install_verbose=
     while [[ "$1" ]]; do
         case "$1" in
             beamsim|python2|sirepo)
@@ -89,6 +120,12 @@ install_vars() {
                 ;;
             vagrant|docker)
                 install_type=$1
+                ;;
+            verbose)
+                install_verbose=1
+                ;;
+            quiet)
+                install_verbose=
                 ;;
             *)
                 install_usage "$1: unknown install option"

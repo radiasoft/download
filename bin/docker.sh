@@ -3,16 +3,19 @@
 # Install Docker image and start
 #
 docker_main() {
+    install_info 'Installing with docker'
     docker_run=$(install_download docker-run.sh)
     #TODO(robnagler) add install_channel
-    docker pull "$install_image"
+    install_info "Downloading $install_image"
+    install_exec docker pull "$install_image"
     docker_script
-    echo "Starting ./$docker_script"
+    install_info "Starting ./$docker_script"
     exec "./$docker_script"
 }
 
 docker_script() {
     docker_script=$(basename "$install_image")
+    install_log "Creating $docker_script"
     local prompt=
     local cmd=bash
     if [[ $install_image =~ /sirepo$ ]]; then
@@ -28,6 +31,7 @@ http://127.0.0.1:$install_forward_port/srw
 #
 # Invoke docker run on $cmd
 #
+set -x
 docker_cmd='$cmd'
 docker_container=\$(id -u -n)-\$(basename '$install_image')
 docker_image='$install_image'
