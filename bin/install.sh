@@ -70,12 +70,12 @@ install_vars() {
             install_err "$(uname) is an unsupported system, sorry"
             ;;
     esac
-    install_container=
+    install_image=
     install_forward_port=
     while [[ "$1" ]]; do
         case "$1" in
             beamsim|python2|sirepo)
-                install_container=radiasoft/$1
+                install_image=radiasoft/$1
                 if [[ sirepo == $1 ]]; then
                     install_forward_port=8000
                 fi
@@ -89,7 +89,7 @@ install_vars() {
         esac
         shift
     done
-    if [[ ! $install_container ]]; then
+    if [[ ! $install_image ]]; then
         install_usage "Please supply a container name: beamsim, python2, or sirepo"
     fi
     install_url=https://raw.githubusercontent.com/radiasoft/download/master/bin

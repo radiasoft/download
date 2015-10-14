@@ -3,8 +3,8 @@
 # Install vagrant
 #
 vagrant_boot() {
-    local cmd=$(basename "$install_container")
-    case $install_container in
+    local cmd=$(basename "$install_image")
+    case $install_image in
         */sirepo)
             cat > "$cmd" <<EOF
 #!/bin/bash
@@ -25,7 +25,7 @@ exec ./.bivio_vagrant_ssh "$@"
 EOF
     esac
     chmod +x "$cmd"
-    echo "Making sure your $install_container virtual machine is running..."
+    echo "Making sure your $install_image virtual machine is running..."
     ./.bivio_vagrant_ssh echo Done
     echo "Running ./$cmd"
     exec "./$cmd"
@@ -39,11 +39,11 @@ vagrant_download_ssh() {
 vagrant_file() {
     # Boot without synced folders, because guest additions may not be right.
     # Don't insert the private key yet either.
-    local host=$(basename "$install_container")
+    local host=$(basename "$install_image")
     cat > Vagrantfile<<EOF
 # -*- mode: ruby -*-
 Vagrant.configure(2) do |config|
-    config.vm.box = "$install_container"
+    config.vm.box = "$install_image"
     config.vm.hostname = "$host"
     config.vm.synced_folder ".", "/vagrant", disabled: true
     config.ssh.insert_key = false
@@ -51,10 +51,10 @@ Vagrant.configure(2) do |config|
 end
 EOF
     # Too bad "update" doesn't just "add" if not installed...
-    if vagrant box list | grep -s -q "^$install_container[[:space:]]"; then
+    if vagrant box list | grep -s -q "^$install_image[[:space:]]"; then
         vagrant box update || true
     else
-        vagrant box add "$install_container"
+        vagrant box add "$install_image"
     fi
     # The final Vagrantfile, which will be "fixed up" by bivio_vagrant_ssh
     local forward=
@@ -64,7 +64,7 @@ EOF
     cat > Vagrantfile-actual <<EOF
 # -*- mode: ruby -*-
 Vagrant.configure(2) do |config|
-    config.vm.box = "$install_container"
+    config.vm.box = "$install_image"
     config.vm.hostname = "$host"
     config.ssh.forward_x11 = true
     ${forward}
