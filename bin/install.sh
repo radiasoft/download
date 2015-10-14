@@ -2,6 +2,8 @@
 #
 # Install RadiaSoft containers
 #
+set -e
+
 install_check() {
     if [[ $(ls -A) ]]; then
         install_err 'Current directory is not empty.
@@ -103,7 +105,4 @@ install_vars() {
     install_url=https://raw.githubusercontent.com/radiasoft/download/master/bin
 }
 
-if [[ $0 == ${BASH_SOURCE[0]} ]]; then
-    set -e
-    install_main "$@"
-fi
+install_main "$@"
