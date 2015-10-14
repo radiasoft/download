@@ -7,14 +7,16 @@ installer in an empty. For example,
 ```
 mkdir sirepo
 cd sirepo
+curl radiasoft.download | bash
+```
+
+This will install, configure the container, and run it from the current
+directory. The container name is taken from the base directory. You can also:
+
+```
+mkdir foobar
+cd foobar
 curl radiasoft.download | bash -s sirepo
-```
-
-This will install and configure the container to run from the current
-directory. You can then run the container's main program with:
-
-```
-./sirepo
 ```
 
 ### Requirements

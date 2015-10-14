@@ -5,7 +5,7 @@
 docker_main() {
     docker_run=$(install_download docker-run.sh)
     #TODO(robnagler) add install_channel
-    docker pull "$docker_image"
+    docker pull "$install_image"
     docker_script
     echo "Starting ./$docker_script"
     exec "./$docker_script"

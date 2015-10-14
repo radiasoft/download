@@ -86,9 +86,6 @@ install_vars() {
         case "$1" in
             beamsim|python2|sirepo)
                 install_image=radiasoft/$1
-                if [[ sirepo == $1 ]]; then
-                    install_forward_port=8000
-                fi
                 ;;
             vagrant|docker)
                 install_type=$1
@@ -100,7 +97,13 @@ install_vars() {
         shift
     done
     if [[ ! $install_image ]]; then
-        install_usage "Please supply a container name: beamsim, python2, or sirepo"
+        install_image=radiasoft/$(basename "$PWD")
+        if [[ ! $install_image =~ ^radiasoft/(beamsim|python2|sirepo)$ ]]; then
+            install_usage "Please supply a container name: beamsim, python2, or sirepo"
+        fi
+    fi
+    if [[ $install_image == radiasoft/sirepo ]]; then
+        install_forward_port=8000
     fi
     install_url=https://raw.githubusercontent.com/radiasoft/download/master/bin
 }
