@@ -9,9 +9,28 @@ Please create a new directory, cd to it, and re-run this command.'
     fi
 }
 
+install_download() {
+    local url=$1
+    local base=$(basename "$url")
+    local file=$(dirname "$0")/$base
+    local res
+    if [[ -r $file ]]; then
+        res=$(<$file)
+    else
+        if [[ $url == $base ]]; then
+            url=$install_url/$base
+        fi
+        res=$(curl -L -s -S "$url")
+    fi
+    if [[ ! $res =~ ^#!/bin/bash ]]; then
+        install_err "Unable to download $url"
+    fi
+    echo "$res"
+}
+
 install_err() {
-    install_msg "$@"
-    install_msg "If you don't know what to do, please contact support@radiasoft.net."
+    install_msg "$@
+If you don't know what to do, please contact support@radiasoft.net."
     exit 1
 }
 
@@ -25,18 +44,7 @@ install_main() {
     trap install_err_trap ERR
     install_check
     install_vars "$@"
-    local cmd=$install_type.sh
-    local file=$(dirname "$0")/$cmd
-    local eval
-    if [[ -r $file ]]; then
-        eval=$(<$file)
-    else
-        eval=$(curl -L -s -S "$install_url/$cmd")
-    fi
-    if [[ ! $eval =~ ^#!/bin/bash ]]; then
-        install_err "Unable to read $install_url/$cmd"
-    fi
-    eval "$eval"
+    eval "$(install_download $install_type.sh)"
 }
 
 install_msg() {

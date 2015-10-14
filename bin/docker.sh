@@ -2,15 +2,8 @@
 #
 # Install Docker image and start
 #
-docker_download_run() {
-    docker_run=$(curl -s -S -L "$install_run/docker-run.sh")
-    if [[ ! $docker_run =~ ^#!/bin/bash ]]; then
-        install_err 'Unable to download docker-run.sh'
-    fi
-}
-
 docker_main() {
-    docker_download_run
+    docker_run=$(install_download docker-run.sh)
     docker_script
     echo "Starting ./$docker_script"
     exec "./$docker_script"
@@ -36,10 +29,13 @@ http://127.0.0.1:$install_forward_port/srw
 # Invoke docker run on $cmd
 #
 docker_cmd='$cmd'
-docker_container=$(id -u -n)-$(basename '$docker_image')
+docker_container=\$(id -u -n)-\$(basename '$install_image')
 docker_image='$install_image'
 docker_port='$install_forward_port'
 docker_prompt='$prompt'
+
+$(declare -f install_msg)
+$(declare -f install_err)
 
 $docker_run
 EOF

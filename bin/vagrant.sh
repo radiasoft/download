@@ -32,7 +32,7 @@ EOF
 }
 
 vagrant_download_ssh() {
-    curl -s -S -L https://raw.githubusercontent.com/biviosoftware/home-env/master/bin/bivio_vagrant_ssh > .bivio_vagrant_ssh
+    install_download https://raw.githubusercontent.com/biviosoftware/home-env/master/bin/bivio_vagrant_ssh > .bivio_vagrant_ssh
     chmod +x .bivio_vagrant_ssh
 }
 
