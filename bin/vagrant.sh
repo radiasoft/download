@@ -12,10 +12,10 @@ echo '
 
 Point your browser to:
 
-http://127.0.0.1:$vagrant_port/srw
+http://127.0.0.1:$install_forward_port/srw
 
 '
-exec ./.bivio_vagrant_ssh sirepo service http --port $vagrant_port --run-dir /vagrant
+exec ./.bivio_vagrant_ssh sirepo service http --port $install_forward_port --run-dir /vagrant
 EOF
             ;;
         *)
@@ -29,13 +29,6 @@ EOF
     ./.bivio_vagrant_ssh echo Done
     echo "Running ./$cmd"
     exec "./$cmd"
-}
-
-vagrant_check() {
-    # A little sanity check
-    if [[ $(ls .vagrant/machines/default/virtualbox 2>/dev/null) ]]; then
-        err 'Virtual machine exists, remove with: vagrant destroy -f'
-    fi
 }
 
 vagrant_download_ssh() {
@@ -65,8 +58,8 @@ EOF
     fi
     # The final Vagrantfile, which will be "fixed up" by bivio_vagrant_ssh
     local forward=
-    if [[ $vagrant_port ]]; then
-        forward="config.vm.network \"forwarded_port\", guest: $vagrant_port, host: $vagrant_port"
+    if [[ $install_forward_port ]]; then
+        forward="config.vm.network \"forwarded_port\", guest: $install_forward_port, host: $install_forward_port"
     fi
     cat > Vagrantfile-actual <<EOF
 # -*- mode: ruby -*-
@@ -82,22 +75,9 @@ EOF
 }
 
 vagrant_main() {
-    vagrant_check
-    vagrant_vars
     vagrant_download_ssh
     vagrant_file
     vagrant_boot
-}
-
-vagrant_vars() {
-    case $install_container in
-        */sirepo)
-            vagrant_port=8000
-            ;;
-        *)
-            vagrant_port=
-            ;;
-    esac
 }
 
 set -e

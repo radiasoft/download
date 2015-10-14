@@ -33,6 +33,9 @@ install_main() {
     else
         eval=$(curl -L -s -S "$install_url/$cmd")
     fi
+    if [[ ! $eval =~ ^#!/bin/bash ]]; then
+        install_err "Unable to read $install_url/$cmd"
+    fi
     eval "$eval"
 }
 
@@ -67,10 +70,15 @@ install_vars() {
             install_err "$(uname) is an unsupported system, sorry"
             ;;
     esac
+    install_container=
+    install_forward_port=
     while [[ "$1" ]]; do
         case "$1" in
-            python2|beamsim|sirepo)
+            beamsim|python2|sirepo)
                 install_container=radiasoft/$1
+                if [[ sirepo == $1 ]]; then
+                    install_forward_port=8000
+                fi
                 ;;
             vagrant|docker)
                 install_type=$1
