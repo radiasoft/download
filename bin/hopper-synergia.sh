@@ -3,7 +3,7 @@
 # Install synergia on hopper
 #
 hopper_synergia_main() {
-    install_info 'Loading modules (ignore error about hdf5)'
+    install_info 'Loading modules'
     hopper_synergia_modules='
         module unload darshan
         # Only for build??
@@ -16,8 +16,8 @@ hopper_synergia_main() {
         module load cmake
         module load git
         module load python/2.7.9
-        module load pytables
         # pytables loads hdf5 which is deprecated and conflicts with cray-hdf5
+        module load pytables >& /dev/null
         module unload hdf5
         module load mpi4py
         module load boost
