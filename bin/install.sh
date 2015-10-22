@@ -2,6 +2,12 @@
 #
 # Install RadiaSoft containers
 #
+# TODO(robnagler):
+#    - delegated argument parsing
+#    - modularize better (delegation model to other repos?)
+#    - add codes.sh (so can install locally and remotely)
+#    - better logging for hopper install
+#    - leave in directory match? (may be overkill on automation)
 set -e
 
 install_check() {
