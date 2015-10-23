@@ -8,6 +8,11 @@
 #    - add codes.sh (so can install locally and remotely)
 #    - better logging for hopper install
 #    - leave in directory match? (may be overkill on automation)
+#    - handle no tty case better (not working?)
+#    - add channels
+#    - generalized bundling with versions
+#    - add test of dynamic download and static on travis (trigger for dynamic?)
+#    - tests for individual codes
 set -e
 
 install_check() {
