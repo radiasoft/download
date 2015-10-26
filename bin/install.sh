@@ -47,6 +47,7 @@ install_download() {
 }
 
 install_err() {
+    trap - EXIT
     install_msg "$@
 If you don't know what to do, please contact support@radiasoft.net."
     exit 1
@@ -54,8 +55,11 @@ If you don't know what to do, please contact support@radiasoft.net."
 
 install_err_trap() {
     set +e
-    trap - ERR
-    instal_log 'Error trap'
+    trap - EXIT
+    if [[ ! $install_verbose ]]; then
+        tail -10 "$install_log_file"
+    fi
+    install_log 'Error trap'
     install_err 'Unexpected error; Install failed.'
 }
 
@@ -86,11 +90,12 @@ install_log() {
 
 install_main() {
     install_log_file=$PWD/install.log
-    trap install_err_trap ERR
+    trap install_err_trap EXIT
     install_log install_main
     install_vars "$@"
     install_check
     eval "$(install_download $install_type.sh)"
+    trap - EXIT
 }
 
 install_msg() {
@@ -99,7 +104,7 @@ install_msg() {
 
 install_usage() {
     install_err "$@
-usage: $(basename $0) [docker|hopper|vagrant] beamsim|python2|sirepo|synergia"
+usage: $(basename $0) [docker|hopper|vagrant] beamsim|isynergia|python2|sirepo|synergia"
 }
 
 install_vars() {
@@ -133,7 +138,7 @@ install_vars() {
     install_verbose=
     while [[ "$1" ]]; do
         case "$1" in
-            beamsim|python2|sirepo)
+            beamsim|isynergia|python2|sirepo)
                 install_image=$1
                 ;;
             hopper)
@@ -159,11 +164,11 @@ install_vars() {
     done
     if [[ ! $install_image ]]; then
         install_image=$(basename "$PWD")
-        if [[ ! $install_image =~ ^(beamsim|python2|sirepo)$ ]]; then
-            install_usage "Please supply a install name: beamsim, python2, sirepo, synergia"
+        if [[ ! $install_image =~ ^(beamsim|isynergia|python2|sirepo)$ ]]; then
+            install_usage "Please supply a install name: beamsim, isynergia, python2, sirepo, synergia"
         fi
     fi
-    if [[ $install_image =~ sirepo ]]; then
+    if [[ $install_image =~ isynergia|sirepo ]]; then
         install_forward_port=8000
     fi
     case $install_type in
@@ -174,6 +179,13 @@ install_vars() {
             if [[ $install_image == synergia ]]; then
                 install_msg 'Switching image to "beamsim" which includes synergia'
                 install_image=beamsim
+            fi
+            if [[ $install_image == isynergia ]]; then
+                if [[ $install_type == docker ]]; then
+                    install_no_check=1
+                else
+                    install_usage 'isynergia is only supported for docker'
+                fi
             fi
             install_image=radiasoft/$install_image
             ;;

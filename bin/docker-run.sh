@@ -25,6 +25,7 @@ docker_run_main() {
     if [[ -t 0 ]]; then
         tty=-t
     fi
+    #TODO(robnagler) -t doesn't seem to work quite right. Maybe -t 1?
     docker run -i $tty --name="$docker_container" -v "$PWD":/vagrant \
         ${docker_port:+-p $docker_port:$docker_port} "$docker_image" \
         /su-vagrant "$(id -u)" "$(id -g)" "$docker_cmd"

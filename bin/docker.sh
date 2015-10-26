@@ -18,20 +18,28 @@ docker_script() {
     install_log "Creating $docker_script"
     local prompt=
     local cmd=bash
-    if [[ $install_image =~ /sirepo$ ]]; then
-        cmd="sirepo service http --port $install_forward_port --run-dir /vagrant"
-        prompt="
+    case $install_image in
+        */sirepo)
+            cmd="sirepo service http --port $install_forward_port --run-dir /vagrant"
+            prompt="
 Point your browser to:
 
 http://127.0.0.1:$install_forward_port/srw
 "
-    fi
+            ;;
+        */isynergia)
+            cmd='cd /vagrant; synergia --ipython notebook'
+            prompt="
+Point your browser to:
+
+http://127.0.0.1:$install_forward_port
+"
+    esac
     cat > "$docker_script" <<EOF
 #!/bin/bash
 #
 # Invoke docker run on $cmd
 #
-set -x
 docker_cmd='$cmd'
 docker_container=\$(id -u -n)-\$(basename '$install_image')
 docker_image='$install_image'
