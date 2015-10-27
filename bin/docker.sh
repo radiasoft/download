@@ -28,7 +28,7 @@ http://127.0.0.1:$install_forward_port/srw
 "
             ;;
         */isynergia)
-            cmd='cd /vagrant; synergia --ipython notebook'
+            cmd=synergia-ipython-beamsim
             prompt="
 Point your browser to:
 
