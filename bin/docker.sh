@@ -19,6 +19,13 @@ docker_script() {
     local prompt=
     local cmd=bash
     case $install_image in
+        */radtrack)
+            mkdir -p RadTrack
+            cat > "$vagrant_script" <<EOF
+#!/bin/bash
+exec ./.bivio_vagrant_ssh radtrack-on-vagrant
+EOF
+            ;;
         */sirepo)
             cmd="sirepo service http --port $install_forward_port --run-dir /vagrant"
             prompt="

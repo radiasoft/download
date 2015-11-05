@@ -104,7 +104,7 @@ install_msg() {
 
 install_usage() {
     install_err "$@
-usage: $(basename $0) [docker|hopper|vagrant] beamsim|isynergia|python2|sirepo|synergia"
+usage: $(basename $0) [docker|hopper|vagrant] beamsim|isynergia|python2|radtrack|sirepo|synergia"
 }
 
 install_vars() {
@@ -138,7 +138,7 @@ install_vars() {
     install_verbose=
     while [[ "$1" ]]; do
         case "$1" in
-            beamsim|isynergia|python2|sirepo)
+            beamsim|isynergia|python2|radtrack|sirepo)
                 install_image=$1
                 ;;
             hopper)
@@ -164,8 +164,8 @@ install_vars() {
     done
     if [[ ! $install_image ]]; then
         install_image=$(basename "$PWD")
-        if [[ ! $install_image =~ ^(beamsim|isynergia|python2|sirepo)$ ]]; then
-            install_usage "Please supply a install name: beamsim, isynergia, python2, sirepo, synergia"
+        if [[ ! $install_image =~ ^(beamsim|isynergia|python2|radtrack|sirepo)$ ]]; then
+            install_usage "Please supply a install name: beamsim, isynergia, python2, radtrack, sirepo, synergia"
         fi
     fi
     if [[ $install_image =~ isynergia|sirepo ]]; then
