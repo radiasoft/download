@@ -45,7 +45,7 @@ On Linux, you can use
 is lighter weight than Vagrant. We recommend
 [running Docker as a trusted, non-root user](http://askubuntu.com/questions/477551/how-can-i-use-docker-without-sudo).
 By trusted, we mean a user who already has `sudo` privileges. As noted (in the
-[previous link](http://askubuntu.com/questions/477551/how-can-i-use-docker-without-sudo))),
+[previous link](http://askubuntu.com/questions/477551/how-can-i-use-docker-without-sudo)),
 there are [privilege escalation attacks](http://docs.docker.com/engine/articles/security/#docker-daemon-attack-surface)
 with Docker so don't give the privileges to untrusted users.
 
@@ -170,7 +170,8 @@ Once the install completes, edit the `Vagrantfile` again, removing this line:
 config.vm.synced_folder ".", "/vagrant", disabled: true
 ```
 
-If you are running Sirepo, see the instructions below.
+If you are running Sirepo,
+[see the instructions below](https://github.com/radiasoft/download/blob/master/README.md#running-sirepo-manually).
 
 In your shell/command prompt, type:
 
