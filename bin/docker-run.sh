@@ -12,7 +12,7 @@ docker_run_check() {
         install_err "Your $docker_image container is already running."
     fi
     if [[ $x == false ]]; then
-        docker rm "$docker_container"
+        docker rm "$docker_container" >&/dev/null
     fi
 }
 
