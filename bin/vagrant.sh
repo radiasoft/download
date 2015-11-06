@@ -68,7 +68,6 @@ vagrant_script() {
     install_log Creating "$vagrant_script"
     case $install_image in
         */radtrack)
-            mkdir -p RadTrack
             cat > "$vagrant_script" <<EOF
 #!/bin/bash
 exec ./.bivio_vagrant_ssh radtrack-on-vagrant
