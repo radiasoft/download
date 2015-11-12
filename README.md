@@ -6,6 +6,67 @@ VMs and containers are
 [built with the same code](https://github.com/radiasoft/containers),
 we just call them containers here.
 
+#### Requirements
+
+Before installing RadiaSoft containers, you'll need to install a few
+programs.
+
+On a Mac, [install VirtualBox, Vagrant, and (optionally) XQuartz](#installing-vagrant-on-mac-os-x).
+
+On Windows, [install VirtualBox, SSHWindows, Vagrant, and (optionally) VcXsrv](#installing-vagrant-on-windows).
+
+On Linux, you can use
+[Docker](http://docs.docker.com/engine/installation/), which
+is lighter weight than Vagrant. We recommend
+[running Docker as a trusted, non-root user](http://askubuntu.com/questions/477551/how-can-i-use-docker-without-sudo).
+By trusted, we mean a user who already has `sudo` privileges. As noted (in the
+[previous link](http://askubuntu.com/questions/477551/how-can-i-use-docker-without-sudo)),
+there are [privilege escalation attacks](http://docs.docker.com/engine/articles/security/#docker-daemon-attack-surface)
+with Docker so don't give the privileges to untrusted users.
+
+#### Curl Installer (Mac, Linux, and Cygwin)
+
+The most straightforward way to install a RadiaSoft container image is
+to create an empty directory and run the installer. For example, to
+install the `radtrack` container:
+
+```
+mkdir radtrack
+cd radtrack
+curl radiasoft.download | bash
+```
+
+This will install, configure the image named by the current
+directory, and run it from the current directory. The image name
+is taken from the directory name.
+
+For a complete list of containers, [see the next section](#containers).
+
+
+You can also be explicit and request a different container:
+
+```
+mkdir foobar
+cd foobar
+curl radiasoft.download | bash -s radtrack
+```
+
+There are a few other options (words) which may be useful, e.g.
+
+```
+curl radiasoft.download | bash -s radtrack verbose
+```
+
+You can also be explicit about which type of image you'd like:
+
+```
+curl radiasoft.download | bash -s radtrack vagrant
+```
+
+The order of the optional keywords after the `bash -s` do not matter.
+
+#### Containers
+
 At this time, all of our images are based on
 the [official Docker](https://hub.docker.com/_/fedora/)
 and [Hansode Vagrant](https://vagrantcloud.com/hansode/boxes/fedora-21-server-x86_64)
@@ -27,65 +88,6 @@ We also have a separate (older) downloader for our
 
 * [radiasoft/radtrack](https://github.com/radiasoft/radtrack-installer/tree/master/darwin)
   is a desktop (Qt) application to simplify execution of accelerator codes.
-
-#### Requirements
-
-Before installing RadiaSoft containers, you must have
-[Vagrant](https://www.vagrantup.com/downloads.html) running
-on your Windows PC or Mac
-with a [VirtualBox provider](https://docs.vagrantup.com/v2/virtualbox).
-We provide a little help below on installing Vagrant on the
-[Mac](https://github.com/radiasoft/download/blob/master/README.md#installing-vagrant-on-mac-os-x)
-and
-[Windows](https://github.com/radiasoft/download/blob/master/README.md#installing-vagrant-on-windows)
-
-
-On Linux, you can use
-[Docker](http://docs.docker.com/engine/installation/), which
-is lighter weight than Vagrant. We recommend
-[running Docker as a trusted, non-root user](http://askubuntu.com/questions/477551/how-can-i-use-docker-without-sudo).
-By trusted, we mean a user who already has `sudo` privileges. As noted (in the
-[previous link](http://askubuntu.com/questions/477551/how-can-i-use-docker-without-sudo)),
-there are [privilege escalation attacks](http://docs.docker.com/engine/articles/security/#docker-daemon-attack-surface)
-with Docker so don't give the privileges to untrusted users.
-
-#### Curl Installer (Mac, Linux, and Cygwin)
-
-The most straightforward way to install a RadiaSoft container image, e.g.
-[sirepo](https://github.com/radiasoft/sirepo), is to run our automated
-installer in an empty. For example,
-
-```
-mkdir sirepo
-cd sirepo
-curl radiasoft.download | bash
-```
-
-This will install, configure the image named by the current
-directory, and run it from the current directory. The image name
-is taken from the directory name.
-
-You can also be explicit and request a different container:
-
-```
-mkdir foobar
-cd foobar
-curl radiasoft.download | bash -s sirepo
-```
-
-There are a few other options (words) which may be useful, e.g.
-
-```
-curl radiasoft.download | bash -s sirepo verbose
-```
-
-You can also be explicit about which type of image you'd like:
-
-```
-curl radiasoft.download | bash -s sirepo vagrant
-```
-
-The order of the optional keywords after the `bash -s` do not matter.
 
 #### Startup Command
 
