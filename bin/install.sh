@@ -82,7 +82,7 @@ install_info() {
 }
 
 install_log() {
-    echo "$(date -u '+%m/%d/%Y %H:%M:%S')" "$@" >> $install_log_file
+    echo "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" "$@" >> $install_log_file
     if [[ $install_verbose ]]; then
         install_msg "$@"
     fi
@@ -100,6 +100,68 @@ install_main() {
 
 install_msg() {
     echo "$@" 1>&2
+}
+
+install_radia_run() {
+    local script=radia-run
+    install_log "Creating $script"
+    local common=$(install_download "$install_type-run.sh")
+    local guest_dir=/vagrant
+    local guest_user=vagrant
+    local uri=
+    case $install_image in
+        */radtrack)
+            cmd=radia-run-radtrack
+            ;;
+        */sirepo)
+            cmd="radia-run-sirepo $install_port $guest_dir"
+            uri=/srw
+            ;;
+        */isynergia)
+            cmd=synergia-ipython-beamsim
+            uri=/
+    esac
+    cat > "$script" <<EOF
+#!/bin/bash
+#
+# Invoke $install_type run on $cmd
+#
+radia_run_cmd='$cmd'
+radia_run_container=\$(id -u -n)-\$(basename '$install_image')
+radia_run_guest_dir='$guest_dir'
+radia_run_guest_user='$guest_user'
+radia_run_image='$install_image'
+radia_run_port='$install_port'
+radia_run_uri='$uri'
+radia_run_x11='$install_x11'
+
+$(declare -f install_msg install_err | sed -e 's,^install,radia_run,')
+
+$common
+EOF
+    cat >> "$script" <<EOF
+radia_run_prompt() {
+    if [[ $radia_run_uri ]]; then
+        install_msg "
+Point your browser to:
+
+http://127.0.0.1:$radia_run_port$radia_run_uri
+"
+    elif [[ $x11 ]]; then
+        install_msg '
+Starting X11 application. Look for window to popup
+'
+    fi
+}
+
+radia_run_main "$@"
+EOF
+    chmod +x "$script"
+    install_info "To restart, enter this command in the shell:
+
+ ./$script
+"
+    exec "./$script"
 }
 
 install_usage() {
@@ -134,7 +196,6 @@ install_vars() {
         esac
     fi
     install_image=
-    install_forward_port=
     install_verbose=
     while [[ "$1" ]]; do
         case "$1" in
@@ -168,9 +229,6 @@ install_vars() {
             install_usage "Please supply a install name: beamsim, isynergia, python2, radtrack, sirepo, synergia"
         fi
     fi
-    if [[ $install_image =~ isynergia|sirepo ]]; then
-        install_forward_port=8000
-    fi
     case $install_type in
         vagrant|docker)
             if [[ $NERSC_HOST ]]; then
@@ -186,6 +244,12 @@ install_vars() {
                 else
                     install_usage 'isynergia is only supported for docker'
                 fi
+            fi
+            if [[ $install_image == radtrack ]]; then
+                install_x11=1
+            fi
+            if [[ $install_image =~ isynergia|sirepo ]]; then
+                install_port=8000
             fi
             install_image=radiasoft/$install_image
             ;;

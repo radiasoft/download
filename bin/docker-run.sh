@@ -1,12 +1,8 @@
 #!/bin/bash
 #
-# This is an include file in script created by docker.sh
+# Docker specific code for radia-run
 #
-# Start docker with port and volume. Will destroy old container if exists and
-# isn't running.
-#
-
-docker_run_check() {
+radia_run_check() {
     local x=$(docker inspect --format='{{.State.Running}}' "$docker_container" 2>/dev/null || true)
     if [[ $x == true ]]; then
         install_err "Your $docker_image container is already running."
@@ -16,19 +12,21 @@ docker_run_check() {
     fi
 }
 
-docker_run_main() {
-    docker_run_check
-    if [[ $docker_prompt ]]; then
-        echo "$docker_prompt" 1>&2
-    fi
-    local tty=
-    if [[ -t 0 ]]; then
-        tty=-t
-    fi
+radia_run_main() {
+    radia_run_check
+    local cmd=( docker run -i )
+    local display=
     #TODO(robnagler) -t doesn't seem to work quite right. Maybe -t 1?
-    docker run -i $tty --name="$docker_container" -v "$PWD":/vagrant \
-        ${docker_port:+-p $docker_port:$docker_port} "$docker_image" \
-        /su-vagrant "$(id -u)" "$(id -g)" "$docker_cmd"
+    if [[ -t 1 ]]; then
+        cmd+=( -t )
+    fi
+    if [[ $radia_run_x11 ]]; then
+        cmd+=( -v "$HOME/.Xauthority:/home/$radia_run_guest_user/.Xauthority" --net host)
+        display="DISPLAY=$DISPLAY "
+    fi
+    if [[ $radia_run_port ]]; then
+        $cmd+=( -p "$radia_run_port:$radia_run_port" )
+    fi
+    radia_run_prompt
+    "${cmd[@]}" -v "$PWD:$radia_run_guest_dir" /radia-run "$(id -u)" "$(id -g)" "$display${radia_run_cmd:-bash}"
 }
-
-docker_run_main "$@"
