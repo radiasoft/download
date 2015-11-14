@@ -14,19 +14,24 @@ radia_run_check() {
 
 radia_run_main() {
     radia_run_check
-    local cmd=( docker run -i )
-    local display=
-    #TODO(robnagler) -t doesn't seem to work quite right. Maybe -t 1?
-    if [[ -t 1 ]]; then
-        cmd+=( -t )
+    local cmd=( docker run -v "$PWD:$radia_run_guest_dir" )
+    if [[ ! $radia_run_cmd ]]; then
+        radia_run_cmd=bash
+        cmd+=( -i )
+        if [[ -t 1 ]]; then
+            cmd+=( -t )
+        fi
     fi
     if [[ $radia_run_x11 ]]; then
+        if [[ ! ( $DISPLAY && -s $HOME/.Xauthority ) ]]; then
+            radia_run_err '$DISPLAY or ~/.Xauthority need to be set'
+        fi
         cmd+=( -v "$HOME/.Xauthority:/home/$radia_run_guest_user/.Xauthority" --net host)
-        display="DISPLAY=$DISPLAY "
+        radia_run_cmd="DISPLAY=$DISPLAY $radia_run_cmd"
     fi
     if [[ $radia_run_port ]]; then
-        $cmd+=( -p "$radia_run_port:$radia_run_port" )
+        cmd+=( -p "$radia_run_port:$radia_run_port" )
     fi
     radia_run_prompt
-    "${cmd[@]}" -v "$PWD:$radia_run_guest_dir" /radia-run "$(id -u)" "$(id -g)" "$display${radia_run_cmd:-bash}"
+    "${cmd[@]}" "$radia_run_image" /radia-run "$(id -u)" "$(id -g)" "$radia_run_cmd"
 }

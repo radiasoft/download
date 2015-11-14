@@ -114,7 +114,7 @@ install_radia_run() {
             cmd=radia-run-radtrack
             ;;
         */sirepo)
-            cmd="radia-run-sirepo $install_port $guest_dir"
+            cmd="radia-run-sirepo $guest_dir $install_port"
             uri=/srw
             ;;
         */isynergia)
@@ -139,17 +139,22 @@ $(declare -f install_msg install_err | sed -e 's,^install,radia_run,')
 
 $common
 EOF
-    cat >> "$script" <<EOF
+    cat >> "$script" <<'EOF'
+
 radia_run_prompt() {
     if [[ $radia_run_uri ]]; then
-        install_msg "
+        radia_run_msg "
 Point your browser to:
 
 http://127.0.0.1:$radia_run_port$radia_run_uri
+
+Type control-C to stop the application.
 "
     elif [[ $x11 ]]; then
-        install_msg '
-Starting X11 application. Look for window to popup
+        radia_run_msg '
+Starting X11 application. Window will show itself shortly.
+
+Exit the window to stop the application.
 '
     fi
 }
@@ -157,9 +162,9 @@ Starting X11 application. Look for window to popup
 radia_run_main "$@"
 EOF
     chmod +x "$script"
-    install_info "To restart, enter this command in the shell:
+    install_msg "To restart, enter this command in the shell:
 
- ./$script
+./$script
 "
     exec "./$script"
 }
