@@ -31,7 +31,9 @@ EOF
     # Too bad "update" doesn't just "add" if not installed...
     if vagrant box list | grep -s -q "^$install_image[[:space:]]"; then
         install_info "Updating $install_image"
-        install_exec vagrant box update
+        if [[ ! $install_test ]]; then
+            install_exec vagrant box update
+        fi
     else
         install_info "Downloading $install_image"
         install_exec vagrant box add "$install_image"
@@ -39,8 +41,9 @@ EOF
     # The final Vagrantfile, which will be "fixed up" by bivio_vagrant_ssh
     local forward=()
     if [[ $install_x11 ]]; then
-        $forward+=('    config.ssh.forward_x11 = true
+        forward+=('    config.ssh.forward_x11 = true
 ')
+    fi
     if [[ $install_port ]]; then
         forward+=("    config.vm.network \"forwarded_port\", guest: $install_port, host: $install_port
 ")
