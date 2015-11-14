@@ -33,7 +33,7 @@ install the `radtrack` container:
 ```
 mkdir radtrack
 cd radtrack
-curl radiasoft.download | bash
+curl radia.run | bash
 ```
 
 This will install, configure the image named by the current
@@ -42,25 +42,24 @@ is taken from the directory name.
 
 For a complete list of containers, [see the next section](#containers).
 
-
 You can also be explicit and request a different container:
 
 ```
 mkdir foobar
 cd foobar
-curl radiasoft.download | bash -s radtrack
+curl radia.run | bash -s radtrack
 ```
 
 There are a few other options (words) which may be useful, e.g.
 
 ```
-curl radiasoft.download | bash -s radtrack verbose
+curl radia.run | bash -s radtrack verbose
 ```
 
 You can also be explicit about which type of image you'd like:
 
 ```
-curl radiasoft.download | bash -s radtrack vagrant
+curl radia.run | bash -s radtrack vagrant
 ```
 
 The order of the optional keywords after the `bash -s` do not matter.
@@ -97,7 +96,7 @@ with the same name as the container, which you can use to restart the
 container. For example, to restart sirepo, just type:
 
 ```bash
-$ ./sirepo
+$ ./radia-run
 
 Point your browser to:
 
