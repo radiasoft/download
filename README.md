@@ -171,9 +171,6 @@ Once the install completes, edit the `Vagrantfile` again, removing this line:
 config.vm.synced_folder ".", "/vagrant", disabled: true
 ```
 
-If you are running Sirepo,
-[see the instructions below](https://github.com/radiasoft/download/blob/master/README.md#running-sirepo-manually).
-
 In your shell/command prompt, type:
 
 ```cmd
@@ -198,27 +195,6 @@ vagrant ssh
 ```
 
 On the Mac, XQuartz automatically sets your `$DISPLAY` variable.
-
-#### Running Sirepo Manually
-
-If you are running sirepo, you'll need to add an extra line
-to your `Vagrantfile` before booting the second time:
-
-```ruby
-  forward="config.vm.network \"forwarded_port\", guest: 8000, host: 8000"
-```
-
-To run sirepo, you need to:
-
-```bash
-vagrant ssh
-sirepo service http --port 8000 --run-dir /vagrant
-```
-
-You can use a different port than `8000`, just replace the values above.
-
-The simulation files will show up on your Mac or PC in the directory
-from which `vagrant ssh` was run.
 
 #### Installing Vagrant on Mac OS X
 
