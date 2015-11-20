@@ -66,4 +66,10 @@ vagrant_main() {
     vagrant_boot
 }
 
-vagrant_main
+#
+# Vagrant radia-run-* functions: See install_radia_run
+# Inline hear so syntax checked and easier to edit.
+#
+radia_run_main() {
+    radia_run_exec ./.bivio_vagrant_ssh
+}

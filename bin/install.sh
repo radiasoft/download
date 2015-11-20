@@ -19,7 +19,8 @@ install_check() {
     if [[ $install_no_check ]]; then
         return
     fi
-    if [[ $(ls -A | grep -v install.log) ]]; then
+    # Loose check of our files. Just need to make sure
+    if [[ $(ls -A | egrep -v '(install.log|radia-run|\.bivio_vagrant_ssh|Vagrantfile)') ]]; then
         install_err 'Current directory is not empty.
 Please create a new directory, cd to it, and re-run this command.'
     fi
@@ -95,6 +96,7 @@ install_main() {
     install_vars "$@"
     install_check
     eval "$(install_download $install_type.sh)"
+    "${install_type}_main"
     trap - EXIT
 }
 
@@ -105,23 +107,21 @@ install_msg() {
 install_radia_run() {
     local script=radia-run
     install_log "Creating $script"
-    local common=$(install_download "$install_type-run.sh")
     local guest_user=vagrant
     local guest_dir=/$guest_user
-    local home_bin=/home/$guest_user/bin
     # Command needs to be absolute (see containers/bin/build-docker.sh)
-    local cmd=/bin/bash
+    local cmd=
     local uri=
     case $install_image in
         */radtrack)
-            cmd=$home_bin/radia-run-radtrack
+            cmd=radia-run-radtrack
             ;;
         */sirepo)
-            cmd="$home_bin/radia-run-sirepo $guest_dir $install_port"
+            cmd="radia-run-sirepo $guest_dir $install_port"
             uri=/srw
             ;;
         */isynergia)
-            cmd=$home_bin/synergia-ipython-beamsim
+            cmd=synergia-ipython-beamsim
             uri=/
             ;;
     esac
@@ -140,30 +140,9 @@ radia_run_uri='$uri'
 radia_run_x11='$install_x11'
 
 $(declare -f install_msg install_err | sed -e 's,^install,radia_run,')
+$(declare -f $(compgen -A function | grep '^radia_run_'))
 
-$common
-EOF
-    cat >> "$script" <<'EOF'
-
-radia_run_prompt() {
-    if [[ $radia_run_uri ]]; then
-        radia_run_msg "
-Point your browser to:
-
-http://127.0.0.1:$radia_run_port$radia_run_uri
-
-Type control-C to stop the application.
-"
-    elif [[ $x11 ]]; then
-        radia_run_msg '
-Starting X11 application. Window will show itself shortly.
-
-Exit the window to stop the application.
-'
-    fi
-}
-
-radia_run_main "$@"
+radia_run_main "\$@"
 EOF
     chmod +x "$script"
     install_msg "To restart, enter this command in the shell:
@@ -273,6 +252,37 @@ install_vars() {
             ;;
     esac
     install_url=https://raw.githubusercontent.com/radiasoft/download/master/bin
+}
+
+#
+# Common radia-run-* functions: See install_radia_run
+# Inline hear so syntax checked and easier to edit.
+#
+radia_run_exec() {
+    local cmd=( $@ )
+    radia_run_prompt
+    if [[ $radia_run_cmd ]]; then
+        cmd+=( /bin/bash -c ". ~/.bashrc; $radia_run_cmd" )
+    fi
+    exec "${cmd[@]}"
+}
+
+radia_run_prompt() {
+    if [[ $radia_run_uri ]]; then
+        radia_run_msg "
+Point your browser to:
+
+http://127.0.0.1:$radia_run_port$radia_run_uri
+
+Type control-C to stop the application.
+"
+    elif [[ $x11 ]]; then
+        radia_run_msg '
+Starting X11 application. Window will show itself shortly.
+
+Exit the window to stop the application.
+'
+    fi
 }
 
 install_main "$@"
