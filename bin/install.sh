@@ -109,6 +109,7 @@ install_radia_run() {
     local guest_user=vagrant
     local guest_dir=/$guest_user
     local home_bin=/home/$guest_user/bin
+    # Command needs to be absolute (see containers/bin/build-docker.sh)
     local cmd=/bin/bash
     local uri=
     case $install_image in
