@@ -106,20 +106,23 @@ install_radia_run() {
     local script=radia-run
     install_log "Creating $script"
     local common=$(install_download "$install_type-run.sh")
-    local guest_dir=/vagrant
     local guest_user=vagrant
+    local guest_dir=/$guest_user
+    local home_bin=/home/$guest_user/bin
+    local cmd=/bin/bash
     local uri=
     case $install_image in
         */radtrack)
-            cmd=radia-run-radtrack
+            cmd=$home_bin/radia-run-radtrack
             ;;
         */sirepo)
-            cmd="radia-run-sirepo $guest_dir $install_port"
+            cmd="$home_bin/radia-run-sirepo $guest_dir $install_port"
             uri=/srw
             ;;
         */isynergia)
-            cmd=synergia-ipython-beamsim
+            cmd=$home_bin/synergia-ipython-beamsim
             uri=/
+            ;;
     esac
     cat > "$script" <<EOF
 #!/bin/bash

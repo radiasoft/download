@@ -26,8 +26,14 @@ radia_run_main() {
         if [[ ! ( $DISPLAY && -s $HOME/.Xauthority ) ]]; then
             radia_run_err '$DISPLAY or ~/.Xauthority need to be set'
         fi
-        cmd+=( -v "$HOME/.Xauthority:/home/$radia_run_guest_user/.Xauthority" --net host)
-        radia_run_cmd="DISPLAY=$DISPLAY $radia_run_cmd"
+        cmd+=(
+            -v "$HOME/.Xauthority:/home/$radia_run_guest_user/.Xauthority"
+            --net host
+        )
+        # https://bbs.archlinux.org/viewtopic.php?id=187234
+        # X Error: BadShmSeg (invalid shared segment parameter) 128
+        # Qt is trying to access the X server directly
+        radia_run_cmd="QT_X11_NO_MITSHM=1 DISPLAY=$DISPLAY $radia_run_cmd"
     fi
     if [[ $radia_run_port ]]; then
         cmd+=( -p "$radia_run_port:$radia_run_port" )
