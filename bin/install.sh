@@ -262,7 +262,10 @@ radia_run_exec() {
     local cmd=( $@ )
     radia_run_prompt
     if [[ $radia_run_cmd ]]; then
-        cmd+=( /bin/bash -c ". ~/.bashrc; $radia_run_cmd" )
+        if [[ $install_type == docker ]]; then
+            cmd+=( /bin/bash -c )
+        fi
+        cmd+=( ". ~/.bashrc; $radia_run_cmd" )
     fi
     exec "${cmd[@]}"
 }
