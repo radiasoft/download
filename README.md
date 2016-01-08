@@ -127,9 +127,7 @@ directory you just created with a text editor:
 Vagrant.configure(2) do |config|
   config.vm.box = "radiasoft/beamsim"
   config.vm.hostname = "rs"
-  # If you need X11, uncomment this line:
-  # config.ssh.forward_x11 = true
-  config.vm.synced_folder ".", "/vagrant", disabled: true
+  config.ssh.forward_x11 = true
 end
 ```
 
@@ -140,14 +138,18 @@ from the Vagrant repository with the following command:
 vagrant up
 ```
 
-You'll need to update the "guest additions" for VirtualBox. Get the version
-from VirtualBox. You can do this by starting the GUI and looking under the
-"About" menu, or you might be able to run `VBoxManage` from the command prompt:
+The first time you run this command, it will fail with something like:
 
 ```cmd
-VBoxManage --version
-4.3.28r100309
+/sbin/mount.vboxsf: mounting failed with the error: No such device
 ```
+
+This is caused by the VirtualBox "guest additions" not matching the version
+of the VirtualBox software on your computer.
+
+To update the "guest additions" for VirtualBox, you'll need to get
+the version from VirtualBox on your computer.  Start the VirtualBox GUI
+and and looking under the "About" menu.
 
 The version is everything before the `r`. In this example, the value
 is `4.3.28`. You will replace `YOUR-VERSION-HERE` in the following example
@@ -157,18 +159,13 @@ sequence of commands:
 ```bash
 vagrant ssh -c "sudo su -"
 v=YOUR-VERSION-HERE
+yum remove -q -y VirtualBox-guest kmod-VirtualBox
 curl -L -O http://download.virtualbox.org/virtualbox/$v/VBoxGuestAdditions_$v.iso
 mount -t iso9660 -o loop VBoxGuestAdditions_$v.iso /mnt
-sh /mnt/VBoxLinuxAdditions.run < /dev/null
+sh /mnt/VBoxLinuxAdditions.run
 umount /mnt
 rm -f VBoxGuestAdditions_$v.iso
 exit
-```
-
-Once the install completes, edit the `Vagrantfile` again, removing this line:
-
-```ruby
-config.vm.synced_folder ".", "/vagrant", disabled: true
 ```
 
 In your shell/command prompt, type:
@@ -180,8 +177,7 @@ vagrant reload
 After your VM boots, login to your VM as follows on Windows:
 
 ```cmd
-REM If you need X11, uncomment this line:
-REM set DISPLAY=localhost:0
+set DISPLAY=localhost:0
 vagrant ssh
 ```
 
