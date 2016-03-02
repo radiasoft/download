@@ -198,9 +198,6 @@ install_vars() {
         case "$1" in
             beamsim|isynergia|python2|radtrack|sirepo)
                 install_image=$1
-                if [[ $install_image =~ beamsim|isynergia|python2 ]]; then
-                    install_run_interactive=1
-                fi
                 ;;
             hopper)
                 install_type=$1
@@ -263,6 +260,9 @@ install_vars() {
             fi
             ;;
     esac
+    if [[ $install_image =~ beamsim|isynergia|python2 ]]; then
+        install_run_interactive=1
+    fi
     install_url=https://raw.githubusercontent.com/radiasoft/download/master/bin
 }
 
