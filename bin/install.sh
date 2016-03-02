@@ -135,6 +135,7 @@ radia_run_container=\$(id -u -n)-\$(basename '$install_image')
 radia_run_guest_dir='$guest_dir'
 radia_run_guest_user='$guest_user'
 radia_run_image='$install_image'
+radia_run_interactive='$install_run_interactive'
 radia_run_port='$install_port'
 radia_run_type='$install_type'
 radia_run_uri='$uri'
@@ -146,11 +147,17 @@ $(declare -f $(compgen -A function | grep '^radia_run_'))
 radia_run_main "\$@"
 EOF
     chmod +x "$script"
-    install_msg "To restart, enter this command in the shell:
+    local start=restart
+    if [[ $install_run_interactive ]]; then
+        start=start
+    fi
+    install_msg "To $start, enter this command in the shell:
 
 ./$script
 "
-    exec "./$script"
+    if [[ ! $install_run_interactive ]]; then
+        exec "./$script"
+    fi
 }
 
 install_usage() {
@@ -186,10 +193,14 @@ install_vars() {
     fi
     install_image=
     install_verbose=
+    install_run_interactive=
     while [[ "$1" ]]; do
         case "$1" in
             beamsim|isynergia|python2|radtrack|sirepo)
                 install_image=$1
+                if [[ $install_image =~ beamsim|isynergia|python2 ]]; then
+                    install_run_interactive=1
+                fi
                 ;;
             hopper)
                 install_type=$1
@@ -287,6 +298,7 @@ Starting X11 application. Window will show itself shortly.
 Exit the window to stop the application.
 '
     fi
+
 }
 
 install_main "$@"
