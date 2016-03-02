@@ -136,6 +136,7 @@ radia_run_guest_dir='$guest_dir'
 radia_run_guest_user='$guest_user'
 radia_run_image='$install_image'
 radia_run_port='$install_port'
+radia_run_type='$install_type'
 radia_run_uri='$uri'
 radia_run_x11='$install_x11'
 
@@ -262,7 +263,7 @@ radia_run_exec() {
     local cmd=( $@ )
     radia_run_prompt
     if [[ $radia_run_cmd ]]; then
-        if [[ $install_type == docker ]]; then
+        if [[ $radia_run_type == docker ]]; then
             cmd+=( /bin/bash -c )
         fi
         cmd+=( ". ~/.bashrc; $radia_run_cmd" )
@@ -279,7 +280,7 @@ http://127.0.0.1:$radia_run_port$radia_run_uri
 
 Type control-C to stop the application.
 "
-    elif [[ $x11 ]]; then
+    elif [[ $radia_run_x11 ]]; then
         radia_run_msg '
 Starting X11 application. Window will show itself shortly.
 
