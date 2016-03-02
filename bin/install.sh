@@ -257,7 +257,7 @@ radia_run_exec() {
         if [[ $radia_run_type == docker ]]; then
             cmd+=( /bin/bash -c )
         fi
-        cmd+=( ". ~/.bashrc; $radia_run_cmd" )
+        cmd+=( "cd; . ~/.bashrc; $radia_run_cmd" )
     fi
     exec "${cmd[@]}"
 }
