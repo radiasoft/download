@@ -6,7 +6,6 @@
 #    - delegated argument parsing
 #    - modularize better (delegation model to other repos?)
 #    - add codes.sh (so can install locally and remotely)
-#    - better logging for hopper install
 #    - leave in directory match? (may be overkill on automation)
 #    - handle no tty case better (not working?)
 #    - add channels
@@ -162,35 +161,31 @@ EOF
 
 install_usage() {
     install_err "$@
-usage: $(basename $0) [docker|hopper|vagrant] beamsim|isynergia|python2|radtrack|sirepo|synergia"
+usage: $(basename $0) [docker|vagrant] beamsim|isynergia|python2|radtrack|sirepo|synergia"
 }
 
 install_vars() {
-    if [[ hopper == $NERSC_HOST ]]; then
-        install_type=hopper
-    else
-        case "$(uname)" in
-            [Dd]arwin)
-                if [[ $(type -t vagrant) ]]; then
-                    install_type=vagrant
-                else
-                    install_err 'Please install Vagrant and restart install'
-                fi
-                ;;
-            [Ll]inux)
-                if [[ $(type -t docker) ]]; then
-                    install_type=docker
-                elif [[ $(type -t vagrant) ]]; then
-                    install_type=vagrant
-                else
-                    install_err 'Please install Docker or Vagrant and restart install'
-                fi
-                ;;
-            *)
-                install_err "$(uname) is an unsupported system, sorry"
-                ;;
-        esac
-    fi
+    case "$(uname)" in
+        [Dd]arwin)
+            if [[ $(type -t vagrant) ]]; then
+                install_type=vagrant
+            else
+                install_err 'Please install Vagrant and restart install'
+            fi
+            ;;
+        [Ll]inux)
+            if [[ $(type -t docker) ]]; then
+                install_type=docker
+            elif [[ $(type -t vagrant) ]]; then
+                install_type=vagrant
+            else
+                install_err 'Please install Docker or Vagrant and restart install'
+            fi
+            ;;
+        *)
+            install_err "$(uname) is an unsupported system, sorry"
+            ;;
+    esac
     install_image=
     install_verbose=
     install_run_interactive=
@@ -198,9 +193,6 @@ install_vars() {
         case "$1" in
             beamsim|isynergia|python2|radtrack|sirepo)
                 install_image=$1
-                ;;
-            hopper)
-                install_type=$1
                 ;;
             synergia)
                 install_image=$1
@@ -228,9 +220,6 @@ install_vars() {
     fi
     case $install_type in
         vagrant|docker)
-            if [[ $NERSC_HOST ]]; then
-                install_usage "You can't install vagrant or docker at NERSC"
-            fi
             if [[ $install_image == synergia ]]; then
                 install_msg 'Switching image to "beamsim" which includes synergia'
                 install_image=beamsim
@@ -249,15 +238,6 @@ install_vars() {
                 install_port=8000
             fi
             install_image=radiasoft/$install_image
-            ;;
-        hopper)
-            install_no_check=1
-            if [[ $NERSC_HOST != hopper ]]; then
-                install_usage "You are not running on $install_type so can't install"
-            fi
-            if [[ $install_image != synergia ]]; then
-                install_usage "Can only install synergia on $install_type"
-            fi
             ;;
     esac
     if [[ $install_image =~ beamsim|isynergia|python2 ]]; then
