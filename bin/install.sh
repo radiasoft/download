@@ -14,8 +14,89 @@
 #    - tests for individual codes
 set -e
 
-install_check() {
-    if [[ $install_no_check ]]; then
+install_args() {
+    install_type=
+    install_image=
+    install_verbose=
+    install_run_interactive=
+    install_repo=
+    while [[ "$1" ]]; do
+        case "$1" in
+            beamsim|isynergia|python2|radtrack|sirepo)
+                install_image=$1
+                ;;
+            synergia)
+                install_image=$1
+                ;;
+            vagrant|docker|github)
+                install_type=$1
+                ;;
+            verbose)
+                install_verbose=1
+                ;;
+            quiet)
+                install_verbose=
+                ;;
+            */*)
+                install_repo=$1
+                install_type=github
+                ;;
+            *)
+                install_usage "$1: unknown install option"
+                ;;
+        esac
+        shift
+    done
+    install_args_check
+}
+
+install_args_check() {
+    if [[ ! $install_type ]]; then
+        install_type_default
+    fi
+    if [[ $install_repo ]]; then
+        if [[ $install_type != github ]]; then
+            install_usage "$install_type: $install_repo must be installed with github"
+        fi
+    elif [[ ! $install_image && ! $install_repo ]]; then
+        install_image=$(basename "$PWD")
+        if [[ ! $install_image =~ ^(beamsim|isynergia|python2|radtrack|sirepo)$ ]]; then
+            install_usage "Please supply an install name: beamsim, isynergia, python2, radtrack, sirepo, synergia"
+        fi
+    fi
+    case $install_type in
+        github)
+            install_no_dir_check=1
+            ;;
+        vagrant|docker)
+            if [[ $install_image == synergia ]]; then
+                install_msg 'Switching image to "beamsim" which includes synergia'
+                install_image=beamsim
+            fi
+            if [[ $install_image == isynergia ]]; then
+                if [[ $install_type == docker ]]; then
+                    install_no_dir_check=1
+                else
+                    install_usage 'isynergia is only supported for docker'
+                fi
+            fi
+            if [[ $install_image == radtrack ]]; then
+                install_x11=1
+            fi
+            if [[ $install_image =~ isynergia|sirepo ]]; then
+                install_port=8000
+            fi
+            install_image=radiasoft/$install_image
+            ;;
+    esac
+    if [[ $install_image =~ beamsim|isynergia|python2 ]]; then
+        install_run_interactive=1
+    fi
+    install_url=https://raw.githubusercontent.com/radiasoft/download/master/bin
+}
+
+install_dir_check() {
+    if [[ $install_no_dir_check ]]; then
         return
     fi
     # Loose check of our files. Just need to make sure
@@ -92,10 +173,14 @@ install_main() {
     install_log_file=$PWD/install.log
     trap install_err_trap EXIT
     install_log install_main
-    install_vars "$@"
-    install_check
-    eval "$(install_download $install_type.sh)"
-    "${install_type}_main"
+    install_args "$@"
+    install_dir_check
+    if [[ $install_repo ]]; then
+        install_repo
+    else
+        eval "$(install_download $install_type.sh)"
+        "${install_type}_main"
+    fi
     trap - EXIT
 }
 
@@ -159,12 +244,7 @@ EOF
     fi
 }
 
-install_usage() {
-    install_err "$@
-usage: $(basename $0) [docker|vagrant] beamsim|isynergia|python2|radtrack|sirepo|synergia"
-}
-
-install_vars() {
+install_type_default() {
     case "$(uname)" in
         [Dd]arwin)
             if [[ $(type -t vagrant) ]]; then
@@ -186,64 +266,29 @@ install_vars() {
             install_err "$(uname) is an unsupported system, sorry"
             ;;
     esac
-    install_image=
-    install_verbose=
-    install_run_interactive=
-    while [[ "$1" ]]; do
-        case "$1" in
-            beamsim|isynergia|python2|radtrack|sirepo)
-                install_image=$1
-                ;;
-            synergia)
-                install_image=$1
-                ;;
-            vagrant|docker)
-                install_type=$1
-                ;;
-            verbose)
-                install_verbose=1
-                ;;
-            quiet)
-                install_verbose=
-                ;;
-            *)
-                install_usage "$1: unknown install option"
-                ;;
-        esac
-        shift
-    done
-    if [[ ! $install_image ]]; then
-        install_image=$(basename "$PWD")
-        if [[ ! $install_image =~ ^(beamsim|isynergia|python2|radtrack|sirepo)$ ]]; then
-            install_usage "Please supply a install name: beamsim, isynergia, python2, radtrack, sirepo, synergia"
-        fi
+}
+
+install_repo() {
+    if ! [[ $install_repo =~ ^/*([^/].*[^/])/*$ ]]; then
+        install_err "$install_repo: invalid repo name"
     fi
-    case $install_type in
-        vagrant|docker)
-            if [[ $install_image == synergia ]]; then
-                install_msg 'Switching image to "beamsim" which includes synergia'
-                install_image=beamsim
-            fi
-            if [[ $install_image == isynergia ]]; then
-                if [[ $install_type == docker ]]; then
-                    install_no_check=1
-                else
-                    install_usage 'isynergia is only supported for docker'
-                fi
-            fi
-            if [[ $install_image == radtrack ]]; then
-                install_x11=1
-            fi
-            if [[ $install_image =~ isynergia|sirepo ]]; then
-                install_port=8000
-            fi
-            install_image=radiasoft/$install_image
-            ;;
-    esac
-    if [[ $install_image =~ beamsim|isynergia|python2 ]]; then
-        install_run_interactive=1
+    local first=${BASH_REMATCH[1]%%/*}
+    local rest=
+    if [[ $first != ${BASH_REMATCH[1]} ]]; then
+        rest=${BASH_REMATCH[1]#*/}
     fi
-    install_url=https://raw.githubusercontent.com/radiasoft/download/master/bin
+    local x=radiasoft-download.sh
+    local url=https://raw.githubusercontent.com/radiasoft/$first/master/$rest/$x
+    if [[ -f $x ]]; then
+        url=file://$PWD/$x
+    fi
+    install_info "Running: $url"
+    eval "$(install_download $url)"
+}
+
+install_usage() {
+    install_err "$@
+usage: $(basename $0) [docker|vagrant|github] beamsim|isynergia|python2|radtrack|sirepo|synergia|*/*"
 }
 
 #
