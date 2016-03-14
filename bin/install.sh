@@ -20,6 +20,7 @@ install_args() {
     install_verbose=
     install_run_interactive=
     install_repo=
+    install_extra_args=()
     while [[ "$1" ]]; do
         case "$1" in
             beamsim|isynergia|python2|radtrack|sirepo)
@@ -40,6 +41,9 @@ install_args() {
             */*)
                 install_repo=$1
                 install_type=github
+                shift
+                install_extra_args=$@
+                break
                 ;;
             *)
                 install_usage "$1: unknown install option"
@@ -171,6 +175,7 @@ install_log() {
 
 install_main() {
     install_log_file=$PWD/install.log
+    install_clean_cmds=()
     trap install_err_trap EXIT
     install_log install_main
     install_args "$@"
@@ -181,6 +186,10 @@ install_main() {
         eval "$(install_download $install_type.sh)"
         "${install_type}_main"
     fi
+    local f
+    for f in "${install_clean_cmds[@]}"; do
+        eval $f
+    done
     trap - EXIT
 }
 
@@ -244,6 +253,13 @@ EOF
     fi
 }
 
+install_tmp_dir() {
+    export TMPDIR=/var/tmp/install-$$-$RANDOM
+    mkdir -p "$TMPDIR"
+    install_clean_cmds+=( "cd '$PWD'; rm -rf '$TMPDIR'" )
+    cd "$TMPDIR"
+}
+
 install_type_default() {
     case "$(uname)" in
         [Dd]arwin)
@@ -288,7 +304,7 @@ install_repo() {
 
 install_usage() {
     install_err "$@
-usage: $(basename $0) [docker|vagrant|github] beamsim|isynergia|python2|radtrack|sirepo|synergia|*/*"
+usage: $(basename $0) [verbose|quiet] [docker|vagrant|github] [beamsim|isynergia|python2|radtrack|sirepo|synergia|*/*] [extra args]"
 }
 
 #
