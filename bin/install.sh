@@ -114,16 +114,11 @@ install_download() {
     local base=$(basename "$url")
     local file=$(dirname "$0")/$base
     local res
-    if [[ -r $file ]]; then
-        res=$(<$file)
-        install_log cat "$file"
-    else
-        if [[ $url == $base ]]; then
-            url=$install_url/$base
-        fi
-        install_log curl -L -s -S "$url"
-        res=$(curl -L -s -S "$url")
+    if [[ $url == $base ]]; then
+        url=$install_url/$base
     fi
+    install_log curl -L -s -S "$url"
+    res=$(curl -L -s -S "$url")
     if [[ $no_shebang_check && -z $res || ! $res =~ ^#! ]]; then
         install_err "Unable to download $url"
     fi
@@ -305,6 +300,10 @@ install_url() {
     local rest=$2
     if [[ ! $repo =~ / ]]; then
         repo=radiasoft/$repo
+    fi
+    if [[ $download_channel == file ]]; then
+        install_url=file://$HOME/src/$repo/$rest
+        return
     fi
     local channel=$install_channel
     if [[ $repo == radiasoft/download ]]; then
