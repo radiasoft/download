@@ -14,12 +14,13 @@ set -e
 : ${download_channel:=master}
 
 install_args() {
-    install_type=
-    install_image=
-    install_verbose=
-    install_run_interactive=
-    install_repo=
+    install_debug=
     install_extra_args=()
+    install_image=
+    install_repo=
+    install_run_interactive=
+    install_type=
+    install_verbose=
     : ${install_channel:=master}
     while [[ "$1" ]]; do
         case "$1" in
@@ -28,6 +29,10 @@ install_args() {
                 ;;
             vagrant|docker)
                 install_type=$1
+                ;;
+            debug)
+                install_debug=1
+                install_verbose=1
                 ;;
             verbose)
                 install_verbose=1
@@ -52,6 +57,9 @@ install_args() {
 }
 
 install_args_check() {
+    if [[ $install_debug ]]; then
+        set -x
+    fi
     if [[ ! $install_type ]]; then
         install_type_default
     fi
