@@ -57,7 +57,7 @@ salt_main() {
 }
 
 salt_master() {
-    if [[ !$install_extra_args ]]; then
+    if [[ ! $install_extra_args ]]; then
         install_err 'Must supply salt master as extra argument'
     fi
     salt_master=${install_extra_args[0]}
