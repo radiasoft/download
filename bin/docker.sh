@@ -4,10 +4,10 @@
 #
 docker_main() {
     install_info 'Installing with docker'
-    #TODO(robnagler) add install_channel
-    install_info "Downloading $install_image"
+    local tag=$install_image:$install_docker_channel
+    install_info "Downloading $tag"
     if [[ ! $install_test ]]; then
-        install_exec docker pull "$install_image"
+        install_exec docker pull "$tag"
     fi
     install_radia_run
 }
@@ -17,12 +17,11 @@ docker_main() {
 # Inline hear so syntax checked and easier to edit.
 #
 radia_run_check() {
-    local x=$(docker inspect --format='{{.State.Running}}' "$docker_container" 2>/dev/null || true)
+    local x=$(docker inspect --format='{{.State.Running}}' "$radia_run_container" 2>/dev/null || true)
     if [[ $x == true ]]; then
-        install_err "Your $docker_image container is already running."
-    fi
-    if [[ $x == false ]]; then
-        docker rm "$docker_container" >&/dev/null
+        install_err "Your $radia_run_image container is already running."
+    elif [[ $x == false ]]; then
+        docker rm "$radia_run_container" >&/dev/null
     fi
 }
 
@@ -52,6 +51,6 @@ radia_run_main() {
     if [[ $radia_run_port ]]; then
         cmd+=( -p "$radia_run_port:$radia_run_port" )
     fi
-    cmd+=( "$radia_run_image" /radia-run "$(id -u)" "$(id -g)" )
+    cmd+=( "$radia_run_image:$radia_run_channel" /radia-run "$(id -u)" "$(id -g)" )
     radia_run_exec "${cmd[@]}"
 }

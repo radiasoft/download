@@ -3,16 +3,15 @@
 # Install RadiaSoft containers
 #
 # TODO(robnagler):
-#    - delegated argument parsing
-#    - modularize better (delegation model to other repos?)
 #    - add codes.sh (so can install locally and remotely)
 #    - leave in directory match? (may be overkill on automation)
 #    - handle no tty case better (not working?)
-#    - add channels
 #    - generalized bundling with versions
 #    - add test of dynamic download and static on travis (trigger for dynamic?)
 #    - tests for individual codes
 set -e
+
+: ${download_channel:=master}
 
 install_args() {
     install_type=
@@ -21,32 +20,30 @@ install_args() {
     install_run_interactive=
     install_repo=
     install_extra_args=()
+    : ${install_channel:=master}
     while [[ "$1" ]]; do
         case "$1" in
-            beamsim|isynergia|python2|radtrack|sirepo)
+            beamsim|python2|radtrack|sirepo)
                 install_image=$1
                 ;;
-            synergia)
-                install_image=$1
-                ;;
-            vagrant|docker|github)
+            vagrant|docker)
                 install_type=$1
                 ;;
             verbose)
                 install_verbose=1
                 ;;
+            alpha|beta|dev|master|prod)
+                install_channel=$1
+                ;;
             quiet)
                 install_verbose=
                 ;;
-            */*)
+            *)
                 install_repo=$1
-                install_type=github
                 shift
+                install_type=repo
                 install_extra_args=$@
                 break
-                ;;
-            *)
-                install_usage "$1: unknown install option"
                 ;;
         esac
         shift
@@ -58,45 +55,38 @@ install_args_check() {
     if [[ ! $install_type ]]; then
         install_type_default
     fi
-    if [[ $install_repo ]]; then
-        if [[ $install_type != github ]]; then
-            install_usage "$install_type: $install_repo must be installed with github"
-        fi
-    elif [[ ! $install_image && ! $install_repo ]]; then
+    if [[ ! $install_image && ! $install_repo ]]; then
         install_image=$(basename "$PWD")
-        if [[ ! $install_image =~ ^(beamsim|isynergia|python2|radtrack|sirepo)$ ]]; then
-            install_usage "Please supply an install name: beamsim, isynergia, python2, radtrack, sirepo, synergia"
+        if [[ ! $install_image =~ ^(beamsim|python2|radtrack|sirepo)$ ]]; then
+            install_usage "Please supply an install name: beamsim, python2, radtrack, sirepo, OR repo name"
         fi
     fi
     case $install_type in
-        github)
+        repo)
             install_no_dir_check=1
             ;;
         vagrant|docker)
-            if [[ $install_image == synergia ]]; then
-                install_msg 'Switching image to "beamsim" which includes synergia'
-                install_image=beamsim
-            fi
-            if [[ $install_image == isynergia ]]; then
-                if [[ $install_type == docker ]]; then
-                    install_no_dir_check=1
-                else
-                    install_usage 'isynergia is only supported for docker'
-                fi
-            fi
             if [[ $install_image == radtrack ]]; then
                 install_x11=1
             fi
-            if [[ $install_image =~ isynergia|sirepo ]]; then
+            if [[ $install_image =~ sirepo ]]; then
                 install_port=8000
             fi
             install_image=radiasoft/$install_image
             ;;
     esac
-    if [[ $install_image =~ beamsim|isynergia|python2 ]]; then
+    case $install_channel in
+        dev|master)
+            install_docker_channel=latest
+            ;;
+        *)
+            install_docker_channel=$install_channel
+            ;;
+    esac
+    if [[ $install_image =~ beamsim|python2 ]]; then
         install_run_interactive=1
     fi
-    install_url=https://raw.githubusercontent.com/radiasoft/download/master/bin
+    install_url download bin
 }
 
 install_dir_check() {
@@ -112,6 +102,7 @@ Please create a new directory, cd to it, and re-run this command.'
 
 install_download() {
     local url=$1
+    local no_shebang_check=$2
     local base=$(basename "$url")
     local file=$(dirname "$0")/$base
     local res
@@ -125,7 +116,7 @@ install_download() {
         install_log curl -L -s -S "$url"
         res=$(curl -L -s -S "$url")
     fi
-    if [[ ! $res =~ ^#! ]]; then
+    if [[ $no_shebang_check && -z $res || ! $res =~ ^#! ]]; then
         install_err "Unable to download $url"
     fi
     echo "$res"
@@ -213,16 +204,13 @@ install_radia_run() {
             cmd="radia-run-sirepo $guest_dir $install_port"
             uri=/srw
             ;;
-        */isynergia)
-            cmd=synergia-ipython-beamsim
-            uri=/
-            ;;
     esac
     cat > "$script" <<EOF
 #!/bin/bash
 #
 # Invoke $install_type run on $cmd
 #
+radia_run_channel='$install_docker_channel'
 radia_run_cmd='$cmd'
 radia_run_container=\$(id -u -n)-\$(basename '$install_image')
 radia_run_guest_dir='$guest_dir'
@@ -285,26 +273,41 @@ install_type_default() {
 }
 
 install_repo() {
-    if ! [[ $install_repo =~ ^/*([^/].*[^/])/*$ ]]; then
+    local first rest
+    if [[ ! $install_repo =~ / ]]; then
+        first=download
+        rest=installers/$install_repo
+    elif [[ $install_repo =~ ^/*([^/].*[^/])/*$ ]]; then
+        first=${BASH_REMATCH[1]%%/*}
+        rest=
+        if [[ $first != ${BASH_REMATCH[1]} ]]; then
+            rest=${BASH_REMATCH[1]#*/}
+        fi
+    else
         install_err "$install_repo: invalid repo name"
     fi
-    local first=${BASH_REMATCH[1]%%/*}
-    local rest=
-    if [[ $first != ${BASH_REMATCH[1]} ]]; then
-        rest=${BASH_REMATCH[1]#*/}
+    install_url "$first" "$rest"
+    local base=radiasoft-download.sh
+    install_info "Running: $install_url/$base"
+    eval "$(install_download $base)"
+}
+
+install_url() {
+    local repo=$1
+    local rest=$2
+    if [[ ! $repo =~ / ]]; then
+        repo=radiasoft/$repo
     fi
-    local x=radiasoft-download.sh
-    local url=https://raw.githubusercontent.com/radiasoft/$first/master/$rest/$x
-    if [[ -f $x ]]; then
-        url=file://$PWD/$x
+    local channel=$install_channel
+    if [[ $repo == radiasoft/download ]]; then
+        channel=$download_channel
     fi
-    install_info "Running: $url"
-    eval "$(install_download $url)"
+    install_url=https://raw.githubusercontent.com/$repo/$channel/$rest
 }
 
 install_usage() {
     install_err "$@
-usage: $(basename $0) [verbose|quiet] [docker|vagrant|github] [beamsim|isynergia|python2|radtrack|sirepo|synergia|*/*] [extra args]"
+usage: $(basename $0) [verbose|quiet] [docker|vagrant] [beamsim|python2|radtrack|sirepo|<installer>|*/*] [extra args]"
 }
 
 #

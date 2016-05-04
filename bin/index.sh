@@ -1,7 +1,8 @@
 #!/bin/bash
 #
-# Usage: curl radiasoft.download | bash -s [vagrant|docker] <container>
+# Usage: curl radiasoft.download | bash -s [repo | [vagrant|docker] <container>]
 #
+: ${download_channel:=master}
 curl -s -S -L \
-    https://raw.githubusercontent.com/radiasoft/download/master/bin/install.sh \
-    | bash -s "$@"
+    "https://raw.githubusercontent.com/radiasoft/download/$download_channel/bin/install.sh" \
+    | download_channel="$download_channel" bash -s "$@"

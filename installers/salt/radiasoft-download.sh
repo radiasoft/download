@@ -25,8 +25,11 @@ salt_assert() {
     if (( $UID != 0 )); then
         install_err 'Must run as root'
     fi
-    if ! grep -s -q '\b23\b' /etc/fedora-release; then
-        install_err 'Incorrect Fedora version (not 23.x) or not Fedora'
+    if [[ ! -r /etc/fedora-release ]]; then
+        install_err 'Only runs on Fedora'
+    fi
+    if ! grep -s -q ' 23 ' /etc/fedora-release; then
+        install_err 'Only runs on Fedora 23'
     fi
 }
 
@@ -48,9 +51,9 @@ salt_main() {
     salt_assert
     salt_master
     umask 022
+    salt_pykern
     salt_conf
     salt_bootstrap
-    salt_pykern
 }
 
 salt_master() {
@@ -65,9 +68,11 @@ salt_master() {
 }
 
 salt_pykern() {
-    # Needed packages to update
+    # Packages needed by pykern, which is needed by our custom states/modules
     pip update -U pip setuptools pytz
-    pip install pykern
+    pip install -U pykern
+    # Packages needed by salt
+    pip install -U docker-py
 }
 
 salt_main
