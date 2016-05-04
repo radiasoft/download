@@ -60,10 +60,10 @@ install_args_check() {
     if [[ $install_debug ]]; then
         set -x
     fi
-    if [[ ! $install_type ]]; then
+    if [[ -z $install_type ]]; then
         install_type_default
     fi
-    if [[ ! $install_image && ! $install_repo ]]; then
+    if [[ -z $install_image && -z $install_repo ]]; then
         install_image=$(basename "$PWD")
         if [[ ! $install_image =~ ^(beamsim|python2|radtrack|sirepo)$ ]]; then
             install_usage "Please supply an install name: beamsim, python2, radtrack, sirepo, OR repo name"
@@ -140,7 +140,7 @@ If you don't know what to do, please contact support@radiasoft.net."
 install_err_trap() {
     set +e
     trap - EXIT
-    if [[ ! $install_verbose ]]; then
+    if [[ -z $install_verbose ]]; then
         tail -10 "$install_log_file"
     fi
     install_log 'Error trap'
@@ -244,7 +244,7 @@ EOF
 
 ./$script
 "
-    if [[ ! $install_run_interactive ]]; then
+    if [[ -z $install_run_interactive ]]; then
         exec "./$script"
     fi
 }

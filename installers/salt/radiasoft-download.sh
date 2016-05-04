@@ -57,10 +57,10 @@ salt_main() {
 }
 
 salt_master() {
-    if [[ ! $install_extra_args ]]; then
+    salt_master=${install_extra_args[0]}
+    if [[ -z $salt_master ]]; then
         install_err 'Must supply salt master as extra argument'
     fi
-    salt_master=${install_extra_args[0]}
     local res=$(salt_alarm 3 ": < '/dev/tcp/$salt_master/4505'")
     if (( $? != 0 )); then
         install_err "$res$salt_master: is invalid or inaccessible"
