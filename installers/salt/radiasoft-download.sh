@@ -38,7 +38,7 @@ salt_bootstrap() {
     install_download https://bootstrap.saltstack.com \
         | bash ${install_debug+-x} -s -- \
         -P -X -N -n ${install_debug+-D} git develop
-    if [[ ! -d var/log/salt ]]; then
+    if [[ ! -d /var/log/salt ]]; then
         install_err 'bootstrap.saltstrack.com failed'
     fi
 }
