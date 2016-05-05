@@ -73,7 +73,7 @@ salt_pykern() {
         pip=pip3
     fi
     # Packages needed by pykern, which is needed by our custom states/modules
-    "$pip" install -U pip setuptools pytz pykern docker-py
+    "$pip" install -U pip setuptools pytz docker-py
 }
 
 salt_main
