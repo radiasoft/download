@@ -6,7 +6,7 @@ set -e
 
 salt_alarm() {
     local timeout=$1
-    local res sleep_pid op_pid
+    local rc sleep_pid op_pid
     timeout=$1
     shift
     bash -c "$@" &
