@@ -38,7 +38,7 @@ salt_bootstrap() {
     install_download https://bootstrap.saltstack.com \
         | bash ${install_debug+-x} -s -- \
         -P -X -n ${install_debug+-D} -A $salt_master git develop
-    if [[ ! -d /etc/salt/minion_id ]]; then
+    if [[ ! -f /etc/salt/minion ]]; then
         install_err 'bootstrap.saltstrack.com failed'
     fi
     local res
