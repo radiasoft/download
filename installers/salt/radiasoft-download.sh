@@ -37,7 +37,7 @@ salt_assert() {
 salt_bootstrap() {
     install_download https://bootstrap.saltstack.com \
         | bash ${install_debug+-x} -s -- \
-        -P -X -n ${install_debug+-D} -A $salt_master git develop
+        -P -n ${install_debug+-D} -A $salt_master git develop
     if [[ ! -f /etc/salt/minion ]]; then
         install_err 'bootstrap.saltstrack.com failed'
     fi
