@@ -6,19 +6,20 @@ set -e
 
 salt_alarm() {
     local timeout=$1
-    local rc sleep_pid op_pid
+    local rc=0 sleep_pid op_pid
     timeout=$1
     shift
     bash -c "$@" &
     op_pid=$!
     {
         sleep "$timeout"
-        kill -9 "$op_pid" >& /dev/null
+        kill -9 "$op_pid" >& /dev/null || true
     } &
     sleep_pid=$!
-    wait "$op_pid" >& /dev/null
-    rc=$?
-    kill "$sleep_pid" >& /dev/null
+    if ! wait "$op_pid" >& /dev/null; then
+        rc=$?
+    fi
+    kill "$sleep_pid" >& /dev/null || true
     return $rc
 }
 
@@ -63,8 +64,7 @@ salt_master() {
     if [[ -z $salt_master ]]; then
         install_err 'Must supply salt master as extra argument'
     fi
-    res=$(salt_alarm 3 ": < '/dev/tcp/$salt_master/4505'")
-    if (( $? != 0 )); then
+    if ! res=$(salt_alarm 3 ": < '/dev/tcp/$salt_master/4505'"); then
         install_err "$res$salt_master: is invalid or inaccessible"
     fi
 }
