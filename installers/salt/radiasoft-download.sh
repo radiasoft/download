@@ -37,9 +37,13 @@ salt_assert() {
 salt_bootstrap() {
     install_download https://bootstrap.saltstack.com \
         | bash ${install_debug+-x} -s -- \
-        -P -X -n ${install_debug+-D} git develop
-    if [[ ! -d /var/log/salt ]]; then
+        -P -X -n ${install_debug+-D} -A $salt_master git develop
+    if [[ ! -d /etc/salt/minion_id ]]; then
         install_err 'bootstrap.saltstrack.com failed'
+    fi
+    local res
+    if ! res=$(systemctl status salt-minion 2>&1); then
+        install_err '${res}salt-minion failed to start'
     fi
 }
 
@@ -47,7 +51,6 @@ salt_conf() {
     local d=/etc/salt/minion.d
     mkdir -p "$d"
     install_url biviosoftware/salt-conf srv/salt/minion
-    echo "master: $salt_master" > "$d/master.conf"
     install_download bivio.conf no_shebang_check > "$d/bivio.conf"
 }
 
