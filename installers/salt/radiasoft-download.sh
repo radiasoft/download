@@ -45,6 +45,7 @@ salt_bootstrap() {
     if ! res=$(systemctl status salt-minion 2>&1); then
         install_err '${res}salt-minion failed to start'
     fi
+    salt_minion_id=$(cat /etc/salt/minion_id)
 }
 
 salt_conf() {
@@ -62,6 +63,8 @@ salt_main() {
     salt_conf
     salt_bootstrap
     chmod -R go-rwx /etc/salt /var/log/salt /var/cache/salt /var/run/salt
+    install_info "You need to accept this minion on the master:
+    salt-key -y -a $salt_minion_id"
 }
 
 salt_master() {
