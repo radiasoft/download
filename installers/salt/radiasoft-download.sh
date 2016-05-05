@@ -61,7 +61,8 @@ salt_master() {
     if [[ -z $salt_master ]]; then
         install_err 'Must supply salt master as extra argument'
     fi
-    local res=$(salt_alarm 3 ": < '/dev/tcp/$salt_master/4505'")
+    local res
+    res=$(salt_alarm 3 ": < '/dev/tcp/$salt_master/4505'")
     if (( $? != 0 )); then
         install_err "$res$salt_master: is invalid or inaccessible"
     fi
