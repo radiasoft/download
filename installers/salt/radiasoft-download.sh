@@ -44,7 +44,7 @@ salt_conf() {
     mkdir -p "$d"
     install_url biviosoftware/salt-conf srv/salt/minion
     echo "master: $salt_master" > "$d/master.conf"
-    install_download bivio.conf > "$d/bivio.conf"
+    install_download bivio.conf no_shebang_check > "$d/bivio.conf"
 }
 
 salt_main() {
