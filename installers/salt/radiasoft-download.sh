@@ -16,9 +16,8 @@ salt_alarm() {
         kill -9 "$op_pid" >& /dev/null || true
     } &
     sleep_pid=$!
-    if ! wait "$op_pid" >& /dev/null; then
-        rc=$?
-    fi
+    wait "$op_pid" >& /dev/null
+    rc=$?
     kill "$sleep_pid" >& /dev/null || true
     return $rc
 }
