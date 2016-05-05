@@ -111,15 +111,15 @@ Please create a new directory, cd to it, and re-run this command.'
 install_download() {
     local url=$1
     local no_shebang_check=$2
-    local base=$(basename "$url")
-    local file=$(dirname "$0")/$base
-    local res
+    local base file res
+    base=$(basename "$url")
+    file=$(dirname "$0")/$base
     if [[ $url == $base ]]; then
         url=$install_url/$base
     fi
     install_log curl -L -s -S "$url"
     res=$(curl -L -s -S "$url")
-    if [[ $no_shebang_check && -z $res || ! $res =~ ^#! ]]; then
+    if [[ -z $res || -z $no_shebang_check && ! $res =~ ^#! ]]; then
         install_err "Unable to download $url"
     fi
     echo "$res"
@@ -298,6 +298,7 @@ install_repo() {
 install_url() {
     local repo=$1
     local rest=$2
+    local channel
     if [[ ! $repo =~ / ]]; then
         repo=radiasoft/$repo
     fi
@@ -305,7 +306,7 @@ install_url() {
         install_url=file://$HOME/src/$repo/$rest
         return
     fi
-    local channel=$install_channel
+    channel=$install_channel
     if [[ $repo == radiasoft/download ]]; then
         channel=$download_channel
     fi
