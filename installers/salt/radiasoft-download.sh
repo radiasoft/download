@@ -35,8 +35,9 @@ salt_assert() {
 }
 
 salt_bootstrap() {
-    install_download http://salt.run \
-        | bash -s -- -P -X -N -n ${install_verbose+-D} git develop
+    install_download https://bootstrap.saltstack.com \
+        | bash ${install_debug+-x} -s -- \
+        -P -X -N -n ${install_debug+-D} git develop
 }
 
 salt_conf() {
