@@ -44,7 +44,6 @@ salt_conf() {
     install_url biviosoftware/salt-conf srv/salt/minion
     echo "master: $salt_master" > "$d/master.conf"
     install_download bivio.conf > "$d/bivio.conf"
-    chmod -R go-rwx /etc/salt
 }
 
 salt_main() {
@@ -54,6 +53,7 @@ salt_main() {
     salt_pykern
     salt_conf
     salt_bootstrap
+    chmod -R go-rwx /etc/salt /var/log/salt /var/cache/salt /var/run/salt
 }
 
 salt_master() {
@@ -68,11 +68,12 @@ salt_master() {
 }
 
 salt_pykern() {
+    local pip=pip
+    if [[ -z $(type -p pip) ]]; then
+        pip=pip3
+    fi
     # Packages needed by pykern, which is needed by our custom states/modules
-    pip update -U pip setuptools pytz
-    pip install -U pykern
-    # Packages needed by salt
-    pip install -U docker-py
+    "$pip" install -U pip setuptools pytz pykern docker-py
 }
 
 salt_main
