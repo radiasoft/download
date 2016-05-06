@@ -57,7 +57,7 @@ install_args() {
 }
 
 install_args_check() {
-    if [[ $install_debug ]]; then
+    if [[ -n $install_debug ]]; then
         set -x
     fi
     if [[ -z $install_type ]]; then
@@ -144,7 +144,7 @@ install_err_trap() {
 
 install_exec() {
     install_log "$@"
-    if [[ $install_verbose ]]; then
+    if [[ -n $install_verbose ]]; then
         "$@" 2>&1 | tee -a $install_log_file
     else
         "$@" >> $install_log_file 2>&1
@@ -153,7 +153,7 @@ install_exec() {
 
 install_info() {
     local f=install_msg
-    if [[ $install_verbose ]]; then
+    if [[ -n $install_verbose ]]; then
         install_log "$@" ...
     fi
     #TODO(robnagler) $install_silent
@@ -162,7 +162,7 @@ install_info() {
 
 install_log() {
     echo "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" "$@" >> $install_log_file
-    if [[ $install_verbose ]]; then
+    if [[ -n $install_verbose ]]; then
         install_msg "$@"
     fi
 }
@@ -174,7 +174,7 @@ install_main() {
     install_log install_main
     install_args "$@"
     install_dir_check
-    if [[ $install_repo ]]; then
+    if [[ -n $install_repo ]]; then
         install_repo
     else
         eval "$(install_download $install_type.sh)"
@@ -232,7 +232,7 @@ radia_run_main "\$@"
 EOF
     chmod +x "$script"
     local start=restart
-    if [[ $install_run_interactive ]]; then
+    if [[ -n $install_run_interactive ]]; then
         start=start
     fi
     install_msg "To $start, enter this command in the shell:
@@ -254,16 +254,16 @@ install_tmp_dir() {
 install_type_default() {
     case "$(uname)" in
         [Dd]arwin)
-            if [[ $(type -t vagrant) ]]; then
+            if [[ -n $(type -t vagrant) ]]; then
                 install_type=vagrant
             else
                 install_err 'Please install Vagrant and restart install'
             fi
             ;;
         [Ll]inux)
-            if [[ $(type -t docker) ]]; then
+            if [[ -n $(type -t docker) ]]; then
                 install_type=docker
-            elif [[ $(type -t vagrant) ]]; then
+            elif [[ -n $(type -t vagrant) ]]; then
                 install_type=vagrant
             else
                 install_err 'Please install Docker or Vagrant and restart install'
@@ -325,7 +325,7 @@ usage: $(basename $0) [verbose|quiet] [docker|vagrant] [beamsim|python2|radtrack
 radia_run_exec() {
     local cmd=( $@ )
     radia_run_prompt
-    if [[ $radia_run_cmd ]]; then
+    if [[ -n $radia_run_cmd ]]; then
         if [[ $radia_run_type == docker ]]; then
             cmd+=( /bin/bash -c )
         fi
@@ -335,7 +335,7 @@ radia_run_exec() {
 }
 
 radia_run_prompt() {
-    if [[ $radia_run_uri ]]; then
+    if [[ -n $radia_run_uri ]]; then
         radia_run_msg "
 Point your browser to:
 
@@ -343,7 +343,7 @@ http://127.0.0.1:$radia_run_port$radia_run_uri
 
 Type control-C to stop the application.
 "
-    elif [[ $radia_run_x11 ]]; then
+    elif [[ -n $radia_run_x11 ]]; then
         radia_run_msg '
 Starting X11 application. Window will show itself shortly.
 

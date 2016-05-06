@@ -6,7 +6,7 @@ docker_main() {
     install_info 'Installing with docker'
     local tag=$install_image:$install_docker_channel
     install_info "Downloading $tag"
-    if [[ ! $install_test ]]; then
+    if [[ -z $install_test ]]; then
         install_exec docker pull "$tag"
     fi
     install_radia_run
@@ -28,15 +28,15 @@ radia_run_check() {
 radia_run_main() {
     radia_run_check
     local cmd=( docker run -v "$PWD:$radia_run_guest_dir" )
-    if [[ ! $radia_run_cmd ]]; then
+    if [[ -z $radia_run_cmd ]]; then
         radia_run_cmd=bash
         cmd+=( -i )
         if [[ -t 1 ]]; then
             cmd+=( -t )
         fi
     fi
-    if [[ $radia_run_x11 ]]; then
-        if [[ ! ( $DISPLAY && -s $HOME/.Xauthority ) ]]; then
+    if [[ -n $radia_run_x11 ]]; then
+        if ! [[ -n $DISPLAY && -s $HOME/.Xauthority ]]; then
             radia_run_err '$DISPLAY or ~/.Xauthority need to be set'
         fi
         cmd+=(
@@ -48,7 +48,7 @@ radia_run_main() {
         # Qt is trying to access the X server directly
         radia_run_cmd="QT_X11_NO_MITSHM=1 DISPLAY=$DISPLAY $radia_run_cmd"
     fi
-    if [[ $radia_run_port ]]; then
+    if [[ -n $radia_run_port ]]; then
         cmd+=( -p "$radia_run_port:$radia_run_port" )
     fi
     cmd+=( "$radia_run_image:$radia_run_channel" /radia-run "$(id -u)" "$(id -g)" )

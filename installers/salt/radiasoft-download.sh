@@ -36,8 +36,8 @@ salt_assert() {
 
 salt_bootstrap() {
     install_download https://bootstrap.saltstack.com \
-        | bash ${install_debug+-x} -s -- \
-        -P -n ${install_debug+-D} -A $salt_master git develop
+        | bash ${install_debug:+-x} -s -- \
+        -P -n ${install_debug:+-D} -A $salt_master git develop
     if [[ ! -f /etc/salt/minion ]]; then
         install_err 'bootstrap.saltstrack.com failed'
     fi
@@ -63,8 +63,12 @@ salt_main() {
     salt_conf
     salt_bootstrap
     chmod -R go-rwx /etc/salt /var/log/salt /var/cache/salt /var/run/salt
-    install_info "You need to accept this minion on the master:
-    salt-key -y -a $salt_minion_id"
+    install_msg "
+
+You need to accept this minion on the master:
+
+    salt-key -y -a $salt_minion_id
+"
 }
 
 salt_master() {
