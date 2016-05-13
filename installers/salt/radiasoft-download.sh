@@ -48,20 +48,10 @@ salt_bootstrap() {
     salt_minion_id=$(cat /etc/salt/minion_id)
 }
 
-salt_conf() {
-    local d=/etc/salt/minion.d
-    mkdir -p "$d"
-    install_url biviosoftware/salt-conf srv/salt/minion
-    local f=99-bivio.conf
-    install_download "$f" no_shebang_check > "$d/$f"
-}
-
 salt_main() {
     salt_assert
     salt_master
     umask 022
-    salt_pykern
-    salt_conf
     salt_bootstrap
     chmod -R go-rwx /etc/salt /var/log/salt /var/cache/salt /var/run/salt
     install_msg "
@@ -81,15 +71,6 @@ salt_master() {
     if ! res=$(salt_alarm 3 ": < '/dev/tcp/$salt_master/4505'"); then
         install_err "$res$salt_master: is invalid or inaccessible"
     fi
-}
-
-salt_pykern() {
-    local pip=pip
-    if [[ -z $(type -p pip) ]]; then
-        pip=pip3
-    fi
-    # Packages needed by pykern, which is needed by our custom states/modules
-    "$pip" install -U pip setuptools pytz docker-py
 }
 
 salt_main
