@@ -52,7 +52,8 @@ salt_conf() {
     local d=/etc/salt/minion.d
     mkdir -p "$d"
     install_url biviosoftware/salt-conf srv/salt/minion
-    install_download bivio.conf no_shebang_check > "$d/bivio.conf"
+    local f=99-bivio.conf
+    install_download "$f" no_shebang_check > "$d/$f"
 }
 
 salt_main() {
