@@ -9,7 +9,13 @@
 #    - generalized bundling with versions
 #    - add test of dynamic download and static on travis (trigger for dynamic?)
 #    - tests for individual codes
+#
+# Testing an installer
+#     download_channel=file bash ../../bin/install.sh code
 set -e
+
+# For error messages
+install_prog='curl radia.run | bash -s'
 
 : ${download_channel:=master}
 
@@ -47,7 +53,7 @@ install_args() {
                 install_repo=$1
                 shift
                 install_type=repo
-                install_extra_args=$@
+                install_extra_args=( $@ )
                 break
                 ;;
         esac
@@ -169,6 +175,7 @@ install_log() {
 
 install_main() {
     install_log_file=$PWD/install.log
+    rm -f "$install_log_file"
     install_clean_cmds=()
     trap install_err_trap EXIT
     install_log install_main
@@ -315,7 +322,7 @@ install_url() {
 
 install_usage() {
     install_err "$@
-usage: $(basename $0) [verbose|quiet] [docker|vagrant] [beamsim|python2|radtrack|sirepo|<installer>|*/*] [extra args]"
+usage: $install_prog [verbose|quiet] [docker|vagrant] [beamsim|python2|radtrack|sirepo|<installer>|*/*] [extra args]"
 }
 
 #
