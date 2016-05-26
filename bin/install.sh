@@ -108,7 +108,8 @@ install_dir_check() {
         return
     fi
     # Loose check of our files. Just need to make sure
-    if [[ $(ls -A | egrep -v '(install.log|radia-run|\.bivio_vagrant_ssh|Vagrantfile)') ]]; then
+    # POSIT: $install_log_file contains radia-run
+    if [[ $(ls -A | egrep -v '(radia-run|\.bivio_vagrant_ssh|Vagrantfile)') ]]; then
         install_err 'Current directory is not empty.
 Please create a new directory, cd to it, and re-run this command.'
     fi
@@ -174,8 +175,12 @@ install_log() {
 }
 
 install_main() {
-    install_log_file=$PWD/install.log
-    rm -f "$install_log_file"
+    # POSIT: name ends in install.log (see
+    install_log_file=$PWD/radia-run-install.log
+    if ! dd if=/dev/null of="$install_log_file" 2>/dev/null; then
+        install_log_file=/tmp/$(date +%Y%m%d%H%M%S)-$RANDOM-$(basename "$install_log_file")
+    fi
+    install_msg "Log: $install_log_file"
     install_clean_cmds=()
     trap install_err_trap EXIT
     install_log install_main
