@@ -12,11 +12,15 @@ fedora_post_host() {
 }
 
 fedora_post_lvremove_home() {
-    umount /home || true
+    if grep -s -q ' /home ' /proc/mounts; then
+        umount /home
+    fi
     sed -e '/ \/home /d' < /etc/fstab > /etc/fstab.tmp
     cat /etc/fstab.tmp > /etc/fstab
     rm -f /etc/fstab.tmp
-    lvremove -f /dev/mapper/fedora-home
+    if lvs fedora/home >& /dev/null; then
+        lvremove -f /dev/mapper/fedora-home
+    fi
 }
 
 fedora_post_main() {
