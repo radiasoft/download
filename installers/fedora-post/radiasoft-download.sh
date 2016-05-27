@@ -41,9 +41,12 @@ salt state.apply
 
 fedora_post_salt() {
     local master=$1
-    if ! getent ahosts "$salt-master" >& /dev/null; then
-        install_err "$host: no such host"
+    if ! getent ahosts "$master" >& /dev/null; then
+        install_err "$master: no such host"
     fi
+    install_repo=salt
+    install_extra_args=( $master )
+    install_repo
 }
 
 fedora_post_main
