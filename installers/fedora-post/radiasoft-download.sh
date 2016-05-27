@@ -13,7 +13,7 @@ fedora_post_host() {
 
 fedora_post_lvremove_home() {
     umount /home || true
-    sed -e '/ \/home /' < /etc/fstab > /etc/fstab.tmp
+    sed -e '/ \/home /d' < /etc/fstab > /etc/fstab.tmp
     cat /etc/fstab.tmp > /etc/fstab
     rm -f /etc/fstab.tmp
     lvremove /dev/mapper/fedora-home
