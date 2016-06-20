@@ -35,11 +35,11 @@ su -
 service salt-master exec_bash
 salt-key -y -a '$host'
 cd /srv/pillar/minions
-ln -s ../systems/TYPE.cfg MINION.bivio.biz
+ln -s ../systems/TYPE.cfg '$host'
 # Will 'fail'
-salt state.apply
+salt '$host' state.apply
 # second time required, because salt-minion restarts
-salt state.apply
+salt '$host' state.apply
 "
 }
 
