@@ -35,6 +35,10 @@ salt_assert() {
 }
 
 salt_bootstrap() {
+    # Missing dependency; Only add for dnf systems for now
+    if [[ -n $(type -p dnf) ]]; then
+        dnf install -y python-psutil || true
+    fi
     install_download https://bootstrap.saltstack.com \
         | bash ${install_debug:+-x} -s -- \
         -P -n ${install_debug:+-D} -A $salt_master git develop
