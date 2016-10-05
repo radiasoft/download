@@ -217,7 +217,7 @@ install_radia_run() {
             ;;
         */sirepo)
             cmd="radia-run-sirepo $guest_dir $install_port"
-            uri=/srw
+            uri=/light
             ;;
     esac
     cat > "$script" <<EOF
@@ -343,24 +343,32 @@ radia_run_exec() {
         fi
         cmd+=( "cd; . ~/.bashrc; $radia_run_cmd" )
     fi
-    exec "${cmd[@]}"
+    "${cmd[@]}" &
 }
 
 radia_run_prompt() {
+    local stop='To stop the application virtual machine, run:
+
+vagrant destroy -f'
+    if [[ $radia_run_type == docker ]]; then
+        stop="To stop the application container, run:
+
+docker rm -f '$radia_run_container'"
+    fi
     if [[ -n $radia_run_uri ]]; then
         radia_run_msg "
 Point your browser to:
 
 http://127.0.0.1:$radia_run_port$radia_run_uri
 
-Type control-C to stop the application.
+$stop
 "
     elif [[ -n $radia_run_x11 ]]; then
-        radia_run_msg '
+        radia_run_msg "
 Starting X11 application. Window will show itself shortly.
 
-Exit the window to stop the application.
-'
+$stop
+"
     fi
 
 }
