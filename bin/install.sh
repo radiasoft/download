@@ -217,7 +217,6 @@ install_radia_run() {
             ;;
         */sirepo)
             cmd="radia-run-sirepo $guest_dir $install_port"
-            uri=/light
             ;;
     esac
     cat > "$script" <<EOF
