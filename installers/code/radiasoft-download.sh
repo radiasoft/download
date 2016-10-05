@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# To run: curl radia.run | sudo bash -s salt
+# To run: curl radia.run | bash -s code warp
 #
 code_assert_args() {
     local msg
