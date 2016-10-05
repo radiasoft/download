@@ -1,4 +1,4 @@
-### Installing RadiaSoft Containers and VMs
+# Installing RadiaSoft Containers and VMs
 
 RadiaSoft provides Docker containers and VirtualBox virtual machines (VMs)
 for our applications and other open source physics codes. Since the
@@ -6,7 +6,7 @@ VMs and containers are
 [built with the same code](https://github.com/radiasoft/containers),
 we just call them containers here.
 
-#### Requirements
+## Requirements
 
 Before installing RadiaSoft containers, you'll need to install a few
 programs.
@@ -24,7 +24,7 @@ By trusted, we mean a user who already has `sudo` privileges. As noted (in the
 there are [privilege escalation attacks](http://docs.docker.com/engine/articles/security/#docker-daemon-attack-surface)
 with Docker so don't give the privileges to untrusted users.
 
-#### Curl Installer (Mac, Linux, and Cygwin)
+## Curl Installer (Mac, Linux, and Cygwin)
 
 The most straightforward way to install a RadiaSoft container image is
 to create an empty directory and run the installer. For example, to
@@ -64,7 +64,7 @@ curl radia.run | bash -s radtrack vagrant
 
 The order of the optional keywords after the `bash -s` do not matter.
 
-#### Containers
+## Containers
 
 At this time, all of our images are based on
 the [official Docker](https://hub.docker.com/_/fedora/)
@@ -88,7 +88,7 @@ We also have a separate (older) downloader for our
 * [radiasoft/radtrack](https://github.com/radiasoft/radtrack-installer/tree/master/darwin)
   is a desktop (Qt) application to simplify execution of accelerator codes.
 
-#### Startup Command
+## Startup Command
 
 The output of the curl will also tell you how to connect to the server
 and/or login to the container. It will create a command in the directory
@@ -106,7 +106,7 @@ http://127.0.0.1:8000/srw
  * Restarting with stat
 ```
 
-#### Starting Vagrant Manually
+## Starting Vagrant Manually
 
 On Windows, you will have to start your Vagrant VM manually. You can
 run these same commands on Linux or the Mac, but it's more work,
@@ -192,7 +192,7 @@ vagrant ssh
 
 On the Mac, XQuartz automatically sets your `$DISPLAY` variable.
 
-#### Installing Vagrant on Mac OS X
+## Installing Vagrant on Mac OS X
 
 You need to download and install the following (in order):
 
@@ -204,7 +204,7 @@ install an X11 server:
 
 * [XQuartz](http://www.xquartz.org)
 
-#### Installing Vagrant on Windows
+## Installing Vagrant on Windows
 
 You need to download and install the following (in order):
 
@@ -218,3 +218,23 @@ install an X11 server:
 * [VcXsrv](https://sourceforge.net/projects/vcxsrv/)
 
 You'll need to reboot and start vcxsrv manually.
+
+## Development Notes
+
+To add a downloader, just add to `installers` directory. Make
+sure the name doesn't conflict with obvious words like `verbose`,
+`debug`, `alpha`, `beta`, etc. The command line is just a list
+of keywords that gets recognized by the installer.
+
+You can also specify a file `radiasoft-download.sh` in any repo
+directory. The installer will go to that github repo for now.
+
+To test the installer, you can set:
+
+```sh
+download_channel=file bash install.sh myinstaller
+```
+
+This will set the `$install_url` to `file://$HOME/src`.
+
+You can also pass `debug` to get more output.
