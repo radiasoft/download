@@ -27,7 +27,7 @@ radia_run_check() {
 
 radia_run_main() {
     radia_run_check
-    local cmd=( docker run -v "$PWD:$radia_run_guest_dir" )
+    local cmd=( docker run -v $PWD:$radia_run_guest_dir --name $radia_run_container )
     if [[ -z $radia_run_cmd ]]; then
         radia_run_cmd=bash
         cmd+=( -i )
