@@ -214,10 +214,10 @@ install_radia_run() {
     case $install_image in
         */radtrack)
             cmd=radia-run-radtrack
-            uri=/
             ;;
         */sirepo)
             cmd="radia-run-sirepo $guest_dir $install_port"
+            uri=/
             ;;
     esac
     cat > "$script" <<EOF

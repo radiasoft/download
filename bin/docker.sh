@@ -19,14 +19,22 @@ docker_main() {
 radia_run_check() {
     local x=$(docker inspect --format='{{.State.Running}}' "$radia_run_container" 2>/dev/null || true)
     if [[ $x == true ]]; then
-        install_err "Your $radia_run_image container is already running."
+        echo "Your $radia_run_image container is already running.
+
+To stop, run:
+
+docker rm -f '$radia_run_container'
+" 1>&2
+        return 1
     elif [[ $x == false ]]; then
-        docker rm "$radia_run_container" >&/dev/null
+        docker rm "$radia_run_container" >&/dev/null || true
     fi
 }
 
 radia_run_main() {
-    radia_run_check
+    if ! radia_run_check; then
+        return 1
+    fi
     local cmd=( docker run -v $PWD:$radia_run_guest_dir --name $radia_run_container )
     if [[ -z $radia_run_cmd ]]; then
         radia_run_cmd=bash
