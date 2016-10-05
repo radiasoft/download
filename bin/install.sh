@@ -336,11 +336,6 @@ usage: $install_prog [verbose|quiet] [docker|vagrant] [beamsim|python2|radtrack|
 #
 radia_run_exec() {
     local cmd=( $@ )
-    # might not exist in vagrant, b/c shared volumes are disabled.
-    if [[ ! -d "$radia_run_guest_dir" ]]; then
-        sudo mkdir "$radia_run_guest_dir"
-        sudo chown "$radia_run_guest_user:" "$radia_run_guest_dir"
-    fi
     radia_run_prompt
     if [[ -n $radia_run_cmd ]]; then
         if [[ $radia_run_type == docker ]]; then
