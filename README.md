@@ -28,11 +28,11 @@ with Docker so don't give the privileges to untrusted users.
 
 The most straightforward way to install a RadiaSoft container image is
 to create an empty directory and run the installer. For example, to
-install the `radtrack` container:
+install the `sirepo` container:
 
 ```
-mkdir radtrack
-cd radtrack
+mkdir sirepo
+cd sirepo
 curl radia.run | bash
 ```
 
@@ -47,19 +47,19 @@ You can also be explicit and request a different container:
 ```
 mkdir foobar
 cd foobar
-curl radia.run | bash -s radtrack
+curl radia.run | bash -s sirepo
 ```
 
 There are a few other options (words) which may be useful, e.g.
 
 ```
-curl radia.run | bash -s radtrack verbose
+curl radia.run | bash -s sirepo verbose
 ```
 
 You can also be explicit about which type of image you'd like:
 
 ```
-curl radia.run | bash -s radtrack vagrant
+curl radia.run | bash -s sirepo vagrant
 ```
 
 The order of the optional keywords after the `bash -s` do not matter.
@@ -81,12 +81,6 @@ Here is the our list of containers supported by this automated downloader:
 
 * [radiasoft/sirepo](https://github.com/radiasoft/containers/tree/master/radiasoft/sirepo)
   is an web application to simplify the execution of scientific codes.
-
-We also have a separate (older) downloader for our
-[RadTrack](https://github.com/radiasoft/radtrack) container image:
-
-* [radiasoft/radtrack](https://github.com/radiasoft/radtrack-installer/tree/master/darwin)
-  is a desktop (Qt) application to simplify execution of accelerator codes.
 
 ## Startup Command
 
