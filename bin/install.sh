@@ -27,7 +27,7 @@ install_args() {
     install_run_interactive=
     install_type=
     install_verbose=
-    : ${install_channel:=master}
+    : ${install_channel:=beta}
     while [[ "$1" ]]; do
         case "$1" in
             beamsim|python2|radtrack|sirepo)
@@ -346,6 +346,10 @@ radia_run_exec() {
     "${cmd[@]}" &
 }
 
+radia_run_msg() {
+    echo "$@" 1>&2
+}
+
 radia_run_prompt() {
     local stop='To stop the application virtual machine, run:
 
@@ -356,19 +360,15 @@ vagrant destroy -f'
 docker rm -f '$radia_run_container'"
     fi
     if [[ -n $radia_run_uri ]]; then
-        radia_run_msg "
-Point your browser to:
+        radia_run_msg "Point your browser to:
 
 http://127.0.0.1:$radia_run_port$radia_run_uri
 
-$stop
-"
+$stop"
     elif [[ -n $radia_run_x11 ]]; then
-        radia_run_msg "
-Starting X11 application. Window will show itself shortly.
+        radia_run_msg "Starting X11 application. Window will show itself shortly.
 
-$stop
-"
+$stop"
     fi
 
 }

@@ -19,21 +19,25 @@ docker_main() {
 radia_run_check() {
     local x=$(docker inspect --format='{{.State.Running}}' "$radia_run_container" 2>/dev/null || true)
     if [[ $x == true ]]; then
-        echo "Your $radia_run_image container is already running.
-
-To stop, run:
-
-docker rm -f '$radia_run_container'
-" 1>&2
-        return 1
+        radia_run_msg 'Server is running; stopping'
+        local res
+        if ! res=$(docker rm -f "$radia_run_container" 2>&1); then
+            radia_run_msg "$res"
+            radia_run_msg 'Failed to stop, trying to start anyway.'
+        fi
     elif [[ $x == false ]]; then
         docker rm "$radia_run_container" >&/dev/null || true
     fi
 }
 
 radia_run_main() {
-    if ! radia_run_check; then
-        return 1
+    radia_run_check
+    local image=$radia_run_image:$radia_run_channel
+    radia_run_msg "Updating Docker image: $image ..."
+    local res
+    if ! res=$(docker pull "$image" 2>&1); then
+        radia_run_msg "$res"
+        radia_run_msg 'Update failed: Assuming network failure, continuing.'
     fi
     local cmd=( docker run -v $PWD:$radia_run_guest_dir --name $radia_run_container )
     if [[ -z $radia_run_cmd ]]; then
@@ -59,6 +63,6 @@ radia_run_main() {
     if [[ -n $radia_run_port ]]; then
         cmd+=( -p "$radia_run_port:$radia_run_port" )
     fi
-    cmd+=( "$radia_run_image:$radia_run_channel" /radia-run "$(id -u)" "$(id -g)" )
+    cmd+=( $image /radia-run "$(id -u)" "$(id -g)" )
     radia_run_exec "${cmd[@]}"
 }
