@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Usage: curl radiasoft.download | bash -s [repo | [vagrant|docker] <container>]
+# Usage: curl radia.run | bash -s [repo | [vagrant|docker] <container>]
 #
 : ${download_channel:=master}
 curl -s -S -L \
