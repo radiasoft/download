@@ -29,9 +29,10 @@ init_from_git_one() {
         if [[ ! repo =~ ^\w+:// ]]; then
             repo=https://github.com/$repo
         fi
-        git clone -q "$repo"
-        cd "$(basename "$repo" .git)"
-        . ./radia-run.sh
+        if git clone -q "$repo"; then
+            cd "$(basename "$repo" .git)"
+            . ./radia-run.sh
+        fi
     ) || true
 }
 
