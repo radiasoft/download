@@ -6,7 +6,7 @@ code_assert_args() {
     local msg
     if ! python - "$@" <<EOF 2>&1; then
 import requests, sys
-uri = 'https://api.github.com/repos/radiasoft/containers/contents/radiasoft/beamsim/codes?ref=$install_channel'
+uri = 'https://api.github.com/repos/radiasoft/containers/contents/radiasoft/beamsim/codes?ref=$install_github_channel'
 r = requests.get(uri)
 r.raise_for_status()
 have = [n[:-3] for n in map(lambda x: x['name'], r.json()) if n.endswith('.sh')]
@@ -27,7 +27,7 @@ EOF
 
 code_install() {
     install_tmp_dir
-    git clone -b "$install_channel" -q https://github.com/radiasoft/containers
+    git clone -b "$install_github_channel" -q https://github.com/radiasoft/containers
     cd containers/radiasoft/beamsim
     bash -l codes.sh "$@"
 }
