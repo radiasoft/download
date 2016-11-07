@@ -27,7 +27,7 @@ install_args() {
     install_run_interactive=
     install_type=
     install_verbose=
-    : ${install_channel:=beta}
+    : ${install_channel:=not-set}
     while [[ "$1" ]]; do
         case "$1" in
             beamsim|python2|radtrack|sirepo)
@@ -91,10 +91,18 @@ install_args_check() {
     esac
     case $install_channel in
         dev|master)
+            install_channel=dev
             install_docker_channel=latest
+            install_github_channel=master
+            ;;
+        not-set)
+            install_channel=dev
+            install_docker_channel=beta
+            install_github_channel=master
             ;;
         *)
             install_docker_channel=$install_channel
+            install_github_channel=$install_channel
             ;;
     esac
     if [[ $install_image =~ beamsim|python2 ]]; then
@@ -318,7 +326,7 @@ install_url() {
         install_url=file://$HOME/src/$repo/$rest
         return
     fi
-    channel=$install_channel
+    channel=$install_github_channel
     if [[ $repo == radiasoft/download ]]; then
         channel=$download_channel
     fi
