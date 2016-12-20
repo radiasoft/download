@@ -29,7 +29,7 @@ init_from_git_one() {
         if [[ ! repo =~ ^\w+:// ]]; then
             repo=https://github.com/$repo
         fi
-        if git clone -q "$repo"; then
+        if SSH_ASKPASS=true git clone -q "$repo"; then
             cd "$(basename "$repo" .git)"
             . ./radia-run.sh
         fi
