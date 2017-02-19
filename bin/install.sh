@@ -12,7 +12,7 @@
 #
 # Testing an installer
 #     download_channel=file bash ../../bin/install.sh code
-set -e
+set -e -o pipefail
 
 # For error messages
 install_prog='curl radia.run | bash -s'
@@ -142,8 +142,10 @@ install_download() {
 
 install_err() {
     trap - EXIT
-    install_msg "$@
+    if [[ -n $1 ]]; then
+        install_msg "$@
 If you don't know what to do, please contact support@radiasoft.net."
+    fi
     exit 1
 }
 
@@ -155,6 +157,7 @@ install_err_trap() {
     fi
     install_log 'Error trap'
     install_err 'Unexpected error; Install failed.'
+    exit 1
 }
 
 install_exec() {
@@ -312,7 +315,11 @@ install_repo() {
     install_url "$first" "$rest"
     local base=radiasoft-download.sh
     install_info "Running: $install_url/$base"
-    eval "$(install_download $base)"
+    local script="$(install_download "$base")"
+    if [[ -z $script ]]; then
+        install_err
+    fi
+    eval "$script"
 }
 
 install_url() {
