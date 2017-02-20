@@ -3,7 +3,12 @@
 # To run: curl radia.run | bash -s code warp
 #
 code_assert_args() {
-    local msg
+    if ! python -c 'import requests' >& /dev/null; then
+        # environment missing core components (radiasoft/python2)
+        # so can't validate args. Happens with
+        # radiasoft/download/travis.sh
+        return
+    fi
     if ! python - "$@" <<EOF 2>&1; then
 import requests, sys
 uri = 'https://api.github.com/repos/radiasoft/container-beamsim/contents/container-conf/codes?ref=$install_github_channel'
