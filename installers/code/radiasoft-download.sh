@@ -3,6 +3,11 @@
 # To run: curl radia.run | bash -s code warp
 #
 code_assert_args() {
+    if [[ -n $codes_dir ]]; then
+        # radiasoft/container-beamsim-part1 sets $codes_dir so all
+        # codes get installed.
+        return
+    fi
     if ! python - "$@" <<EOF 2>&1; then
 import requests, sys
 
