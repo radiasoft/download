@@ -2,12 +2,6 @@
 #
 # To run: curl radia.run | bash -s container-build
 #
-code_install() {
-    git clone -b "$install_github_channel" -q https://github.com/radiasoft/containers
-    cd containers/radiasoft/beamsim
-    bash -l codes.sh "$@"
-}
-
 code_main() {
     local s=../containers/bin/build
     if [[ ! -x $s ]]; then
