@@ -1,4 +1,8 @@
 #!/bin/bash
+#
+# This tests the installed (curl radia.run) version, since that goes live
+# as soon as we checkin.
+#
 set -e -o pipefail
 trap 'echo FAILED' ERR EXIT
 sentinel=test-$RANDOM-sentinel
@@ -8,7 +12,7 @@ curl radia.run | bash -s code test
 echo "$sentinel"
 EOF
 if [[ ! $out =~ PASSED ]]; then
-    echo "code test failed: $out" 1>&2
+    echo "curl radia.run didn't output PASSED: $out" 1>&2
     exit 1
 fi
 if [[ ! $out =~ $sentinel ]]; then
