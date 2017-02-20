@@ -1,0 +1,10 @@
+---
+sudo: required
+language: bash
+services:
+  - docker
+branches:
+  only:
+    - master
+script:
+  - bash travis.sh
