@@ -53,7 +53,7 @@ install_args() {
                 install_repo=$1
                 shift
                 install_type=repo
-                install_extra_args=$@
+                install_extra_args=( $@ )
                 break
                 ;;
         esac
