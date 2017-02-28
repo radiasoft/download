@@ -1,34 +1,37 @@
-# Installing RadiaSoft Containers and VMs
+# Installing RadiaSoft Docker Containers
 
-RadiaSoft provides Docker containers and VirtualBox virtual machines (VMs)
-for our applications and other open source physics codes. Since the
-VMs and containers are
-[built with the same code](https://github.com/radiasoft/containers),
-we just call them containers here.
+RadiaSoft provides Docker containers for our applications
+and other open source physics codes.
 
-## Requirements
+## Quick Start if you already know Docker
 
-Before installing RadiaSoft containers, you'll need to install a few
-programs.
+If you already have [Docker installed](#requirements), you can run Sirepo with:
 
-On a Mac, [install VirtualBox, Vagrant, and (optionally) XQuartz](#installing-vagrant-on-mac-os-x).
+```
+docker run -v $PWD:/sirepo -p 8000:8000 radiasoft/sirepo
+```
 
-On Windows, [install VirtualBox, SSHWindows, Vagrant, and (optionally) VcXsrv](#installing-vagrant-on-windows).
+If you would like to run our beamsim jupyter notebook server, do:
 
-On Linux, you can use
-[Docker](http://docs.docker.com/engine/installation/), which
-is lighter weight than Vagrant. We recommend
-[running Docker as a trusted, non-root user](http://askubuntu.com/questions/477551/how-can-i-use-docker-without-sudo).
-By trusted, we mean a user who already has `sudo` privileges. As noted (in the
-[previous link](http://askubuntu.com/questions/477551/how-can-i-use-docker-without-sudo)),
-there are [privilege escalation attacks](http://docs.docker.com/engine/articles/security/#docker-daemon-attack-surface)
-with Docker so don't give the privileges to untrusted users.
+```
+docker run -v $PWD:/home/vagrant/jupyter -p 8888:8888 radiasoft/beamsim-jupyter
+```
 
-## Curl Installer (Mac, Linux, and Cygwin)
+## Install Docker
+
+Before installing RadiaSoft containers, you'll need to install Docker:
+
+* [Mac OS X](https://docs.docker.com/docker-for-mac/install/)
+
+* [Windows](https://docs.docker.com/docker-for-windows/install/)
+
+* [Linux](https://docs.docker.com/engine/installation/#/on-linux)
+
+## Automatic Installer (Mac, Linux, and Cygwin)
 
 The most straightforward way to install a RadiaSoft container image is
 to create an empty directory and run the installer. For example, to
-install the `sirepo` container:
+install the `sirepo` container in a new directory:
 
 ```
 mkdir sirepo
@@ -64,24 +67,6 @@ curl radia.run | bash -s sirepo vagrant
 
 The order of the optional keywords after the `bash -s` do not matter.
 
-## Containers
-
-At this time, all of our images are based on
-the [official Docker](https://hub.docker.com/_/fedora/)
-and [Hansode Vagrant](https://vagrantcloud.com/hansode/boxes/fedora-21-server-x86_64)
-Fedora 21 images.
-
-Here is the our list of containers supported by this automated downloader:
-
-* [radiasoft/beamsim](https://github.com/radiasoft/containers/tree/master/radiasoft/beamsim)
-  is a physics container for particle accelerator and free electron laser (FEL) simulations.
-
-* [radiasoft/python2](https://github.com/radiasoft/containers/tree/master/radiasoft/python2)
-  is a basic Python2 (currently 2.7.10) pyenv with matplotlib and numpy.
-
-* [radiasoft/sirepo](https://github.com/radiasoft/containers/tree/master/radiasoft/sirepo)
-  is an web application to simplify the execution of scientific codes.
-
 ## Startup Command
 
 The output of the curl will also tell you how to connect to the server
@@ -99,119 +84,6 @@ http://127.0.0.1:8000/srw
  * Running on http://0.0.0.0:8000/ (Press CTRL+C to quit)
  * Restarting with stat
 ```
-
-## Starting Vagrant Manually
-
-On Windows, you will have to start your Vagrant VM manually. You can
-run these same commands on Linux or the Mac, but it's more work,
-especially since there's no automated way to bind ports and volumes.
-
-It makes sense to do this from a clean directory:
-
-```cmd
-mkdir vagrant
-cd vagrant
-```
-
-You could use `vagrant init`, but it will run into problems with guest
-additions. We recommend you create the `Vagrantfile` manually in the
-directory you just created with a text editor:
-
-```ruby
-Vagrant.configure(2) do |config|
-  config.vm.box = "radiasoft/beamsim"
-  config.vm.hostname = "rs"
-  config.ssh.forward_x11 = true
-end
-```
-
-Then download and boot the virtual machine (VM) image (e.g. `radiasoft/beamsim`)
-from the Vagrant repository with the following command:
-
-```cmd
-vagrant up
-```
-
-The first time you run this command, it will fail with something like:
-
-```cmd
-/sbin/mount.vboxsf: mounting failed with the error: No such device
-```
-
-This is caused by the VirtualBox "guest additions" not matching the version
-of the VirtualBox software on your computer.
-
-To update the "guest additions" for VirtualBox, you'll need to get
-the version from VirtualBox on your computer.  Start the VirtualBox GUI
-and and looking under the "About" menu.
-
-The version is everything before the `r`. In this example, the value
-is `4.3.28`. You will replace `YOUR-VERSION-HERE` in the following example
-with your version number (e.g. `4.3.28`) when you execute the following
-sequence of commands:
-
-```bash
-vagrant ssh -c "sudo su -"
-v=YOUR-VERSION-HERE
-yum remove -q -y VirtualBox-guest kmod-VirtualBox
-curl -L -O http://download.virtualbox.org/virtualbox/$v/VBoxGuestAdditions_$v.iso
-mount -t iso9660 -o loop VBoxGuestAdditions_$v.iso /mnt
-sh /mnt/VBoxLinuxAdditions.run
-umount /mnt
-rm -f VBoxGuestAdditions_$v.iso
-exit
-```
-
-In your shell/command prompt, type:
-
-```cmd
-vagrant reload
-```
-
-After your VM boots, login to your VM as follows on Windows:
-
-```cmd
-set DISPLAY=localhost:0
-vagrant ssh
-```
-
-You can also add `DISPLAY=localhost:0` to your user environment in the Control Panel
-so that you don't have to type the `set` command each time.
-
-On the Mac or Linux, you would type:
-
-```sh
-vagrant ssh
-```
-
-On the Mac, XQuartz automatically sets your `$DISPLAY` variable.
-
-## Installing Vagrant on Mac OS X
-
-You need to download and install the following (in order):
-
-* [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
-* [Vagrant](https://www.vagrantup.com/downloads.html)
-
-If you want to run X11 applications (e.g. RadTrack), you will need to
-install an X11 server:
-
-* [XQuartz](http://www.xquartz.org)
-
-## Installing Vagrant on Windows
-
-You need to download and install the following (in order):
-
-* [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
-* [SSHWindows](http://www.mls-software.com/opensshd.html)
-* [Vagrant](https://www.vagrantup.com/downloads.html)
-
-If you want to run X11 applications (e.g. RadTrack), you will need to
-install an X11 server:
-
-* [VcXsrv](https://sourceforge.net/projects/vcxsrv/)
-
-You'll need to reboot and start vcxsrv manually.
 
 ## Development Notes
 
@@ -232,3 +104,9 @@ download_channel=file bash install.sh myinstaller
 This will set the `$install_url` to `file://$HOME/src`.
 
 You can also pass `debug` to get more output.
+
+## Vagrant
+
+All containers can be built as Docker images or Vagrant VirtualBox boxes. The
+default is to build Docker. We highly recommend you use Docker on your
+Vagrant box to run Sirepo or Beamsim-Jupyter.
