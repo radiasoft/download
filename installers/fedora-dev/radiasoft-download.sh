@@ -134,7 +134,7 @@ fedora_dev_rpms() {
 
 fedora_dev_setup_vagrant() {
     sudo su - vagrant <<'EOF'
-    set -ex -o pipefail
+    set -e -o pipefail
     cd
     curl radia.run | bash -s home
     . ~/.bashrc
@@ -149,8 +149,8 @@ fedora_dev_setup_vagrant() {
     pyenv virtualenv py2
     pyenv global py2
     . ~/.bashrc
-    mkdir ~/src/radiasoft/
-    cd ~/src/radiasoft/
+    mkdir -p ~/src/radiasoft
+    cd ~/src/radiasoft
     gcl pykern
     cd pykern
     pip install -e .
@@ -160,7 +160,7 @@ EOF
 
 fedora_dev_stop() {
     rm -f "$_fedora_dev_step_file"
-    exit 0
+    _fedora_dev_exit=1
 }
 
 _fedora_dev_ask_reboot() {
@@ -172,7 +172,7 @@ Then login as root (not fedora), and rerun this command:
 ssh root@<this-host>
 curl radia.run | bash -s $install_repo
 EOF
-    exit 0
+    _fedora_dev_exit=1
 }
 
 _fedora_dev_main() {
@@ -183,6 +183,9 @@ _fedora_dev_main() {
     _fedora_dev_step
     while true; do
         "fedora_dev_$_fedora_dev_step"
+        if [[ -n $_fedora_dev_exit ]]; then
+            return 0
+        fi
     done
 }
 
