@@ -146,12 +146,16 @@ fedora_dev_setup_vagrant() {
     . ~/.bashrc
     pip install --upgrade pip
     pip install --upgrade setuptools==32.1.3 tox
-    pyenv virtualenv py2
+    if ! pyenv versions | grep -s -q py2; then
+        pyenv virtualenv py2
+    fi
     pyenv global py2
     . ~/.bashrc
     mkdir -p ~/src/radiasoft
     cd ~/src/radiasoft
-    gcl pykern
+    if [[ ! -d pykern ]]; then
+        gcl pykern
+    fi
     cd pykern
     pip install -e .
 EOF
