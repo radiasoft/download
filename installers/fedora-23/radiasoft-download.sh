@@ -62,11 +62,13 @@ fedora_23_rpms() {
         make
         openssl-devel
         patch
+        pciutils
         pkgconfig
         readline-devel
         redhat-rpm-config
         rpm-build
         scite
+        screen
         sqlite-devel
         strace
         tar
