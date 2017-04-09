@@ -193,4 +193,4 @@ _fedora_dev_step() {
     return 0
 }
 
-fedora_dev_main
+_fedora_dev_main
