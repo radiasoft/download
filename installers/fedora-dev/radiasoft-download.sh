@@ -62,11 +62,17 @@ fedora_dev_cuda_rpms() {
 
 fedora_dev_remove_fedora() {
     if id fedora >& /dev/null; then
-        if [[ ! -r ~fedora/.ssh/authorized_keys ]]; then
-            echo ~fedora/.ssh/authorized_keys: is missing 1>&2
+        local s=~fedora/.ssh/authorized_keys
+        local d=~fedora/.ssh/authorized_keys
+        if [[ ! -r $s ]]; then
+            echo "$s: is missing, aborting" 1>&2
             return 1
         fi
-        cat ~fedora/.ssh/authorized_keys > ~root/.ssh/authorized_keys
+        if ! cmp -s "$s" "$d"; then
+            mkdir "$(dirname "$d")"
+            cat "$s" > "$d"
+            chmod 400 "$d"
+        fi
         if ! userdel -r fedora >& /dev/null; then
             _fedora_dev_ask_reboot
         fi
@@ -123,6 +129,7 @@ fedora_dev_rpms() {
     )
     dnf install -y "${x[@]}"
     _fedora_dev_step cuda_rpms
+    _fedora_dev_ask_reboot
 }
 
 fedora_dev_setup_vagrant() {
@@ -186,7 +193,7 @@ _fedora_dev_step() {
         return 0
     fi
     if [[ ! -r $_fedora_dev_step_file ]]; then
-        fedora_dev_step "$_fedora_dev_first_step"
+        _fedora_dev_step "$_fedora_dev_first_step"
         return 0
     fi
     _fedora_dev_step=
