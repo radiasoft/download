@@ -6,6 +6,7 @@
 #
 
 _fedora_dev_step_file=~/fedora_dev_step
+_fedora_dev_first_step=remove_fedora
 
 fedora_dev_create_vagrant() {
     if ! id vagrant >& /dev/null; then
@@ -185,7 +186,8 @@ _fedora_dev_step() {
         return 0
     fi
     if [[ ! -r $_fedora_dev_step_file ]]; then
-        _fedora_dev_step=remove_fedora
+        fedora_dev_step "$_fedora_dev_first_step"
+        return 0
     fi
     _fedora_dev_step=
     . "$_fedora_dev_step_file"
