@@ -1,7 +1,10 @@
 #!/bin/bash
 #
+# Installs development environment (with CUDA) on a Fedora VM
+#
 # To run: curl radia.run | bash -s fedora-dev
 #
+
 _fedora_dev_step_file=~/fedora_dev_step
 
 fedora_dev_create_vagrant() {
