@@ -172,7 +172,7 @@ Then login as root (not fedora), and rerun this command:
 ssh root@<this-host>
 curl radia.run | bash -s $install_repo
 EOF
-    return 1
+    exit 0
 }
 
 _fedora_dev_main() {
@@ -198,8 +198,8 @@ _fedora_dev_step() {
     fi
     _fedora_dev_step=
     . "$_fedora_dev_step_file"
-    if [[ -n $_fedora_dev_step ]]; then
-        echo "$_fedora_dev_step_file: empty, something went wrong"
+    if [[ -z $_fedora_dev_step ]]; then
+        echo "$_fedora_dev_step_file: empty, aborting"
         return 1
     fi
     return 0
