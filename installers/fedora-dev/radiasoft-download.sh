@@ -1,0 +1,189 @@
+#!/bin/bash
+#
+# To run: curl radia.run | bash -s fedora-dev
+#
+fedora_dev_step_file=~/fedora_dev_step
+
+_fedora_dev_ask_reboot() {
+    cat <<EOF
+For the next step, please reboot and relogin as root:
+reboot
+
+Then login as root (not fedora), and rerun this command:
+ssh root@<this-host>
+curl radia.run | bash -s $install_repo
+EOF
+    return 1
+}
+
+fedora_dev_create_vagrant() {
+    echo 'vagrant ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/rs-vagrant
+    chmod 400 /etc/sudoers.d/rs-vagrant
+    if ! id vagrant >& /dev/null; then
+        groupadd -g 1000 vagrant
+        useradd -m -g vagrant -u 1000 vagrant
+    fi
+    mkdir -p ~vagrant/.ssh
+    cat ~root/.ssh/authorized_keys > ~vagrant/.ssh/authorized_keys
+    chown -R vagrant: ~vagrant/.ssh
+    chmod -R og-rwx ~vagrant/.ssh
+    fedora_dev_step rpms
+}
+
+fedora_dev_cuda_rpms() {
+    # Do nothing if no CUDA devices or if cuda already installed
+    local n=setup_vagrant
+    if [[ -z $(lspci | grep -i nvidia) || -d /usr/local/cuda/bin ]]; then
+        fedora_dev_step "$n"
+        return 0
+    fi
+    if [[ -n $(type -t nvidia-smi) ]]; then
+        if [[ ! $(nvidia-smi -L 2>&1) =~ ^GPU\ 0: ]]; then
+            echo 'nvidia-smi: not returning "GPU 0:", abort' 1>&2
+            nvidia-smi 1>&2
+            return 1
+        fi
+        dnf install -y cuda
+        fedora_dev_step "$n"
+        return 0
+    fi
+    dnf install -y \
+        http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-23.noarch.rpm \
+        http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-23.noarch.rpm \
+        http://developer.download.nvidia.com/compute/cuda/repos/fedora23/x86_64/cuda-repo-fedora23-8.0.61-1.x86_64.rpm
+    dnf clean all
+    # dcmtk-devel required for rs4pi
+    dnf install -y kmodtool dcmtk-devel kernel-devel
+    local f=~/nvdia.run
+    curl -o "$f" https://depot.radiasoft.org/foss/NVIDIA-Linux-x86_64-340.102.run
+    bash "$f" --silent
+    rm -f "$f"
+    _fedora_dev_ask_reboot
+}
+
+fedora_dev_main() {
+    if (( $UID != 0 )); then
+        echo 'must be run as root' 1>&2
+        return 1
+    fi
+    fedora_dev_step
+    while true; do
+        "fedora_dev_$fedora_dev_step"
+    done
+}
+
+fedora_dev_remove_fedora() {
+    if id fedora >& /dev/null; then
+        if [[ ! -r ~fedora/.ssh/authorized_keys ]]; then
+            echo ~fedora/.ssh/authorized_keys: is missing 1>&2
+            return 1
+        fi
+        cat ~fedora/.ssh/authorized_keys > ~root/.ssh/authorized_keys
+        if ! userdel -r fedora >& /dev/null; then
+            _fedora_dev_ask_reboot
+        fi
+    fi
+    fedora_dev_step create_vagrant
+}
+
+fedora_dev_rpms() {
+    dnf update -y
+    local x=(
+        bind-utils
+        biosdevname
+        bzip2-devel
+        cmake
+        emacs-nox
+        gcc
+        gcc-c++
+        gd-devel
+        ghostscript
+        git
+        gsl-devel
+        hostname
+        hostname
+        iproute
+        iproute
+        iputils
+        leafpad
+        libpng-devel
+        llvm-libs
+        lsof
+        lzma-devel
+        make
+        openssl-devel
+        patch
+        pciutils
+        pkgconfig
+        readline-devel
+        redhat-rpm-config
+        rpm-build
+        scite
+        screen
+        sqlite-devel
+        strace
+        tar
+        tk-devel
+        wget
+        xauth
+        xclock
+        xpdf
+        xpdf
+        xterm
+        yum-utils
+        zlib-devel
+    )
+    dnf install -y "${x[@]}"
+    fedora_dev_step cuda_rpms
+}
+
+fedora_dev_setup_vagrant() {
+    sudo su - vagrant <<'EOF'
+    set -ex -o pipefail
+    cd
+    curl radia.run | bash -s home
+    . ~/.bashrc
+    touch requirements.txt
+    bivio_path_insert ~/.pyenv/bin 1
+    . ~/.bashrc
+    bivio_pyenv_2
+    rm requirements.txt
+    . ~/.bashrc
+    pip install --upgrade pip
+    pip install --upgrade setuptools==32.1.3 tox
+    pyenv virtualenv py2
+    pyenv global py2
+    . ~/.bashrc
+    mkdir ~/src/radiasoft/
+    cd ~/src/radiasoft/
+    gcl pykern
+    cd pykern
+    pip install -e .
+EOF
+    fedora_dev_step stop
+}
+
+fedora_dev_step() {
+    if [[ -n $1 ]]; then
+        fedora_dev_step=$1
+        echo "fedora_dev_step=$fedora_dev_step" > "$fedora_dev_step_file"
+        return 0
+    fi
+    if [[ ! -r $fedora_dev_step_file ]]; then
+        fedora_dev_step=remove_fedora
+    fi
+    fedora_dev_step=
+    . "$fedora_dev_step_file"
+    if [[ -n $fedora_dev_step ]]; then
+        echo ~/fedora_dev_step: empty, something went wrong
+        return 1
+    fi
+    return 0
+}
+
+fedora_dev_stop() {
+    rm -f "$fedora_dev_step_file"
+    exit 0
+}
+
+fedora_dev_main
