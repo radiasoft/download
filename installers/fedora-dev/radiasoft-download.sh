@@ -5,16 +5,23 @@
 _fedora_dev_step_file=~/fedora_dev_step
 
 fedora_dev_create_vagrant() {
-    echo 'vagrant ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/rs-vagrant
-    chmod 400 /etc/sudoers.d/rs-vagrant
     if ! id vagrant >& /dev/null; then
         groupadd -g 1000 vagrant
         useradd -m -g vagrant -u 1000 vagrant
     fi
-    mkdir -p ~vagrant/.ssh
-    cat ~root/.ssh/authorized_keys > ~vagrant/.ssh/authorized_keys
-    chown -R vagrant: ~vagrant/.ssh
-    chmod -R og-rwx ~vagrant/.ssh
+    #POSIT: Same file name as the Vagrant system uses
+    local f=/etc/sudoers.d/vagrant-nopasswd
+    if [[ ! -f $f ]]; then
+        echo 'vagrant ALL=(ALL) NOPASSWD:ALL' > "$f"
+        chmod 400 "$f"
+    fi
+    f=~vagrant/.ssh/authorized_keys
+    if [[ ! -f $f ]]; then
+        mkdir -p ~vagrant/.ssh
+        cat ~root/.ssh/authorized_keys > ~vagrant/.ssh/authorized_keys
+        chown -R vagrant: ~vagrant/.ssh
+        chmod -R og-rwx ~vagrant/.ssh
+    fi
     _fedora_dev_step rpms
 }
 
