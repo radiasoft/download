@@ -2,19 +2,7 @@
 #
 # To run: curl radia.run | bash -s fedora-dev
 #
-fedora_dev_step_file=~/fedora_dev_step
-
-_fedora_dev_ask_reboot() {
-    cat <<EOF
-For the next step, please reboot and relogin as root:
-reboot
-
-Then login as root (not fedora), and rerun this command:
-ssh root@<this-host>
-curl radia.run | bash -s $install_repo
-EOF
-    return 1
-}
+_fedora_dev_step_file=~/fedora_dev_step
 
 fedora_dev_create_vagrant() {
     echo 'vagrant ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/rs-vagrant
@@ -27,14 +15,14 @@ fedora_dev_create_vagrant() {
     cat ~root/.ssh/authorized_keys > ~vagrant/.ssh/authorized_keys
     chown -R vagrant: ~vagrant/.ssh
     chmod -R og-rwx ~vagrant/.ssh
-    fedora_dev_step rpms
+    _fedora_dev_step rpms
 }
 
 fedora_dev_cuda_rpms() {
     # Do nothing if no CUDA devices or if cuda already installed
     local n=setup_vagrant
     if [[ -z $(lspci | grep -i nvidia) || -d /usr/local/cuda/bin ]]; then
-        fedora_dev_step "$n"
+        _fedora_dev_step "$n"
         return 0
     fi
     if [[ -n $(type -t nvidia-smi) ]]; then
@@ -44,7 +32,7 @@ fedora_dev_cuda_rpms() {
             return 1
         fi
         dnf install -y cuda
-        fedora_dev_step "$n"
+        _fedora_dev_step "$n"
         return 0
     fi
     dnf install -y \
@@ -61,17 +49,6 @@ fedora_dev_cuda_rpms() {
     _fedora_dev_ask_reboot
 }
 
-fedora_dev_main() {
-    if (( $UID != 0 )); then
-        echo 'must be run as root' 1>&2
-        return 1
-    fi
-    fedora_dev_step
-    while true; do
-        "fedora_dev_$fedora_dev_step"
-    done
-}
-
 fedora_dev_remove_fedora() {
     if id fedora >& /dev/null; then
         if [[ ! -r ~fedora/.ssh/authorized_keys ]]; then
@@ -83,7 +60,7 @@ fedora_dev_remove_fedora() {
             _fedora_dev_ask_reboot
         fi
     fi
-    fedora_dev_step create_vagrant
+    _fedora_dev_step create_vagrant
 }
 
 fedora_dev_rpms() {
@@ -134,7 +111,7 @@ fedora_dev_rpms() {
         zlib-devel
     )
     dnf install -y "${x[@]}"
-    fedora_dev_step cuda_rpms
+    _fedora_dev_step cuda_rpms
 }
 
 fedora_dev_setup_vagrant() {
@@ -160,30 +137,53 @@ fedora_dev_setup_vagrant() {
     cd pykern
     pip install -e .
 EOF
-    fedora_dev_step stop
-}
-
-fedora_dev_step() {
-    if [[ -n $1 ]]; then
-        fedora_dev_step=$1
-        echo "fedora_dev_step=$fedora_dev_step" > "$fedora_dev_step_file"
-        return 0
-    fi
-    if [[ ! -r $fedora_dev_step_file ]]; then
-        fedora_dev_step=remove_fedora
-    fi
-    fedora_dev_step=
-    . "$fedora_dev_step_file"
-    if [[ -n $fedora_dev_step ]]; then
-        echo ~/fedora_dev_step: empty, something went wrong
-        return 1
-    fi
-    return 0
+    _fedora_dev_step stop
 }
 
 fedora_dev_stop() {
-    rm -f "$fedora_dev_step_file"
+    rm -f "$_fedora_dev_step_file"
     exit 0
+}
+
+_fedora_dev_ask_reboot() {
+    cat <<EOF
+For the next step, please reboot and relogin as root:
+reboot
+
+Then login as root (not fedora), and rerun this command:
+ssh root@<this-host>
+curl radia.run | bash -s $install_repo
+EOF
+    return 1
+}
+
+_fedora_dev_main() {
+    if (( $UID != 0 )); then
+        echo 'must be run as root' 1>&2
+        return 1
+    fi
+    _fedora_dev_step
+    while true; do
+        "fedora_dev_$_fedora_dev_step"
+    done
+}
+
+_fedora_dev_step() {
+    if [[ -n $1 ]]; then
+        _fedora_dev_step=$1
+        echo "_fedora_dev_step=$_fedora_dev_step" > "$_fedora_dev_step_file"
+        return 0
+    fi
+    if [[ ! -r $_fedora_dev_step_file ]]; then
+        _fedora_dev_step=remove_fedora
+    fi
+    _fedora_dev_step=
+    . "$_fedora_dev_step_file"
+    if [[ -n $_fedora_dev_step ]]; then
+        echo "$_fedora_dev_step_file: empty, something went wrong"
+        return 1
+    fi
+    return 0
 }
 
 fedora_dev_main
