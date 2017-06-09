@@ -18,6 +18,7 @@ set -e -o pipefail
 install_prog='curl radia.run | bash -s'
 
 : ${download_channel:=master}
+: ${install_tmp_dir:=/var/tmp}
 
 install_args() {
     install_debug=
@@ -268,7 +269,7 @@ EOF
 }
 
 install_tmp_dir() {
-    export TMPDIR=/var/tmp/install-$$-$RANDOM
+    export TMPDIR="$install_tmp_dir/install-$$-$RANDOM"
     mkdir -p "$TMPDIR"
     install_clean_cmds+=( "cd '$PWD'; rm -rf '$TMPDIR'" )
     cd "$TMPDIR"
@@ -299,6 +300,13 @@ install_type_default() {
 }
 
 install_repo() {
+    if (( $# > 0 )); then
+        install_repo=$1
+        shift
+        install_extra_args=( "$@" )
+        install_type=repo
+        install_no_dir_check=1
+    fi
     local first rest
     if [[ ! $install_repo =~ / ]]; then
         first=download
@@ -313,13 +321,17 @@ install_repo() {
         install_err "$install_repo: invalid repo name"
     fi
     install_url "$first" "$rest"
-    local base=radiasoft-download.sh
-    install_info "Running: $install_url/$base"
-    local script="$(install_download "$base")"
-    if [[ -z $script ]]; then
+    install_script_eval radiasoft-download.sh
+}
+
+install_script_eval() {
+    local script=$1
+    install_info "Running: $install_url/$script"
+    local source="$(install_download "$script")"
+    if [[ -z $source ]]; then
         install_err
     fi
-    eval "$script"
+    eval "$source"
 }
 
 install_url() {
