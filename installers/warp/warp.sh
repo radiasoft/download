@@ -11,12 +11,13 @@ if [ -z "$BASH" ]; then
 fi
 
 _radia_warp_build() {
-    if [[ -d $_radia_warp_python ]]; then
+    if [[ -r $_radia_warp_python/lib/python/picsar_python/picsarpy.so ]]; then
         _radia_warp_msg "Using existing build in $_radia_warp_root"
         return
     fi
-    rm -rf "$_radia_warp_tmp" "$_radia_warp_root"
-    mkdir "$_radia_warp_tmp"
+    # Clean build
+    rm -rf "$_radia_warp_root"
+    mkdir -p "$_radia_warp_tmp"
     cd "$_radia_warp_tmp"
     local knl=
     if [[ -n $_radia_warp_knl ]]; then
@@ -48,20 +49,18 @@ EOF
     make -f Makefile_Forthon all
     cp -a python_module/picsar_python "$_radia_warp_python"
     cd ..
+    rm -rf "$_radia_warp_tmp"
 }
 
 _radia_warp_dirs() {
     local warp_bin=$_radia_warp_root/bin
     _radia_warp_tmp=$_radia_warp_root/tmp
-    rm -rf "$_radia_warp_tmp"
-    mkdir -p "$_radia_warp_tmp"
     _radia_warp_python=$_radia_warp_root/lib/python
-    local p=:$PATH
-    if [[ ! ":$PATH:" =~ :$warp_bin: ]]; then
+    if [[ ! :$PATH: =~ :$warp_bin: ]]; then
         export "PATH=$warp_bin:$PATH"
     fi
-    if [[ ! ":$PYTHONPATH:" =~ :$radia_warp_python: ]]; then
-        export "PYTHONPATH=$warp_python:$PYTHONPATH"
+    if [[ ! :$PYTHONPATH: =~ :$_radia_warp_python: ]]; then
+        export "PYTHONPATH=$_radia_warp_python:$PYTHONPATH"
     fi
 }
 
@@ -86,7 +85,6 @@ _radia_warp_main() {
     (
         set -e
         _radia_warp_build
-        rm -rf "$_radia_warp_tmp"
     )
     if (( $? != 0 )); then
         _radia_warp_msg "WARP-PICSAR build FAILED.
@@ -102,10 +100,10 @@ _radia_warp_modules() {
     if [[ $modules =~ ' PrgEnv-intel/' ]]; then
         module swap PrgEnv-intel PrgEnv-gnu
     fi
-    if [[ ! $module =~ ' h5py-parallel/' ]]; then
+    if [[ ! $modules =~ ' h5py-parallel/' ]]; then
         module load h5py-parallel
     fi
-    if [[ ! $module =~ ' python/2.7-anaconda ' ]]; then
+    if [[ ! $modules =~ ' python/2.7-anaconda ' ]]; then
         module load python/2.7-anaconda
     fi
 }
