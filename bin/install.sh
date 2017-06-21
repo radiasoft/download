@@ -221,17 +221,20 @@ install_radia_run() {
     local cmd=
     local uri=
     local db=
-    local tini='/home/vagrant/.radia-run/tini -- /home/vagrant/.radia-run/start'
+    local daemon=
+    local tini='exec /home/vagrant/.radia-run/tini -- /home/vagrant/.radia-run/start'
     case $install_image in
         */sirepo)
             db=/sirepo
             cmd=$tini
             uri=/
+            daemon=1
             ;;
         */rs4pi)
             db=/sirepo
             cmd=$tini
             uri=/robot
+            daemon=1
             ;;
     esac
     cat > "$script" <<EOF
@@ -240,9 +243,10 @@ install_radia_run() {
 # Invoke $install_type run on $cmd
 #
 radia_run_channel='$install_docker_channel'
-radia_run_db_dir='$db'
 radia_run_cmd='$cmd'
 radia_run_container=\$(id -u -n)-\$(basename '$install_image')
+radia_run_daemon='$daemon'
+radia_run_db_dir='$db'
 radia_run_guest_dir='$guest_dir'
 radia_run_guest_user='$guest_user'
 radia_run_image='$install_image'
@@ -366,7 +370,11 @@ radia_run_exec() {
         fi
         cmd+=( "cd; . ~/.bashrc; $radia_run_cmd" )
     fi
-    "${cmd[@]}" &
+    if [[ $radia_run_daemon ]]; then
+        "${cmd[@]}" >& radia-run.log &
+    else
+        "${cmd[@]}" &
+    fi
 }
 
 radia_run_msg() {

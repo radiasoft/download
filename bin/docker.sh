@@ -44,7 +44,9 @@ radia_run_main() {
         mkdir -p db
         cmd+=( -v "$PWD/db:$radia_run_db_dir" )
     fi
-    if [[ -z $radia_run_cmd ]]; then
+    if [[ -n $radia_run_daemon ]]; then
+        cmd+=( -d )
+    elif [[ -z $radia_run_cmd ]]; then
         radia_run_cmd=bash
         cmd+=( -i )
         if [[ -t 1 ]]; then
@@ -67,9 +69,10 @@ radia_run_main() {
     if [[ -n $radia_run_port ]]; then
         cmd+=( -p "$radia_run_port:$radia_run_port" )
     fi
-    if [[ -n $radia_run_port ]]; then
-        cmd+=( -p "$radia_run_port:$radia_run_port" )
+    if [[ $(uname) =~ ^[Ll]inux$ ]]; then
+        cmd+=( $image /radia-run "$(id -u)" "$(id -g)" )
+    else
+        cmd+=( -u $radia_run_guest_user $image )
     fi
-    cmd+=( $image /radia-run "$(id -u)" "$(id -g)" )
     radia_run_exec "${cmd[@]}"
 }
