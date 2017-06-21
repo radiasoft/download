@@ -280,14 +280,7 @@ install_tmp_dir() {
 
 install_type_default() {
     case "$(uname)" in
-        [Dd]arwin)
-            if [[ -n $(type -t vagrant) ]]; then
-                install_type=vagrant
-            else
-                install_err 'Please install Vagrant and restart install'
-            fi
-            ;;
-        [Ll]inux)
+        [Dd]arwin|[Ll]inux)
             if [[ -n $(type -t docker) ]]; then
                 install_type=docker
             elif [[ -n $(type -t vagrant) ]]; then
