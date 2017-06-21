@@ -96,6 +96,9 @@ install_args_check() {
         not-set)
             install_channel=dev
             install_docker_channel=beta
+            if [[ $install_image =~ rs4pi ]]; then
+                install_docker_channel=latest
+            fi
             install_github_channel=master
             ;;
         *)
