@@ -31,7 +31,7 @@ install_args() {
     : ${install_channel:=not-set}
     while [[ "$1" ]]; do
         case "$1" in
-            beamsim|python2|radtrack|sirepo)
+            beamsim|python2|rs4pi|sirepo)
                 install_image=$1
                 ;;
             vagrant|docker)
@@ -72,8 +72,8 @@ install_args_check() {
     fi
     if [[ -z $install_image && -z $install_repo ]]; then
         install_image=$(basename "$PWD")
-        if [[ ! $install_image =~ ^(beamsim|python2|radtrack|sirepo)$ ]]; then
-            install_usage "Please supply an install name: beamsim, python2, radtrack, sirepo, OR repo name"
+        if [[ ! $install_image =~ ^(beamsim|python2|rs4pi|sirepo)$ ]]; then
+            install_usage "Please supply an install name: beamsim, python2, rs4pi, sirepo, OR repo name"
         fi
     fi
     case $install_type in
@@ -81,10 +81,7 @@ install_args_check() {
             install_no_dir_check=1
             ;;
         vagrant|docker)
-            if [[ $install_image == radtrack ]]; then
-                install_x11=1
-            fi
-            if [[ $install_image =~ sirepo ]]; then
+            if [[ $install_image =~ sirepo|rs4pi ]]; then
                 install_port=8000
             fi
             install_image=radiasoft/$install_image
@@ -223,13 +220,18 @@ install_radia_run() {
     # Command needs to be absolute (see containers/bin/build-docker.sh)
     local cmd=
     local uri=
+    local db=
+    local tini='/home/vagrant/.radia-run/tini -- /home/vagrant/.radia-run/start'
     case $install_image in
-        */radtrack)
-            cmd=radia-run-radtrack
-            ;;
         */sirepo)
-            cmd="radia-run-sirepo $guest_dir $install_port"
+            db=/sirepo
+            cmd=$tini
             uri=/
+            ;;
+        */rs4pi)
+            db=/sirepo
+            cmd=$tini
+            uri=/robot
             ;;
     esac
     cat > "$script" <<EOF
@@ -238,6 +240,7 @@ install_radia_run() {
 # Invoke $install_type run on $cmd
 #
 radia_run_channel='$install_docker_channel'
+radia_run_db_dir='$db'
 radia_run_cmd='$cmd'
 radia_run_container=\$(id -u -n)-\$(basename '$install_image')
 radia_run_guest_dir='$guest_dir'
@@ -354,7 +357,7 @@ install_url() {
 
 install_usage() {
     install_err "$@
-usage: $install_prog [verbose|quiet] [docker|vagrant] [beamsim|python2|radtrack|sirepo|<installer>|*/*] [extra args]"
+usage: $install_prog [verbose|quiet] [docker|vagrant] [beamsim|python2|rs4pi|sirepo|<installer>|*/*] [extra args]"
 }
 
 #

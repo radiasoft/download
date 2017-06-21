@@ -39,7 +39,11 @@ radia_run_main() {
         radia_run_msg "$res"
         radia_run_msg 'Update failed: Assuming network failure, continuing.'
     fi
-    local cmd=( docker run -v $PWD:$radia_run_guest_dir --name $radia_run_container )
+    local cmd=( docker run --name $radia_run_container -v $PWD:$radia_run_guest_dir )
+    if [[ -n $radia_run_db_dir ]]; then
+        mkdir -p db
+        cmd+=( -v "$PWD/db:$radia_run_db_dir" )
+    fi
     if [[ -z $radia_run_cmd ]]; then
         radia_run_cmd=bash
         cmd+=( -i )
@@ -59,6 +63,9 @@ radia_run_main() {
         # X Error: BadShmSeg (invalid shared segment parameter) 128
         # Qt is trying to access the X server directly
         radia_run_cmd="QT_X11_NO_MITSHM=1 DISPLAY=$DISPLAY $radia_run_cmd"
+    fi
+    if [[ -n $radia_run_port ]]; then
+        cmd+=( -p "$radia_run_port:$radia_run_port" )
     fi
     if [[ -n $radia_run_port ]]; then
         cmd+=( -p "$radia_run_port:$radia_run_port" )
