@@ -9,8 +9,8 @@ patch -p0 < "$codes_data_src_dir"/opal/H5hut-1.99.13.patch
 CC=mpicc CXX=mpicxx ./configure \
   --enable-parallel \
   --prefix="$(pyenv prefix)" \
-  --with-pic
-#  --enable-shared
+  --with-pic \
+  --enable-shared
 make -j 2 install
 cd "$base_pwd"
 
