@@ -175,6 +175,8 @@ codes_patch_requirements_txt() {
 
 codes_yum() {
     codes_msg "yum $@"
+    # Building on CentOS host seems to require this for overlayfs
+    sudo rpm --rebuilddb
     sudo yum --color=never -y -q "$@"
     if [[ -n $(type -p package-cleanup) ]]; then
         sudo package-cleanup --cleandupes
