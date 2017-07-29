@@ -11,7 +11,7 @@ CC=mpicc CXX=mpicxx ./configure \
   --prefix="$(pyenv prefix)" \
   --with-pic \
   --enable-shared
-make -j 2 install
+make install
 cd "$base_pwd"
 
 #codes_download https://gitlab.psi.ch/OPAL/src.git OPAL-1.6
