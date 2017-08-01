@@ -376,7 +376,7 @@ radia_run_exec() {
     if [[ $radia_run_daemon ]]; then
         "${cmd[@]}" >& radia-run.log &
     else
-        "${cmd[@]}" &
+        "${cmd[@]}"
     fi
 }
 
