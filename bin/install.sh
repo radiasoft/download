@@ -22,7 +22,7 @@ install_prog='curl radia.run | bash -s'
 
 install_args() {
     : ${install_download_channel:=$download_channel}
-    : ${install_debug=:}
+    : ${install_debug:=}
     install_extra_args=()
     install_image=
     install_repo=
