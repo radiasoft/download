@@ -55,7 +55,7 @@ EOF
 
     # Give vagrant user access in dev mode only
     if [[ $install_channel == dev ]]; then
-       vssh sudo usermod -aG docker vagrant
+       usermod -aG docker vagrant
     fi
 }
 
