@@ -45,6 +45,7 @@ install_args() {
                 install_verbose=1
                 ;;
             alpha|beta|dev|master|prod)
+                # master fixed up in install_args_check
                 install_channel=$1
                 ;;
             quiet)
