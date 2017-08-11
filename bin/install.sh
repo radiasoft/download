@@ -21,6 +21,7 @@ install_prog='curl radia.run | bash -s'
 : ${install_tmp_dir:=/var/tmp}
 
 install_args() {
+    : ${install_download_channel:=$download_channel}
     : ${install_debug=:}
     install_extra_args=()
     install_image=
@@ -345,13 +346,13 @@ install_url() {
     if [[ ! $repo =~ / ]]; then
         repo=radiasoft/$repo
     fi
-    if [[ $download_channel == file ]]; then
+    if [[ $install_download_channel == file ]]; then
         install_url=file://$HOME/src/$repo/$rest
         return
     fi
     channel=$install_github_channel
     if [[ $repo == radiasoft/download ]]; then
-        channel=$download_channel
+        channel=$install_download_channel
     fi
     install_url=https://raw.githubusercontent.com/$repo/$channel/$rest
 }
