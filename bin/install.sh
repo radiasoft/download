@@ -21,13 +21,13 @@ install_prog='curl radia.run | bash -s'
 : ${install_tmp_dir:=/var/tmp}
 
 install_args() {
-    install_debug=
+    : ${install_debug=:}
     install_extra_args=()
     install_image=
     install_repo=
     install_run_interactive=
     install_type=
-    install_verbose=
+    : ${install_verbose:=}
     : ${install_channel:=not-set}
     while [[ "$1" ]]; do
         case "$1" in
