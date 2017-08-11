@@ -4,7 +4,7 @@
 #
 code_assert_args() {
     if ! python -c 'import requests' >& /dev/null; then
-        pip install -y requests
+        pip install requests
     fi
     if ! python - "$@" <<EOF 2>&1; then
 import requests, sys
