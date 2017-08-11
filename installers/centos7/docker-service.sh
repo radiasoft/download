@@ -20,7 +20,7 @@ docker_service_main() {
     yum install -y docker-ce-17.06.0.ce-1.el7.centos
     local vg=docker
     while [[ $(lvs --noheadings --nameprefixes "$vg") =~ LVM2_LV_NAME=.([^\']+) ]]; do
-        lvremove -f "$vg" "${BASH_REMATCH[1]}"
+        lvremove -f "$vg/${BASH_REMATCH[1]}"
     done
     lvcreate --wipesignatures y -n thinpool "$vg" -l 95%VG
     lvcreate --wipesignatures y -n thinpoolmeta "$vg" -l 1%VG
