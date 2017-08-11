@@ -3,6 +3,9 @@
 # To run: curl radia.run | bash -s code warp
 #
 code_assert_args() {
+    if ! python -c 'import requests' >& /dev/null; then
+        pip install -y requests
+    fi
     if ! python - "$@" <<EOF 2>&1; then
 import requests, sys
 
