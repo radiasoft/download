@@ -33,6 +33,7 @@ Vagrant.configure("2") do |config|
     config.vm.hostname = "$name"
     config.vm.network "private_network", ip: "$ip"
     config.vm.provider "virtualbox" do |v|
+        v.customize ["modifyvm", :id, "--audio", "none"]
         # If you see network restart issues, try this:
         # https://github.com/mitchellh/vagrant/issues/8373
         # v.customize ["modifyvm", :id, "--nictype1", "virtio"]
