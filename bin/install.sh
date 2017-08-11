@@ -131,7 +131,6 @@ install_download() {
     local no_shebang_check=$2
     local base file res
     base=$(basename "$url")
-    file=$(dirname "$0")/$base
     if [[ $url == $base ]]; then
         url=$install_url/$base
     fi
