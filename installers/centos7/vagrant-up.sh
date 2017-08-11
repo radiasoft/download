@@ -2,9 +2,9 @@
 #
 # Create a Centos 7 VirtualBox
 #
-# Options:
-# $1 [name]
-# $1 [10.10.10.10]
+# Usage: curl radia.run | bash -s centos7 \
+#     vagrant-up [guest-name:v [guest-ip:10.10.10.10]]
+#
 
 # Delete the disk below. Not easy
 # VBoxManage closemedium disk <uuid> --delete
