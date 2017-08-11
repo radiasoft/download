@@ -329,7 +329,7 @@ install_repo() {
 }
 
 install_script_eval() {
-    local script=install_url/$1
+    local script=$install_url/$1
     install_info "Running: $script"
     local source="$(install_download "$script")"
     if [[ -z $source ]]; then
