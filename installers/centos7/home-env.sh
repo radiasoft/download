@@ -17,7 +17,8 @@ home_env_main() {
     fi
     # Encapsulate this
     su - vagrant <<EOF
-$(declare -f $(compgen -A function | grep '^install_'))
+$(declare -f $(compgen -A function install_))
+$(declare -p $(compgen -A variable install_))
 install_main home
 EOF
 }
