@@ -133,8 +133,7 @@ install_download() {
         url=$install_url/$url
     fi
     install_log curl -L -s -S "$url"
-    res=$(curl -L -s -S "$url")
-    echo "$res"
+    curl -L -s -S "$url"
 }
 
 install_err() {
