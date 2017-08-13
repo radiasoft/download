@@ -128,17 +128,12 @@ Please create a new directory, cd to it, and re-run this command.'
 
 install_download() {
     local url=$1
-    local no_shebang_check=$2
-    local base file res
-    base=$(basename "$url")
-    if [[ $url == $base ]]; then
-        url=$install_url/$base
+    local file res
+    if [[ ! $url =~ ^[[:lower:]]+: ]]; then
+        url=$install_url/$url
     fi
     install_log curl -L -s -S "$url"
     res=$(curl -L -s -S "$url")
-    if [[ -z $res || -z $no_shebang_check && ! $res =~ ^#! ]]; then
-        install_err "Unable to download $url"
-    fi
     echo "$res"
 }
 
@@ -202,7 +197,7 @@ install_main() {
     if [[ -n $install_repo ]]; then
         install_repo
     else
-        eval "$(install_download $install_type.sh)"
+        install_script_eval "$install_type.sh"
         "${install_type}_main"
     fi
     local f
@@ -329,11 +324,14 @@ install_repo() {
 }
 
 install_script_eval() {
-    local script=$install_url/$1
+    local script=$1
     install_info "Running: $script"
     local source="$(install_download "$script")"
     if [[ -z $source ]]; then
         install_err
+    fi
+    if [[ ! $source =~ ^#! ]]; then
+        install_err "$url: unable to download (no #! at start of file)"
     fi
     eval "$source"
 }
