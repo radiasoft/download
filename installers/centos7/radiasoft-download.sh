@@ -5,12 +5,14 @@
 centos7_main() {
     local op=$1
     shift
-    install_extra_args=( "$@" )
+    local a=( "$@" )
     install_url radiasoft/centos7
     if [[ $op =~ / ]]; then
         install_err "$op: unknown operation"
     fi
-    install_script_eval "script/$(basename "$op" .sh).sh"
+    local f=$(basename "$op" .sh)
+    install_script_eval "script/$f.sh"
+    "${f//-/_}_main" "${a[@]}"
 }
 
 centos7_main "${install_extra_args[@]}"
