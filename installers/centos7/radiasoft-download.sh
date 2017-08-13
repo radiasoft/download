@@ -6,7 +6,7 @@ centos7_install_file() {
     local file=$1
     local mode=$2
     local owner=$3
-    local abs=$file
+    local abs=/$file
     local d=$(dirname "$abs")
     if [[ ! -d $d ]]; then
         mkdir -p "$d"
