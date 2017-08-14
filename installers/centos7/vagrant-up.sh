@@ -24,7 +24,7 @@ vagrant_up_main() {
         install_err "$vdi: exists, remove first by UUID with commands:
 
 VBoxManage list hdds | tail
-VBoxManage closemedium disk UUID --delete'
+VBoxManage closemedium disk UUID --delete"
     fi
     vagrant plugin install vagrant-persistent-storage
     cat > Vagrantfile <<EOF
