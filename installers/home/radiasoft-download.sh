@@ -4,7 +4,7 @@
 #
 home_main() {
     install_url biviosoftware/home-env
-    eval "$(install_download install.sh)"
+    install_script_eval install.sh
 }
 
 home_main

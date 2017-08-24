@@ -21,13 +21,14 @@ install_prog='curl radia.run | bash -s'
 : ${install_tmp_dir:=/var/tmp}
 
 install_args() {
-    install_debug=
+    : ${install_download_channel:=$download_channel}
+    : ${install_debug:=}
     install_extra_args=()
     install_image=
     install_repo=
     install_run_interactive=
     install_type=
-    install_verbose=
+    : ${install_verbose:=}
     : ${install_channel:=not-set}
     while [[ "$1" ]]; do
         case "$1" in
@@ -45,6 +46,7 @@ install_args() {
                 install_verbose=1
                 ;;
             alpha|beta|dev|master|prod)
+                # master fixed up in install_args_check
                 install_channel=$1
                 ;;
             quiet)
@@ -126,19 +128,12 @@ Please create a new directory, cd to it, and re-run this command.'
 
 install_download() {
     local url=$1
-    local no_shebang_check=$2
-    local base file res
-    base=$(basename "$url")
-    file=$(dirname "$0")/$base
-    if [[ $url == $base ]]; then
-        url=$install_url/$base
+    local file res
+    if [[ ! $url =~ ^[[:lower:]]+: ]]; then
+        url=$install_url/$url
     fi
     install_log curl -L -s -S "$url"
-    res=$(curl -L -s -S "$url")
-    if [[ -z $res || -z $no_shebang_check && ! $res =~ ^#! ]]; then
-        install_err "Unable to download $url"
-    fi
-    echo "$res"
+    curl -L -s -S "$url"
 }
 
 install_err() {
@@ -201,7 +196,7 @@ install_main() {
     if [[ -n $install_repo ]]; then
         install_repo
     else
-        eval "$(install_download $install_type.sh)"
+        install_script_eval "$install_type.sh"
         "${install_type}_main"
     fi
     local f
@@ -329,10 +324,13 @@ install_repo() {
 
 install_script_eval() {
     local script=$1
-    install_info "Running: $install_url/$script"
+    install_info "Running: $script"
     local source="$(install_download "$script")"
     if [[ -z $source ]]; then
         install_err
+    fi
+    if [[ ! $source =~ ^#! ]]; then
+        install_err "$url: unable to download (no #! at start of file)"
     fi
     eval "$source"
 }
@@ -344,13 +342,13 @@ install_url() {
     if [[ ! $repo =~ / ]]; then
         repo=radiasoft/$repo
     fi
-    if [[ $download_channel == file ]]; then
+    if [[ $install_download_channel == file ]]; then
         install_url=file://$HOME/src/$repo/$rest
         return
     fi
     channel=$install_github_channel
     if [[ $repo == radiasoft/download ]]; then
-        channel=$download_channel
+        channel=$install_download_channel
     fi
     install_url=https://raw.githubusercontent.com/$repo/$channel/$rest
 }
