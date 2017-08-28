@@ -9,7 +9,13 @@ vagrant_boot() {
 }
 
 vagrant_download_ssh() {
-    install_download https://raw.githubusercontent.com/biviosoftware/home-env/master/bin/bivio_vagrant_ssh > .bivio_vagrant_ssh
+    (
+        install_url biviosoftware/home-env bin
+        install_download bivio_vagrant_ssh > .bivio_vagrant_ssh
+    )
+    if (( $? != 0 )); then
+        return $?
+    fi
     chmod +x .bivio_vagrant_ssh
 }
 

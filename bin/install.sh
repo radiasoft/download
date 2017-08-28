@@ -11,18 +11,20 @@
 #    - tests for individual codes
 #
 # Testing an installer
-#     download_channel=file bash ../../bin/install.sh code
+#     install_server=~/src bash ../../bin/install.sh code
 set -e -o pipefail
 
 # For error messages
 install_prog='curl radia.run | bash -s'
 
-: ${download_channel:=master}
 : ${install_tmp_dir:=/var/tmp}
 
 install_args() {
-    : ${install_download_channel:=$download_channel}
+    if [[ -n $download_channel ]]; then
+        install_err '$download_channel: unsupported, use $install_server'
+    fi
     : ${install_debug:=}
+    : ${install_server:=github}
     install_extra_args=()
     install_image=
     install_repo=
@@ -338,19 +340,28 @@ install_script_eval() {
 install_url() {
     local repo=$1
     local rest=$2
-    local channel
     if [[ ! $repo =~ / ]]; then
         repo=radiasoft/$repo
     fi
-    if [[ $install_download_channel == file ]]; then
-        install_url=file://$HOME/src/$repo/$rest
-        return
-    fi
-    channel=$install_github_channel
-    if [[ $repo == radiasoft/download ]]; then
-        channel=$install_download_channel
-    fi
-    install_url=https://raw.githubusercontent.com/$repo/$channel/$rest
+    case $install_server in
+        github)
+            local channel=$install_github_channel
+            if [[ $repo == radiasoft/download ]]; then
+                channel=master
+            fi
+            install_url=https://raw.githubusercontent.com/$repo/$channel/$rest
+            ;;
+        /*)
+            install_server=file://$install_server
+            install_url=$install_server/$repo/$rest
+            ;;
+        http:*|https:*|file:*)
+            install_url=$install_server/$repo/$rest
+            ;;
+        *)
+            install_err "$install_server: unknown install_server format"
+            ;;
+    esac
 }
 
 install_usage() {

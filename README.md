@@ -98,7 +98,7 @@ directory. The installer will go to that github repo for now.
 To test the installer, you can set:
 
 ```sh
-download_channel=file bash install.sh myinstaller
+install_server=~/src bash install.sh myinstaller
 ```
 
 This will set the `$install_url` to `file://$HOME/src`.
