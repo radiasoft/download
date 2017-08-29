@@ -3,6 +3,8 @@
 # See https://github.com/radiasoft/download
 #
 set -e -o pipefail
-curl -s -S -L \
-    "https://raw.githubusercontent.com/radiasoft/download/master/bin/install.sh" \
-    | bash -s "$@"
+_u=https://raw.githubusercontent.com/radiasoft/download/master
+if [[ -n $install_server ]]; then
+    _u=$install_server/radiasoft/download
+fi
+curl -s -S -L "$_u/bin/install.sh" | bash -s "$@"
