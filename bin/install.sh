@@ -113,7 +113,7 @@ install_args_check() {
     if [[ $install_image =~ beamsim|python2 ]]; then
         install_run_interactive=1
     fi
-    install_url download bin
+    install_url radiasoft/download bin
 }
 
 install_dir_check() {
@@ -320,6 +320,9 @@ install_repo() {
     else
         install_err "$install_repo: invalid repo name"
     fi
+    if [[ ! $first =~ / ]]; then
+        first=radiasoft/$first
+    fi
     install_url "$first" "$rest"
     install_script_eval radiasoft-download.sh
 }
@@ -340,28 +343,28 @@ install_script_eval() {
 install_url() {
     local repo=$1
     local rest=$2
-    if [[ ! $repo =~ / ]]; then
-        repo=radiasoft/$repo
-    fi
     case $install_server in
         github)
             local channel=$install_github_channel
             if [[ $repo == radiasoft/download ]]; then
                 channel=master
             fi
-            install_url=https://raw.githubusercontent.com/$repo/$channel/$rest
+            install_url=https://raw.githubusercontent.com/$repo/$channel
             ;;
         /*)
             install_server=file://$install_server
-            install_url=$install_server/$repo/$rest
+            install_url=$install_server/$repo
             ;;
         http:*|https:*|file:*)
-            install_url=$install_server/$repo/$rest
+            install_url=$install_server/$repo
             ;;
         *)
             install_err "$install_server: unknown install_server format"
             ;;
     esac
+    if [[ -n $rest ]]; then
+        install_url=$install_url/$rest
+    fi
 }
 
 install_usage() {
