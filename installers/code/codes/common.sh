@@ -26,7 +26,7 @@ fi
 pip install numpy==1.9.3
 pip install matplotlib
 pip install scipy
-pip install 'ipython[all]'
+#pip install 'ipython[all]'
 # Need to install Cython first, or h5py build fails
 pip install Cython
 pip install h5py
