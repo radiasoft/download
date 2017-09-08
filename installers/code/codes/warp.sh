@@ -4,7 +4,7 @@ codes_dependencies  Forthon pygist openPMD
 pip install python-dateutil
 warp_pwd=$PWD
 # Current build 8/24/2017 not working
-codes_download https://bitbucket.org/radiasoft/warp.git 4b3428bb01d7506b66be721f5413f53729d93903
+codes_download https://bitbucket.org/radiasoft/warp.git
 cd pywarp90
 make clean install
 cat > setup.local.py <<'EOF'
@@ -23,6 +23,3 @@ if parallel:
              libraries.append(arg)
 EOF
 make FCOMP='-F gfortran --fcompexec mpifort' pclean pinstall
-cd "$warp_pwd"
-codes_download https://depot.radiasoft.org/foss/warp-initialization-tools-20160519.tar.gz
-python setup.py install
