@@ -80,6 +80,7 @@ vagrant_up_main() {
 vagrant_up_vagrantfile() {
     local host=$1 ip=$2 vdi=$3
     cat > Vagrantfile <<EOF
+# -*-ruby-*-
 Vagrant.configure("2") do |config|
     config.vm.box = "centos/7"
     config.vm.hostname = "$host"
@@ -118,6 +119,10 @@ Vagrant.configure("2") do |config|
     if Vagrant.has_plugin?("vagrant-vbguest")
         config.vbguest.auto_update = false
     end
+    # https://stackoverflow.com/a/33137719/3075806
+    # Undo mapping of hostname to 127.0.0.1
+    config.vm.provision "shell",
+        inline: "sed -i '/127.0.0.1.*$host/d' /etc/hosts"
     # Mac OS X needs version 4
     config.vm.synced_folder ".", "/vagrant", type: "nfs", mount_options: ["rw", "vers=3", "tcp", "nolock", "fsc", "actimeo=2"]
 end
