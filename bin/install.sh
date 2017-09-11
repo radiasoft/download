@@ -116,6 +116,13 @@ install_args_check() {
     install_url radiasoft/download bin
 }
 
+install_clean() {
+    local f
+    for f in "${install_clean_cmds[@]}"; do
+        eval $f
+    done >& /dev/null
+}
+
 install_dir_check() {
     if [[ $install_no_dir_check ]]; then
         return
@@ -144,6 +151,9 @@ install_err() {
         install_msg "$@
 If you don't know what to do, please contact support@radiasoft.net."
     fi
+    if [[ -z $install_verbose ]]; then
+        install_clean >& /dev/null
+    fi
     exit 1
 }
 
@@ -155,6 +165,7 @@ install_err_trap() {
     fi
     install_log 'Error trap'
     install_err 'Unexpected error; Install failed.'
+    # Just in case install_err doesn't work
     exit 1
 }
 
@@ -170,7 +181,7 @@ install_exec() {
 install_info() {
     local f=install_msg
     if [[ -n $install_verbose ]]; then
-        install_log "$@" ...
+        install_verbose= install_log "$@" ...
     fi
     #TODO(robnagler) $install_silent
     $f "$@" ...
@@ -201,10 +212,10 @@ install_main() {
         install_script_eval "$install_type.sh"
         "${install_type}_main"
     fi
-    local f
-    for f in "${install_clean_cmds[@]}"; do
-        eval $f
-    done
+    install_clean
+    if [[ -z $install_verbose ]]; then
+        rm -f "$install_log_file"
+    fi
     trap - EXIT
 }
 
@@ -276,7 +287,7 @@ EOF
 }
 
 install_tmp_dir() {
-    export TMPDIR="$install_tmp_dir/install-$$-$RANDOM"
+    export TMPDIR="$install_tmp_dir/radia-run-$$-$RANDOM"
     mkdir -p "$TMPDIR"
     install_clean_cmds+=( "cd '$PWD'; rm -rf '$TMPDIR'" )
     cd "$TMPDIR"
@@ -329,15 +340,22 @@ install_repo() {
 
 install_script_eval() {
     local script=$1
-    install_info "Running: $script"
-    local source="$(install_download "$script")"
-    if [[ -z $source ]]; then
+    if [[ -z $install_script_dir ]]; then
+        local pwd=$PWD
+        install_tmp_dir
+        install_script_dir=$PWD
+        cd "$pwd"
+    fi
+    local source=$install_script_dir/$(date +%Y%m%d%H%M%S)-$script
+    install_download "$script" > "$source"
+    if [[ ! -s $source ]]; then
         install_err
     fi
-    if [[ ! $source =~ ^#! ]]; then
-        install_err "$url: unable to download (no #! at start of file)"
+    if [[ ! $(head -1 "$source") =~ ^#! ]]; then
+        install_err "$url: no #! at start of file: $source"
     fi
-    eval "$source"
+    install_info "Source: $source"
+    source "$source"
 }
 
 install_url() {
