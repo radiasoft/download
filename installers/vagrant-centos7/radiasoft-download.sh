@@ -12,6 +12,11 @@
 # VBoxManage list hdds|tail
 # vagrant plugin install vagrant-vbguest
 
+#TODO(robnagler) fix time sync https://superuser.com/a/765014
+#  https://www.virtualbox.org/manual/ch09.html#changetimesync
+#  need to compile guest additions so much slower than chrony solution
+#  don't want this unless is a "dev" box(?)
+#  yum install kernel-devel dkms
 vagrant_up_check() {
     local vdi=$1
     if [[ -z $(type -t vagrant) ]]; then
