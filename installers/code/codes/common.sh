@@ -23,7 +23,9 @@ fi
 # resulted in:
 #   AttributeError: py_modules_dict
 # No time to debug now.
-pip install numpy==1.9.3
+#pip install numpy==1.9.3
+#TODO(pjm): trying latest numpy now, 09/29/17
+pip install numpy
 pip install matplotlib
 pip install scipy
 #pip install 'ipython[all]'
