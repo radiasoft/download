@@ -97,7 +97,7 @@ vagrant_centos7_vagrantfile() {
         vbguest='config.vbguest.auto_update = false'
     else
         # https://medium.com/carwow-product-engineering/time-sync-problems-with-vagrant-and-virtualbox-383ab77b6231
-        timesync='v.customize [ "guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/ — timesync-set-threshold", 5000 ]'
+        timesync='v.customize ["guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-set-threshold", 5000]'
     fi
     cat > Vagrantfile <<EOF
 # -*-ruby-*-
