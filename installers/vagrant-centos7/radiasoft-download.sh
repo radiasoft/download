@@ -72,7 +72,7 @@ vagrant_centos7_main() {
     vagrant_centos7_check "$vdi"
     vagrant_centos7_vagrantfile "$host" "$ip" "$vdi" '1'
     vagrant up
-    vagrant ssh -c 'sudo yum install -y kernel kernel-devel kernel-headers kernel-tools dkms'
+    vagrant ssh -c 'sudo yum install -y kernel kernel-devel kernel-headers kernel-tools'
     vagrant halt
     vagrant_centos7_vagrantfile "$host" "$ip" "$vdi" ''
     vagrant up
