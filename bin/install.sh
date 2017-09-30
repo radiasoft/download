@@ -365,6 +365,14 @@ install_script_eval() {
     source "$source"
 }
 
+install_sudo() {
+    local sudo
+    if [[ $UID != 0 ]]; then
+        sudo=sudo
+    fi
+    $sudo "$@"
+}
+
 install_url() {
     local repo=$1
     local rest=$2
@@ -395,6 +403,24 @@ install_url() {
 install_usage() {
     install_err "$@
 usage: $install_prog [verbose|quiet] [docker|vagrant] [beamsim|python2|rs4pi|sirepo|<installer>|*/*] [extra args]"
+}
+
+install_yum_install() {
+    local x todo=()
+    for x in "$@"; do
+        if ! rpm -q "$x" >& /dev/null; then
+            todo+=( "$x" )
+        fi
+    done
+    if (( ${#todo[@]} <= 0 )); then
+        return
+    fi
+    local cmd=yum
+    if [[ $(type -t dnf) ]]; then
+        cmd=dnf
+    fi
+    install_info "$cmd" install "${todo[@]}"
+    install_sudo "$cmd" install --color=never -y -q "${todo[@]}"
 }
 
 #
