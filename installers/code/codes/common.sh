@@ -1,6 +1,27 @@
 #!/bin/bash
+codes_dependencies base_rpm
 # Some rpms most codes use
-codes_yum install atlas-devel blas-devel lapack-devel openmpi-devel hdf5-devel hdf5-openmpi hdf5-openmpi-devel hdf5-openmpi-static boost-static cmake flex eigen3-devel glib2-devel
+_common_yum=(
+    atlas-devel
+    blas-devel
+    boost-static
+    cmake
+    eigen3-devel
+    flex
+    glib2-devel
+    hdf5-devel
+    hdf5-openmpi
+    hdf5-openmpi-devel
+    hdf5-openmpi-static
+    lapack-devel
+    libtool
+    llvm-libs
+    openmpi-devel
+    tk-devel
+)
+codes_yum install "${_common_yum[@]}"
+unset _common_yum
+
 # Just in case this is installed outside the context for radiasoft/python2,
 # we need openmpi in our path (normally set by ~/.bashrc)
 if [[ ! ( :$PATH: =~ :/usr/lib64/openmpi/bin: ) ]]; then
