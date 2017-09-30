@@ -141,8 +141,8 @@ install_download() {
     if [[ ! $url =~ ^[[:lower:]]+: ]]; then
         url=$install_url/$url
     fi
-    install_log curl -L -s -S "$url"
-    curl -L -s -S "$url"
+    install_log curl "${install_curl_flags[@]}" "$url"
+    curl "${install_curl_flags[@]}" "$url"
 }
 
 install_err() {
@@ -203,6 +203,8 @@ install_main() {
     install_msg "Log: $install_log_file"
     install_clean_cmds=()
     trap install_err_trap EXIT
+    local -a install_curl_flags
+    install_curl_flags=( -L -s -S )
     install_log install_main
     install_args "$@"
     install_dir_check
@@ -320,6 +322,11 @@ install_repo() {
     fi
     local first rest
     if [[ ! $install_repo =~ / ]]; then
+        if [[ $install_repo =~ \.sh$ ]]; then
+            install_url ''
+            install_script_eval "$install_repo"
+            return
+        fi
         first=download
         rest=installers/$install_repo
     elif [[ $install_repo =~ ^/*([^/].*[^/])/*$ ]]; then
@@ -346,7 +353,7 @@ install_script_eval() {
         install_script_dir=$PWD
         cd "$pwd"
     fi
-    local source=$install_script_dir/$(date +%Y%m%d%H%M%S)-$script
+    local source=$install_script_dir/$(date +%Y%m%d%H%M%S)-$(basename "$script")
     install_download "$script" > "$source"
     if [[ ! -s $source ]]; then
         install_err
