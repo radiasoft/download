@@ -3,6 +3,9 @@
 # Install important rpms
 #
 redhat_base_main() {
+    if [[ ! -e /etc/fedora-release && ! -e /etc/yum.repos.d/epel.repo ]]; then
+        yum --color=never --enablerepo=extras install -y -q epel-release
+    fi
     local x=(
         bind-utils
         biosdevname
