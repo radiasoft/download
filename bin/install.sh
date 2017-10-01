@@ -330,12 +330,15 @@ install_repo() {
         first=download
         rest=installers/$install_repo
     elif [[ $install_repo =~ ^/*([^/].*[^/])/*$ ]]; then
-        first=${BASH_REMATCH[1]%%/*}
-        rest=
-        if [[ $first != ${BASH_REMATCH[1]} ]]; then
-            rest=${BASH_REMATCH[1]#*/}
+        first=${BASH_REMATCH[1]}
+        if [[ $first =~ ^([^/]+/[^/]+)/(.+)$ ]]; then
+            first=${BASH_REMATCH[1]}
+            rest=${BASH_REMATCH[2]}
+        elif [[ $first =~ ^([^/]+/[^/]+)$ ]]; then
+            rest=
         fi
-    else
+    fi
+    if [[ ! $first ]]; then
         install_err "$install_repo: invalid repo name"
     fi
     if [[ ! $first =~ / ]]; then
