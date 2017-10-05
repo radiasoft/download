@@ -1,5 +1,4 @@
 #!/bin/bash
-codes_dependencies base_rpm
 # Some rpms most codes use
 _common_yum=(
     atlas-devel
