@@ -34,6 +34,7 @@ redhat_base_main() {
         sqlite-devel
         strace
         tar
+        tk-devel
         unzip
         wget
         xz-devel
