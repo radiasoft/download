@@ -16,7 +16,6 @@ _common_yum=(
     libtool
     llvm-libs
     openmpi-devel
-    tk-devel
 )
 codes_yum install "${_common_yum[@]}"
 unset _common_yum
