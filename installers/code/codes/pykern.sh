@@ -9,5 +9,5 @@ hash pykern
 codes_msg 'installing pytest plugins to force import order'
 for f in pytest-xdist pytest-forked; do
     pip uninstall -y "$f" >& /dev/null || true
-    pip install -y "$f"
+    pip install "$f"
 done
