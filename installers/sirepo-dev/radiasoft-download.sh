@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# To run: curl radia.run | bash -s centos-dev
+# To run: curl radia.run | bash -s sirepo-dev
 #
 sirepo_dev_main() {
     if [[ ! -r /etc/redhat-release ]]; then
