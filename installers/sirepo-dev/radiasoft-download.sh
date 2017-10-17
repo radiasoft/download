@@ -33,6 +33,9 @@ sirepo_dev_main() {
     if ! type rslinac >& /dev/null; then
         install_repo_eval code rslinac
     fi
+    if ! python -c 'import Shadow' >& /dev/null; then
+        install_repo_eval code shadow3
+    fi
     if ! python -c 'import rsbeams' >& /dev/null; then
         install_repo_eval code rsbeams
     fi
