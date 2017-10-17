@@ -11,7 +11,7 @@ sirepo_dev_main() {
         curl radia.run | sudo bash -s redhat-base
     fi
     if [[ ! $(readlink ~/.bashrc) =~ home-env/dot ]]; then
-        install_repo_eval home-env
+        install_repo_eval home
         . ~/.bashrc
     fi
     if ! [[ $(type -t pyenv) && $(pyenv version-name) == py2 ]]; then
