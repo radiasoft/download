@@ -31,6 +31,7 @@ redhat_base_main() {
         readline-devel
         redhat-rpm-config
         rpm-build
+        screen
         sqlite-devel
         strace
         tar
