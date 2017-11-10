@@ -12,8 +12,8 @@ sirepo_dev_main() {
     fi
     if [[ ! $(readlink ~/.bashrc) =~ home-env/dot ]]; then
         install_repo_eval home
-        . ~/.bashrc
     fi
+    . ~/.bashrc
     if ! [[ $(type -t pyenv) && $(pyenv version-name) == py2 ]]; then
         bivio_pyenv_2
     fi
