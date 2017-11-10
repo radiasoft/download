@@ -100,7 +100,7 @@ install_args_check() {
         not-set)
             install_channel=dev
             install_docker_channel=beta
-            if [[ $install_image =~ ^(beamsim|python2|rs4pi)$ ]]; then
+            if [[ $install_image =~ ^radiasoft/(beamsim|python2|rs4pi)$ ]]; then
                 install_docker_channel=alpha
             fi
             install_github_channel=master
