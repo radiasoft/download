@@ -14,9 +14,9 @@ CC=mpicc CXX=mpicxx ./configure \
 make install
 cd "$base_pwd"
 
-#codes_download https://gitlab.psi.ch/OPAL/src.git OPAL-1.9
+#codes_download https://gitlab.psi.ch/OPAL/src.git OPAL-1.6
 # The git repo is 1.6G, and takes a long time to load. The tgz is 3M
-codes_download_foss OPAL-1.9-20171114.203507.tar.gz
+codes_download_foss codes_download_foss OPAL-1.6-20171009.041421
 mkdir build
 cd build
 CMAKE_PREFIX_PATH="$(pyenv prefix)" H5HUT_PREFIX="$(pyenv prefix)" \
