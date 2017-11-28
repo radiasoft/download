@@ -12,7 +12,7 @@ perl -pi -e 's/-j8//' Makefile
 perl -pi -e "s/'fftw'/'sfftw'/" cpp/py/setup.py
 perl -pi -e 's/-lfftw/-lsfftw/; s/\bcc\b/gcc/; s/\bc\+\+/g++/' cpp/gcc/Makefile
 make
-make test
+# make test  # MR20171122: this option is removed from SRW Makefile by ochubar
 d=$(python -c 'import distutils.sysconfig as s; print s.get_python_lib()')
 (
     cd env/work/srw_python
