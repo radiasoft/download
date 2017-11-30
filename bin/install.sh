@@ -23,15 +23,6 @@ install_args() {
     if [[ -n $download_channel ]]; then
         install_err '$download_channel: unsupported, use $install_server'
     fi
-    : ${install_debug:=}
-    : ${install_server:=github}
-    install_extra_args=()
-    install_image=
-    install_repo=
-    install_run_interactive=
-    install_type=
-    : ${install_verbose:=}
-    : ${install_channel:=not-set}
     while [[ "$1" ]]; do
         case "$1" in
             beamsim|python2|rs4pi|sirepo)
@@ -194,17 +185,29 @@ install_log() {
     fi
 }
 
-install_main() {
-    # POSIT: name ends in install.log (see
+install_init_vars() {
     install_log_file=$PWD/radia-run-install.log
     if ! dd if=/dev/null of="$install_log_file" 2>/dev/null; then
         install_log_file=/tmp/$(date +%Y%m%d%H%M%S)-$RANDOM-$(basename "$install_log_file")
     fi
-    install_msg "Log: $install_log_file"
     install_clean_cmds=()
     trap install_err_trap EXIT
-    local -a install_curl_flags
+    : ${install_debug:=}
+    : ${install_server:=github}
+    install_extra_args=()
+    install_image=
+    install_repo=
+    install_run_interactive=
+    install_type=
+    : ${install_verbose:=}
+    : ${install_channel:=not-set}
     install_curl_flags=( -L -s -S )
+}
+
+install_main() {
+    # POSIT: name ends in install.log (see
+    install_init_vars
+    install_msg "Log: $install_log_file"
     install_log install_main
     install_args "$@"
     install_dir_check
