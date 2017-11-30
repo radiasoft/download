@@ -14,11 +14,6 @@
 #     install_server=~/src bash ../../bin/install.sh code
 set -e -o pipefail
 
-# For error messages
-install_prog='curl radia.run | bash -s'
-
-: ${install_tmp_dir:=/var/tmp}
-
 install_args() {
     if [[ -n $download_channel ]]; then
         install_err '$download_channel: unsupported, use $install_server'
@@ -186,22 +181,27 @@ install_log() {
 }
 
 install_init_vars() {
+    # For error messages
+    install_prog='curl radia.run | bash -s'
     install_log_file=$PWD/radia-run-install.log
     if ! dd if=/dev/null of="$install_log_file" 2>/dev/null; then
         install_log_file=/tmp/$(date +%Y%m%d%H%M%S)-$RANDOM-$(basename "$install_log_file")
     fi
     install_clean_cmds=()
-    trap install_err_trap EXIT
+    : ${install_channel:=not-set}
     : ${install_debug:=}
     : ${install_server:=github}
+    : ${install_tmp_dir:=/var/tmp}
+    : ${install_verbose:=}
+    install_curl_flags=( -L -s -S )
     install_extra_args=()
     install_image=
     install_repo=
     install_run_interactive=
+    install_script_dir=
     install_type=
-    : ${install_verbose:=}
-    : ${install_channel:=not-set}
-    install_curl_flags=( -L -s -S )
+    install_url=
+    trap install_err_trap EXIT
 }
 
 install_main() {
