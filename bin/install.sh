@@ -319,6 +319,7 @@ install_repo() {
         install_extra_args=( "$@" )
         install_type=repo
         install_no_dir_check=1
+        install_script_dir=
     fi
     local first rest
     if [[ ! $install_repo =~ / ]]; then
@@ -352,6 +353,7 @@ install_repo_eval() {
     local prev_args=( "${install_extra_args[@]}" )
     local prev_pwd=$PWD
     local prev_repo=$install_repo
+    local prev_script_dir=$install_script_dir
     local prev_server=$install_server
     local prev_type=$install_type
     local prev_url=$install_url
@@ -359,6 +361,7 @@ install_repo_eval() {
     cd "$prev_pwd"
     install_extra_args=( "${prev_args[@]}" )
     install_repo=$prev_repo
+    install_script_dir=$prev_script_dir
     install_server=$prev_server
     install_type=$prev_type
     install_url=$prev_url
