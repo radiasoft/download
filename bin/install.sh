@@ -201,12 +201,12 @@ install_init_vars() {
     install_script_dir=
     install_type=
     install_url=
-    trap install_err_trap EXIT
 }
 
 install_main() {
     # POSIT: name ends in install.log (see
     install_init_vars
+    trap install_err_trap EXIT
     install_msg "Log: $install_log_file"
     install_log install_main
     install_args "$@"
