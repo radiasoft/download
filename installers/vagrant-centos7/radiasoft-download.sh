@@ -25,36 +25,7 @@ http://vagrantup.com'
         fi
     fi
     vagrant_centos7_plugins
-    if [[ -e $vdi ]]; then
-        vagrant_centos7_delete_vdi "$vdi"
-    fi
-}
-
-vagrant_centos7_delete_vdi() {
-    # vdi might be leftover from previous vagrant up. VirtualBox doesn't
-    # destroy automatically.
-    local vdi=$1
-    local l u uuid
-    VBoxManage list hdds | while read l; do
-        if [[ ! $l =~ ^[^:]+:[[:space:]]*(.+) ]]; then
-            continue
-        fi
-        case $BASH_REMATCH[1] in
-            Location)
-                if [[ $vdi == $BASH_REMATCH[2] ]]; then
-                    uuid=$u
-                    break
-                fi
-                ;;
-            UUID)
-                u=BASH_REMATCH[2]
-                ;;
-        esac
-    done
-    if [[ -n $uuid ]]; then
-        install_info "Deleting HDD $vdi ($uuid)"
-        VBoxManage closemedium disk "$uuid" --delete
-    fi
+    vagrant_centos7_vdi_delete "$vdi"
 }
 
 vagrant_centos7_main() {
@@ -143,6 +114,40 @@ ${vbguest}    # https://stackoverflow.com/a/33137719/3075806
     config.vm.synced_folder ".", "/vagrant", type: "nfs", mount_options: ["rw", "vers=3", "tcp", "nolock", "fsc", "actimeo=2"]
 end
 EOF
+}
+
+vagrant_centos7_vdi_delete() {
+    # vdi might be leftover from previous vagrant up. VirtualBox doesn't
+    # destroy automatically.
+    local vdi=$1
+    if [[ ! -e $vdi ]]; then
+        return
+    fi
+    local uuid=$(vagrant_centos7_vdi_find "$vdi")
+    if [[ -n $uuid ]]; then
+        install_info "Deleting HDD $vdi ($uuid)"
+        VBoxManage closemedium disk "$uuid" --delete
+    fi
+}
+
+vagrant_centos7_vdi_find() {
+    local vdi=$1
+    VBoxManage list hdds | while read l; do
+        if [[ ! $l =~ ^([^:]+):[[:space:]]*(.+) ]]; then
+            continue
+        fi
+        case ${BASH_REMATCH[1]} in
+            Location)
+                if [[ $vdi == ${BASH_REMATCH[2]} ]]; then
+                    echo "$u"
+                    exit
+                fi
+                ;;
+            UUID)
+                u=${BASH_REMATCH[2]}
+                ;;
+        esac
+    done
 }
 
 vagrant_centos7_main "${install_extra_args[@]}"
