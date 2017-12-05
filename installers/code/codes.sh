@@ -184,10 +184,11 @@ codes_yum() {
 }
 
 if [[ $0 == ${BASH_SOURCE[0]} ]]; then
-    local v=( $(cat /etc/fedora-release 2> /dev/null) )
+    v=( $(cat /etc/fedora-release 2> /dev/null) )
     if (( ${v[2]:-0} < 21 )); then
         codes_msg 'Only Fedora 21 or greater is supported at this time'
     fi
+    unset v
     # make sure pyenv loaded
     if [[ $(type -t pyenv) != function ]]; then
         if [[ ! $(type -f pyenv 2>/dev/null) =~ /bin/pyenv$ ]]; then
