@@ -204,6 +204,9 @@ install_init_vars() {
     if [[ ! -d $install_tmp_dir ]]; then
         install_tmp_dir=/var/tmp
     fi
+    if [[ $install_server =~ ^file://(/.+) && ! -d ${BASH_REMATCH[1]}/radiasoft/download ]]; then
+        install_server=
+    fi
 }
 
 install_main() {
