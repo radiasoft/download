@@ -174,6 +174,10 @@ codes_patch_requirements_txt() {
 }
 
 codes_yum() {
+    if [[ $(type -t build_yum) ]] then
+        build_yum "$@"
+        return $?
+    fi
     codes_msg "yum $@"
     # Building on CentOS host seems to require this for overlayfs
     sudo rpm --rebuilddb
