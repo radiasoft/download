@@ -201,10 +201,10 @@ install_init_vars() {
     install_script_dir=
     install_type=
     install_url=
-    if [[ ! -d $install_tmp_dir ]]; then
+    if [[ ! -w $install_tmp_dir ]]; then
         install_tmp_dir=/var/tmp
     fi
-    if [[ $install_server =~ ^file://(/.+) && ! -d ${BASH_REMATCH[1]}/radiasoft/download ]]; then
+    if [[ $install_server =~ ^file://(/.+) && ! -4 ${BASH_REMATCH[1]}/radiasoft/download ]]; then
         install_server=github
     fi
 }
