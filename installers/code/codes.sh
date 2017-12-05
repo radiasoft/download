@@ -162,8 +162,30 @@ codes_main() {
     codes_install_loop "${codes[@]}"
 }
 
+codes_make_install() {
+    local cmd=( make -j$(codes_num_cores) )
+    if [[ $@ ]]; then
+        cmd+=( "$@" )
+    else
+        cmd+=( install )
+    fi
+    "${cmd[@]}"
+}
+
 codes_msg() {
     echo "$(date -u +%H:%M:%SZ)" "$@" 1>&2
+}
+
+codes_num_cores() {
+    local res=$(grep -c '^core id[[:space:]]*:' /proc/cpuinfo)
+    # Use half the cores (likely hyperthreads) except if on TRAVIS
+    if [[ $TRAVIS != true ]]; then
+        res=$(( $res / 2 ))
+    fi
+    if (( $res < 1 )); then
+        res=1
+    fi
+    echo "$res"
 }
 
 codes_patch_requirements_txt() {

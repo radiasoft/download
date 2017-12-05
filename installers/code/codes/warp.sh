@@ -6,7 +6,7 @@ warp_pwd=$PWD
 # Current build 8/24/2017 not working
 codes_download https://bitbucket.org/radiasoft/warp.git
 cd pywarp90
-make clean install
+codes_make_install clean install
 cat > setup.local.py <<'EOF'
 if parallel:
     import os, re
@@ -22,4 +22,4 @@ if parallel:
         else:
              libraries.append(arg)
 EOF
-make FCOMP='-F gfortran --fcompexec mpifort' pclean pinstall
+codes_make_install FCOMP='-F gfortran --fcompexec mpifort' pclean pinstall

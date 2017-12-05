@@ -8,7 +8,8 @@ cd "$srw_pwd"
 # ochubar/SRW is over 600MB so GitHub times out sometimes. This is a
 # stripped down copy
 codes_download SRW-light '' SRW
-perl -pi -e 's/-j8//' Makefile
+cores=$(codes_num_cores)
+perl -pi -e "s/-j8/-j$cores/" Makefile
 perl -pi -e "s/'fftw'/'sfftw'/" cpp/py/setup.py
 perl -pi -e 's/-lfftw/-lsfftw/; s/\bcc\b/gcc/; s/\bc\+\+/g++/' cpp/gcc/Makefile
 make

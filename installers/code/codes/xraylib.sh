@@ -7,4 +7,4 @@ codes_download http://lvserver.ugent.be/xraylib/xraylib-3.2.0.tar.gz
     --disable-python-numpy \
     --disable-fortran2003
 make
-make install
+codes_make_install

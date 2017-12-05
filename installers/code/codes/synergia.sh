@@ -75,14 +75,7 @@ synergia_contractor() {
     # Turn off parallel make
     local f
     local -a x=()
-    # Don't be greedy, use half the cores (except if on TRAVIS)
-    local cores=$(grep -c '^core id[[:space:]]*:' /proc/cpuinfo)
-    if [[ $TRAVIS != true ]]; then
-        cores=$(( $cores / 2 ))
-    fi
-    if (( $cores < 1 )); then
-        cores=1
-    fi
+    local cores=$(codes_num_cores)
     codes_msg "Using cores=$cores"
     for f in bison chef-libs fftw3 freeglut libpng nlopt qutexmlrpc qwt synergia2; do
         x+=( "$f"/make_use_custom_parallel=1 "$f"/make_custom_parallel="$cores")

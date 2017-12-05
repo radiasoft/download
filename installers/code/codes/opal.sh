@@ -11,13 +11,13 @@ CC=mpicc CXX=mpicxx ./configure \
   --prefix="$(pyenv prefix)" \
   --with-pic \
   --enable-shared
-make install
+codes_make_install
 cd "$base_pwd"
 
-#codes_download https://gitlab.psi.ch/OPAL/src.git OPAL-1.6
+#codes_download https://gitlab.psi.ch/OPAL/src.git OPAL-1.9
 # The git repo is 1.6G, and takes a long time to load. The tgz is 3M
 # Last known working version of OPAL
-codes_download_foss OPAL-1.6-20170902.093758.tar.gz
+codes_download_foss OPAL-1.9-20171123.105913.tar.gz
 mkdir build
 cd build
 CMAKE_PREFIX_PATH="$(pyenv prefix)" H5HUT_PREFIX="$(pyenv prefix)" \
@@ -29,5 +29,5 @@ CMAKE_PREFIX_PATH="$(pyenv prefix)" H5HUT_PREFIX="$(pyenv prefix)" \
     -DCMAKE_INSTALL_PREFIX="$(pyenv prefix)" \
     -DENABLE_SAAMG_SOLVER=TRUE \
     ..
-make -j 2 install
+codes_make_install
 cd "$base_pwd"

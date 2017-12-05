@@ -3,13 +3,13 @@ base_pwd=$PWD
 #http://glaros.dtc.umn.edu/gkhome/metis/parmetis/download
 codes_download_foss parmetis-4.0.3.tar.gz
 make config prefix="$(pyenv prefix)"
-make -j 2 install
+codes_make_install
 cd "$base_pwd"
 
 #http://glaros.dtc.umn.edu/gkhome/metis/metis/download
 codes_download_foss metis-5.1.0.tar.gz
 make config prefix="$(pyenv prefix)"
-make install
+codes_make_install
 cd "$base_pwd"
 
 # https://trilinos.org/oldsite/download/download.html
@@ -47,5 +47,5 @@ CC=mpicc CXX=mpicxx cmake \
   -DTrilinos_ENABLE_Tpetra:BOOL=ON \
   -DTrilinos_ENABLE_TESTS:BOOL=OFF \
   ..
-make -j 2 install
+codes_make_install
 cd "$base_pwd"
