@@ -174,14 +174,14 @@ codes_patch_requirements_txt() {
 }
 
 codes_yum() {
-    if [[ $(type -t build_yum) ]] then
-        build_yum "$@"
-        return $?
+    local cmd=yum
+    if [[ $(type -t dnf) ]]; then
+        cmd=dnf
+    else
+        sudo rpm --rebuilddb --quiet
     fi
-    codes_msg "yum $@"
-    # Building on CentOS host seems to require this for overlayfs
-    sudo rpm --rebuilddb
-    sudo yum --color=never -y -q "$@"
+    codes_msg "$cmd $@"
+    sudo "$cmd" --color=never -y -q "$@"
     if [[ -n $(type -p package-cleanup) ]]; then
         sudo package-cleanup --cleandupes
     fi
