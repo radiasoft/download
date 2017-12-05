@@ -201,6 +201,9 @@ install_init_vars() {
     install_script_dir=
     install_type=
     install_url=
+    if [[ ! -d $install_tmp_dir ]]; then
+        install_tmp_dir=/var/tmp
+    fi
 }
 
 install_main() {
