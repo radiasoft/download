@@ -13,7 +13,8 @@ CC=mpicc CXX=mpicxx ./configure \
   --prefix="$(pyenv prefix)" \
   --with-pic \
   --enable-shared
-codes_make_install
+# Cannot run in parallel, bad dependencies
+make install
 cd "$base_pwd"
 
 #codes_download https://gitlab.psi.ch/OPAL/src.git OPAL-1.9
