@@ -22,6 +22,6 @@ EOF
 }
 
 codes_dependencies sdds
-codes_download_foss elegant-28.1.0-1.fedora.21.openmpi.x86_64.rpm
+codes_download_foss elegant-34.0.1-1.fedora.27.openmpi.x86_64.rpm
 elegant_docs
 elegant_rpn_defns
