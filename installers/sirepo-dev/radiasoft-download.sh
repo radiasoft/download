@@ -13,11 +13,15 @@ sirepo_dev_main() {
     if [[ ! $(readlink ~/.bashrc) =~ home-env/dot ]]; then
         install_repo_eval home
     fi
+    set +e
     . ~/.bashrc
+    set -e
     if ! [[ $(type -t pyenv) && $(pyenv version-name) == py2 ]]; then
         bivio_pyenv_2
+        set +e
+        . ~/.bashrc
+        set -e
     fi
-    . ~/.bashrc
     if ! rpm -q SDDSPython >& /dev/null; then
         install_repo_eval code common
     fi
