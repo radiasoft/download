@@ -182,7 +182,7 @@ codes_yum() {
     fi
     codes_msg "$cmd $@"
     sudo "$cmd" --color=never -y -q "$@"
-    if [[ -n $(type -p package-cleanup) ]]; then
+    if [[ $cmd = yum && -n $(type -p package-cleanup) ]]; then
         sudo package-cleanup --cleandupes
     fi
 }
