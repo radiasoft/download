@@ -18,6 +18,7 @@ redhat_base_main() {
         gdb
         ghostscript
         git
+        grep
         gsl-devel
         hostname
         iproute
@@ -28,6 +29,7 @@ redhat_base_main() {
         openssl-devel
         patch
         pkgconfig
+        procps-ng
         readline-devel
         redhat-rpm-config
         rpm-build
