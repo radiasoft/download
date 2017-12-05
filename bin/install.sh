@@ -204,6 +204,9 @@ install_init_vars() {
     if [[ ! -w $install_tmp_dir ]]; then
         install_tmp_dir=/var/tmp
     fi
+    if [[ ! -w $TMPDIR ]]; then
+        unset TMPDIR
+    fi
     if [[ $install_server =~ ^file://(/.+) && ! -r ${BASH_REMATCH[1]}/radiasoft/download ]]; then
         install_server=github
     fi
