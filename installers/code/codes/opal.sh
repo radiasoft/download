@@ -5,8 +5,9 @@ base_pwd=$PWD
 # Doc: https://amas.psi.ch/H5hut/wiki/H5hutInstall
 codes_download_foss H5hut-1.99.13.tar.gz
 patch -p0 < "$codes_data_src_dir"/opal/H5hut-1.99.13.patch
-perl -pi -e 's{\bwhich\b}{type -p}' autogen.sh
+perl -pi -e 's{\`which}{\`type -p}' autogen.sh
 ./autogen.sh
+perl -pi -e 's{\`which}{\`type -p}' configure
 CC=mpicc CXX=mpicxx ./configure \
   --enable-parallel \
   --prefix="$(pyenv prefix)" \
