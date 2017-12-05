@@ -1,4 +1,4 @@
-2#!/bin/bash
+#!/bin/bash
 sdds_pwd=$PWD
 codes_download_foss SDDSToolKit-3.5.1-1.fedora.27.x86_64.rpm
 cd "$sdds_pwd"
