@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Create a Centos 7 VirtualBox
+# Create a Centos or Fedora VirtualBox with guest additions
 #
 # Usage: curl radia.run | bash -s vagrant-up centos/7|fedora/27 [guest-name:v.bivio.biz [guest-ip:10.10.10.10]]
 #
@@ -87,7 +87,7 @@ vagrant_dev_vagrantfile() {
     local nfs_src=''
     if [[ -z $vagrant_dev_no_nfs_src ]]; then
         nfs_src='
-    config.vm.synced_folder ".", "/vagrant", type: "nfs", mount_options: ["rw", "vers=3", "tcp", "nolock", "fsc", "actimeo=2"]
+    config.vm.synced_folder "'"$HOME/src"'", "/home/vagrant/src", type: "nfs", mount_options: ["rw", "vers=3", "tcp", "nolock", "fsc", "actimeo=2"]
 '
     fi
     cat > Vagrantfile <<EOF
