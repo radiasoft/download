@@ -41,6 +41,10 @@ vagrant_dev_main() {
     fi
     # Absolute path is necessary for comparison in vagrant_dev_delete_vdi
     local vdi=$PWD/$base-docker.vdi
+    echo 'We need access to sudo on your Mac to mount NFS'
+    if ! sudo true; then
+        install_err 'must have access to sudo'
+    fi
     vagrant_dev_check "$vdi"
     vagrant_dev_vagrantfile "$os" "$host" "$ip" "$vdi" '1'
     vagrant up
