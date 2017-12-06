@@ -25,6 +25,7 @@ redhat_base_main() {
         iputils
         libpng-devel
         lsof
+        lvm2
         make
         openssl-devel
         patch
