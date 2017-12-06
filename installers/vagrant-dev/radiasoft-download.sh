@@ -45,6 +45,11 @@ vagrant_dev_main() {
     if ! sudo true; then
         install_err 'must have access to sudo'
     fi
+    if [[ ! -r /etc/exports ]]; then
+        sudo touch /etc/exports
+        # vagrant requires /etc/exports readable by an ordinary user
+        sudo chmod 644 /etc/exports
+    fi
     vagrant_dev_check "$vdi"
     vagrant_dev_vagrantfile "$os" "$host" "$ip" "$vdi" '1'
     vagrant up
