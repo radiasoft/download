@@ -51,12 +51,14 @@ sirepo_dev_main() {
     cd ~/src/radiasoft
     local p
     for p in pykern sirepo; do
-        if [[ -d $p ]]; then
-            continue
-        fi
         pip uninstall -y "$p" >& /dev/null || true
-        gcl "$p"
-        cd "$p"
+        if [[ -d $p ]]; then
+            cd "$p"
+            git pull
+        else
+            gcl "$p"
+            cd "$p"
+        fi
         pip install -r requirements.txt >& /dev/null
         pip install -e .
         cd ..
