@@ -41,6 +41,8 @@ redhat_base_main() {
         tk-devel
         unzip
         wget
+        # for ssh x11 forwarding
+        xauth
         xz-devel
         yum-utils
         zip
