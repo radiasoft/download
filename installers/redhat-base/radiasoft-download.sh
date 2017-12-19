@@ -42,7 +42,7 @@ redhat_base_main() {
         unzip
         wget
         # for ssh x11 forwarding
-        xauth
+        xorg-x11-xauth
         xz-devel
         yum-utils
         zip
