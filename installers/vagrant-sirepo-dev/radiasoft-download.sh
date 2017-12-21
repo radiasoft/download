@@ -2,7 +2,7 @@
 #
 # Create a Fedora 27 VirtualBox for sirepo
 #
-# Usage: curl radia.run | bash -s vagrant-sirepo-dev [guest-name:v.bivio.biz [guest-ip:10.10.10.10]]
+# Usage: curl radia.run | bash -s vagrant-sirepo-dev [guest-name:v.radia.run [guest-ip:10.10.10.10]]
 #
 vagrant_sirepo_dev_main() {
     install_repo_eval vagrant-dev fedora "$@"

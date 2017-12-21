@@ -2,7 +2,7 @@
 #
 # Create a Centos or Fedora VirtualBox with guest additions
 #
-# Usage: curl radia.run | bash -s vagrant-up centos/7|fedora/27 [guest-name:v.bivio.biz [guest-ip:10.10.10.10]]
+# Usage: curl radia.run | bash -s vagrant-up centos|fedora [guest-name:v.radia.run [guest-ip:10.10.10.10]]
 #
 vagrant_dev_check() {
     local vdi=$1
@@ -23,7 +23,7 @@ http://vagrantup.com'
 }
 
 vagrant_dev_main() {
-    local os=$1 host=${2:-v.bivio.biz} ip=$3
+    local os=$1 host=${2:-v.radia.run} ip=$3
     local base=${host%%.*}
     if [[ ! $os =~ ^(fedora|centos) ]]; then
         install_err "$os: invalid OS: only fedora or centos are supported"
