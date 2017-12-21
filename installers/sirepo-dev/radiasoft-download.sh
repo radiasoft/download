@@ -2,6 +2,7 @@
 #
 # To run: curl radia.run | bash -s sirepo-dev
 #
+#TODO(robnagler) make sure git pull works on ~/src/biviosoftware/home-env pykern sirepo
 sirepo_dev_main() {
     if [[ ! -r /etc/redhat-release ]]; then
         install_err 'only works on Red Hat flavored Linux'
