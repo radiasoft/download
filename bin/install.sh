@@ -127,7 +127,7 @@ install_download() {
     if [[ ! $url =~ ^[[:lower:]]+: ]]; then
         url=$install_url/$url
     fi
-    install_log curl "${install_curl_flags[@]}" "$url"
+    install_info curl "${install_curl_flags[@]}" "$url"
     curl "${install_curl_flags[@]}" "$url"
 }
 
