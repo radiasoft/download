@@ -57,6 +57,12 @@ vagrant_dev_main() {
     vagrant halt
     vagrant_dev_vagrantfile "$os" "$host" "$ip" "$vdi" ''
     vagrant up
+    local f
+    for f in ~/.gitconfig ~/.netrc; do
+        if [[ -r $f ]]; then
+            vagrant ssh -c "dd of=$(basename $f)" < "$f" >& /dev/null
+        fi
+    done
 }
 
 vagrant_dev_plugins() {
