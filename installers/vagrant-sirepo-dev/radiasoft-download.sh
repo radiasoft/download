@@ -10,12 +10,6 @@ vagrant_sirepo_dev_main() {
 export install_server='$installer_server' install_channel='$install_channel' install_debug='$install_debug'
 curl radia.run | bash -s sirepo-dev
 EOF
-    local f
-    for f in ~/.gitconfig ~/.netrc; do
-        if [[ -r $f ]]; then
-            vagrant ssh -c "dd of=$(basename $f)" < "$f" >& /dev/null
-        fi
-    done
 }
 
 vagrant_sirepo_dev_main "${install_extra_args[@]}"
