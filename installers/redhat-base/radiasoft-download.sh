@@ -25,7 +25,6 @@ redhat_base_main() {
         iputils
         libpng-devel
         lsof
-        lvm2
         make
         openssl-devel
         patch
@@ -36,18 +35,23 @@ redhat_base_main() {
         rpm-build
         screen
         sqlite-devel
-        strace
         tar
         tk-devel
         unzip
         wget
-        # for ssh x11 forwarding
-        xorg-x11-xauth
         xz-devel
         yum-utils
         zip
         zlib-devel
     )
+    if [[ ! -e /.dockerenv ]]; then
+        x+=(
+            lvm2
+            strace
+            # for ssh x11 forwarding
+            xorg-x11-xauth
+        )
+    fi
     install_yum_install "${x[@]}"
 }
 
