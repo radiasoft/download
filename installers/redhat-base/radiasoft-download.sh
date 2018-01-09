@@ -33,6 +33,7 @@ redhat_base_main() {
         readline-devel
         redhat-rpm-config
         rpm-build
+        rsync
         screen
         sqlite-devel
         tar
