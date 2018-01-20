@@ -167,10 +167,10 @@ install_exec() {
 install_info() {
     local f=install_msg
     if [[ -n $install_verbose ]]; then
-        install_verbose= install_log "$@" ...
+        install_verbose= install_log "$@"
     fi
     #TODO(robnagler) $install_silent
-    $f "$@" ...
+    $f "$@"
 }
 
 install_log() {
