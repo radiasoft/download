@@ -33,9 +33,13 @@ EOF
 
 code_install() {
     install_tmp_dir
-    git clone -b "$install_github_channel" -q https://github.com/radiasoft/download
+    local url=https://github.com
+    if [[ -n $install_server && $install_server != github ]]; then
+        url=$install_server
+    fi
+    git clone -b "$install_github_channel" -q "$url/radiasoft/download"
     cd download/installers/code
-    codes_dir=$(pwd)/codes bash -l codes.sh "$@"
+    codes_dir=$(pwd)/codes bash -l ${install_debug:+-x} codes.sh "$@"
 }
 
 code_main() {

@@ -159,6 +159,9 @@ codes_main() {
     if [[ -z $codes ]]; then
         codes_err 'usage: bash -l codes.sh code1...'
     fi
+    if [[ -n $install_debug ]]; then
+        set -x
+    fi
     codes_install_loop "${codes[@]}"
 }
 
@@ -210,7 +213,7 @@ codes_yum() {
 }
 
 if [[ $0 == ${BASH_SOURCE[0]} ]]; then
-    v=( $(cat /etc/fedora-release 2> /dev/null) )
+    v=( $(cat /etc/fedora-release 2> /dev/null || true) )
     if (( ${v[2]:-0} < 21 )); then
         codes_msg 'Only Fedora 21 or greater is supported at this time'
     fi
