@@ -25,7 +25,7 @@ cd "$base_pwd"
 #codes_download https://gitlab.psi.ch/OPAL/src.git OPAL-1.9
 # The git repo is 1.6G, and takes a long time to load. The tgz is 3M
 # Last known working version of OPAL
-codes_download_foss OPAL-1.9-20171123.105913.tar.gz
+codes_download_foss OPAL-1.9-20180206.090701.tar.gz
 mkdir build
 cd build
 CMAKE_PREFIX_PATH="$(pyenv prefix)" H5HUT_PREFIX="$(pyenv prefix)" \
