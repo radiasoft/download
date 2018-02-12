@@ -1,4 +1,5 @@
 #!/bin/bash
+codes_yum install muParser
 codes_download zhanghe9704/electroncooling master
 mkdir build
 CMAKE_PREFIX_PATH="$(pyenv prefix)" cmake ..
