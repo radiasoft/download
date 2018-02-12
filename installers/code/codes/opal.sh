@@ -36,5 +36,9 @@ CMAKE_PREFIX_PATH="$(pyenv prefix)" H5HUT_PREFIX="$(pyenv prefix)" \
     -DCMAKE_INSTALL_PREFIX="$(pyenv prefix)" \
     -DENABLE_SAAMG_SOLVER=TRUE \
     ..
+# Need to add -lsz, and this was the easiest way...
+# /usr/bin/ld: /usr/lib64/openmpi/lib/libhdf5.a(H5Zszip.o): undefined reference to symbol 'SZ_BufftoBuffDecompress'
+# /usr/lib64/libsz.so.2: error adding symbols: DSO missing from command line
+perl -pi -e 's/-lquadmath/$& -lsz/' src/CMakeFiles/opal.dir/link.txt
 codes_make_install
 cd "$base_pwd"
