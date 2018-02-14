@@ -125,14 +125,18 @@ synergia_install() {
 }
 
 synergia_pyenv_exec() {
-    cat > ~/.pyenv/pyenv.d/exec/rs-beamsim-synergia.bash <<'EOF'
+    # Is not dynamic, because
+    perl -p -e "s{PREFIX}{$(pyenv prefix)}" <<'EOF' > ~/.pyenv/pyenv.d/exec/rs-beamsim-synergia.bash
 #!/bin/bash
 #
 # Synergia needs these special paths to work.
 #
-export SYNERGIA2DIR=$(pyenv prefix)/lib/synergia
-export LD_LIBRARY_PATH=$SYNERGIA2DIR:/usr/lib64/openmpi/lib
-export PYTHONPATH=$SYNERGIA2DIR
+if [[ PREFIX == $(pyenv prefix) ]]; then
+    # only set if in the environment we built synergia
+    export SYNERGIA2DIR=PREFIX/lib/synergia
+    export LD_LIBRARY_PATH=$SYNERGIA2DIR:/usr/lib64/openmpi/lib
+    export PYTHONPATH=$SYNERGIA2DIR
+fi
 EOF
 }
 
