@@ -132,9 +132,10 @@ synergia_pyenv_exec() {
 # Synergia needs these special paths to work.
 #
 if [[ PREFIX == $(pyenv prefix) ]]; then
-    # only set if in the environment we built synergia
+    # only set if in the environment we built synergia; prevents "jupyter" environment
+    # from screwing this up.
     export SYNERGIA2DIR=PREFIX/lib/synergia
-    export LD_LIBRARY_PATH=$SYNERGIA2DIR:/usr/lib64/openmpi/lib
+    export LD_LIBRARY_PATH=$SYNERGIA2DIR:/usr/lib64/openmpi/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
     export PYTHONPATH=$SYNERGIA2DIR
 fi
 EOF
