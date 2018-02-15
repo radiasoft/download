@@ -11,8 +11,7 @@ perl -pi -e 's{\`which}{\`type -p}' configure
 CC=mpicc CXX=mpicxx ./configure \
   --enable-parallel \
   --prefix="$(pyenv prefix)" \
-  --with-pic \
-  --enable-shared
+  --with-pic
 codes_make_install
 cd "$base_pwd"
 
