@@ -29,6 +29,7 @@ redhat_base_main() {
         make
         openssl-devel
         patch
+        pciutils
         pkgconfig
         procps-ng
         readline-devel
