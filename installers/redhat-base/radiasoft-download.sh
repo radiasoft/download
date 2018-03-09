@@ -24,6 +24,7 @@ redhat_base_main() {
         iproute
         iputils
         libpng-devel
+        lshw
         lsof
         make
         openssl-devel
