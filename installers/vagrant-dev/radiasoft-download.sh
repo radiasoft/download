@@ -63,9 +63,10 @@ vagrant_dev_main() {
             vagrant ssh -c "dd of=$(basename $f)" < "$f" >& /dev/null
         fi
     done
-    install_repo_as_root redhat-base
-    install_repo_as_root home
-    install_repo_eval home
+    vagrant ssh -c <<EOF
+export install_server='$installer_server' install_channel='$install_channel' install_debug='$install_debug'
+curl radia.run | bash -s redhat-dev
+EOF
 }
 
 vagrant_dev_plugins() {
