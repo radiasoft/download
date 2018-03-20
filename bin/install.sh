@@ -128,6 +128,10 @@ install_download() {
         url=$install_url/$url
     fi
     install_info curl "${install_curl_flags[@]}" "$url"
+    if [[ $url =~ raw.github ]]; then
+        # work around github's raw cache
+        url="$url?$(date +%s)"
+    fi
     curl "${install_curl_flags[@]}" "$url"
 }
 
