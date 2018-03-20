@@ -22,7 +22,7 @@ EOF
         sudo su - <<'EOF'
 set -e
 rpm -q postgresql-server >&/dev/null || yum install -y -q postgresql-server
-postgresql-setup initdb
+PGSETUP_INITDB_OPTIONS="--encoding=SQL_ASCII" postgresql-setup initdb
 install -m 600 -o postgres -g postgres /dev/stdin /var/lib/pgsql/data/pg_hba.conf <<'EOF2'
 local all all trust
 EOF2
@@ -33,6 +33,8 @@ EOF
     set +euo pipefail
     . ~/.bashrc
     _bivio_home_env_update -f
+    cd ~/src/biviosoftware/perl-Bivio
+    git checkout centos7
     . ~/.bashrc
     bivio sql init_dbms >& /dev/null || true
     # always recreate db
