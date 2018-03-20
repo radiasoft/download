@@ -23,7 +23,7 @@ EOF
 set -e
 rpm -q postgresql-server >&/dev/null || yum install -y -q postgresql-server
 postgresql-setup initdb
-install -m 600 -o postgres -g postgres /var/lib/pgsql/data/pg_hba.conf <<'EOF2'
+install -m 600 -o postgres -g postgres /dev/stdin /var/lib/pgsql/data/pg_hba.conf <<'EOF2'
 local all all trust
 EOF2
 systemctl start postgresql
