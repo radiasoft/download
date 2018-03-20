@@ -63,7 +63,7 @@ vagrant_dev_main() {
             vagrant ssh -c "dd of=$(basename $f)" < "$f" >& /dev/null
         fi
     done
-    vagrant ssh -c <<EOF
+    vagrant ssh <<EOF
 export install_server='$installer_server' install_channel='$install_channel' install_debug='$install_debug'
 curl radia.run | bash -s redhat-dev
 EOF
