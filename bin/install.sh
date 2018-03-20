@@ -382,7 +382,10 @@ install_repo_eval() {
     local prev_url=$install_url
     install_repo "$@"
     cd "$prev_pwd"
-    install_extra_args=( "${prev_args[@]}" )
+    if (( ${#prev_args[@]} )); then
+        # Array variables are unbound when empty
+        install_extra_args=( "${prev_args[@]}" )
+    fi
     install_repo=$prev_repo
     install_script_dir=$prev_script_dir
     install_server=$prev_server
