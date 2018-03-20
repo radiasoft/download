@@ -10,7 +10,7 @@ perl_dev_main() {
         install_err 'run as vagrant (or other ordinary user), not root'
     fi
     if ! grep -s -q BIVIO_WANT_PERL=1 ~/.pre_bivio_bashrc; then
-        install -m 600 /dev/stdin ~/.pre_bivio_bashrc <<'EOF'
+        cat >> ~/.pre_bivio_bashrc <<'EOF'
 export BIVIO_WANT_PERL=1
 export BIVIO_HTTPD_PORT=8000
 EOF
