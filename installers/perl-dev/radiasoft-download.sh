@@ -20,3 +20,5 @@ EOF
     # always recreate db
     ctd
 }
+
+perl_dev_main "${install_extra_args[@]}"
