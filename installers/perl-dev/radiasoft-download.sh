@@ -35,8 +35,9 @@ EOF
     _bivio_home_env_update -f
     cd ~/src/biviosoftware/perl-Bivio
     git checkout robnagler
+    cd
     . ~/.bashrc
-    bivio sql init_dbms >& /dev/null || true
+    bivio sql init_dbms || true
     # always recreate db
     ctd
 }
