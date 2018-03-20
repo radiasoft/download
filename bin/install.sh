@@ -361,6 +361,10 @@ install_repo() {
     install_script_eval radiasoft-download.sh
 }
 
+install_repo_as_root() {
+    install_download index.html | install_sudo "install_server=$install_server" "install_channel=$install_channel" "install_debug=$install_debug" bash -s "$@"
+}
+
 install_repo_eval() {
     local prev_args=( "${install_extra_args[@]}" )
     local prev_pwd=$PWD

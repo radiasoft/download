@@ -10,15 +10,6 @@ sirepo_dev_main() {
     if (( $EUID == 0 )); then
         install_err 'run as vagrant (or other ordinary user), not root'
     fi
-    #TODO(robnagler) pretty arbitrary check. Maybe something else?
-    if ! rpm -q tk-devel >& /dev/null; then
-        # Need to sudo so can't use install_repo_eval
-        #TODO(robnagler) encapsulate in install.sh
-        curl radia.run | sudo "install_server=$install_server" "install_channel=$install_channel" "install_debug=$install_debug" bash -s redhat-base
-    fi
-    if [[ ! $(readlink ~/.bashrc) =~ home-env/dot ]]; then
-        install_repo_eval home
-    fi
     set +e
     . ~/.bashrc
     set -e
