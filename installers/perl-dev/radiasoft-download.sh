@@ -18,6 +18,18 @@ EOF
     if ! perl -MGMP::Mpf -e 1 2>&1; then
         install_repo_as_root biviosoftware/container-perl
     fi
+    if [[ $(psql 2>&1) =~ could.not.connect ]]; then
+        sudo su - <<'EOF'
+set -e
+rpm -q postgresql-server >&/dev/null || yum install -y -q postgresql-server
+postgresql-setup initdb
+install -m 600 -o postgres -g postgres /var/lib/pgsql/data/pg_hba.conf <<'EOF2'
+local all all trust
+EOF2
+systemctl start postgresql
+systemctl enable postgresql
+EOF
+    fi
     set +euo pipefail
     . ~/.bashrc
     _bivio_home_env_update -f
