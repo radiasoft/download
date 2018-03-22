@@ -48,9 +48,7 @@ pip install numpy
 pip install matplotlib
 pip install scipy
 #pip install 'ipython[all]'
-# Need to install Cython first, or h5py build fails
-pip install Cython
-pip install h5py
-pip install tables==3.3.0
 codes_dependencies pykern
 codes_dependencies mpi4py
+codes_dependencies h5py
+pip install tables==3.3.0
