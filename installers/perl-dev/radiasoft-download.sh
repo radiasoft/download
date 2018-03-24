@@ -35,8 +35,13 @@ EOF
     _bivio_home_env_update -f
     cd ~/src/biviosoftware/perl-Bivio
     git checkout robnagler
+    cd ..
+    # Needed for bashrc_b_env_aliases to contain complete set
+    gcl perl-Artisans
+    ln -s ../biviosoftware/perl-Artisans ~/src/perl/Artisans
     cd
     . ~/.bashrc
+    b_pet
     bivio sql init_dbms || true
     # always recreate db
     ctd
