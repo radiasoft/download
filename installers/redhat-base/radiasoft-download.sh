@@ -32,12 +32,14 @@ redhat_base_main() {
         pciutils
         pkgconfig
         procps-ng
+        pxz
         readline-devel
         redhat-rpm-config
         rpm-build
         rsync
         screen
         sqlite-devel
+        smartmontools
         tar
         tk-devel
         unzip
