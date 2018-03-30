@@ -16,7 +16,7 @@ export BIVIO_HTTPD_PORT=8000
 EOF
     fi
     if ! perl -MGMP::Mpf -e 1 2>&1; then
-        install_repo_as_root biviosoftware/container-perl base
+        install_repo_as_root biviosoftware/container-perl
     fi
     if [[ $(psql 2>&1) =~ could.not.connect ]]; then
         sudo su - <<'EOF'
