@@ -19,7 +19,7 @@ EOF
         install_repo_as_root biviosoftware/container-perl base
         (
             install_tmp_dir
-            install_download bivio-perl.rpm
+            install_download bivio-perl.rpm > bivio-perl.rpm
             install_yum_install bivio-perl.rpm
         )
     fi
