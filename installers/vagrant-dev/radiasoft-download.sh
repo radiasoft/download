@@ -64,7 +64,7 @@ vagrant_dev_main() {
         fi
     done
     vagrant ssh <<EOF
-export install_server='$installer_server' install_channel='$install_channel' install_debug='$install_debug'
+export install_server='$install_server' install_channel='$install_channel' install_debug='$install_debug'
 curl radia.run | bash -s redhat-dev
 EOF
 }
