@@ -18,7 +18,7 @@ install_args() {
     if [[ -n $download_channel ]]; then
         install_err '$download_channel: unsupported, use $install_server'
     fi
-    while [[ "$1" ]]; do
+    while [[ ${1:-} ]]; do
         case "$1" in
             beamsim|python2|rs4pi|sirepo)
                 install_image=$1
@@ -423,7 +423,7 @@ install_sudo() {
 
 install_url() {
     local repo=$1
-    local rest=$2
+    local rest=${2:-}
     case $install_server in
         github)
             local channel=$install_github_channel
