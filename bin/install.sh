@@ -404,7 +404,7 @@ install_script_eval() {
         install_err
     fi
     if [[ ! $(head -1 "$source") =~ ^#! ]]; then
-        install_err "$url: no #! at start of file: $source"
+        install_err "$script: no #! at start of file: $source"
     fi
     install_info "Source: $source"
     source "$source"
