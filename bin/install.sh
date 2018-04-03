@@ -44,7 +44,7 @@ install_args() {
                 install_repo=$1
                 shift
                 install_type=repo
-                install_extra_args=( $@ )
+                install_extra_args=( "$@" )
                 break
                 ;;
         esac
@@ -138,7 +138,7 @@ install_download() {
 install_err() {
     trap - EXIT
     if [[ -n $1 ]]; then
-        install_msg "$@
+        install_msg "$*
 If you don't know what to do, please contact support@radiasoft.net."
     fi
     if [[ -z $install_verbose ]]; then
@@ -373,7 +373,7 @@ install_repo_as_root() {
 }
 
 install_repo_eval() {
-    local prev_args=( "${install_extra_args[@]}" )
+    local prev_args=( ${install_extra_args[@]+"${install_extra_args[@]}"} )
     local prev_pwd=$PWD
     local prev_repo=$install_repo
     local prev_script_dir=$install_script_dir
@@ -382,10 +382,7 @@ install_repo_eval() {
     local prev_url=$install_url
     install_repo "$@"
     cd "$prev_pwd"
-    if (( ${#prev_args[@]} )); then
-        # Array variables are unbound when empty
-        install_extra_args=( "${prev_args[@]}" )
-    fi
+    install_extra_args=( ${prev_args[@]+"${prev_args[@]}"} )
     install_repo=$prev_repo
     install_script_dir=$prev_script_dir
     install_server=$prev_server
@@ -418,7 +415,7 @@ install_sudo() {
     if [[ $UID != 0 ]]; then
         sudo=sudo
     fi
-    $sudo "$@"
+    ${sudo:-} "$@"
 }
 
 install_url() {
@@ -476,7 +473,7 @@ install_yum_install() {
 # Inline here so syntax checked and easier to edit.
 #
 radia_run_exec() {
-    local cmd=( $@ )
+    local cmd=( "$@" )
     radia_run_prompt
     if [[ -n $radia_run_cmd ]]; then
         if [[ $radia_run_type == docker ]]; then

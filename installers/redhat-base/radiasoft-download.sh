@@ -60,4 +60,4 @@ redhat_base_main() {
     install_yum_install "${x[@]}"
 }
 
-redhat_base_main "${install_extra_args[@]}"
+redhat_base_main ${install_extra_args[@]+"${install_extra_args[@]}"}
