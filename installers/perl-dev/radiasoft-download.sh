@@ -19,8 +19,8 @@ EOF
         install_repo_as_root biviosoftware/container-perl base
         (
             install_tmp_dir
-            install_download bivio-perl.rpm > bivio-perl.rpm
-            install_yum_install bivio-perl.rpm
+            install_download bivio-perl-dev.rpm > bivio-perl-dev.rpm
+            install_yum_install bivio-perl-dev.rpm
         )
     fi
     if [[ $(psql 2>&1) =~ could.not.connect ]]; then
