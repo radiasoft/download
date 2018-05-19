@@ -51,7 +51,9 @@ sirepo_dev_main() {
             gcl "$p"
             cd "$p"
         fi
-        pip install -r requirements.txt >& /dev/null
+        if [[ -r requirements.txt ]]; then
+            pip install -r requirements.txt >& /dev/null
+        fi
         pip install -e .
         cd ..
     done
