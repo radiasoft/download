@@ -182,7 +182,7 @@ codes_msg() {
 codes_num_cores() {
     local res=$(grep -c '^core id[[:space:]]*:' /proc/cpuinfo)
     # Use half the cores (likely hyperthreads) except if on TRAVIS
-    if [[ $TRAVIS != true ]]; then
+    if [[ ${TRAVIS:-} != true ]]; then
         res=$(( $res / 2 ))
     fi
     if (( $res < 1 )); then
