@@ -22,4 +22,7 @@ if parallel:
         else:
              libraries.append(arg)
 EOF
-codes_make_install FCOMP='-F gfortran --fcompexec mpifort' pclean pinstall
+if [[ ${codes_debug:-} ]]; then
+    perl -pi -e 's{(?=-DMPI)}{-fcheck=all }' Makefile.Forthon.pympi
+fi
+codes_make_install FCOMP="-F gfortran --fcompexec mpifort" FARGS="${codes_debug:+--farg -fcheck=all}" pclean pinstall
