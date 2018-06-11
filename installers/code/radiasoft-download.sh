@@ -33,7 +33,6 @@ EOF
 
 code_install() {
     local codes=( "$@" )
-set -x
     install_tmp_dir
     local url=https://github.com
     if [[ -n $install_server && $install_server != github ]]; then
@@ -45,7 +44,7 @@ set -x
         git clone -b "$install_github_channel" -q "$url/radiasoft/download"
     fi
     cd download/installers/code
-    codes_debug=$codes_deubg codes_dir=$(pwd)/codes \
+    codes_debug=$codes_debug codes_dir=$(pwd)/codes \
         bash -l ${install_debug:+-x} codes.sh "${codes[@]}"
 }
 
