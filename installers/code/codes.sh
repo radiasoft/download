@@ -10,7 +10,7 @@
 #
 # A list of available codes can be found in "codes" subdirectory.
 #
-set -e
+set -euo pipefail
 
 # Build scripts directory
 : ${codes_dir:=$(cd "$(dirname "${BASH_SOURCE[0]}")"; pwd)/codes}
@@ -37,9 +37,9 @@ codes_dependencies() {
 codes_download() {
     # If download is an rpm, also installs
     local repo=$1
-    local qualifier=$2
-    local package=$3
-    local version=$4
+    local qualifier=${2:-}
+    local package=${3:-}
+    local version=${4:-}
     if [[ ! $repo =~ / ]]; then
         repo=radiasoft/$repo
     fi
@@ -127,7 +127,7 @@ codes_err() {
 codes_install() {
     local sh=$1
     local module=$(basename "$sh" .sh)
-    if [[ ${codes_installed[$module]} ]]; then
+    if [[ ${codes_installed[$module]:-} ]]; then
         return 0
     fi
     codes_installed[$module]=1
@@ -159,7 +159,7 @@ codes_main() {
     if [[ -z $codes ]]; then
         codes_err 'usage: bash -l codes.sh code1...'
     fi
-    if [[ -n $install_debug ]]; then
+    if [[ ${install_debug:-} ]]; then
         set -x
     fi
     codes_install_loop "${codes[@]}"
@@ -182,7 +182,7 @@ codes_msg() {
 codes_num_cores() {
     local res=$(grep -c '^core id[[:space:]]*:' /proc/cpuinfo)
     # Use half the cores (likely hyperthreads) except if on TRAVIS
-    if [[ $TRAVIS != true ]]; then
+    if [[ ${TRAVIS:-} != true ]]; then
         res=$(( $res / 2 ))
     fi
     if (( $res < 1 )); then
@@ -228,5 +228,5 @@ if [[ $0 == ${BASH_SOURCE[0]} ]]; then
     fi
     codes_main "$@"
 else
-    codes_main
+    codes_main "$@"
 fi

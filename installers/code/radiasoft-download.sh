@@ -32,19 +32,31 @@ EOF
 }
 
 code_install() {
+    local codes=( "$@" )
     install_tmp_dir
     local url=https://github.com
     if [[ -n $install_server && $install_server != github ]]; then
         url=$install_server
     fi
-    git clone -b "$install_github_channel" -q "$url/radiasoft/download"
+    if [[ $url =~ ^file://(.+) ]]; then
+        cp -a "${BASH_REMATCH[1]}/radiasoft/download" download
+    else
+        git clone -b "$install_github_channel" -q "$url/radiasoft/download"
+    fi
     cd download/installers/code
-    codes_dir=$(pwd)/codes bash -l ${install_debug:+-x} codes.sh "$@"
+    codes_debug=$codes_debug codes_dir=$(pwd)/codes \
+        bash -l ${install_debug:+-x} codes.sh "${codes[@]}"
 }
 
 code_main() {
-    code_assert_args "${install_extra_args[@]}"
-    code_install "${install_extra_args[@]}"
+    local args=( "${install_extra_args[@]}" )
+    : ${codes_debug:=}
+    if [[ ${args[0]:-} == debug ]]; then
+        codes_debug=1
+        args=( "${args[@]:1}" )
+    fi
+    code_assert_args "${args[@]}"
+    code_install "${args[@]}"
 }
 
 code_main

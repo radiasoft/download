@@ -6,6 +6,10 @@ warp_pwd=$PWD
 # Current build 8/24/2017 not working
 codes_download https://bitbucket.org/radiasoft/warp.git
 cd pywarp90
+if [[ ${codes_debug:-} ]]; then
+    perl -pi -e 's{^FARGS.*}{FARGS=--farg -fcheck=all}' Makefile.Forthon
+    perl -pi -e 's{(?=-DMPI)}{-fcheck=all }' Makefile.Forthon.pympi
+fi
 codes_make_install clean install
 cat > setup.local.py <<'EOF'
 if parallel:
@@ -22,4 +26,4 @@ if parallel:
         else:
              libraries.append(arg)
 EOF
-codes_make_install FCOMP='-F gfortran --fcompexec mpifort' pclean pinstall
+codes_make_install FCOMP="-F gfortran --fcompexec mpifort" pclean pinstall
