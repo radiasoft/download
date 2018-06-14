@@ -89,7 +89,7 @@ synergia_contractor() {
         #chef-libs/branch=5277ecbbdec02e9394eca4e079a651053b6a0ab4
         #chef-libs/branch=radiasoft-devel
     )
-    if [[ $codes_synergia_branch ]]; then
+    if [[ ${codes_synergia_branch:-} ]]; then
         x+=( synergia2/branch=$codes_synergia_branch )
         if [[ $codes_synergia_branch == devel-pre3 ]]; then
             x+=( boost_internal=1 )
