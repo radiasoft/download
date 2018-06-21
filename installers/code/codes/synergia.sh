@@ -60,14 +60,15 @@
 # h5py also installs hdf5 RPMs, which is what's needed (see above)
 pip install pyparsing nose
 
+synergia_radiasoft_depot=http://depot.radiasoft.org/foss/synergia
+
 synergia_bootstrap() {
     local fnal=http://cdcvs.fnal.gov/projects
-    local radiasoft=http://depot.radiasoft.org/foss/synergia
     # "git clone --depth 1" doesn't work in some case
     #     fatal: dumb http transport does not support --depth
     # so if you don't pass a commit to codes_download, you'll see this error.
-    codes_download "$radiasoft"/contract-synergia2.git origin/devel
-    fgrep -Rl "$fnal" . | xargs perl -pi -e "s{\\Q$fnal}{$radiasoft}g"
+    codes_download "$synergia_radiasoft_depot"/contract-synergia2.git origin/devel
+    fgrep -Rl "$fnal" . | xargs perl -pi -e "s{\\Q$fnal}{$synergia_radiasoft_depot}g"
     ./bootstrap
 }
 
@@ -111,7 +112,7 @@ synergia_install() {
     # Synergia installer doesn't set modes correctly in all cases
     chmod -R a+rX install
     (
-        set -e
+        set -euo pipefail
         cd install
         cp -a bin include "$d"
         local l="$d/lib/synergia"
@@ -146,6 +147,18 @@ synergia_main() {
     synergia_contractor
     synergia_install
     synergia_pyenv_exec
+    synergia_version
+}
+
+synergia_version() {
+    local d
+    for d in chef-libs synergia2; do
+        (
+            set -euo pipefail
+            cd build/"$d"
+            codes_manifest_add_code
+        )
+    done
 }
 
 synergia_main

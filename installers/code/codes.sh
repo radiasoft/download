@@ -61,10 +61,8 @@ codes_download() {
                 git clone --recursive --depth 1 "$repo"
                 cd "$d"
             fi
-            local manifest=(
-                "$d"
-                "$(git rev-parse HEAD)"
-            )
+            local manifest=('' '')
+            repo=
             ;;
         *.tar\.gz)
             local b=$(basename "$repo" .tar.gz)
@@ -100,15 +98,7 @@ codes_download() {
             codes_err "$repo: unknown repository format; must end in .git, .rpm, .tar.gz"
             ;;
     esac
-    if [[ -n $(type -t pykern) ]]; then
-        local venv=
-        if [[ -n $(find . -name \*.py) ]]; then
-            venv=( $(pyenv version) )
-            venv=${venv[0]}
-        fi
-        pykern rsmanifest add_code --pyenv="$venv" \
-            "${package:-${manifest[0]}}" "${version:-${manifest[1]}}" "$repo" "$(pwd)"
-    fi
+    codes_manifest_add_code "${package:-${manifest[0]}}" "${version:-${manifest[1]}}" "$repo"
     return 0
 }
 
@@ -173,6 +163,32 @@ codes_make_install() {
         cmd+=( install )
     fi
     "${cmd[@]}"
+}
+
+codes_manifest_add_code() {
+    # must supply all three params unless in a git repo
+    local package=${1:-}
+    local version=${2:-}
+    local repo=${3:-}
+    if [[ ! $(type -t pykern) ]]; then
+        return
+    fi
+    local venv=
+    if [[ -n $(find . -name \*.py) ]]; then
+        venv=( $(pyenv version) )
+        venv=${venv[0]}
+    fi
+    local pwd=$(pwd)
+    if [[ ! $package ]]; then
+        package=$(basename "$pwd")
+    fi
+    if [[ ! $version ]]; then
+        version=$(git rev-parse HEAD)
+    fi
+    if [[ ! $repo ]]; then
+        repo=$(git config --get remote.origin.url)
+    fi
+    pykern rsmanifest add_code --pyenv="$venv" "$package" "$version" "$repo" "$pwd"
 }
 
 codes_msg() {
