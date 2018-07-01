@@ -53,7 +53,10 @@ vagrant_dev_main() {
     vagrant_dev_check "$vdi"
     vagrant_dev_vagrantfile "$os" "$host" "$ip" "$vdi" '1'
     vagrant up
-    vagrant ssh -c 'sudo yum install -y kernel kernel-devel kernel-headers kernel-tools'
+    vagrant ssh <<'EOF'
+sudo yum install -q -y kernel kernel-devel kernel-headers kernel-tools perl
+perl -pi -e 's{(?<=^SELINUX=).*}{disabled}' /etc/selinux/config
+EOF
     vagrant halt
     vagrant_dev_vagrantfile "$os" "$host" "$ip" "$vdi" ''
     vagrant up
