@@ -8,6 +8,10 @@ sirepo_dev_docker() {
     if [[ -f /var/lib/docker ]]; then
         return
     fi
+    if [[ ! -e /dev/mapper/docker-vps ]]; then
+        install_info '/dev/mapper/docker-vps does not exist, cannot install docker'
+        return
+    fi
     install_sudo bash <<'EOF'
     set -euo pipefail
     dnf -y -q install dnf-plugins-core
