@@ -55,7 +55,7 @@ vagrant_dev_main() {
     vagrant up
     vagrant ssh <<'EOF'
 sudo yum install -q -y kernel kernel-devel kernel-headers kernel-tools perl
-perl -pi -e 's{(?<=^SELINUX=).*}{disabled}' /etc/selinux/config
+#perl -pi -e 's{(?<=^SELINUX=).*}{disabled}' /etc/selinux/config
 EOF
     vagrant halt
     vagrant_dev_vagrantfile "$os" "$host" "$ip" "$vdi" ''
