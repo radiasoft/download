@@ -92,16 +92,11 @@ vagrant_dev_vagrantfile() {
         # https://medium.com/carwow-product-engineering/time-sync-problems-with-vagrant-and-virtualbox-383ab77b6231
         timesync='v.customize ["guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-set-threshold", 5000]'
     fi
-    local customizations='' box=$os
+    local box=$os
     if [[ $os =~ fedora ]]; then
         if [[ $box == fedora ]]; then
             box=fedora/27-cloud-base
         fi
-        customizations='
-        # Needed for compiling some the larger codes
-        v.memory = 8192
-        v.cpus = 4
-'
     elif [[ $box == centos ]]; then
         box=centos/7
     fi
@@ -127,7 +122,9 @@ Vagrant.configure("2") do |config|
         # https://github.com/mitchellh/vagrant/issues/8373
         # v.customize ["modifyvm", :id, "--nictype1", "virtio"]
         #
-        ${customizations}
+        # Needed for compiling some the larger codes
+        v.memory = 8192
+        v.cpus = 4
     end
 
     # Create a disk for docker
