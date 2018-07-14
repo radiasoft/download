@@ -29,14 +29,14 @@ redhat_docker_main() {
             install_info "$bdev contains mounted partisions, cannot install docker"
             return
         fi
-        install_sudo bash <<"EOF"
+        install_sudo bash <<EOF
         set -euo pipefail
         pvcreate '$bdev'
         vgcreate '$vg' '$bdev'
         lvcreate -l 100%VG -n '$lv' '$vg'
 EOF
     fi
-    install_sudo bash <<"EOF"
+    install_sudo bash <<EOF
     set -euo pipefail
     if type dnf >& /dev/null; then
         dnf -y -q install dnf-plugins-core
