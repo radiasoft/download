@@ -11,7 +11,7 @@ redhat_docker_main() {
         return
     fi
     if selinuxenabled; then
-        perl -pi -e 's{(?<=^SELINUX=).*}{disabled}' /etc/selinux/config
+        install_sudo perl -pi -e 's{(?<=^SELINUX=).*}{disabled}' /etc/selinux/config
         install_err 'Disabled selinux. You need to "vagrant reload"'
     fi
     local vg=docker
