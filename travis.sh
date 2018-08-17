@@ -8,7 +8,7 @@ trap 'echo FAILED' ERR EXIT
 sentinel=test-$RANDOM-sentinel
 out=$(docker run --rm -i radiasoft/python2 su - vagrant 2>&1 <<EOF || true
 set -e -o pipefail
-curl radia.run | bash -s debug code test
+curl https://depot.radiasoft.org/index.sh | bash -s debug code test
 echo "$sentinel"
 EOF
 )
