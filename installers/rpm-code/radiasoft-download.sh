@@ -3,7 +3,9 @@
 # same
 set -euo pipefail
 
-rpm_code_image=radiasoft/beamsim-part1
+: ${rpm_code_image:=radiasoft/beamsim-part1}
+
+: ${rpm_code_user:=vagrant}
 
 rpm_code_build() {
     local rpm_base=$1
@@ -82,7 +84,7 @@ rpm_code_main() {
     : ${rpm_base:=rscode-$code}
     : ${rpm_base_src:=rscode-$code-src}
     : ${build_args:="$rpm_base $rpm_base_src $code"}
-    docker run -i -u "$USER" --network=host --rm -v "$PWD":/rpm-code "$rpm_code_image" <<EOF
+    docker run -i -u "$rpm_code_user" --network=host --rm -v "$PWD":/rpm-code "$rpm_code_image" <<EOF
 . ~/.bashrc
 set -e
 cd /rpm-code
