@@ -67,7 +67,7 @@ EOF
     done
     vagrant ssh <<EOF
 export install_server='$install_server' install_channel='$install_channel' install_debug='$install_debug'
-curl radia.run | bash -s redhat-dev
+curl https://depot.radiasoft.org/index.sh | bash -s redhat-dev
 EOF
 }
 

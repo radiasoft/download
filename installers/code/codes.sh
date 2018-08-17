@@ -3,21 +3,14 @@
 # Install codes into containers. The code installation scripts reside in
 # You can install individual codes (and dependencies) with:
 #
-# git clone https://github.com/radiasoft/containers
-# cd containers/radiasoft/beamsim
-# bash -l codes.sh <code1> <code2>
+# curl radia.run | bash -s code foo
 # pyenv rehash
 #
-# A list of available codes can be found in "codes" subdirectory.
-#
+# Where to install binaries (needed by genesis.sh)
+set +euo pipefail
+. ~/.bashrc
 set -euo pipefail
 
-# Build scripts directory
-: ${codes_dir:=$(cd "$(dirname "${BASH_SOURCE[0]}")"; pwd)/codes}
-
-codes_data_src_dir=$codes_dir
-
-# Where to install binaries (needed by genesis.sh)
 codes_bin_dir=$(dirname "$(pyenv which python)")
 
 # Where to install binaries (needed by genesis.sh)
@@ -32,6 +25,9 @@ codes_curl() {
 
 codes_dependencies() {
     codes_install_loop "$@"
+    # dependencies don't get installed so this prevents them being set
+    sleep 1
+    touch "$codes_install_sentinel"
 }
 
 codes_download() {
@@ -109,32 +105,46 @@ codes_download_foss() {
 }
 
 
+codes_download_module_file() {
+    local file=$1
+    install_download "codes/$codes_module/$file" > "$file"
+}
+
 codes_err() {
     codes_msg "$@"
     return 1
 }
 
 codes_install() {
-    local sh=$1
-    local module=$(basename "$sh" .sh)
+    local module=$1
     if [[ ${codes_installed[$module]:-} ]]; then
         return 0
     fi
+    codes_install_start=$(date +%s)
     codes_installed[$module]=1
     local prev=$(pwd)
     local dir=$HOME/src/radiasoft/codes/$module-$(date -u +%Y%m%d.%H%M%S)
     rm -rf "$dir"
     mkdir -p "$dir"
-    if [[ ! -f $sh ]]; then
-        # Might be passed as 'genesis', 'genesis.sh', 'codes/genesis.sh', or
-        # (some special name) 'foo/bar/code1.sh'
-        sh=$codes_dir/$module.sh
-    fi
     codes_msg "Build: $module"
     codes_msg "Directory: $dir"
     cd "$dir"
-    . "$sh"
+    local find=
+    if [[ ! ${codes_install_sentinel:+1} ]]; then
+        codes_install_sentinel=$dir/.codes_install
+        rpm_code_build_src_dir=( "$dir" )
+        find=1
+    fi
+    touch "$codes_install_sentinel"
+    local codes_module=$module
+    install_script_eval "codes/$module.sh"
     cd "$prev"
+    if [[ $find && ! ${rpm_code_build_install_files:+1} ]]; then
+        echo $codes_install_sentinel
+        rpm_code_build_install_files=(
+            $(find "$codes_lib_dir" "$codes_bin_dir" -type f -newer "$codes_install_sentinel")
+        )
+    fi
 }
 
 codes_install_loop() {
@@ -145,9 +155,9 @@ codes_install_loop() {
 }
 
 codes_main() {
-    local -a codes=( $@ )
+    local -a codes=( "${install_extra_args[@]}" )
     if [[ -z $codes ]]; then
-        codes_err 'usage: bash -l codes.sh code1...'
+        codes_err 'usage: curl radia.run | bash -s code code1...'
     fi
     if [[ ${install_debug:-} ]]; then
         set -x
@@ -228,21 +238,4 @@ codes_yum() {
     fi
 }
 
-if [[ $0 == ${BASH_SOURCE[0]} ]]; then
-    v=( $(cat /etc/fedora-release 2> /dev/null || true) )
-    if (( ${v[2]:-0} < 21 )); then
-        codes_err 'Only Fedora 21 or greater is supported at this time'
-    fi
-    unset v
-    # make sure pyenv loaded
-    if [[ $(type -t pyenv) != function ]]; then
-        if [[ ! $(type -f pyenv 2>/dev/null) =~ /bin/pyenv$ ]]; then
-            codes_err 'ERROR: You must have pyenv in your path'
-        fi
-        eval "$(pyenv init -)"
-        eval "$(pyenv virtualenv-init -)"
-    fi
-    codes_main "$@"
-else
-    codes_main "$@"
-fi
+codes_main

@@ -10,7 +10,7 @@ code_assert_args() {
         pip install requests
     fi
     if ! python - "$@" <<EOF 2>&1; then
-import requests, sys
+import requests, sys, os
 
 uri = 'https://api.github.com/repos/radiasoft/download/contents/installers/code/codes?ref=$install_github_channel'
 r = requests.get(uri)
@@ -20,7 +20,8 @@ want = sys.argv[1:]
 msg = []
 if want:
     miss = set(want).difference(set(have))
-    if not miss:
+    # could check to see if code is there if install_server set
+    if not miss or os.getenv('install_server'):
         sys.exit(0)
     msg.append('Code(s) not found: ' + ', '.join(miss))
 msg += ['List of available codes:'] + have
@@ -31,32 +32,16 @@ EOF
     fi
 }
 
-code_install() {
-    local codes=( "$@" )
-    install_tmp_dir
-    local url=https://github.com
-    if [[ -n $install_server && $install_server != github ]]; then
-        url=$install_server
-    fi
-    if [[ $url =~ ^file://(.+) ]]; then
-        cp -a "${BASH_REMATCH[1]}/radiasoft/download" download
-    else
-        git clone -b "$install_github_channel" -q "$url/radiasoft/download"
-    fi
-    cd download/installers/code
-    codes_debug=$codes_debug codes_dir=$(pwd)/codes \
-        bash -l ${install_debug:+-x} codes.sh "${codes[@]}"
-}
-
 code_main() {
-    local args=( "${install_extra_args[@]}" )
+    local args=( ${install_extra_args[@]+"${install_extra_args[@]}"} )
     : ${codes_debug:=}
     if [[ ${args[0]:-} == debug ]]; then
         codes_debug=1
         args=( "${args[@]:1}" )
     fi
     code_assert_args "${args[@]}"
-    code_install "${args[@]}"
+    install_url radiasoft/download installers/code
+    install_script_eval codes.sh "${args[@]}"
 }
 
 code_main

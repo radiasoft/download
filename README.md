@@ -98,7 +98,14 @@ directory. The installer will go to that github repo for now.
 To test the installer, you can set:
 
 ```sh
-install_server=~/src bash install.sh myinstaller
+cd ~/src
+rm -f index.sh
+ln -s radiasoft/download/bin/index.sh .
+python -m SimpleHTTPServer 1313
+# another window
+export install_server=http://$(dig $(hostname -f) +short):1313
+# assumes radia_run: curl $install_server/index.sh | bash -s unit-test arg1
+radia_run unit-test arg1
 ```
 
 This will set the `$install_url` to `file://$HOME/src`.

@@ -3,11 +3,11 @@
 elegant_docs_d=/usr/share/doc/elegant
 
 elegant_docs() {
-    local src=$codes_data_src_dir/elegant
     sudo install -d 755 "$elegant_docs_d"
     local f
     for f in defns.rpn LICENSE; do
-        sudo install -m 444 "$src/$f" "$elegant_docs_d"
+        codes_download_module_file "$f"
+        sudo install -m 444 "$f" "$elegant_docs_d"
     done
 }
 

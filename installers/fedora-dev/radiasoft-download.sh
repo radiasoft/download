@@ -136,7 +136,7 @@ fedora_dev_setup_vagrant() {
     sudo su - vagrant <<'EOF'
     set -e -o pipefail
     cd
-    curl radia.run | bash -s home
+    curl https://depot.radiasoft.org/index.sh | bash -s home
     . ~/.bashrc
     touch requirements.txt
     bivio_path_insert ~/.pyenv/bin 1
