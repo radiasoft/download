@@ -84,6 +84,10 @@ rpm_code_main() {
     : ${rpm_base:=rscode-$code}
     : ${rpm_base_src:=rscode-$code-src}
     : ${build_args:="$rpm_base $rpm_base_src $code"}
+    if [[ $UID == 0 ]]; then
+        # Needs to be owned by rpm_code_user
+        chown "${rpm_code_user}:" "$PWD"
+    fi
     docker run -i -u "$rpm_code_user" --network=host --rm -v "$PWD":/rpm-code "$rpm_code_image" <<EOF
 . ~/.bashrc
 set -e
