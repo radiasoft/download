@@ -1,10 +1,6 @@
 #!/bin/bash
-codes_yum install fftw2-devel
-srw_pwd=$PWD
-codes_download mrakitin/bnlcrl
-codes_patch_requirements_txt
-python setup.py install
-cd "$srw_pwd"
+codes_dependencies bnlcrl
+codes_yum_dependencies fftw2-devel
 # ochubar/SRW is over 600MB so GitHub times out sometimes. This is a
 # stripped down copy
 codes_download SRW-light '' SRW

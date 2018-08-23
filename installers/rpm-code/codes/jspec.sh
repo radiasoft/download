@@ -1,5 +1,6 @@
 #!/bin/bash
-codes_yum install muParser-devel
+codes_dependencies common
+codes_yum_dependencies muParser-devel
 codes_download zhanghe9704/electroncooling master
 mkdir build
 cd build

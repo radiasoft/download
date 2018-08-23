@@ -1,47 +1,30 @@
 #!/bin/bash
-#
+#g
 # To run: curl radia.run | bash -s code warp
 #
-code_assert_args() {
-    if ! python -c 'import requests' >& /dev/null; then
-        if ! type pip >& /dev/null; then
-            return
-        fi
-        pip install requests
-    fi
-    if ! python - "$@" <<EOF 2>&1; then
-import requests, sys, os
-
-uri = 'https://api.github.com/repos/radiasoft/download/contents/installers/code/codes?ref=$install_github_channel'
-r = requests.get(uri)
-r.raise_for_status()
-have = [n[:-3] for n in map(lambda x: x['name'], r.json()) if n.endswith('.sh')]
-want = sys.argv[1:]
-msg = []
-if want:
-    miss = set(want).difference(set(have))
-    # could check to see if code is there if install_server set
-    if not miss or os.getenv('install_server'):
-        sys.exit(0)
-    msg.append('Code(s) not found: ' + ', '.join(miss))
-msg += ['List of available codes:'] + have
-sys.stderr.write('\n'.join(msg) + '\n')
-sys.exit(1)
-EOF
-        install_err "usage: $install_prog code <code-name...>"
-    fi
-}
+: ${code_depot_server:=https://depot.radiasoft.org}
 
 code_main() {
-    local args=( ${install_extra_args[@]+"${install_extra_args[@]}"} )
-    : ${codes_debug:=}
-    if [[ ${args[0]:-} == debug ]]; then
-        codes_debug=1
-        args=( "${args[@]:1}" )
+    local dnf=( sudo dnf --color=never -y -q )
+    if [[ ! $(dnf -q repoinfo radiasoft-dev) =~ enabled ]]; then
+        if ! rpm -q dnf-plugins-core >& /dev/null; then
+            "${dnf[@]}" dnf-plugins-core
+        fi
+        install_download
+        "${dnf[@]}" config-manager --add-repo "$code_depot_server/yum/fedora/radiasoft.repo"
     fi
-    code_assert_args "${args[@]}"
-    install_url radiasoft/download installers/code
-    install_script_eval codes.sh "${args[@]}"
+    if [[ ! ${install_extra_args:+1} ]]; then
+        echo 'List of available codes:'
+        dnf repoquery --queryformat '%{NAME}' rscode-\* | perl -pe 's/^rscode-//'
+        return 1
+    fi
+    local rpms=()
+    local i
+    for i in "${install_extra_args[@]}"; do
+        rpms+=( "rscode-$i" )
+    done
+    install_info "Installing: ${install_extra_args[*]}"
+    "${dnf[@]}" "${rpms[@]}"
 }
 
 code_main

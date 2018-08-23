@@ -7,10 +7,6 @@
 # pyenv rehash
 #
 # Where to install binaries (needed by genesis.sh)
-set +euo pipefail
-. ~/.bashrc
-set -euo pipefail
-
 codes_bin_dir=$(dirname "$(pyenv which python)")
 
 # Where to install binaries (needed by genesis.sh)
@@ -24,9 +20,11 @@ codes_curl() {
 }
 
 codes_dependencies() {
-    codes_install_loop "$@"
-    # dependencies don't get installed so this prevents them being set
-    sleep 1
+    local i
+    for i in "$@"; do
+        rpm_code_build_depends+=( "rscode-$i" )
+    done
+    install_repo_eval code "$@"
     touch "$codes_install_sentinel"
 }
 
@@ -79,10 +77,10 @@ codes_download() {
         *.rpm)
             local b=$(basename "$repo")
             local n="${b//-*/}"
-            # FRAGILE: works for current set of RPMs
             if rpm --quiet -q "$n"; then
                 echo "$b already installed"
             else
+                # not a yum dependency (codes script copies the files)
                 codes_yum install "$repo"
             fi
             local manifest=(
@@ -120,7 +118,6 @@ codes_install() {
     if [[ ${codes_installed[$module]:-} ]]; then
         return 0
     fi
-    codes_install_start=$(date +%s)
     codes_installed[$module]=1
     local prev=$(pwd)
     local dir=$HOME/src/radiasoft/codes/$module-$(date -u +%Y%m%d.%H%M%S)
@@ -139,30 +136,15 @@ codes_install() {
     local codes_module=$module
     install_script_eval "codes/$module.sh"
     cd "$prev"
-    if [[ $find && ! ${rpm_code_build_install_files:+1} ]]; then
-        echo $codes_install_sentinel
-        rpm_code_build_install_files=(
+    if [[ $find ]]; then
+        rpm_code_build_install_files+=(
             $(find "$codes_lib_dir" "$codes_bin_dir" -type f -newer "$codes_install_sentinel")
         )
     fi
 }
 
-codes_install_loop() {
-    local f
-    for f in "$@"; do
-        codes_install "$f"
-    done
-}
-
 codes_main() {
-    local -a codes=( "${install_extra_args[@]}" )
-    if [[ -z $codes ]]; then
-        codes_err 'usage: curl radia.run | bash -s code code1...'
-    fi
-    if [[ ${install_debug:-} ]]; then
-        set -x
-    fi
-    codes_install_loop "${codes[@]}"
+    codes_install "$@"
 }
 
 codes_make_install() {
@@ -238,4 +220,7 @@ codes_yum() {
     fi
 }
 
-codes_main
+codes_yum_dependencies() {
+    rpm_code_build_depends+=( "$@" )
+    codes_yum install "$@"
+}

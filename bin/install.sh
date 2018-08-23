@@ -369,7 +369,7 @@ install_repo_as_root() {
     (
         install_url radiasoft/download bin
         install_download index.sh
-    ) | install_sudo "install_server=$install_server" "install_channel=$install_channel" "install_debug=$install_debug" bash -s "$@"
+    ) | install_sudo "install_server=$install_server" "install_channel=$install_channel" "install_debug=$install_debug" bash -l -s "$@"
 }
 
 install_repo_eval() {

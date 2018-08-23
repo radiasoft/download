@@ -7,14 +7,21 @@ set -euo pipefail
 
 : ${rpm_code_user:=vagrant}
 
+rpm_code_rpm_prefix=rscode
+
 rpm_code_build() {
     local rpm_base=$1
-    local rpm_base_src=$2
+    local rpm_base_build=$2
     local code=$3
     local version=$(date -u +%Y%m%d.%H%M%S)
+    # flag used by code.sh to know if inside this function
+    local rpm_code_build=1
     local -A rpm_code_build_exclude
-    install_repo_eval code "$code"
-    rpm_code_build_exclude_add "$(dirname "$rpm_code_build_src_dir")"
+    local -a rpm_code_build_depends=()
+    install_url radiasoft/download installers/code
+    install_script_eval codes.sh
+    codes_main "$code"
+    rpm_code_build_exclude_add "$(dirname "$rpm_code_build_build_dir")"
     rpm_code_build_exclude_add "$codes_bin_dir"
     rpm_code_build_exclude_add "$codes_lib_dir"
     local i
@@ -28,11 +35,11 @@ rpm_code_build() {
         --rpm-use-file-permissions --rpm-auto-add-directories \
         "${exclude[@]}" \
         "${rpm_code_build_install_files[@]}"
-    fpm -t rpm -s dir -n "$rpm_base_src" -v "$version" \
+    fpm -t rpm -s dir -n "$rpm_base_build" -v "$version" \
         --rpm-rpmbuild-define "_build_id_links none" \
         --rpm-use-file-permissions --rpm-auto-add-directories \
         "${exclude[@]}" \
-        "$rpm_code_build_src_dir"
+        "$rpm_code_build_build_dir"
 }
 
 rpm_code_build_exclude_add() {
@@ -51,21 +58,11 @@ rpm_code_build_exclude_add() {
 
 rpm_code_install_rpm() {
     local base=$1
-    if [[ ! ${rpm_code_install_dir:-} ]]; then
-        return
-    fi
     # Y2100
     local f="$(ls -t "$base"-20[0-9][0-9]*rpm | head -1)"
-    # Contains multiple directories separated by spaces
-    local c d l
-    for d in $rpm_code_install_dir; do
-        install -m 444 "$f" "$d/"
-        for c in dev alpha; do
-            l="$d/$base-$c.rpm"
-            rm -f "$l"
-            ln -s "$f" "$l"
-        done
-    done
+    HOME=$rpm_code_gpg_dir rpm -v --addsign "$f"
+    install -m 444 "$rpm_code_yum_dir/$f"
+    createrepo --update "$rpm_code_yum_dir"
 }
 
 rpm_code_main() {
@@ -81,23 +78,23 @@ rpm_code_main() {
     fi
     umask 077
     install_tmp_dir
-    : ${rpm_base:=rscode-$code}
-    : ${rpm_base_src:=rscode-$code-src}
-    : ${build_args:="$rpm_base $rpm_base_src $code"}
+    : ${rpm_base:=$rpm_code_rpm_prefix-$code}
+    : ${rpm_base_build:=$rpm_code_rpm_prefix-$code-build}
+    : ${build_args:="$rpm_base $rpm_base_build $code"}
     if [[ $UID == 0 ]]; then
         # Needs to be owned by rpm_code_user
         chown "${rpm_code_user}:" "$PWD"
     fi
     docker run -i -u "$rpm_code_user" --network=host --rm -v "$PWD":/rpm-code "$rpm_code_image" <<EOF
 . ~/.bashrc
-set -e
+set -euo pipefail
 cd /rpm-code
-export install_server='$install_server' install_channel='$install_channel' install_debug='$install_debug'
+export install_server='$install_server' install_channel='$install_channel' install_debug='$install_debug' code_depot_url='$code_depot_server'
 radia_run rpm-code _build $build_args
 EOF
     rpm_code_install_rpm "$rpm_base"
-    rpm_code_install_rpm "$rpm_base_src"
+    rpm_code_install_rpm "$rpm_base_build"
 }
 
 
-rpm_code_main "${install_extra_args[@]}"
+rpm_code_main ${install_extra_args[@]+"${install_extra_args[@]}"}

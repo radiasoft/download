@@ -100,7 +100,7 @@ To test the installer, you can set:
 ```sh
 cd ~/src
 rm -f index.sh
-ln -s radiasoft/download/bin/index.sh .
+ln -s -r radiasoft/download/bin/index.sh .
 python -m SimpleHTTPServer 1313
 # another window
 export install_server=http://$(dig $(hostname -f) +short):1313
