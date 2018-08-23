@@ -60,6 +60,7 @@ rpm_code_install_rpm() {
     local base=$1
     # Y2100
     local f="$(ls -t "$base"-20[0-9][0-9]*rpm | head -1)"
+#TODO(robnagler) .rpm_macros in gpg dir
     HOME=$rpm_code_gpg_dir rpm -v --addsign "$f"
     install -m 444 "$rpm_code_yum_dir/$f"
     createrepo --update "$rpm_code_yum_dir"

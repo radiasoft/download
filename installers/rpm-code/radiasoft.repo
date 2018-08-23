@@ -1,0 +1,6 @@
+[radiasoft-dev]
+name=RadiaSoft Fedora 27 x86_64 dev
+baseurl=https://depot.radiasoft.org/yum/fedora/$releasever/$basearch/dev
+enabled=1
+gpgcheck=1
+gpgkey=https://depot.radiasoft.org/yum/fedora/gpg
