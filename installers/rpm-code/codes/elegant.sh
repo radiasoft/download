@@ -1,4 +1,5 @@
 #!/bin/bash
+codes_dependencies sdds
 
 elegant_docs_d=/usr/share/doc/elegant
 
@@ -26,7 +27,6 @@ EOF
     rpm_code_build_exclude_add $(dirname "$f")
 }
 
-codes_dependencies sdds
 codes_download_foss elegant-34.0.1-1.fedora.27.openmpi.x86_64.rpm
 rpm_code_build_install_files+=( $(rpm -ql elegant) )
 elegant_docs

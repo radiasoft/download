@@ -1,4 +1,5 @@
 #!/bin/bash
+codes_dependencies pykern
 rsbeams_pwd=$(pwd)
 for r in rsbeams rssynergia rsoopic rswarp; do
     codes_download radiasoft/"$r"

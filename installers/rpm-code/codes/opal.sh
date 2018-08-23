@@ -1,18 +1,5 @@
 #!/bin/bash
-base_pwd=$PWD
-# original source has bad ssl cert:
-# http://amas.web.psi.ch/Downloads/H5hut/H5hut-2.0.0rc3.tar.gz
-# Doc: https://gitlab.psi.ch/H5hut/src/wikis/home
-codes_download_foss H5hut-2.0.0rc3.tar.gz
-perl -pi -e 's{\`which}{\`type -p}' autogen.sh
-./autogen.sh
-perl -pi -e 's{\`which}{\`type -p}' configure
-CC=mpicc CXX=mpicxx ./configure \
-  --enable-parallel \
-  --prefix="$(pyenv prefix)" \
-  --with-pic
-codes_make_install
-cd "$base_pwd"
+codes_dependencies trilinos H5hut
 
 # /home/vagrant/src/radiasoft/codes/opal-20171212.221025/OPAL-1.9-20171123.105913/opt-pilot/Expression/Parser/expression_def.hpp:178:50:   required from ‘client::parser::expression<Iterator>::expression(client::error_handler<Iterator>&) [with Iterator = __gnu_cxx::__normal_iterator<const char*, std::__cxx11::basic_string<char> >]’
 # /home/vagrant/src/radiasoft/codes/opal-20171212.221025/OPAL-1.9-20171123.105913/opt-pilot/Expression/Parser/expression.cpp:10:33:   required from here
@@ -39,4 +26,3 @@ CMAKE_PREFIX_PATH="$(pyenv prefix)" H5HUT_PREFIX="$(pyenv prefix)" \
 # /usr/lib64/libsz.so.2: error adding symbols: DSO missing from command line
 perl -pi -e 's/-lquadmath/$& -lsz/' src/CMakeFiles/opal.dir/link.txt
 codes_make_install
-cd "$base_pwd"

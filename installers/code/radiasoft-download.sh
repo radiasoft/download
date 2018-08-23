@@ -1,18 +1,21 @@
 #!/bin/bash
-#g
+#
 # To run: curl radia.run | bash -s code warp
 #
 code_main() {
-    local dnf=( sudo dnf --color=never -y )
-    if [[ ! $(dnf -q repoinfo radiasoft-dev) =~ enabled ]]; then
+    local dnf=( dnf --color=never -y )
+    if [[ -e /etc/yum.repos.d/radiasoft.repo ]]; then
         if ! rpm -q dnf-plugins-core >& /dev/null; then
             "${dnf[@]}" dnf-plugins-core
         fi
-        "${dnf[@]}" config-manager --add-repo "$(install_depot_server)/yum/fedora/radiasoft.repo"
+        # if you don't import the key directly, dnf seems to corrupt the rpm db
+        # rpmdbNextIterator: skipping h 557 blob size(575192): BAD, 8 + 16 * il(6
+        install_sudo rpm --import http://v.radia.run:1313/yum/fedora/gpg
+        install_sudo "${dnf[@]}" config-manager --add-repo "$(install_depot_server)/yum/fedora/radiasoft.repo"
     fi
     if [[ ! ${install_extra_args:+1} ]]; then
         echo 'List of available codes:'
-        dnf repoquery --queryformat '%{NAME}' rscode-\* | perl -pe 's/^rscode-//'
+        "${dnf[@]}" repoquery --queryformat '%{NAME}' rscode-\* | perl -pe 's/^rscode-//'
         return 1
     fi
     local rpms=()
@@ -21,7 +24,7 @@ code_main() {
         rpms+=( "rscode-$i" )
     done
     install_info "Installing: ${install_extra_args[*]}"
-    "${dnf[@]}" install "${rpms[@]}"
+    install_yum_install "${rpms[@]}"
 }
 
 code_main

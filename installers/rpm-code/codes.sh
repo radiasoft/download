@@ -78,7 +78,7 @@ codes_download() {
                 echo "$b already installed"
             else
                 # not a yum dependency (codes script copies the files)
-                codes_yum install "$repo"
+                install_yum_install "$repo"
             fi
             local manifest=(
                 "$(rpm -q --queryformat '%{NAME}' "$n")"
@@ -199,21 +199,7 @@ codes_patch_requirements_txt() {
     mv -f "$t" requirements.txt
 }
 
-codes_yum() {
-    local cmd=yum
-    if [[ $(type -t dnf) ]]; then
-        cmd=dnf
-    else
-        sudo rpm --rebuilddb --quiet
-    fi
-    codes_msg "$cmd $@"
-    sudo "$cmd" --color=never -y -q "$@"
-    if [[ $cmd = yum && -n $(type -p package-cleanup) ]]; then
-        sudo package-cleanup --cleandupes
-    fi
-}
-
 codes_yum_dependencies() {
     rpm_code_build_depends+=( "$@" )
-    codes_yum install "$@"
+    install_yum_install "$@"
 }

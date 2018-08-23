@@ -3,10 +3,6 @@
 # same
 set -euo pipefail
 
-: ${rpm_code_image:=radiasoft/beamsim-part1}
-
-: ${rpm_code_user:=vagrant}
-
 rpm_code_rpm_prefix=rscode
 
 rpm_code_build() {
@@ -80,29 +76,35 @@ rpm_code_main() {
     fi
     local code=$1
     local f
-    # assert params and log
-    install_info "GNUPGHOME=$GNUPGHOME rpm_code_yum_dir=$rpm_code_yum_dir"
     local rpm_base build_args
     if [[ $1 == _build ]]; then
         shift
         rpm_code_build "$@"
         return
     fi
+    # assert params and log
+    install_info "GNUPGHOME=$GNUPGHOME rpm_code_yum_dir=$rpm_code_yum_dir"
     umask 077
     install_tmp_dir
     : ${rpm_base:=$rpm_code_rpm_prefix-$code}
     : ${rpm_base_build:=$rpm_code_rpm_prefix-$code-build}
     : ${build_args:="$rpm_base $rpm_base_build $code"}
+    : ${rpm_code_image:=radiasoft/beamsim-part1}
+    if [[ $code == common ]]; then
+        rpm_code_image=radiasoft/python2
+    fi
+    : ${rpm_code_user:=vagrant}
     if [[ $UID == 0 ]]; then
         # Needs to be owned by rpm_code_user
         chown "${rpm_code_user}:" "$PWD"
     fi
     docker run -u root -i --network=host --rm -v "$PWD":/rpm-code "$rpm_code_image" <<EOF
+set -euo pipefail
 echo "$rpm_code_user ALL=(ALL) NOPASSWD: ALL" | install -m 440 /dev/stdin /etc/sudoers.d/"$rpm_code_user"
 su - "$rpm_code_user" <<EOF2
 set -euo pipefail
 cd /rpm-code
-export install_server='$install_server' install_channel='$install_channel' install_debug='$install_debug' code_depot_url='$code_depot_server'
+export install_server='$install_server' install_channel='$install_channel' install_debug='$install_debug'
 radia_run rpm-code _build $build_args
 EOF2
 EOF

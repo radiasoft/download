@@ -15,6 +15,7 @@ sirepo_dev_main() {
     . ~/.bashrc
     set -e
     if ! [[ $(type -t pyenv) && $(pyenv version-name) == py2 ]]; then
+        install_repo_as_root code-base
         bivio_pyenv_2
         set +e
         . ~/.bashrc

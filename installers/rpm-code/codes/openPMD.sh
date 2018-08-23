@@ -1,3 +1,3 @@
 #!/bin/bash
-pip uninstall -y opmd-viewer >& /dev/null || true
+codes_dependencies common
 pip install openPMD-viewer

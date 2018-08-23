@@ -1,23 +1,4 @@
 #!/bin/bash
-# Some rpms most codes use
-_common_yum=(
-    atlas-devel
-    blas-devel
-    boost-static
-    cmake
-    eigen3-devel
-    flex
-    glib2-devel
-    hdf5-devel
-    hdf5-openmpi
-    hdf5-openmpi-devel
-    hdf5-openmpi-static
-    lapack-devel
-    libtool
-    llvm-libs
-    openmpi-devel
-)
-codes_yum_dependencies "${_common_yum[@]}"
 pip install numpy
 pip install matplotlib
 pip install scipy
