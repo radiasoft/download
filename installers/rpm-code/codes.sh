@@ -12,9 +12,6 @@ codes_bin_dir=$(dirname "$(pyenv which python)")
 # Where to install binaries (needed by genesis.sh)
 codes_lib_dir=$(python -c 'from distutils.sysconfig import get_python_lib as x; print x()')
 
-# Avoids dependency loops
-declare -A codes_installed
-
 codes_curl() {
     curl -s -S -L "$@"
 }
@@ -115,10 +112,6 @@ codes_err() {
 
 codes_install() {
     local module=$1
-    if [[ ${codes_installed[$module]:-} ]]; then
-        return 0
-    fi
-    codes_installed[$module]=1
     local prev=$(pwd)
     local dir=$HOME/src/radiasoft/codes/$module-$(date -u +%Y%m%d.%H%M%S)
     rm -rf "$dir"

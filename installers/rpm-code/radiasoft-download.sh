@@ -18,13 +18,21 @@ rpm_code_build() {
     local rpm_code_build=1
     local -A rpm_code_build_exclude
     local -a rpm_code_build_depends=()
-    install_url radiasoft/download installers/code
+    install_url radiasoft/download installers/rpm-code
     install_script_eval codes.sh
     codes_main "$code"
-    rpm_code_build_exclude_add "$(dirname "$rpm_code_build_build_dir")"
+    rpm_code_build_exclude_add "$(dirname "$rpm_code_build_src_dir")"
     rpm_code_build_exclude_add "$codes_bin_dir"
     rpm_code_build_exclude_add "$codes_lib_dir"
+    local deps=()
     local i
+    for i in "${rpm_code_build_depends[@]}"; do
+        deps+=( --depends "$i" )
+    done
+    local exclude=()
+    for i in "${!rpm_code_build_exclude[@]}"; do
+        exclude+=( --rpm-auto-add-exclude-directories "$i" )
+    done
     local exclude=()
     for i in "${!rpm_code_build_exclude[@]}"; do
         exclude+=( --rpm-auto-add-exclude-directories "$i" )
@@ -34,12 +42,14 @@ rpm_code_build() {
         --rpm-rpmbuild-define "_build_id_links none" \
         --rpm-use-file-permissions --rpm-auto-add-directories \
         "${exclude[@]}" \
+        "${deps[@]}" \
         "${rpm_code_build_install_files[@]}"
     fpm -t rpm -s dir -n "$rpm_base_build" -v "$version" \
         --rpm-rpmbuild-define "_build_id_links none" \
         --rpm-use-file-permissions --rpm-auto-add-directories \
         "${exclude[@]}" \
-        "$rpm_code_build_build_dir"
+        "${deps[@]}" \
+        "$rpm_code_build_src_dir"
 }
 
 rpm_code_build_exclude_add() {
@@ -60,10 +70,8 @@ rpm_code_install_rpm() {
     local base=$1
     # Y2100
     local f="$(ls -t "$base"-20[0-9][0-9]*rpm | head -1)"
-#TODO(robnagler) .rpm_macros in gpg dir
-    HOME=$rpm_code_gpg_dir rpm -v --addsign "$f"
-    install -m 444 "$rpm_code_yum_dir/$f"
-    createrepo --update "$rpm_code_yum_dir"
+    HOME=$GNUPGHOME rpm -v --addsign "$f"
+    install -m 444 "$f" "$rpm_code_yum_dir/$f"
 }
 
 rpm_code_main() {
@@ -71,6 +79,9 @@ rpm_code_main() {
         install_err 'must supply code name, e.g. synergia'
     fi
     local code=$1
+    local f
+    # assert params and log
+    install_info "GNUPGHOME=$GNUPGHOME rpm_code_yum_dir=$rpm_code_yum_dir"
     local rpm_base build_args
     if [[ $1 == _build ]]; then
         shift
@@ -86,16 +97,18 @@ rpm_code_main() {
         # Needs to be owned by rpm_code_user
         chown "${rpm_code_user}:" "$PWD"
     fi
-    docker run -i -u "$rpm_code_user" --network=host --rm -v "$PWD":/rpm-code "$rpm_code_image" <<EOF
-. ~/.bashrc
+    docker run -u root -i --network=host --rm -v "$PWD":/rpm-code "$rpm_code_image" <<EOF
+echo "$rpm_code_user ALL=(ALL) NOPASSWD: ALL" | install -m 440 /dev/stdin /etc/sudoers.d/"$rpm_code_user"
+su - "$rpm_code_user" <<EOF2
 set -euo pipefail
 cd /rpm-code
 export install_server='$install_server' install_channel='$install_channel' install_debug='$install_debug' code_depot_url='$code_depot_server'
 radia_run rpm-code _build $build_args
+EOF2
 EOF
     rpm_code_install_rpm "$rpm_base"
     rpm_code_install_rpm "$rpm_base_build"
+    createrepo --update "$rpm_code_yum_dir"
 }
-
 
 rpm_code_main ${install_extra_args[@]+"${install_extra_args[@]}"}

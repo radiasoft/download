@@ -109,6 +109,14 @@ install_clean() {
     done >& /dev/null
 }
 
+install_depot_server() {
+    if [[ ${install_server:-} && $install_server != github ]]; then
+        echo -n "$install_server"
+        return
+    fi
+    echo -n https://depot.radiasoft.org
+}
+
 install_dir_check() {
     if [[ $install_no_dir_check ]]; then
         return
