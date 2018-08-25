@@ -10,7 +10,7 @@ elegant_docs() {
         codes_download_module_file "$f"
         d=$elegant_docs_d/$f
         sudo install -m 444 "$f" "$d"
-        rpm_code_build_install_files+=( "$d" )
+        rpm_code_build_include_add "$d"
     done
 }
 
@@ -23,11 +23,13 @@ elegant_rpn_defns() {
 #!/bin/bash
 export RPN_DEFNS=$elegant_docs_d/defns.rpn
 EOF
-    rpm_code_build_install_files+=( "$f" )
-    rpm_code_build_exclude_add $(dirname "$f")
+    rpm_code_build_include_add "$f"
+    rpm_code_build_exclude_add "$(dirname "$f")"
 }
 
 codes_download_foss elegant-34.0.1-1.fedora.27.openmpi.x86_64.rpm
-rpm_code_build_install_files+=( $(rpm -ql elegant) )
+# /usr/lib/.build-id is a fedora thing for build info
+# Cannot copy file, the destination path is probably a directory and I attempted to write a file.", :path=>"/usr/lib/.build-id/08/008ee248fe0e7e8cdde58665983674972512de",
+rpm -ql elegant | fgrep -v /usr/lib/.build-id | rpm_code_build_include_add
 elegant_docs
 elegant_rpn_defns

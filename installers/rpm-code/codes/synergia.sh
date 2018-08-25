@@ -1,4 +1,6 @@
 #!/bin/bash
+codes_dependencies common
+
 #
 # You need 2GB RAM at least or mpicxx will run out of virtual memory
 #

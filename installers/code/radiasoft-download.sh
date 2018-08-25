@@ -4,7 +4,7 @@
 #
 code_main() {
     local dnf=( dnf --color=never -y )
-    if [[ -e /etc/yum.repos.d/radiasoft.repo ]]; then
+    if [[ ! -e /etc/yum.repos.d/radiasoft.repo ]]; then
         if ! rpm -q dnf-plugins-core >& /dev/null; then
             "${dnf[@]}" dnf-plugins-core
         fi

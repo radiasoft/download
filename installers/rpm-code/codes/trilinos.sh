@@ -1,6 +1,5 @@
 #!/bin/bash
 codes_dependencies metis
-
 # https://trilinos.org/oldsite/download/download.html
 codes_download_foss trilinos-12.10.1-Source.tar.gz
 mkdir build

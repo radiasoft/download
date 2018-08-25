@@ -27,4 +27,6 @@ baseurl=${install_server}/yum/fedora/\$releasever/\$basearch/dev
 enabled=1
 gpgcheck=1
 gpgkey=${install_server}/yum/fedora/gpg
+# may be too fast for production
+metadata_expire=1m
 EOF

@@ -1,6 +1,6 @@
 #!/bin/bash
-codes_dependencies pykern
-rsbeams_pwd=$(pwd)
+codes_dependencies common
+rsbeams_pwd=$PWD
 for r in rsbeams rssynergia rsoopic rswarp; do
     codes_download radiasoft/"$r"
     codes_patch_requirements_txt

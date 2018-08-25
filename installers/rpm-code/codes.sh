@@ -1,16 +1,10 @@
 #!/bin/bash
-#
-# Install codes into containers. The code installation scripts reside in
-# You can install individual codes (and dependencies) with:
-#
-# curl radia.run | bash -s code foo
-# pyenv rehash
-#
+
 # Where to install binaries (needed by genesis.sh)
 codes_bin_dir=$(dirname "$(pyenv which python)")
 
 # Where to install binaries (needed by genesis.sh)
-codes_lib_dir=$(python -c 'from distutils.sysconfig import get_python_lib as x; print x()')
+codes_pylib_dir=$(python -c 'from distutils.sysconfig import get_python_lib as x; print x()')
 
 codes_curl() {
     curl -s -S -L "$@"
@@ -22,7 +16,7 @@ codes_dependencies() {
         rpm_code_build_depends+=( "rscode-$i" )
     done
     install_repo_eval code "$@"
-    touch "$codes_install_sentinel"
+    codes_touch_sentinel
 }
 
 codes_download() {
@@ -119,21 +113,20 @@ codes_install() {
     codes_msg "Build: $module"
     codes_msg "Directory: $dir"
     cd "$dir"
-    local find=
-    if [[ ! ${codes_install_sentinel:+1} ]]; then
-        codes_install_sentinel=$dir/.codes_install
-        rpm_code_build_src_dir=( "$dir" )
-        find=1
-    fi
-    touch "$codes_install_sentinel"
+    rpm_code_build_src_dir=( "$dir" )
+    codes_install_sentinel=$dir/.codes_install
+    codes_touch_sentinel
     local codes_module=$module
     install_script_eval "codes/$module.sh"
     cd "$prev"
-    if [[ $find ]]; then
-        rpm_code_build_install_files+=(
-            $(find "$codes_lib_dir" "$codes_bin_dir" -type f -newer "$codes_install_sentinel")
-        )
-    fi
+    local pp=$(pyenv prefix)
+    # This excludes all the top level directories and python2.7/site-packages
+    rpm_code_build_exclude_add "$pp"/* "$codes_pylib_dir"
+    rpm_code_build_include_add
+    # note: mnewer doesn't work, because some installers preserve mtime
+    find "$pp/" ! -name pip-selfcheck.json ! -name '*.pyc' ! -name '*.pyo' \
+         -type f -cnewer "$codes_install_sentinel" \
+         | rpm_code_build_include_add
 }
 
 codes_main() {
@@ -197,6 +190,12 @@ codes_patch_requirements_txt() {
     local t=tmp.$$
     grep -v numpy requirements.txt > "$t"
     mv -f "$t" requirements.txt
+}
+
+codes_touch_sentinel() {
+    # Need a new ctime, see find above
+    rm -f "$codes_install_sentinel"
+    touch "$codes_install_sentinel"
 }
 
 codes_yum_dependencies() {

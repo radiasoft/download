@@ -472,8 +472,12 @@ install_yum_install() {
     if [[ $(type -t dnf) ]]; then
         cmd=dnf
     fi
+    local flags=( -y --color=never )
+    if [[ ! $install_debug ]]; then
+        flags+=( -q )
+    fi
     install_info "$cmd" install "${todo[@]}"
-    install_sudo "$cmd" install --color=never -y -q "${todo[@]}"
+    install_sudo "$cmd" install "${flags[@]}" "${todo[@]}"
 }
 
 #
