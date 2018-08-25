@@ -76,7 +76,7 @@ rpm_code_install_rpm() {
     local base=$1
     # Y2100
     local f="$(ls -t "$base"-20[0-9][0-9]*rpm | head -1)"
-    HOME=$GNUPGHOME rpm -v --addsign "$f"
+    HOME=$GNUPGHOME rpm --addsign "$f"
     install -m 444 "$f" "$rpm_code_yum_dir/$f"
 }
 

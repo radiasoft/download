@@ -124,8 +124,9 @@ codes_install() {
     rpm_code_build_exclude_add "$pp"/* "$codes_pylib_dir"
     rpm_code_build_include_add
     # note: mnewer doesn't work, because some installers preserve mtime
+    # easy-install.pth is a list of all packages, which is useless
     find "$pp/" ! -name pip-selfcheck.json ! -name '*.pyc' ! -name '*.pyo' \
-         -type f -cnewer "$codes_install_sentinel" \
+         ! -name easy-install.pth -type f -cnewer "$codes_install_sentinel" \
          | rpm_code_build_include_add
 }
 

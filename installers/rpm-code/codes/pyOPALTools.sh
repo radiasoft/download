@@ -7,4 +7,4 @@ codes_download_foss pyOPALTools-20180207.120530.tar.gz
 # `link': Permission denied @ rb_file_s_link
 chmod -R u+w .
 # gets in trouble with easy-install being installed and conflicting with common
-pip install --no-deps .
+python setup.py install
