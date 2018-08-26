@@ -121,7 +121,7 @@ EOF2
 EOF
     rpm_code_install_rpm "$rpm_base"
     rpm_code_install_rpm "$rpm_base_build"
-    createrepo -q --update "$rpm_code_yum_dir"
+    (umask 022; createrepo -q --update "$rpm_code_yum_dir")
 }
 
 rpm_code_main ${install_extra_args[@]+"${install_extra_args[@]}"}
