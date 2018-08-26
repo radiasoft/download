@@ -100,7 +100,7 @@ rpm_code_main() {
     : ${rpm_base_build:=$rpm_code_rpm_prefix-$code-build}
     : ${build_args:="$rpm_base $rpm_base_build $code"}
     : ${rpm_code_image:=radiasoft/rpm-code}
-    if [[ $code == common ]]; then
+    if [[ $code =~ ^(common|test)$ ]]; then
         rpm_code_image=radiasoft/python2
     fi
     : ${rpm_code_user:=vagrant}
