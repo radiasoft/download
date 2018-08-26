@@ -15,17 +15,3 @@ The server runs in ~/src so don't use this on a public network.
 ```sh
 dev-build.sh test
 ```
-
-## debugging
-
-List all keys installed:
-
-```sh
-rpm -qa gpg-pubkey* | xargs rpm -qi
-```
-
-Grep for specific key:
-
-```sh
-rpm -qa gpg-pubkey* |grep -i aaaaaaaa
-```

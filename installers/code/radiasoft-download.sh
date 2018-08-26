@@ -8,9 +8,6 @@ code_main() {
         if ! rpm -q dnf-plugins-core >& /dev/null; then
             "${dnf[@]}" dnf-plugins-core
         fi
-        # if you don't import the key directly, dnf seems to corrupt the rpm db
-        # rpmdbNextIterator: skipping h 557 blob size(575192): BAD, 8 + 16 * il(6
-        install_sudo rpm --import http://v.radia.run:1313/yum/fedora/gpg
         install_sudo "${dnf[@]}" config-manager --add-repo "$(install_depot_server)/yum/fedora/radiasoft.repo"
     fi
     if [[ ! ${install_extra_args:+1} ]]; then

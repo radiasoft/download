@@ -76,7 +76,8 @@ rpm_code_install_rpm() {
     local base=$1
     # Y2100
     local f="$(ls -t "$base"-20[0-9][0-9]*rpm | head -1)"
-    HOME=$GNUPGHOME rpm --addsign "$f"
+    # signing doesn't work, because rpmsign always prompts for password. People
+    # have worked around it with an expect script, but that's just messed up.
     install -m 444 "$f" "$rpm_code_yum_dir/$f"
 }
 
@@ -93,7 +94,7 @@ rpm_code_main() {
         return
     fi
     # assert params and log
-    install_info "GNUPGHOME=$GNUPGHOME rpm_code_yum_dir=$rpm_code_yum_dir"
+    install_info "rpm_code_yum_dir=$rpm_code_yum_dir"
     umask 077
     install_tmp_dir
     : ${rpm_base:=$rpm_code_rpm_prefix-$code}

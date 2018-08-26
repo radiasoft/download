@@ -1,7 +1,8 @@
 #!/bin/bash
 set -euo pipefail
-if [[ ! -d gnupg.d ]]; then
-    echo 'setting up one time: this will take hours, possibly'
+. ./dev-env.sh
+if [[ ! -d ~/src/yum/fedora/radiasoft.repo ]]; then
+    echo 'setting up one time'
     bash dev-setup.sh
 fi
 cd ~/src
