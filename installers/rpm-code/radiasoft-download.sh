@@ -27,14 +27,21 @@ rpm_code_build() {
         deps+=( --depends "$i" )
     done
     local -A include
-    local sorted=$rpm_code_build_include_f.sort
+    local sorted=$rpm_code_build_include_f.sorted
     sort -u "$rpm_code_build_include_f" > "$sorted"
     local d
     while IFS="" read -r i; do
-        d=$(dirname "$i")
-        if [[ ! ${include[$d]+1} ]]; then
-            printf '%s\n' "$i"
-        fi
+        d=$i
+        while true; do
+            d=$(dirname "$d")
+            if [[ ${include[$d]+1} ]]; then
+                break
+            fi
+            if [[ $d == / ]]; then
+                printf '%s\n' "$i"
+                break
+            fi
+        done
         include[$i]=1
     done < "$sorted" > "$rpm_code_build_include_f"
     rm -f "$sorted"
