@@ -6,6 +6,15 @@ codes_bin_dir=$(dirname "$(pyenv which python)")
 # Where to install binaries (needed by genesis.sh)
 codes_pylib_dir=$(python -c 'from distutils.sysconfig import get_python_lib as x; print x()')
 
+codes_assert_easy_install() {
+    local easy=$(find  $(pyenv prefix)/lib -name easy-install.pth)
+    if [[ $easy ]]; then
+
+        install_err "$easy: packages used python setup.py install instead of pip:
+$(cat "$easy")"
+    fi
+}
+
 codes_curl() {
     curl -s -S -L "$@"
 }
@@ -123,10 +132,10 @@ codes_install() {
     # This excludes all the top level directories and python2.7/site-packages
     rpm_code_build_exclude_add "$pp"/* "$codes_pylib_dir"
     rpm_code_build_include_add
-    # note: mnewer doesn't work, because some installers preserve mtime
-    # easy-install.pth is a list of all packages, which is useless
+    codes_assert_easy_install
+    # note: --newer doesn't work, because some installers preserve mtime
     find "$pp/" ! -name pip-selfcheck.json ! -name '*.pyc' ! -name '*.pyo' \
-         ! -name easy-install.pth -type f -cnewer "$codes_install_sentinel" \
+         ! -type f -cnewer "$codes_install_sentinel" \
          | rpm_code_build_include_add
 }
 
@@ -195,12 +204,7 @@ codes_patch_requirements_txt() {
 
 codes_python_install() {
     pip install .
-    local easy=$(find  $(pyenv prefix)/lib -name easy-install.pth)
-    if [[ $easy ]]; then
-
-        install_err "$easy: packages used python setup.py install instead of pip:
-$(cat "$easy")"
-    fi
+    codes_assert_easy_install
 }
 
 codes_touch_sentinel() {
