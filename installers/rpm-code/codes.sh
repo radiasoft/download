@@ -135,7 +135,7 @@ codes_install() {
     codes_assert_easy_install
     # note: --newer doesn't work, because some installers preserve mtime
     find "$pp/" ! -name pip-selfcheck.json ! -name '*.pyc' ! -name '*.pyo' \
-         ! -type f -cnewer "$codes_install_sentinel" \
+         -type f -cnewer "$codes_install_sentinel" \
          | rpm_code_build_include_add
 }
 
