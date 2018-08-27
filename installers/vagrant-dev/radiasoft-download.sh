@@ -4,6 +4,8 @@
 #
 # Usage: curl radia.run | bash -s vagrant-up centos|fedora [guest-name:v.radia.run [guest-ip:10.10.10.10]]
 #
+set -euo pipefail
+
 vagrant_dev_check() {
     local vdi=$1
     if [[ -z $(type -t vagrant) ]]; then
@@ -23,8 +25,17 @@ http://vagrantup.com'
 }
 
 vagrant_dev_main() {
-    local os=$1 host=${2:-v.radia.run} ip=$3
+    local os=$1 host=${2:-} ip=${3:-}
+    if [[ ! $host ]]; then
+        if [[ ! $PWD =~ /(v[2-5]?)$ ]]; then
+            install_err 'either specify a host or run from directory named v, v2, v3, v4, or v5'
+        fi
+        host=${BASH_REMATCH[1]}
+    fi
     local base=${host%%.*}
+    if [[ $base == $host ]]; then
+        host=$host.radia.run
+    fi
     if [[ ! $os =~ ^(fedora|centos) ]]; then
         install_err "$os: invalid OS: only fedora or centos are supported"
     fi
