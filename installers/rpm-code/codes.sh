@@ -193,6 +193,16 @@ codes_patch_requirements_txt() {
     mv -f "$t" requirements.txt
 }
 
+codes_python_install() {
+    pip install .
+    local easy=$(find  $(pyenv prefix)/lib -name easy-install.pth)
+    if [[ $easy ]]; then
+
+        install_err "$easy: packages used python setup.py install instead of pip:
+$(cat "$easy")"
+    fi
+}
+
 codes_touch_sentinel() {
     # Need a new ctime, see find above
     rm -f "$codes_install_sentinel"

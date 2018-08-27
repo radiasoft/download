@@ -2,4 +2,4 @@
 codes_dependencies common
 codes_download https://bitbucket.org/dpgrote/pygist.git
 python setup.py config
-python setup.py install
+codes_python_install

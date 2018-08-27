@@ -10,4 +10,4 @@ pip install tables==3.3.0
 # Lots of dependencies so we install here to avoid rpm collisions.
 # Slows down builds of pykern, but doesn't affect development.
 codes_download pykern
-python setup.py install
+codes_python_install

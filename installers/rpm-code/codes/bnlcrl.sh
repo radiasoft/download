@@ -2,4 +2,4 @@
 codes_dependencies common
 codes_download mrakitin/bnlcrl
 codes_patch_requirements_txt
-python setup.py install
+codes_python_install
