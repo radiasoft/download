@@ -21,12 +21,14 @@ rpm_code_build() {
     install_script_eval codes.sh
     codes_main "$code"
     rpm_code_build_exclude_add "$(dirname "$rpm_code_build_src_dir")"
+    local start=$(date +%s)
     local deps=()
     local i
     for i in "${rpm_code_build_depends[@]}"; do
         deps+=( --depends "$i" )
     done
-    local -A include
+    local -A include_dirs
+    local -A ok
     local sorted=$rpm_code_build_include_f.sorted
     sort -u "$rpm_code_build_include_f" > "$sorted"
     local d
@@ -34,23 +36,28 @@ rpm_code_build() {
         d=$i
         while true; do
             d=$(dirname "$d")
-            if [[ ${include[$d]+1} ]]; then
+            if [[ ${include_dirs[$d]+1} ]]; then
                 break
             fi
-            if [[ $d == / ]]; then
+            if [[ ${rpm_code_build_exclude[$d]+1} || $d == / ]]; then
+                # include takes precedence over exclude so if we hit exclude
+                # then it has to be included.
                 printf '%s\n' "$i"
                 break
             fi
         done
-        include[$i]=1
+        if [[ -d $i ]]; then
+            include_dirs[$i]=1
+        fi
     done < "$sorted" > "$rpm_code_build_include_f"
     rm -f "$sorted"
     local exclude=()
     for i in "${!rpm_code_build_exclude[@]}"; do
-        if [[ ! ${include[$i]+1} ]]; then
+        if [[ ! ${include_dirs[$i]+1} ]]; then
             exclude+=( --rpm-auto-add-exclude-directories "$i" )
         fi
     done
+    install_info "fpm prep: $(( $(date +%s) - $start ))s"
     cd "$rpm_code_guest_d"
     fpm -t rpm -s dir -n "$rpm_base" -v "$version" \
         --rpm-rpmbuild-define "_build_id_links none" \
