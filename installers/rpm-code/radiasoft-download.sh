@@ -26,9 +26,23 @@ rpm_code_build() {
     for i in "${rpm_code_build_depends[@]}"; do
         deps+=( --depends "$i" )
     done
+    local sorted=$rpm_code_build_include_f.sort
+    local -A include
+    local d
+    sort -u "$rpm_code_build_include_f" \
+        | while IFS="" read -r i; do
+        d=$(dirname "$i")
+        if [[ ! ${include[$d]+1} ]]; then
+            printf '%s\n' "$i"
+        fi
+        include[$i]=1
+    done > "$sorted"
+    mv "$sorted" "$rpm_code_build_include_f"
     local exclude=()
     for i in "${!rpm_code_build_exclude[@]}"; do
-        exclude+=( --rpm-auto-add-exclude-directories "$i" )
+        if ! fgrep -q --line-regexp $i "$rpm_code_build_include_f"; then
+            exclude+=( --rpm-auto-add-exclude-directories "$i" )
+        fi
     done
     cd "$rpm_code_guest_d"
     fpm -t rpm -s dir -n "$rpm_base" -v "$version" \
