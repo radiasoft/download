@@ -3,6 +3,8 @@ common_main() {
     pip install numpy
     pip install matplotlib
     pip install scipy
+    # used by synergia and has man/man1 duplicate problem so just include here
+    pip install nose
     MPICC="$(type -p mpicc)" pip install mpi4py
     pip install Cython
     # Force MPI mode (not auto-detected)
