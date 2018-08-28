@@ -8,7 +8,7 @@ set -euo pipefail
 
 vagrant_dev_check() {
     local vdi=$1
-    if [[ -z $(type -t vagrant) ]]; then
+    if [[ ! $(type -t vagrant) ]]; then
         install_err 'vagrant not installed. Please visit to install:
 
 http://vagrantup.com'
@@ -39,14 +39,14 @@ vagrant_dev_main() {
     if [[ ! $os =~ ^(fedora|centos) ]]; then
         install_err "$os: invalid OS: only fedora or centos are supported"
     fi
-    if [[ -z ${vagrant_dev_no_nfs_src+x} ]]; then
+    if [[ ! ${vagrant_dev_no_nfs_src+1} ]]; then
         if [[ $os =~ centos ]]; then
             vagrant_dev_no_nfs_src=1
         fi
     fi
-    if [[ -z $ip ]]; then
+    if [[ ! $ip ]]; then
         ip=$(dig +short "$host")
-        if [[ -z $ip ]]; then
+        if [[ ! $ip ]]; then
             install_err "$host: host not found and IP address not supplied"
         fi
     fi
@@ -97,7 +97,7 @@ vagrant_dev_plugins() {
 vagrant_dev_vagrantfile() {
     local os=$1 host=$2 ip=$3 vdi=$4 first=$5
     local vbguest='' timesync=''
-    if [[ -n $first ]]; then
+    if [[ $first ]]; then
         vbguest='config.vbguest.auto_update = false'
     else
         # https://medium.com/carwow-product-engineering/time-sync-problems-with-vagrant-and-virtualbox-383ab77b6231
@@ -112,7 +112,7 @@ vagrant_dev_vagrantfile() {
         box=centos/7
     fi
     local nfs_src=''
-    if [[ -z $vagrant_dev_no_nfs_src ]]; then
+    if [[ ! ${vagrant_dev_no_nfs_src+1} ]]; then
         nfs_src='
     config.vm.synced_folder "'"$HOME/src"'", "/home/vagrant/src", type: "nfs", mount_options: ["rw", "vers=3", "tcp", "nolock", "fsc", "actimeo=2"]
 '
@@ -172,7 +172,7 @@ vagrant_dev_vdi_delete() {
         return
     fi
     local uuid=$(vagrant_dev_vdi_find "$vdi")
-    if [[ -n $uuid ]]; then
+    if [[ $uuid ]]; then
         install_info "Deleting HDD $vdi ($uuid)"
         VBoxManage closemedium disk "$uuid" --delete
     fi
