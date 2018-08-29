@@ -17,6 +17,7 @@ code_base_main() {
         libtool
         llvm-libs
         openmpi-devel
+        valgrind-devel
     )
     install_yum_install "${rpms[@]}"
 }

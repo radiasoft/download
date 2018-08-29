@@ -43,7 +43,6 @@ redhat_base_main() {
         tar
         tk-devel
         unzip
-        valgrind-devel
         wget
         xz-devel
         yum-utils
