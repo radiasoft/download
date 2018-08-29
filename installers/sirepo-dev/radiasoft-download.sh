@@ -1,8 +1,4 @@
 #!/bin/bash
-#
-# To run: curl radia.run | bash -s sirepo-dev
-#
-#TODO(robnagler) make sure git pull works on ~/src/biviosoftware/home-env pykern sirepo
 
 sirepo_dev_main() {
     if [[ ! -r /etc/redhat-release ]]; then
@@ -21,27 +17,10 @@ sirepo_dev_main() {
         . ~/.bashrc
         set -e
     fi
-    if ! rpm -q SDDSPython >& /dev/null; then
-        install_repo_eval code common
+    if ! type synergia >& /dev/null; then
+        install_repo_eval beamsim-codes
     fi
-    if ! type elegant >& /dev/null; then
-        install_repo_eval code elegant
-    fi
-    if ! python -c 'import warp' >& /dev/null; then
-        install_repo_eval code warp
-    fi
-    if ! python -c 'import srwlib' >& /dev/null; then
-        install_repo_eval code srw
-    fi
-    if ! type rslinac >& /dev/null; then
-        install_repo_eval code rslinac
-    fi
-    if ! python -c 'import Shadow' >& /dev/null; then
-        install_repo_eval code shadow3
-    fi
-    if ! python -c 'import rsbeams' >& /dev/null; then
-        install_repo_eval code rsbeams
-    fi
+    mkdir -p ~/src/radiasoft
     cd ~/src/radiasoft
     local p
     for p in pykern sirepo; do
