@@ -128,8 +128,8 @@ synergia_install() {
 }
 
 synergia_pyenv_exec() {
-    # Is not dynamic, because
-    perl -p -e "s{PREFIX}{$(pyenv prefix)}" <<'EOF' > ~/.pyenv/pyenv.d/exec/rs-beamsim-synergia.bash
+    local f=~/.pyenv/pyenv.d/exec/rs-beamsim-synergia.bash
+    perl -p -e "s{PREFIX}{$(pyenv prefix)}" <<'EOF' > "$f"
 #!/bin/bash
 #
 # Synergia needs these special paths to work.
@@ -142,6 +142,8 @@ if [[ PREFIX == $(pyenv prefix) ]]; then
     export PYTHONPATH=$SYNERGIA2DIR
 fi
 EOF
+    rpm_code_build_include_add "$f"
+    rpm_code_build_exclude_add "$(dirname "$f")"
 }
 
 synergia_main() {
