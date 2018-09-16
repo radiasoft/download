@@ -36,8 +36,16 @@ redhat_docker_main() {
         lvcreate -l 100%VG -n '$lv' '$vg'
 EOF
     fi
+    install_tmp_dir
+    install_url radiasoft/download installers/rpm-code
+    openssl req -nodes -newkey rsa -keyout key.pem \
+        -out cert.pem -x509 -days 9999 -set_serial "$(date +%s)" -subj /CN=localhost.localdomain
+    local tmp_d=$PWD
     install_sudo bash <<EOF
     set -euo pipefail
+    if [[ ${install_debug:-} ]]; then
+        set -x
+    fi
     if type dnf >& /dev/null; then
         dnf -y -q install dnf-plugins-core
         dnf -q config-manager \
@@ -57,14 +65,22 @@ EOF
     mkdir '$data'
     echo '$mdev $data xfs defaults 0 0' >> /etc/fstab
     mount '$data'
+    install -d -m 700 /etc/docker/tls
+    install -m 400 "$tmp_d/cert.pem" "$tmp_d/key.pem" /etc/docker/tls
     install -m 400 /dev/stdin /etc/docker/daemon.json <<'EOF2'
 {
+    "hosts": ["tcp://localhost.localdomain:2376", "unix:///run/docker.sock"],
     "iptables": true,
     "live-restore": true,
     "storage-driver": "overlay2",
     "storage-opts": [
         "overlay2.override_kernel_check=true"
-    ]
+    ],
+    "tls": true,
+    "tlscacert": "/etc/docker/tls/cert.pem",
+    "tlscert": "/etc/docker/tls/cert.pem",
+    "tlskey": "/etc/docker/tls/key.pem",
+    "tlsverify": true
 }
 EOF2
     systemctl start docker
