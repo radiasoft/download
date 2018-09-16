@@ -15,6 +15,12 @@ $(cat "$easy")"
     fi
 }
 
+codes_cmake() {
+    mkdir build
+    cd build
+    cmake "$@" ..
+}
+
 codes_curl() {
     curl -s -S -L "$@"
 }
