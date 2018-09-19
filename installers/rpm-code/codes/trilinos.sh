@@ -33,5 +33,5 @@ CC=mpicc CXX=mpicxx codes_cmake \
   -DTrilinos_ENABLE_Optika:BOOL=OFF \
   -DTrilinos_ENABLE_Teuchos:BOOL=ON \
   -DTrilinos_ENABLE_Tpetra:BOOL=ON \
-  -DTrilinos_ENABLE_TESTS:BOOL=OFF \
+  -DTrilinos_ENABLE_TESTS:BOOL=OFF
 codes_make_install
