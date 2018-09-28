@@ -38,6 +38,14 @@ sirepo_dev_main() {
         pip install -e .
         cd ..
     done
+    cd sirepo
+    install_yum_install nodejs
+    for p in jshint karma karma-jasmine karma-phantomjs-launcher jasmine-core; do
+        if ! npm list "$p" >& /dev/null; then
+           npm install "$p" >& /dev/null
+        fi
+    done
+    cd ..
 }
 
 sirepo_dev_main "${install_extra_args[@]}"

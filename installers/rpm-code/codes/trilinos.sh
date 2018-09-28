@@ -2,8 +2,6 @@
 codes_dependencies metis
 # https://trilinos.org/oldsite/download/download.html
 codes_download_foss trilinos-12.10.1-Source.tar.gz
-mkdir build
-cd build
 CC=mpicc CXX=mpicxx codes_cmake \
   -DCMAKE_INSTALL_PREFIX:PATH="$(pyenv prefix)" \
   -DCMAKE_CXX_FLAGS:STRING="-DMPICH_IGNORE_CXX_SEEK -fPIC" \
@@ -33,5 +31,5 @@ CC=mpicc CXX=mpicxx codes_cmake \
   -DTrilinos_ENABLE_Optika:BOOL=OFF \
   -DTrilinos_ENABLE_Teuchos:BOOL=ON \
   -DTrilinos_ENABLE_Tpetra:BOOL=ON \
-  -DTrilinos_ENABLE_TESTS:BOOL=OFF \
+  -DTrilinos_ENABLE_TESTS:BOOL=OFF
 codes_make_install
