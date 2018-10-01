@@ -24,6 +24,21 @@ http://vagrantup.com'
     vagrant_dev_vdi_delete "$vdi"
 }
 
+vagrant_dev_init_nfs() {
+    if [[ ${vagrant_dev_no_mounts+1} ]]; then
+        return
+    fi
+    echo 'We need access to sudo on your Mac to mount NFS'
+    if ! sudo true; then
+        install_err 'must have access to sudo'
+    fi
+    if [[ ! -r /etc/exports ]]; then
+        sudo touch /etc/exports
+        # vagrant requires /etc/exports readable by an ordinary user
+        sudo chmod 644 /etc/exports
+    fi
+}
+
 vagrant_dev_main() {
     local os=$1 host=${2:-} ip=${3:-}
     if [[ ! $host ]]; then
@@ -39,9 +54,20 @@ vagrant_dev_main() {
     if [[ ! $os =~ ^(fedora|centos) ]]; then
         install_err "$os: invalid OS: only fedora or centos are supported"
     fi
+    if [[ ${vagrant_dev_barebones+1} ]]; then
+        # allow individual overrides
+        : ${vagrant_dev_cpus:=1}
+        : ${vagrant_dev_memory:=2048}
+        : ${vagrant_dev_no_dev_env:=1}
+        : ${vagrant_dev_no_docker_disk:=1}
+        : ${vagrant_dev_no_mounts:=1}
+        : ${vagrant_dev_no_nfs_src:=1}
+        : ${vagrant_dev_no_vbguest:=1}
+        : ${vagrant_dev_no_plugins_update:=1}
+    fi
     if [[ ! ${vagrant_dev_no_nfs_src+1} ]]; then
         if [[ $os =~ centos ]]; then
-            vagrant_dev_no_nfs_src=1
+            : ${vagrant_dev_no_nfs_src:=1}
         fi
     fi
     if [[ ! $ip ]]; then
@@ -51,25 +77,22 @@ vagrant_dev_main() {
         fi
     fi
     # Absolute path is necessary for comparison in vagrant_dev_delete_vdi
+    vagrant_dev_init_nfs
     local vdi=$PWD/$base-docker.vdi
-    echo 'We need access to sudo on your Mac to mount NFS'
-    if ! sudo true; then
-        install_err 'must have access to sudo'
-    fi
-    if [[ ! -r /etc/exports ]]; then
-        sudo touch /etc/exports
-        # vagrant requires /etc/exports readable by an ordinary user
-        sudo chmod 644 /etc/exports
-    fi
     vagrant_dev_check "$vdi"
-    vagrant_dev_vagrantfile "$os" "$host" "$ip" "$vdi" '1'
-    vagrant up
-    vagrant ssh <<'EOF'
+    if [[ ! ${vagrant_dev_no_vbguest+1} ]]; then
+        vagrant_dev_vagrantfile "$os" "$host" "$ip" "$vdi" '1'
+        vagrant up
+        vagrant ssh <<'EOF'
 sudo yum install -q -y kernel kernel-devel kernel-headers kernel-tools perl
 EOF
-    vagrant halt
+        vagrant halt
+    fi
     vagrant_dev_vagrantfile "$os" "$host" "$ip" "$vdi" ''
     vagrant up
+    if [[ ${vagrant_dev_no_dev_env+1} ]]; then
+        return
+    fi
     local f
     for f in ~/.gitconfig ~/.netrc; do
         if [[ -r $f ]]; then
@@ -82,7 +105,27 @@ curl https://depot.radiasoft.org/index.sh | bash -s redhat-dev
 EOF
 }
 
+vagrant_dev_mounts() {
+    if [[ ${vagrant_dev_no_mounts+1} ]]; then
+        echo 'config.vm.synced_folder ".", "/vagrant", disabled: true'
+        return
+    fi
+    # Have to use vers=3 b/c vagrant will insert it (incorrectly) otherwise. Not sure why.
+    local res=(
+        'config.vm.synced_folder ".", "/vagrant", type: "nfs", mount_options: ["rw", "vers=3", "tcp", "nolock", "fsc", "actimeo=2"]'
+    )
+    if [[ ! ${vagrant_dev_no_nfs_src+1} ]]; then
+        res+=( 'config.vm.synced_folder "'"$HOME/src"'", "/home/vagrant/src", type: "nfs", mount_options: ["rw", "vers=3", "tcp", "nolock", "fsc", "actimeo=2"]' )
+    fi
+    local IFS='
+    '
+    echo "${res[*]}"
+}
+
 vagrant_dev_plugins() {
+    if [[ ${vagrant_dev_no_plugins_update+1} ]]; then
+        return
+    fi
     local plugins=$(vagrant plugin list)
     local p op
     for p in vagrant-persistent-storage vagrant-vbguest; do
@@ -97,7 +140,7 @@ vagrant_dev_plugins() {
 vagrant_dev_vagrantfile() {
     local os=$1 host=$2 ip=$3 vdi=$4 first=$5
     local vbguest='' timesync=''
-    if [[ $first ]]; then
+    if [[ $first || ${vagrant_dev_no_vbguest+1} ]]; then
         vbguest='config.vbguest.auto_update = false'
     else
         # https://medium.com/carwow-product-engineering/time-sync-problems-with-vagrant-and-virtualbox-383ab77b6231
@@ -111,11 +154,25 @@ vagrant_dev_vagrantfile() {
     elif [[ $box == centos ]]; then
         box=centos/7
     fi
-    local nfs_src=''
-    if [[ ! ${vagrant_dev_no_nfs_src+1} ]]; then
-        nfs_src='
-    config.vm.synced_folder "'"$HOME/src"'", "/home/vagrant/src", type: "nfs", mount_options: ["rw", "vers=3", "tcp", "nolock", "fsc", "actimeo=2"]
-'
+    local mounts="$(vagrant_dev_mounts)"
+    local persistent_storage=
+    if [[ ! ${vagrant_dev_no_docker_disk+1} ]]; then
+        IFS= read -r -d '' persistent_storage <<EOF
+    # Create a disk for docker
+    config.persistent_storage.enabled = true
+    # so doesn't write signature
+    config.persistent_storage.format = false
+    # Clearer to add host name to file so that it can be distinguished
+    # in VirtualBox Media Manager, which only shows file name, not full path.
+    config.persistent_storage.location = "$vdi"
+    # so doesn't modify /etc/fstab
+    config.persistent_storage.mount = false
+    # use whole disk
+    config.persistent_storage.partition = false
+    config.persistent_storage.size = 102400
+    config.persistent_storage.use_lvm = true
+    config.persistent_storage.volgroupname = "docker"
+EOF
     fi
     cat > Vagrantfile <<EOF
 # -*-ruby-*-
@@ -133,33 +190,18 @@ Vagrant.configure("2") do |config|
         # https://github.com/mitchellh/vagrant/issues/8373
         # v.customize ["modifyvm", :id, "--nictype1", "virtio"]
         #
-        # Needed for compiling some the larger codes
-        v.memory = 8192
-        v.cpus = 4
+        # 8192 needed for compiling some the larger codes
+        v.memory = ${vagrant_dev_memory:-8192}
+        v.cpus = ${vagrant_dev_cpus:-4}
     end
-
-    # Create a disk for docker
-    config.persistent_storage.enabled = true
-    # so doesn't write signature
-    config.persistent_storage.format = false
-    # Clearer to add host name to file so that it can be distinguished
-    # in VirtualBox Media Manager, which only shows file name, not full path.
-    config.persistent_storage.location = "$vdi"
-    # so doesn't modify /etc/fstab
-    config.persistent_storage.mount = false
-    # use whole disk
-    config.persistent_storage.partition = false
-    config.persistent_storage.size = 102400
-    config.persistent_storage.use_lvm = true
-    config.persistent_storage.volgroupname = "docker"
+${persistent_storage}
     config.ssh.forward_x11 = false
-${vbguest}    # https://stackoverflow.com/a/33137719/3075806
+    ${vbguest}
+    # https://stackoverflow.com/a/33137719/3075806
     # Undo mapping of hostname to 127.0.0.1
     config.vm.provision "shell",
         inline: "sed -i '/127.0.0.1.*$host/d' /etc/hosts"
-    # Have to use vers=3 b/c vagrant will insert it otherwise. Not sure why.
-    config.vm.synced_folder ".", "/vagrant", type: "nfs", mount_options: ["rw", "vers=3", "tcp", "nolock", "fsc", "actimeo=2"]
-    ${nfs_src}
+    ${mounts}
 end
 EOF
 }
@@ -198,4 +240,4 @@ vagrant_dev_vdi_find() {
     done
 }
 
-vagrant_dev_main "${install_extra_args[@]}"
+vagrant_dev_main ${install_extra_args[@]+"${install_extra_args[@]}"}
