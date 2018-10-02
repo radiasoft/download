@@ -23,7 +23,6 @@ set -e -x
 export install_channel=$install_channel install_server=$install_server
 curl "$install_server" | bash -s rsconf.sh "\$(hostname -f)" setup_dev
 EOF
-END
 }
 
 vagrant_rsconf_dev_main ${install_extra_args[@]+"${install_extra_args[@]}"}
