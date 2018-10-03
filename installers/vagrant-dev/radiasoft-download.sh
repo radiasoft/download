@@ -157,7 +157,8 @@ vagrant_dev_vagrantfile() {
     local mounts="$(vagrant_dev_mounts)"
     local persistent_storage=
     if [[ ! ${vagrant_dev_no_docker_disk+1} ]]; then
-        IFS= read -r -d '' persistent_storage <<EOF
+        # read returns false
+        IFS= read -r -d '' persistent_storage <<EOF || true
     # Create a disk for docker
     config.persistent_storage.enabled = true
     # so doesn't write signature
