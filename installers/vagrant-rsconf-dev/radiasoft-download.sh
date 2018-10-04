@@ -8,7 +8,7 @@ vagrant_rsconf_dev_main() {
     if [[ ${1:-} != master ]]; then
         export vagrant_dev_barebones=1 install_server=http://v3.radia.run:2916 install_channel=dev
     fi
-    #install_repo_eval vagrant-centos7
+    install_repo_eval vagrant-centos7
     if [[ ${1:-} == master ]]; then
         return
     fi
