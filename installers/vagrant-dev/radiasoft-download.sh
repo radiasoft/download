@@ -63,18 +63,14 @@ vagrant_dev_main() {
         vagrant_dev_no_mounts=${vagrant_dev_no_mounts-1}
         vagrant_dev_no_nfs_src=${vagrant_dev_no_nfs_src-1}
         vagrant_dev_no_vbguest=${vagrant_dev_no_vbguest-1}
-        vagrant_dev_no_plugins_update=${vagrant_dev_no_plugins_update-1}
     fi
-    if [[ ! ${vagrant_dev_no_mounts+1} ]]; then
-        # Mounts only really work on Darwin for now
-        if [[ $(uname) != Darwin ]]; then
-            vagrant_dev_no_mounts=1
-        fi
-        if [[ ! ${vagrant_dev_no_nfs_src+1} ]]; then
-            if [[ $os =~ centos ]]; then
-                vagrant_dev_no_nfs_src=1
-            fi
-        fi
+    # Mounts only really work on Darwin for now
+    if [[ ! ${vagrant_dev_no_mounts+1} && $(uname) != Darwin ]]; then
+        vagrant_dev_no_mounts=1
+        vagrant_dev_no_vbguest=${vagrant_dev_no_vbguest-1}
+    fi
+    if [[ ! ${vagrant_dev_no_nfs_src+1} && $os =~ centos ]]; then
+        vagrant_dev_no_nfs_src=1
     fi
     if [[ ! $ip ]]; then
         ip=$(dig +short "$host")
@@ -105,6 +101,10 @@ EOF
             vagrant ssh -c "dd of=$(basename $f)" < "$f" >& /dev/null
         fi
     done
+    # file:// urls don't work inside the VM
+    if [[ $install_server =~ ^file: ]]; then
+        local install_server=
+    fi
     vagrant ssh <<EOF
 export install_server='$install_server' install_channel='$install_channel' install_debug='$install_debug'
 curl https://depot.radiasoft.org/index.sh | bash -s redhat-dev
@@ -129,12 +129,19 @@ vagrant_dev_mounts() {
 }
 
 vagrant_dev_plugins() {
-    if [[ ${vagrant_dev_no_plugins_update:+1} ]]; then
+    local x=()
+    if [[ ! ${vagrant_dev_no_vbguest:+1} ]]; then
+        x+=( vagrant-vbguest )
+    fi
+    if [[ ! ${vagrant_dev_no_docker_disk:+1} ]]; then
+        x+=( vagrant-persistent-storage )
+    fi
+    if [[ ! ${x[@]+1} ]]; then
         return
     fi
     local plugins=$(vagrant plugin list)
     local p op
-    for p in vagrant-persistent-storage vagrant-vbguest; do
+    for p in "${x[@]}"; do
         op=install
         if [[ $plugins =~ $p ]]; then
             op=update

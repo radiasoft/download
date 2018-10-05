@@ -7,14 +7,13 @@ set -euo pipefail
 vagrant_rsconf_dev_main() {
     case $(basename "$PWD") in
         v3)
-            install_server=file:///home/vagrant/src/radiasoft/rsconf/run/srv \
-                vagrant_rsconf_dev_master
+            vagrant_rsconf_dev_master
             ;;
         v4|v5)
             vagrant_dev_barebones=1 \
                 install_server=http://v3.radia.run:2916 \
                 vagrant_rsconf_dev_worker
-        ;;
+            ;;
         *)
             install_err 'Must be run from v3, v4, or v5 dirs'
             ;;
@@ -45,15 +44,16 @@ vagrant_rsconf_dev_master() {
         cd ..
         rsconf build
 EOF
-    vagrant_rsconf_dev_run || true
+    local s=file:///home/vagrant/src/radiasoft/rsconf/run/srv
+    install_server=$s vagrant_rsconf_dev_run || true
     vagrant reload
-    vagrant_rsconf_dev_run
+    install_server=$s vagrant_rsconf_dev_run
     # For building perl rpms (see build-perl-rpm.sh)
     bivio_vagrant_ssh sudo usermod -aG docker vagrant
 }
 
 vagrant_rsconf_dev_run() {
-    bivio_vagrant_ssh sudo su - <<EOF
+    install_server=$install_server bivio_vagrant_ssh sudo su - <<EOF
         set -euo pipefail
         export install_channel=dev install_server=$install_server
         curl "$install_server/index.html" | bash -s rsconf.sh "\$(hostname -f)" setup_dev
