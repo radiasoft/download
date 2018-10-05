@@ -40,7 +40,7 @@ vagrant_dev_init_nfs() {
 }
 
 vagrant_dev_main() {
-    local os=$1 host=${2:-} ip=${3:-}
+    local os=${1:-} host=${2:-} ip=${3:-}
     if [[ ! $host ]]; then
         if [[ ! $PWD =~ /(v[2-9]?)$ ]]; then
             install_err 'either specify a host or run from directory named v, v2, v3, ..., v9'
