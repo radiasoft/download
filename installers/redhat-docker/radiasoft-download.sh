@@ -43,7 +43,7 @@ EOF
     local tmp_d=$PWD
     install_sudo bash <<EOF
     set -euo pipefail
-    if [[ ${install_debug:-} ]]; then
+    if [[ '${install_debug:-}' ]]; then
         set -x
     fi
     if type dnf >& /dev/null; then
@@ -62,7 +62,7 @@ EOF
     usermod -aG docker vagrant
     install -d -m 700 /etc/docker
     mkfs.xfs -f -n ftype=1 '$mdev'
-    mkdir '$data'
+    mkdir -p '$data'
     echo '$mdev $data xfs defaults 0 0' >> /etc/fstab
     mount '$data'
     install -d -m 700 /etc/docker/tls
