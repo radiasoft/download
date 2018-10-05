@@ -56,8 +56,6 @@ vagrant_dev_main() {
     fi
     if [[ ${vagrant_dev_barebones:+1} ]]; then
         # allow individual overrides
-        vagrant_dev_cpus=${vagrant_dev_cpus:-1}
-        vagrant_dev_memory=${vagrant_dev_memory:-2048}
         vagrant_dev_no_dev_env=${vagrant_dev_no_dev_env-1}
         vagrant_dev_no_docker_disk=${vagrant_dev_no_docker_disk-1}
         vagrant_dev_no_mounts=${vagrant_dev_no_mounts-1}
