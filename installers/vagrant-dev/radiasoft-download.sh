@@ -25,10 +25,10 @@ http://vagrantup.com'
 }
 
 vagrant_dev_init_nfs() {
-    if [[ ${vagrant_dev_no_mounts+1} ]]; then
+    if [[ ${vagrant_dev_no_mounts:+1} ]]; then
         return
     fi
-    echo 'We need access to sudo on your Mac to mount NFS'
+    install_msg 'We need access to sudo on your Mac to mount NFS'
     if ! sudo true; then
         install_err 'must have access to sudo'
     fi
@@ -54,20 +54,26 @@ vagrant_dev_main() {
     if [[ ! $os =~ ^(fedora|centos) ]]; then
         install_err "$os: invalid OS: only fedora or centos are supported"
     fi
-    if [[ ${vagrant_dev_barebones+1} ]]; then
+    if [[ ${vagrant_dev_barebones:+1} ]]; then
         # allow individual overrides
-        : ${vagrant_dev_cpus:=1}
-        : ${vagrant_dev_memory:=2048}
-        : ${vagrant_dev_no_dev_env:=1}
-        : ${vagrant_dev_no_docker_disk:=1}
-        : ${vagrant_dev_no_mounts:=1}
-        : ${vagrant_dev_no_nfs_src:=1}
-        : ${vagrant_dev_no_vbguest:=1}
-        : ${vagrant_dev_no_plugins_update:=1}
+        vagrant_dev_cpus=${vagrant_dev_cpus:-1}
+        vagrant_dev_memory=${vagrant_dev_memory:-2048}
+        vagrant_dev_no_dev_env=${vagrant_dev_no_dev_env-1}
+        vagrant_dev_no_docker_disk=${vagrant_dev_no_docker_disk-1}
+        vagrant_dev_no_mounts=${vagrant_dev_no_mounts-1}
+        vagrant_dev_no_nfs_src=${vagrant_dev_no_nfs_src-1}
+        vagrant_dev_no_vbguest=${vagrant_dev_no_vbguest-1}
+        vagrant_dev_no_plugins_update=${vagrant_dev_no_plugins_update-1}
     fi
-    if [[ ! ${vagrant_dev_no_nfs_src+1} ]]; then
-        if [[ $os =~ centos ]]; then
-            : ${vagrant_dev_no_nfs_src:=1}
+    if [[ ! ${vagrant_dev_no_mounts+1} ]]; then
+        # Mounts only really work on Darwin for now
+        if [[ $(uname) != Darwin ]]; then
+            vagrant_dev_no_mounts=1
+        fi
+        if [[ ! ${vagrant_dev_no_nfs_src+1} ]]; then
+            if [[ $os =~ centos ]]; then
+                vagrant_dev_no_nfs_src=1
+            fi
         fi
     fi
     if [[ ! $ip ]]; then
@@ -80,7 +86,7 @@ vagrant_dev_main() {
     vagrant_dev_init_nfs
     local vdi=$PWD/$base-docker.vdi
     vagrant_dev_check "$vdi"
-    if [[ ! ${vagrant_dev_no_vbguest+1} ]]; then
+    if [[ ! ${vagrant_dev_no_vbguest:+1} ]]; then
         vagrant_dev_vagrantfile "$os" "$host" "$ip" "$vdi" '1'
         vagrant up
         vagrant ssh <<'EOF'
@@ -90,7 +96,7 @@ EOF
     fi
     vagrant_dev_vagrantfile "$os" "$host" "$ip" "$vdi" ''
     vagrant up
-    if [[ ${vagrant_dev_no_dev_env+1} ]]; then
+    if [[ ${vagrant_dev_no_dev_env:+1} ]]; then
         return
     fi
     local f
@@ -106,7 +112,7 @@ EOF
 }
 
 vagrant_dev_mounts() {
-    if [[ ${vagrant_dev_no_mounts+1} ]]; then
+    if [[ ${vagrant_dev_no_mounts:+1} ]]; then
         echo 'config.vm.synced_folder ".", "/vagrant", disabled: true'
         return
     fi
@@ -114,7 +120,7 @@ vagrant_dev_mounts() {
     local res=(
         'config.vm.synced_folder ".", "/vagrant", type: "nfs", mount_options: ["rw", "vers=3", "tcp", "nolock", "fsc", "actimeo=2"]'
     )
-    if [[ ! ${vagrant_dev_no_nfs_src+1} ]]; then
+    if [[ ! ${vagrant_dev_no_nfs_src:+1} ]]; then
         res+=( 'config.vm.synced_folder "'"$HOME/src"'", "/home/vagrant/src", type: "nfs", mount_options: ["rw", "vers=3", "tcp", "nolock", "fsc", "actimeo=2"]' )
     fi
     local IFS='
@@ -123,7 +129,7 @@ vagrant_dev_mounts() {
 }
 
 vagrant_dev_plugins() {
-    if [[ ${vagrant_dev_no_plugins_update+1} ]]; then
+    if [[ ${vagrant_dev_no_plugins_update:+1} ]]; then
         return
     fi
     local plugins=$(vagrant plugin list)
@@ -140,7 +146,7 @@ vagrant_dev_plugins() {
 vagrant_dev_vagrantfile() {
     local os=$1 host=$2 ip=$3 vdi=$4 first=$5
     local vbguest='' timesync=''
-    if [[ $first || ${vagrant_dev_no_vbguest+1} ]]; then
+    if [[ $first || ${vagrant_dev_no_vbguest:+1} ]]; then
         vbguest='config.vbguest.auto_update = false'
     else
         # https://medium.com/carwow-product-engineering/time-sync-problems-with-vagrant-and-virtualbox-383ab77b6231
@@ -156,7 +162,7 @@ vagrant_dev_vagrantfile() {
     fi
     local mounts="$(vagrant_dev_mounts)"
     local persistent_storage=
-    if [[ ! ${vagrant_dev_no_docker_disk+1} ]]; then
+    if [[ ! ${vagrant_dev_no_docker_disk:+1} ]]; then
         # read returns false
         IFS= read -r -d '' persistent_storage <<EOF || true
     # Create a disk for docker
