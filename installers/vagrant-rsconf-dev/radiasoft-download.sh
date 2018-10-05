@@ -5,14 +5,20 @@
 set -euo pipefail
 
 vagrant_rsconf_dev_main() {
-    if [[ ${1:-} == master ]]; then
-        install_server=file:///home/vagrant/src/radiasoft/rsconf/run/srv \
-            vagrant_rsconf_dev_master
-    else
-        vagrant_dev_barebones=1 \
-            install_server=http://v3.radia.run:2916 \
-            vagrant_rsconf_dev_worker
-    fi
+    case $(basename "$PWD") in
+        v3)
+            install_server=file:///home/vagrant/src/radiasoft/rsconf/run/srv \
+                vagrant_rsconf_dev_master
+            ;;
+        v4|v5)
+            vagrant_dev_barebones=1 \
+                install_server=http://v3.radia.run:2916 \
+                vagrant_rsconf_dev_worker
+        ;;
+        *)
+            install_err 'Must be run from v3, v4, or v5 dirs'
+            ;;
+   esac
 }
 
 vagrant_rsconf_dev_master() {
