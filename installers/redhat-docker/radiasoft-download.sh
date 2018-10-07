@@ -38,8 +38,24 @@ EOF
     fi
     install_tmp_dir
     install_url radiasoft/download installers/rpm-code
-    openssl req -nodes -newkey rsa -keyout key.pem \
-        -out cert.pem -x509 -days 9999 -set_serial "$(date +%s)" -subj /CN=localhost.localdomain
+    # rsconf.pkcli.tls is not available so have to run manually.
+    # easier to include more in -config here so different syntax
+    openssl req -x509 -newkey rsa -keyout key.pem -out cert.pem -config /dev/stdin <<EOF
+[req]
+default_days = 9999
+default_md = sha256
+distinguished_name = subj
+encrypt_key = no
+prompt = no
+x509_extensions = x
+serial = $(date +%s)
+
+[x]
+subjectAltName = DNS:localhost.localdomain, IP:127.0.0.1
+
+[subj]
+CN = $(hostname -f)
+EOF
     local tmp_d=$PWD
     install_sudo bash <<EOF
     set -euo pipefail
