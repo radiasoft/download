@@ -47,14 +47,10 @@ default_md = sha256
 distinguished_name = subj
 encrypt_key = no
 prompt = no
-x509_extensions = x
 serial = $(date +%s)
 
-[x]
-subjectAltName = DNS:localhost.localdomain, IP:127.0.0.1
-
 [subj]
-CN = $(hostname -f)
+CN = localhost.localdomain
 EOF
     local tmp_d=$PWD
     install_sudo bash <<EOF
