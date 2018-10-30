@@ -1,20 +1,20 @@
 #!/bin/bash
 set -euo pipefail
 codes=(
-#    common
+    common
 
     # create a delay here so radiasoft.repo in radiasoft/rpm-code
     # is "old" by the time bnlcrl (or other fast build) happens
     # otherwise, the cache will be stale
-#    synergia
+    synergia
 
-#    jspec
+    jspec
 
-#    bnlcrl
-#    srw
+    bnlcrl
+    srw
 
-#    sdds
-#    elegant
+    sdds
+    elegant
 
     H5hut
     parmetis
