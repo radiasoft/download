@@ -1,9 +1,13 @@
 #!/bin/bash
 set -euo pipefail
 . ./dev-env.sh
-sudo yum install -y createrepo
-mkdir -p "$rpm_code_yum_dir"
-createrepo "$rpm_code_yum_dir"
+if ! rpm -q createrepo >& /dev/null; then
+    sudo yum install -y createrepo
+fi
+if [[ ! -d $rpm_code_yum_dir ]]; then
+    mkdir -p "$rpm_code_yum_dir"
+    createrepo "$rpm_code_yum_dir"
+fi
 cat > ~/src/yum/fedora/radiasoft.repo <<EOF
 [radiasoft-dev]
 name=RadiaSoft fedora/27/x86_64 dev
