@@ -4,7 +4,7 @@ codes_dependencies sdds
 elegant_docs_d=/usr/share/doc/elegant
 
 elegant_docs() {
-    sudo install -d 755 "$elegant_docs_d"
+    sudo install -d -m 755 "$elegant_docs_d"
     local f d
     for f in defns.rpn LICENSE; do
         codes_download_module_file "$f"

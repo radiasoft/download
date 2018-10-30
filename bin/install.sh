@@ -1,105 +1,52 @@
 #!/bin/bash
 #
-# Install RadiaSoft containers
+# Usage: curl https://depot.radiasoft.org | bash -s [repo args...]
 #
-# TODO(robnagler):
-#    - add codes.sh (so can install locally and remotely)
-#    - leave in directory match? (may be overkill on automation)
-#    - handle no tty case better (not working?)
-#    - generalized bundling with versions
-#    - add test of dynamic download and static on travis (trigger for dynamic?)
-#    - tests for individual codes
+# Find repos in radiasoft/download/installers or radiasoft/*/radiasoft-download.sh
+# or any repo with a radiasoft-download.sh in its root.
 #
 # Testing an installer
-#     install_server=~/src bash ../../bin/install.sh code
-set -e -o pipefail
+#     cd ~/src
+#     rm -f index.sh
+#     ln -s -r radiasoft/download/bin/index.sh .
+#     python -m SimpleHTTPServer 1313 &
+#
+#     # assumes radia_run defined properly
+#     install_server=http://$(dig $(hostname -f) +short):1313 radia_run unit-test arg1
+set -euo pipefail
 
 install_args() {
-    if [[ -n $download_channel ]]; then
-        install_err '$download_channel: unsupported, use $install_server'
-    fi
     while [[ ${1:-} ]]; do
         case "$1" in
-            beamsim|python2|rs4pi|sirepo)
-                install_image=$1
-                ;;
-            vagrant|docker)
-                install_type=$1
+            alpha|beta|dev|prod)
+                install_channel=$1
                 ;;
             debug)
                 install_debug=1
                 install_verbose=1
                 ;;
+            quiet)
+                install_debug=
+                install_verbose=
+                ;;
             verbose)
                 install_verbose=1
-                ;;
-            alpha|beta|dev|master|prod)
-                # master fixed up in install_args_check
-                install_channel=$1
-                ;;
-            quiet)
-                install_verbose=
                 ;;
             *)
                 install_repo=$1
                 shift
-                install_type=repo
                 install_extra_args=( "$@" )
                 break
                 ;;
         esac
         shift
     done
-    install_args_check
-}
-
-install_args_check() {
     if [[ -n $install_debug ]]; then
         set -x
     fi
-    if [[ -z $install_type ]]; then
-        install_type_default
+    if [[ ! $install_repo ]]; then
+        install_repo=$install_default_repo
     fi
-    if [[ -z $install_image && -z $install_repo ]]; then
-        install_image=$(basename "$PWD")
-        if [[ ! $install_image =~ ^(beamsim|python2|rs4pi|sirepo)$ ]]; then
-            install_usage "Please supply an install name: beamsim, python2, rs4pi, sirepo, OR repo name"
-        fi
-    fi
-    case $install_type in
-        repo)
-            install_no_dir_check=1
-            ;;
-        vagrant|docker)
-            if [[ $install_image =~ sirepo|rs4pi ]]; then
-                install_port=8000
-            fi
-            install_image=radiasoft/$install_image
-            ;;
-    esac
-    case $install_channel in
-        dev|master)
-            install_channel=dev
-            install_docker_channel=latest
-            install_github_channel=master
-            ;;
-        not-set)
-            install_channel=dev
-            install_docker_channel=beta
-            if [[ $install_image =~ ^radiasoft/(beamsim|python2|rs4pi)$ ]]; then
-                install_docker_channel=alpha
-            fi
-            install_github_channel=master
-            ;;
-        *)
-            install_docker_channel=$install_channel
-            install_github_channel=$install_channel
-            ;;
-    esac
-    if [[ $install_image =~ beamsim|python2 ]]; then
-        install_run_interactive=1
-    fi
-    install_url radiasoft/download bin
 }
 
 install_clean() {
@@ -110,23 +57,11 @@ install_clean() {
 }
 
 install_depot_server() {
-    if [[ ${install_server:-} && $install_server != github ]]; then
+    if [[ ${install_server:-github} != github ]]; then
         echo -n "$install_server"
         return
     fi
     echo -n https://depot.radiasoft.org
-}
-
-install_dir_check() {
-    if [[ $install_no_dir_check ]]; then
-        return
-    fi
-    # Loose check of our files. Just need to make sure
-    # POSIT: $install_log_file contains radia-run
-    if [[ $(ls -A | egrep -v '(radia-run|\.bivio_vagrant_ssh|Vagrantfile)') ]]; then
-        install_err 'Current directory is not empty.
-Please create a new directory, cd to it, and re-run this command.'
-    fi
 }
 
 install_download() {
@@ -181,7 +116,6 @@ install_info() {
     if [[ -n $install_verbose ]]; then
         install_verbose= install_log "$@"
     fi
-    #TODO(robnagler) $install_silent
     $f "$@"
 }
 
@@ -194,29 +128,27 @@ install_log() {
 
 install_init_vars() {
     # For error messages
-    install_prog='curl radia.run | bash -s'
+    install_prog='curl https://depot.radiasoft.org | bash -s'
     install_log_file=$PWD/radia-run-install.log
     if ! dd if=/dev/null of="$install_log_file" 2>/dev/null; then
         install_log_file=/tmp/$(date +%Y%m%d%H%M%S)-$RANDOM-$(basename "$install_log_file")
     fi
     install_clean_cmds=()
-    : ${install_channel:=not-set}
+    : ${install_channel:=beta}
     : ${install_debug:=}
+    : ${install_default_repo:=container-run}
     : ${install_server:=github}
     : ${install_tmp_dir:=/var/tmp}
     : ${install_verbose:=}
     install_curl_flags=( -L -s -S )
     install_extra_args=()
-    install_image=
     install_repo=
-    install_run_interactive=
     install_script_dir=
-    install_type=
     install_url=
     if [[ ! -w $install_tmp_dir ]]; then
         install_tmp_dir=/var/tmp
     fi
-    if [[ ! -w $TMPDIR ]]; then
+    if [[ ! -w ${TMPDIR:-/tmp} ]]; then
         unset TMPDIR
     fi
     if [[ $install_server =~ ^file://(/.+) && ! -r ${BASH_REMATCH[1]}/radiasoft/download ]]; then
@@ -225,19 +157,13 @@ install_init_vars() {
 }
 
 install_main() {
-    # POSIT: name ends in install.log (see
+    # POSIT: name ends in install.log
     install_init_vars
     trap install_err_trap EXIT
     install_msg "Log: $install_log_file"
     install_log install_main
     install_args "$@"
-    install_dir_check
-    if [[ -n $install_repo ]]; then
-        install_repo
-    else
-        install_script_eval "$install_type.sh"
-        "${install_type}_main"
-    fi
+    install_repo
     install_clean
     if [[ -z $install_verbose ]]; then
         rm -f "$install_log_file"
@@ -249,104 +175,15 @@ install_msg() {
     echo "$@" 1>&2
 }
 
-install_radia_run() {
-    local script=radia-run
-    install_log "Creating $script"
-    local guest_user=vagrant
-    local guest_dir=/$guest_user
-    # Command needs to be absolute (see containers/bin/build-docker.sh)
-    local cmd=
-    local uri=
-    local db=
-    local daemon=
-    local tini='exec /home/vagrant/.radia-run/tini -- /home/vagrant/.radia-run/start'
-    case $install_image in
-        */sirepo)
-            db=/sirepo
-            cmd=$tini
-            uri=/
-            daemon=1
-            ;;
-        */rs4pi)
-            db=/sirepo
-            cmd=$tini
-            uri=/robot
-            daemon=1
-            ;;
-    esac
-    cat > "$script" <<EOF
-#!/bin/bash
-#
-# Invoke $install_type run on $cmd
-#
-radia_run_channel='$install_docker_channel'
-radia_run_cmd='$cmd'
-radia_run_container=\$(id -u -n)-\$(basename '$install_image')
-radia_run_daemon='$daemon'
-radia_run_db_dir='$db'
-radia_run_guest_dir='$guest_dir'
-radia_run_guest_user='$guest_user'
-radia_run_image='$install_image'
-radia_run_interactive='$install_run_interactive'
-radia_run_port='$install_port'
-radia_run_type='$install_type'
-radia_run_uri='$uri'
-radia_run_x11='$install_x11'
-
-$(declare -f install_msg install_err | sed -e 's,^install,radia_run,')
-$(declare -f $(compgen -A function | grep '^radia_run_'))
-
-radia_run_main "\$@"
-EOF
-    chmod +x "$script"
-    local start=restart
-    if [[ -n $install_run_interactive ]]; then
-        start=start
-    fi
-    install_msg "To $start, enter this command in the shell:
-
-./$script
-"
-    if [[ -z $install_run_interactive ]]; then
-        exec "./$script"
-    fi
-}
-
-install_tmp_dir() {
-    export TMPDIR="$install_tmp_dir/radia-run-$$-$RANDOM"
-    mkdir -p "$TMPDIR"
-    install_clean_cmds+=( "cd '$PWD'; rm -rf '$TMPDIR'" )
-    cd "$TMPDIR"
-}
-
-install_type_default() {
-    case "$(uname)" in
-        [Dd]arwin|[Ll]inux)
-            if [[ -n $(type -t docker) ]]; then
-                install_type=docker
-            elif [[ -n $(type -t vagrant) ]]; then
-                install_type=vagrant
-            else
-                install_err 'Please install Docker or Vagrant and restart install'
-            fi
-            ;;
-        *)
-            install_err "$(uname) is an unsupported system, sorry"
-            ;;
-    esac
-}
-
 install_repo() {
     if (( $# > 0 )); then
         install_repo=$1
         shift
         install_extra_args=( "$@" )
-        install_type=repo
-        install_no_dir_check=1
         install_script_dir=
     fi
     local first rest
-    if [[ ! $install_repo =~ / ]]; then
+    if [[ ! ${install_repo:-/} =~ / ]]; then
         if [[ $install_repo =~ \.sh$ ]]; then
             install_url ''
             install_script_eval "$install_repo"
@@ -381,26 +218,21 @@ install_repo_as_root() {
 }
 
 install_repo_eval() {
-    local prev_args=( ${install_extra_args[@]+"${install_extra_args[@]}"} )
     local prev_pwd=$PWD
-    local prev_repo=$install_repo
-    local prev_script_dir=$install_script_dir
-    local prev_server=$install_server
-    local prev_type=$install_type
-    local prev_url=$install_url
-    install_repo "$@"
+    # don't run in a subshell so can add to environment,
+    # but don't override these vars.
+    install_extra_args=() \
+        install_repo= \
+        install_script_dir="$install_script_dir" \
+        install_server="$install_server" \
+        install_url= \
+        install_repo "$@"
     cd "$prev_pwd"
-    install_extra_args=( ${prev_args[@]+"${prev_args[@]}"} )
-    install_repo=$prev_repo
-    install_script_dir=$prev_script_dir
-    install_server=$prev_server
-    install_type=$prev_type
-    install_url=$prev_url
 }
 
 install_script_eval() {
     local script=$1
-    if [[ -z $install_script_dir ]]; then
+    if [[ ! $install_script_dir ]]; then
         local pwd=$PWD
         install_tmp_dir
         install_script_dir=$PWD
@@ -426,16 +258,19 @@ install_sudo() {
     ${sudo:-} "$@"
 }
 
+install_tmp_dir() {
+    export TMPDIR="$install_tmp_dir/radia-run-$$-$RANDOM"
+    mkdir -p "$TMPDIR"
+    install_clean_cmds+=( "cd '$PWD'; rm -rf '$TMPDIR'" )
+    cd "$TMPDIR"
+}
+
 install_url() {
     local repo=$1
     local rest=${2:-}
     case $install_server in
         github)
-            local channel=$install_github_channel
-            if [[ $repo == radiasoft/download ]]; then
-                channel=master
-            fi
-            install_url=https://raw.githubusercontent.com/$repo/$channel
+            install_url=https://raw.githubusercontent.com/$repo/master
             ;;
         /*)
             install_server=file://$install_server
@@ -455,7 +290,7 @@ install_url() {
 
 install_usage() {
     install_err "$@
-usage: $install_prog [verbose|quiet] [docker|vagrant] [beamsim|python2|rs4pi|sirepo|<installer>|*/*] [extra args]"
+usage: $install_prog [verbose|quiet] [<installer>|*/*] [extra args]"
 }
 
 install_yum_install() {
@@ -478,53 +313,6 @@ install_yum_install() {
     fi
     install_info "$cmd" install "${todo[@]}"
     install_sudo "$cmd" install "${flags[@]}" "${todo[@]}"
-}
-
-#
-# Common radia-run-* functions: See install_radia_run
-# Inline here so syntax checked and easier to edit.
-#
-radia_run_exec() {
-    local cmd=( "$@" )
-    radia_run_prompt
-    if [[ -n $radia_run_cmd ]]; then
-        if [[ $radia_run_type == docker ]]; then
-            cmd+=( /bin/bash -c )
-        fi
-        cmd+=( "cd; . ~/.bashrc; $radia_run_cmd" )
-    fi
-    if [[ $radia_run_daemon ]]; then
-        "${cmd[@]}" >& radia-run.log &
-    else
-        "${cmd[@]}"
-    fi
-}
-
-radia_run_msg() {
-    echo "$@" 1>&2
-}
-
-radia_run_prompt() {
-    local stop='To stop the application virtual machine, run:
-
-vagrant destroy -f'
-    if [[ $radia_run_type == docker ]]; then
-        stop="To stop the application container, run:
-
-docker rm -f '$radia_run_container'"
-    fi
-    if [[ -n $radia_run_uri ]]; then
-        radia_run_msg "Point your browser to:
-
-http://127.0.0.1:$radia_run_port$radia_run_uri
-
-$stop"
-    elif [[ -n $radia_run_x11 ]]; then
-        radia_run_msg "Starting X11 application. Window will show itself shortly.
-
-$stop"
-    fi
-
 }
 
 install_main "$@"

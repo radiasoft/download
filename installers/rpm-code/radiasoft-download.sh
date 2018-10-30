@@ -28,7 +28,6 @@ rpm_code_build() {
         deps+=( --depends "$i" )
     done
     local -A include_dirs
-    local -A ok
     local sorted=$rpm_code_build_include_f.sorted
     sort -u "$rpm_code_build_include_f" > "$sorted"
     local d
@@ -59,6 +58,10 @@ rpm_code_build() {
     done
     install_info "fpm prep: $(( $(date +%s) - $start ))s"
     cd "$rpm_code_guest_d"
+    # POSIT: same as build_run_user_home_chmod_public
+    # Make sure all files in RPMs are publicly executable
+    # see radiasoft/download/installers/container-run
+    chmod -R a+rX "$HOME"
     fpm -t rpm -s dir -n "$rpm_base" -v "$version" \
         --rpm-rpmbuild-define "_build_id_links none" \
         --rpm-use-file-permissions --rpm-auto-add-directories \
