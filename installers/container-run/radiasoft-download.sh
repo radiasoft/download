@@ -29,9 +29,8 @@ container_run_main() {
     install_info 'Installing with docker'
     local tag=$container_run_image:$install_channel
     install_info "Downloading $tag"
-    # docker pull fails when image is up to date; "cat" forces non-tty output
-echo FIXME
-#docker pull "$tag" || true
+    # docker pull fails when image is up to date
+    docker pull "$tag" || true
     container_run_radia_run
 }
 
@@ -208,11 +207,10 @@ radia_run_main() {
     local image=$radia_run_image:$radia_run_channel
     radia_run_msg "Updating Docker image: $image ..."
     local res
-echo FIXME
-#    if ! res=$(docker pull "$image" 2>&1); then
-#        radia_run_msg "$res"
-#        radia_run_msg 'Update failed: Assuming network failure, continuing.'
-#    fi
+    if ! res=$(docker pull "$image" 2>&1); then
+        radia_run_msg "$res"
+        radia_run_msg 'Update failed: Assuming network failure, continuing.'
+    fi
     local cmd=( docker run --name "$radia_run_container" -v "$PWD:$radia_run_guest_dir" )
     if [[ $radia_run_db_dir ]]; then
         cmd+=( -v "$PWD:$radia_run_db_dir" )
