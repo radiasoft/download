@@ -22,8 +22,9 @@ container_run_main() {
     if [[ $container_run_image =~ ^radiasoft/(beamsim|python2)$ ]]; then
         container_run_interactive=1
     fi
-    if [[ $container_run_image =~ ^radiasoft/(beamsim|python2|rs4pi)$ ]]; then
-#TODO(robnagler) need to allow for beta
+    if [[ ${install_channel_is_default:-}
+        && $container_run_image =~ ^radiasoft/(beamsim|python2|rs4pi)$
+    ]]; then
         install_channel=alpha
     fi
     install_info 'Installing with docker'
@@ -144,7 +145,7 @@ radia_run_exec() {
 
 radia_run_linux_fixup() {
     local run=.radia-run-linux
-    (cat <<EOF1; cat <<EOF2) > "$run"
+    (cat <<EOF1; cat <<'EOF2') > "$run"
 #!/bin/bash
 #
 # Work around Docker not mapping user for volumes.
@@ -152,15 +153,15 @@ radia_run_linux_fixup() {
 # See download/installers/container-run.
 #
 set -euo pipefail
-rd='$build_run_dir'
-rh='$build_run_user_home'
-ru='$build_run_uid'
-rn='$build_run_user'
+rd='$radia_run_guest_dir'
+ru='$radia_run_guest_uid'
+rn='$radia_run_guest_user'
 EOF1
 # map uid & gid to run dir's uid & gid
 u=$(stat -c %u "$rd")
 g=$(stat -c %g "$rd")
 n=$rn
+rh="/home/$rn"
 # user or group different than default run_user's home
 n=radia-run
 if ! getent group "$g" >& /dev/null; then
@@ -186,6 +187,7 @@ fi
 # we also set the gid to the gid of the directory which might
 # not be the primary gid.
 exec python - "$@" <<END
+import os, sys
 # POSIT: always a command and always absolute; see containers/bin/build-docker.sh
 cmd = sys.argv[1:]
 # don't need other groups so this is sufficient

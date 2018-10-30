@@ -20,6 +20,7 @@ install_args() {
         case "$1" in
             alpha|beta|dev|prod)
                 install_channel=$1
+                install_channel_is_default=
                 ;;
             debug)
                 install_debug=1
@@ -134,7 +135,11 @@ install_init_vars() {
         install_log_file=/tmp/$(date +%Y%m%d%H%M%S)-$RANDOM-$(basename "$install_log_file")
     fi
     install_clean_cmds=()
-    : ${install_channel:=beta}
+    install_channel_is_default=
+    if [[ ! ${install_channel-} ]]; then
+        install_channel=beta
+        install_channel_is_default=1
+    fi
     : ${install_debug:=}
     : ${install_default_repo:=container-run}
     : ${install_server:=github}
