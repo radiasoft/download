@@ -9,10 +9,10 @@
 #     cd ~/src
 #     rm -f index.sh
 #     ln -s -r radiasoft/download/bin/index.sh .
-#     python -m SimpleHTTPServer 1313 &
+#     python -m SimpleHTTPServer 2916 &
 #
 #     # assumes radia_run defined properly
-#     install_server=http://$(dig $(hostname -f) +short):1313 radia_run unit-test arg1
+#     install_server=http://$(dig $(hostname -f) +short):2916 radia_run unit-test arg1
 set -euo pipefail
 
 install_args() {
