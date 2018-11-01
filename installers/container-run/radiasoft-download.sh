@@ -22,8 +22,8 @@ container_run_main() {
     if [[ $container_run_image =~ ^radiasoft/(beamsim|python2)$ ]]; then
         container_run_interactive=1
     fi
-    if [[ ${install_channel_is_default:-}
-        && $container_run_image =~ ^radiasoft/(beamsim|python2|rs4pi)$
+    if [[ ${install_channel_is_default:-} \
+        && $container_run_image =~ ^radiasoft/(beamsim|python2|rs4pi)$ \
     ]]; then
         install_channel=alpha
     fi
