@@ -229,11 +229,10 @@ radia_run_main() {
     if [[ $radia_run_port ]]; then
         cmd+=( -p "$radia_run_port:$radia_run_port" )
     fi
-    local uname=$(uname)
     # if linux and uid or gid is different...
     # POSIT: $radia_run_guest_uid is same as its gid
-    if [[ ${uname,,} == linux
-        && $(stat -c '%u %g' "$PWD") != "$radia_run_guest_uid $radia_run_guest_uid"
+    if [[ $(uname) == ^[Ll]inux$ \
+        && $(stat -c '%u %g' "$PWD") != "$radia_run_guest_uid $radia_run_guest_uid" \
     ]]; then
         # fixup returns the args
         cmd+=( $(radia_run_linux_fixup) "$image" )
