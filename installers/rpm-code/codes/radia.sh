@@ -1,12 +1,14 @@
 #!/bin/bash
 # needed for fftw and uti_*.py
 codes_dependencies srw
-# ochubar/Radia is over 1G so GitHub times out sometimes. This is a
-# stripped down copy
-codes_download Radia-light '' Radia
-# unlike SRW-light, we hacked the Makefiles and setup.py
-# if compiles fail, maybe go back to code in srw.sh
-codes_make_install all
+codes_download ochubar/Radia
+rm -rf ext_lib
+cores=$(codes_num_cores)
+perl -pi -e "s/-j\\s*8/-j$cores/" Makefile
+perl -pi -e "s/'fftw'/'sfftw'/" cpp/py/setup.py
+perl -pi -e 's/-lfftw/-lsfftw/; s/\bcc\b/gcc/; s/\bc\+\+/g++/' cpp/gcc/Makefile
+make core
+make pylib
 d=$(python -c 'import distutils.sysconfig as s; print s.get_python_lib()')
 (
     cd env/radia_python
