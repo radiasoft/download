@@ -12,6 +12,7 @@ codes=(
 
     bnlcrl
     srw
+    radia
 
     sdds
     elegant

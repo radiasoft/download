@@ -11,6 +11,9 @@ beamsim_codes_main() {
         srw
         synergia
         warp
+
+        # depends on srw
+        radia
     )
     install_repo_eval code "${codes[@]}"
 }
