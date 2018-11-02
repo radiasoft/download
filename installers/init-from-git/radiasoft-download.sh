@@ -11,9 +11,9 @@ init_from_git_main() {
     init_from_git_tmpdir=$(pwd)
     cd
     # Avoid false returns
-    set +e
+    set +euo pipefail
     . ~/.bashrc
-    set -e
+    set -euo pipefail
     for repo in "${install_extra_args[@]}"; do
         init_from_git_one "$repo"
     done
