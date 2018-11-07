@@ -13,4 +13,4 @@ radia_run sirepo-dev
 EOF
 }
 
-vagrant_sirepo_dev_main "${install_extra_args[@]}"
+vagrant_sirepo_dev_main ${install_extra_args[@]+"${install_extra_args[@]}"}
