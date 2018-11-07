@@ -36,7 +36,8 @@ systemctl enable postgresql
 EOF
     fi
     set +euo pipefail
-    . ~/.bashrc
+    source ~/.bashrc
+    set -euo pipefail
     _bivio_home_env_update -f
     cd ~/src/biviosoftware/perl-Bivio
     git checkout robnagler
@@ -45,11 +46,13 @@ EOF
     gcl perl-Artisans
     ln -s ../biviosoftware/perl-Artisans ~/src/perl/Artisans
     cd
-    . ~/.bashrc
+    set +euo pipefail
+    source ~/.bashrc
+    set -euo pipefail
     b_pet
     bivio sql init_dbms || true
     # always recreate db
     ctd
 }
 
-perl_dev_main "${install_extra_args[@]}"
+perl_dev_main ${install_extra_args[@]+"${install_extra_args[@]}"}

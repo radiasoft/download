@@ -7,15 +7,15 @@ sirepo_dev_main() {
     if (( $EUID == 0 )); then
         install_err 'run as vagrant (or other ordinary user), not root'
     fi
-    set +e
-    . ~/.bashrc
-    set -e
+    set +euo pipefail
+    source ~/.bashrc
+    set -euo pipefail
     if ! [[ $(type -t pyenv) && $(pyenv version-name) == py2 ]]; then
         install_repo_as_root code-base
+        set +euo pipefail
         bivio_pyenv_2
-        set +e
-        . ~/.bashrc
-        set -e
+        source ~/.bashrc
+        set -euo pipefail
     fi
     if ! type synergia >& /dev/null; then
         install_repo_eval beamsim-codes
@@ -48,4 +48,4 @@ sirepo_dev_main() {
     cd ..
 }
 
-sirepo_dev_main "${install_extra_args[@]}"
+sirepo_dev_main ${install_extra_args[@]+"${install_extra_args[@]}"}

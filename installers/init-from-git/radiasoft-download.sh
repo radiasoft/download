@@ -12,7 +12,7 @@ init_from_git_main() {
     cd
     # Avoid false returns
     set +euo pipefail
-    . ~/.bashrc
+    source ~/.bashrc
     set -euo pipefail
     for repo in "${install_extra_args[@]}"; do
         init_from_git_one "$repo"

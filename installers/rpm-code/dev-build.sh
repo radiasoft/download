@@ -1,5 +1,6 @@
 #!/bin/bash
-. ~/.bashrc
+set +euo pipefail
+source ~/.bashrc
 set -euo pipefail
 . ./dev-env.sh
 radia_run rpm-code "$@"

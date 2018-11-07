@@ -28,4 +28,4 @@ unit_test_main() {
     echo PASSED
 }
 
-unit_test_main "${install_extra_args[@]}"
+unit_test_main ${install_extra_args[@]+"${install_extra_args[@]}"}

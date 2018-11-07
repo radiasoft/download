@@ -33,4 +33,5 @@ centos7_main() {
     "${f//-/_}_main" "${a[@]}"
 }
 
-centos7_main "${install_extra_args[@]}"
+centos7_main ${install_extra_args[@]+"${install_extra_args[@]}"}
+

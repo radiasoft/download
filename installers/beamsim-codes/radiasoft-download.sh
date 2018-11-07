@@ -19,4 +19,4 @@ beamsim_codes_main() {
     install_repo_eval code "${codes[@]}"
 }
 
-beamsim_codes_main "${install_extra_args[@]}"
+beamsim_codes_main ${install_extra_args[@]+"${install_extra_args[@]}"}

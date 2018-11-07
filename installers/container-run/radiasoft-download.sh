@@ -134,7 +134,7 @@ radia_run_exec() {
     local cmd=( "$@" )
     radia_run_prompt
     if [[ $radia_run_cmd ]]; then
-        cmd+=( /bin/bash -c "cd; . ~/.bashrc; $radia_run_cmd" )
+        cmd+=( /bin/bash -c "cd; source ~/.bashrc; $radia_run_cmd" )
     fi
     if [[ $radia_run_daemon ]]; then
         "${cmd[@]}" >& radia-run.log &
