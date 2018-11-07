@@ -1,11 +1,5 @@
 #!/bin/bash
 
-# Where to install binaries (needed by genesis.sh)
-codes_bin_dir=$(dirname "$(pyenv which python)")
-
-# Where to install binaries (needed by genesis.sh)
-codes_pylib_dir=$(python -c 'from distutils.sysconfig import get_python_lib as x; print x()')
-
 codes_assert_easy_install() {
     local easy=$(find  $(pyenv prefix)/lib -name easy-install.pth)
     if [[ $easy ]]; then
@@ -13,6 +7,10 @@ codes_assert_easy_install() {
         install_err "$easy: packages used python setup.py install instead of pip:
 $(cat "$easy")"
     fi
+}
+
+codes_bin_dir() {
+    dirname "$(pyenv which python)"
 }
 
 codes_cmake() {
@@ -134,10 +132,28 @@ codes_install() {
     local codes_module=$module
     install_script_eval "codes/$module.sh"
     cd "$prev"
+    if [[ $module == common ]]; then
+        # POSIT: common is owner of pyenv
+        rpm_code_build_include_add "$(pyenv root)"
+    fi
+    local p=${module}_python_install
+    if compgen -A function "$p"; then
+        local v
+        local f=${module}_python_versions
+        for v in "${!f}"; do
+            pyenv activate py"$v"
+            $p
+            codes_install_add_python
+        done
+    else
+        codes_install_add_python
+    fi
+}
+
+codes_install_add_python() {
     local pp=$(pyenv prefix)
     # This excludes all the top level directories and python2.7/site-packages
-    rpm_code_build_exclude_add "$pp"/* "$codes_pylib_dir"
-    rpm_code_build_include_add
+    rpm_code_build_exclude_add "$pp"/* "$(codes_pylib_dir)"
     codes_assert_easy_install
     # note: --newer doesn't work, because some installers preserve mtime
     find "$pp/" ! -name pip-selfcheck.json ! -name '*.pyc' ! -name '*.pyo' \
@@ -206,6 +222,10 @@ codes_patch_requirements_txt() {
     local t=tmp.$$
     grep -v numpy requirements.txt > "$t"
     mv -f "$t" requirements.txt
+}
+
+codes_pylib_dir() {
+    python -c 'from distutils.sysconfig import get_python_lib as x; print x()'
 }
 
 codes_python_install() {

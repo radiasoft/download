@@ -133,32 +133,25 @@ fedora_dev_rpms() {
 }
 
 fedora_dev_setup_vagrant() {
-    sudo su - vagrant <<'EOF'
+    sudo su - vagrant <<EOF
     set -euo pipefail
+    $(declare -f install_source_bashrc)
     cd
     curl https://depot.radiasoft.org/index.sh | bash -s home
-    set +euo pipefail
-    source ~/.bashrc
-    set -euo pipefail
+    install_source_bashrc
     touch requirements.txt
     bivio_path_insert ~/.pyenv/bin 1
-    set +euo pipefail
-    source ~/.bashrc
+    install_source_bashrc
     bivio_pyenv_2
-    set -euo pipefail
     rm requirements.txt
-    set +euo pipefail
-    source ~/.bashrc
-    set -euo pipefail
+    install_source_bashrc
     pip install --upgrade pip
     pip install --upgrade setuptools==32.1.3 tox
     if ! pyenv versions | grep -s -q py2; then
         pyenv virtualenv py2
     fi
     pyenv global py2
-    set +euo pipefail
-    source ~/.bashrc
-    set -euo pipefail
+    install_source_bashrc
     mkdir -p ~/src/radiasoft
     cd ~/src/radiasoft
     if [[ ! -d pykern ]]; then

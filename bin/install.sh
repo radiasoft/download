@@ -255,6 +255,12 @@ install_script_eval() {
     source "$source"
 }
 
+install_source_bashrc() {
+    set +euo pipefail
+    source "$HOME"/.bashrc
+    set -euo pipefail
+}
+
 install_sudo() {
     local sudo
     if [[ $UID != 0 ]]; then

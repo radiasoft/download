@@ -35,9 +35,7 @@ systemctl start postgresql
 systemctl enable postgresql
 EOF
     fi
-    set +euo pipefail
-    source ~/.bashrc
-    set -euo pipefail
+    install_source_bashrc
     _bivio_home_env_update -f
     cd ~/src/biviosoftware/perl-Bivio
     git checkout robnagler
@@ -46,9 +44,7 @@ EOF
     gcl perl-Artisans
     ln -s ../biviosoftware/perl-Artisans ~/src/perl/Artisans
     cd
-    set +euo pipefail
-    source ~/.bashrc
-    set -euo pipefail
+    install_source_bashrc
     b_pet
     bivio sql init_dbms || true
     # always recreate db

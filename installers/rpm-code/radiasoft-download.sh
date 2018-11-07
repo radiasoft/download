@@ -133,7 +133,7 @@ rpm_code_main() {
     : ${build_args:="$rpm_base $rpm_base_build $code"}
     : ${rpm_code_image:=radiasoft/rpm-code}
     if [[ $code =~ ^(common|test)$ ]]; then
-        rpm_code_image=radiasoft/python2
+        rpm_code_image=radiasoft/fedora
     fi
     : ${rpm_code_user:=vagrant}
     if [[ $UID == 0 ]]; then

@@ -7,19 +7,8 @@ sirepo_dev_main() {
     if (( $EUID == 0 )); then
         install_err 'run as vagrant (or other ordinary user), not root'
     fi
-    set +euo pipefail
-    source ~/.bashrc
-    set -euo pipefail
-    if ! [[ $(type -t pyenv) && $(pyenv version-name) == py2 ]]; then
-        install_repo_as_root code-base
-        set +euo pipefail
-        bivio_pyenv_2
-        source ~/.bashrc
-        set -euo pipefail
-    fi
-    if ! type synergia >& /dev/null; then
-        install_repo_eval beamsim-codes
-    fi
+    install_source_bashrc
+    install_repo_eval beamsim-codes
     mkdir -p ~/src/radiasoft
     cd ~/src/radiasoft
     local p
