@@ -13,4 +13,4 @@ radia_run perl-dev
 EOF
 }
 
-vagrant_perl_dev_main "${install_extra_args[@]}"
+vagrant_perl_dev_main ${install_extra_args[@]+"${install_extra_args[@]}"}
