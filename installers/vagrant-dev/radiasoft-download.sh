@@ -157,6 +157,17 @@ vagrant_dev_vagrantfile() {
         # https://medium.com/carwow-product-engineering/time-sync-problems-with-vagrant-and-virtualbox-383ab77b6231
         timesync='v.customize ["guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-set-threshold", 5000]'
     fi
+    local macos_fixes=
+    if [[ $(uname) == Darwin ]]; then
+        macos_fixes='v.customize [
+            "modifyvm", :id,
+                # Fix Mac thunderbolt issue
+                "--audio", "none",
+                # https://www.dbarj.com.br/en/2017/11/fixing-virtualbox-crashing-macos-on-high-load-kernel-panic/
+                # https://stackoverflow.com/a/31425419
+                "--paravirtprovider", "none",
+        ]'
+    fi
     local box=$os
     if [[ $os =~ fedora ]]; then
         if [[ $box == fedora ]]; then
@@ -194,8 +205,7 @@ Vagrant.configure("2") do |config|
     config.vm.network "private_network", ip: "$ip"
     config.vm.provider "virtualbox" do |v|
         ${timesync}
-        # Fix Mac thunderbolt issue
-        v.customize ["modifyvm", :id, "--audio", "none"]
+        ${macos_fixes}
         # https://stackoverflow.com/a/36959857/3075806
         v.customize ["setextradata", :id, "VBoxInternal/Devices/VMMDev/0/Config/GetHostTimeDisabled", "0"]
         # If you see network restart or performance issues, try this:
