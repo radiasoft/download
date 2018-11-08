@@ -1,6 +1,6 @@
 #!/bin/bash
-codes_dependencies bnlcrl
 codes_yum_dependencies fftw2-devel
+codes_dependencies bnlcrl
 codes_download ochubar/SRW
 cores=$(codes_num_cores)
 perl -pi -e "s/-j8/-j$cores/" Makefile

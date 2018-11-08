@@ -48,7 +48,10 @@ codes_download() {
     case $repo in
         *.git)
             local d=$(basename "$repo" .git)
-            if [[ $qualifier ]]; then
+            if [[ -d "$d" && ${codes_download_reuse_git:-} ]]; then
+                cd "$d"
+                git clean -dfx
+            elif [[ $qualifier ]]; then
                 # Don't pass --depth in this case for a couple of reasons:
                 # 1) we don't know where the commit is; 2) It might be a simple http
                 # transport (synergia.sh) which doesn't support git
@@ -96,7 +99,11 @@ codes_download() {
             codes_err "$repo: unknown repository format; must end in .git, .rpm, .tar.gz"
             ;;
     esac
-    codes_manifest_add_code "${package:-${manifest[0]}}" "${version:-${manifest[1]}}" "$repo"
+    #TODO(robnagler) manifest broken:
+    # pykern rsmanifest add_code --pyenv=py2 pykern 6aa71c70b69c06b27e3ef12c1736ff28eb8b3364 https://github.com/radiasoft/pykern.git /home/vagrant/src/radiasoft/codes/common-20181107.235720/pykern
+    # pyenv: pykern: command not found
+    # The `pykern' command exists in these Python versions: 3.6.6/envs/py3 py3
+    #codes_manifest_add_code "${package:-${manifest[0]}}" "${version:-${manifest[1]}}" "$repo"
     return 0
 }
 
@@ -135,15 +142,22 @@ codes_install() {
     if [[ $module == common ]]; then
         # POSIT: common is owner of pyenv
         rpm_code_build_include_add "$(pyenv root)"
+        return
     fi
     local p=${module}_python_install
     if compgen -A function "$p"; then
+        # Needed for pyenv
+        install_source_bashrc
         local v
-        local f=${module}_python_versions
-        for v in "${!f}"; do
-            pyenv activate py"$v"
+        local codes_download_reuse_git=
+        local vs=${module}_python_versions
+        # No quotes so splits
+        for v in ${!vs}; do
+            cd "$prev"
+            install_not_strict_cmd pyenv activate py"$v"
             $p
             codes_install_add_python
+            codes_download_reuse_git=1
         done
     else
         codes_install_add_python
@@ -217,15 +231,8 @@ codes_num_cores() {
     echo "$res"
 }
 
-codes_patch_requirements_txt() {
-    # numpy==1.9.3 is the only version that works with all the codes
-    local t=tmp.$$
-    grep -v numpy requirements.txt > "$t"
-    mv -f "$t" requirements.txt
-}
-
 codes_pylib_dir() {
-    python -c 'from distutils.sysconfig import get_python_lib as x; print x()'
+    python -c 'import sys; from distutils.sysconfig import get_python_lib as x; sys.stdout.write(x())'
 }
 
 codes_python_install() {

@@ -1,4 +1,5 @@
 #!/bin/bash
+
 common_python() {
     local v=$1
     local prev_d=$PWD
@@ -15,11 +16,7 @@ common_python() {
     pip install tables==3.3.0
     # Lots of dependencies so we install here to avoid rpm collisions.
     # Slows down builds of pykern, but doesn't affect development.
-    if [[ -d pykern ]]; then
-        cd pykern
-    else
-        codes_download pykern
-    fi
+    codes_download pykern
     codes_python_install
     cd "$prev_d"
 }
@@ -46,10 +43,12 @@ common_main() {
     )
     codes_yum_dependencies "${rpms[@]}"
     gem install --no-document fpm
+    rpm_code_build_include_add "$HOME"/.gem
     # after rpm installs, required for builds
     install_source_bashrc
     # py3 is first, because bivio_pyenv_[23] sets global version
     common_python 3
+    local codes_download_reuse_git=1
     common_python 2
 }
 

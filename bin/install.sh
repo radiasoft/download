@@ -180,6 +180,12 @@ install_msg() {
     echo "$@" 1>&2
 }
 
+install_not_strict_cmd() {
+    set +euo pipefail
+    "$@"
+    set -euo pipefail
+}
+
 install_repo() {
     if (( $# > 0 )); then
         install_repo=$1
@@ -256,9 +262,7 @@ install_script_eval() {
 }
 
 install_source_bashrc() {
-    set +euo pipefail
-    source "$HOME"/.bashrc
-    set -euo pipefail
+    install_not_strict_cmd source "$HOME"/.bashrc
 }
 
 install_sudo() {
