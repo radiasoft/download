@@ -42,14 +42,16 @@ common_main() {
         valgrind-devel
     )
     codes_yum_dependencies "${rpms[@]}"
-    gem install --no-document fpm
-    rpm_code_build_include_add "$HOME"/.gem
-    # after rpm installs, required for builds
     install_source_bashrc
+    gem install --no-document fpm
+    # after rpm installs, required for builds
     # py3 is first, because bivio_pyenv_[23] sets global version
     common_python 3
     local codes_download_reuse_git=1
     common_python 2
+    # Unlike other rscode RPMs, common owns ~/.pyenv
+    rpm_code_build_include_add "$(pyenv root)" "$HOME"/.gem "$HOME"/bin/fpm
+    rpm_code_build_exclude_add "$HOME"/bin
 }
 
 common_main

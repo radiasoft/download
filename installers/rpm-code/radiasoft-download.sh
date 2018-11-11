@@ -17,6 +17,11 @@ rpm_code_build() {
     local -A rpm_code_build_exclude
     local -a rpm_code_build_depends=()
     local rpm_code_build_include_f=$rpm_code_guest_d/files.txt
+    # Avoid need for build_run_user_home_chmod_public
+    # Make sure all files in RPMs are publicly executable
+    # see radiasoft/download/installers/container-run
+    echo 'umask 022' >> "$HOME"/.post_bivio_bashrc
+    install_source_bashrc
     install_url radiasoft/download installers/rpm-code
     install_script_eval codes.sh
     codes_main "$code"
@@ -58,10 +63,6 @@ rpm_code_build() {
     done
     install_info "fpm prep: $(( $(date +%s) - $start ))s"
     cd "$rpm_code_guest_d"
-    # POSIT: same as build_run_user_home_chmod_public
-    # Make sure all files in RPMs are publicly executable
-    # see radiasoft/download/installers/container-run
-    chmod -R a+rX "$HOME"
     fpm -t rpm -s dir -n "$rpm_base" -v "$version" \
         --rpm-rpmbuild-define "_build_id_links none" \
         --rpm-use-file-permissions --rpm-auto-add-directories \

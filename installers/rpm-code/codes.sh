@@ -50,6 +50,7 @@ codes_download() {
             local d=$(basename "$repo" .git)
             if [[ -d "$d" && ${codes_download_reuse_git:-} ]]; then
                 cd "$d"
+                codes_msg "Cleaning: $PWD"
                 git clean -dfx
             elif [[ $qualifier ]]; then
                 # Don't pass --depth in this case for a couple of reasons:
@@ -140,8 +141,6 @@ codes_install() {
     install_script_eval "codes/$module.sh"
     cd "$prev"
     if [[ $module == common ]]; then
-        # POSIT: common is owner of pyenv
-        rpm_code_build_include_add "$(pyenv root)"
         return
     fi
     local p=${module}_python_install
@@ -155,7 +154,7 @@ codes_install() {
         for v in ${!vs}; do
             cd "$prev"
             install_not_strict_cmd pyenv activate py"$v"
-            $p
+            "$p" "$v"
             codes_install_add_python
             codes_download_reuse_git=1
         done
