@@ -96,7 +96,7 @@ EOF
     local f
     for f in ~/.gitconfig ~/.netrc; do
         if [[ -r $f ]]; then
-            vagrant ssh -c "dd of=$(basename $f)" < "$f" >& /dev/null
+            vagrant ssh -c "install -m 600 /dev/stdin $(basename $f)" < "$f" >& /dev/null
         fi
     done
     # file:// urls don't work inside the VM
