@@ -44,8 +44,7 @@ rpm_code_build() {
                 break
             fi
             if [[ ${rpm_code_build_exclude[$d]+1} || $d == / ]]; then
-                # include takes precedence over exclude so if we hit exclude
-                # then it has to be included.
+                # include takes precedence over exclude
                 printf '%s\n' "$i"
                 break
             fi

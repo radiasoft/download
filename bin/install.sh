@@ -308,6 +308,20 @@ install_usage() {
 usage: $install_prog [verbose|quiet] [<installer>|*/*] [extra args]"
 }
 
+install_yum() {
+    local args=( "$@" )
+    local yum=yum
+    if [[ $(type -t dnf) ]]; then
+        yum=dnf
+    fi
+    local flags=( -y --color=never )
+    if [[ ! $install_debug ]]; then
+        flags+=( -q )
+    fi
+    install_info "$yum" "${args[@]}"
+    install_sudo "$yum" "${flags[@]}" "${args[@]}"
+}
+
 install_yum_install() {
     local x todo=()
     for x in "$@"; do
@@ -318,16 +332,7 @@ install_yum_install() {
     if (( ${#todo[@]} <= 0 )); then
         return
     fi
-    local cmd=yum
-    if [[ $(type -t dnf) ]]; then
-        cmd=dnf
-    fi
-    local flags=( -y --color=never )
-    if [[ ! $install_debug ]]; then
-        flags+=( -q )
-    fi
-    install_info "$cmd" install "${todo[@]}"
-    install_sudo "$cmd" install "${flags[@]}" "${todo[@]}"
+    install_yum install "${todo[@]}"
 }
 
 install_main "$@"
