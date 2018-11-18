@@ -128,14 +128,14 @@ codes_err() {
 codes_install() {
     local module=$1
     local prev=$(pwd)
-    local dir=$HOME/src/radiasoft/codes/$module-$(date -u +%Y%m%d.%H%M%S)
-    rm -rf "$dir"
-    mkdir -p "$dir"
+    local build_d=$HOME/src/radiasoft/codes/$module-$(date -u +%Y%m%d.%H%M%S)
+    rm -rf "$build_d"
+    mkdir -p "$build_d"
     codes_msg "Build: $module"
-    codes_msg "Directory: $dir"
-    cd "$dir"
-    rpm_code_build_src_dir=( "$dir" )
-    codes_install_sentinel=$dir/.codes_install
+    codes_msg "Directory: $build_d"
+    cd "$build_d"
+    rpm_code_build_src_dir=( "$build_d" )
+    codes_install_sentinel=$build_d/.codes_install
     codes_touch_sentinel
     local codes_module=$module
     install_script_eval "codes/$module.sh"
@@ -152,7 +152,7 @@ codes_install() {
         local vs=${module}_python_versions
         # No quotes so splits
         for v in ${!vs}; do
-            cd "$prev"
+            cd "$build_d"
             install_not_strict_cmd pyenv activate py"$v"
             "$p" "$v"
             codes_install_add_python
