@@ -100,11 +100,9 @@ codes_download() {
             codes_err "$repo: unknown repository format; must end in .git, .rpm, .tar.gz"
             ;;
     esac
-    #TODO(robnagler) manifest broken:
-    # pykern rsmanifest add_code --pyenv=py2 pykern 6aa71c70b69c06b27e3ef12c1736ff28eb8b3364 https://github.com/radiasoft/pykern.git /home/vagrant/src/radiasoft/codes/common-20181107.235720/pykern
-    # pyenv: pykern: command not found
-    # The `pykern' command exists in these Python versions: 3.6.6/envs/py3 py3
-    #codes_manifest_add_code "${package:-${manifest[0]}}" "${version:-${manifest[1]}}" "$repo"
+    if [[ ! ${codes_download_reuse_git:-} ]]; then
+        codes_manifest_add_code "${package:-${manifest[0]}}" "${version:-${manifest[1]}}" "$repo"
+    fi
     return 0
 }
 
@@ -161,6 +159,7 @@ codes_install() {
     else
         codes_install_add_python
     fi
+    cd "$prev"
 }
 
 codes_install_add_python() {
@@ -193,14 +192,6 @@ codes_manifest_add_code() {
     local package=${1:-}
     local version=${2:-}
     local repo=${3:-}
-    if [[ ! $(type -t pykern) ]]; then
-        return
-    fi
-    local venv=
-    if [[ -n $(find . -name \*.py) ]]; then
-        venv=( $(pyenv version) )
-        venv=${venv[0]}
-    fi
     local pwd=$(pwd)
     if [[ ! $package ]]; then
         package=$(basename "$pwd")
@@ -211,7 +202,10 @@ codes_manifest_add_code() {
     if [[ ! $repo ]]; then
         repo=$(git config --get remote.origin.url)
     fi
-    pykern rsmanifest add_code --pyenv="$venv" "$package" "$version" "$repo" "$pwd"
+    rpm_code_build_desc+="version: $version
+source: $repo
+build: $pwd
+"
 }
 
 codes_msg() {
