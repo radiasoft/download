@@ -9,6 +9,8 @@ sirepo_dev_main() {
     fi
     install_source_bashrc
     install_repo_eval beamsim-codes
+    # rerun source, because beamsim-codes installs pyenv
+    install_source_bashrc
     mkdir -p ~/src/radiasoft
     cd ~/src/radiasoft
     local p
