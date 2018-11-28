@@ -10,6 +10,7 @@ beamsim_codes_main() {
         common
 
         elegant
+        hypre
         jspec
         opal
         rsbeams
