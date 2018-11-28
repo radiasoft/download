@@ -119,6 +119,7 @@ vagrant_dev_mounts() {
         'config.vm.synced_folder ".", "/vagrant", type: "nfs", mount_options: ["rw", "vers=3", "tcp", "nolock", "fsc", "actimeo=2"]'
     )
     if [[ ! ${vagrant_dev_no_nfs_src:+1} ]]; then
+        mkdir -p "$HOME/src"
         res+=( 'config.vm.synced_folder "'"$HOME/src"'", "/home/vagrant/src", type: "nfs", mount_options: ["rw", "vers=3", "tcp", "nolock", "fsc", "actimeo=2"]' )
     fi
     local IFS='
