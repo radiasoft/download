@@ -61,6 +61,10 @@ rpm_code_build() {
             exclude+=( --rpm-auto-add-exclude-directories "$i" )
         fi
     done
+    if [[ $install_debug ]]; then
+        install_msg "$rpm_code_build_include_f"
+        cat "$rpm_code_build_include_f" 1>&2
+    fi
     install_info "fpm prep: $(( $(date +%s) - $start ))s"
     cd "$rpm_code_guest_d"
     fpm -t rpm -s dir -n "$rpm_base" -v "$version" \
