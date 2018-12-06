@@ -222,10 +222,37 @@ install_repo() {
 }
 
 install_repo_as_root() {
+    install_repo_as_user root "$@"
+}
+
+install_repo_as_user() {
+    local user=$1
+    shift
+    local sudo=
+    if [[ $(id -u -n) == $user ]]; then
+        # passing env vars on the command line is
+        # tricky so this is the easiest way
+        (
+            install_url radiasoft/download bin
+            install_download index.sh
+        ) | install_server="$install_server" \
+            install_channel="$install_channel" \
+            install_debug="$install_debug" \
+            bash -l -s "$@"
+        return
+    fi
     (
         install_url radiasoft/download bin
         install_download index.sh
-    ) | install_sudo "install_server=$install_server" "install_channel=$install_channel" "install_debug=$install_debug" bash -l -s "$@"
+    ) | (
+        # Current directory might be inaccessible
+        cd /
+        install_sudo "--user=$user" \
+            install_server="$install_server" \
+            install_channel="$install_channel" \
+            install_debug="$install_debug" \
+            bash -l -s "$@"
+    )
 }
 
 install_repo_eval() {
@@ -266,11 +293,11 @@ install_source_bashrc() {
 }
 
 install_sudo() {
-    local sudo
-    if [[ $UID != 0 ]]; then
+    local sudo=
+    if [[ $EUID != 0 || $1 =~ ^- ]]; then
         sudo=sudo
     fi
-    ${sudo:-} "$@"
+    $sudo "$@"
 }
 
 install_tmp_dir() {
