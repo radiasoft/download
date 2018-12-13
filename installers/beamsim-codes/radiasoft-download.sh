@@ -13,6 +13,7 @@ beamsim_codes_main() {
         hypre
         jspec
         opal
+        pydicom
         rsbeams
         rslinac
         shadow3
