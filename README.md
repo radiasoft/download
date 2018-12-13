@@ -35,12 +35,6 @@ There are a few other options (words) which may be useful, e.g.
 curl radia.run | bash -s sirepo verbose
 ```
 
-You can also be explicit about which type of image you'd like:
-
-```sh
-curl radia.run | bash -s sirepo vagrant
-```
-
 The order of the optional keywords after the `bash -s` do not matter.
 
 ## Quick Start if you already know Docker
@@ -111,9 +105,3 @@ radia_run unit-test arg1
 This will set the `$install_url` to `file://$HOME/src`.
 
 You can also pass `debug` to get more output.
-
-## Vagrant
-
-All containers can be built as Docker images or Vagrant VirtualBox boxes. The
-default is to build Docker. We highly recommend you use Docker on your
-Vagrant box to run Sirepo or Beamsim-Jupyter.
