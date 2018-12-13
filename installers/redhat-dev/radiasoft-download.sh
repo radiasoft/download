@@ -15,4 +15,3 @@ redhat_dev_main() {
 }
 
 redhat_dev_main ${install_extra_args[@]+"${install_extra_args[@]}"}
-
