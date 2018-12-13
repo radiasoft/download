@@ -1,5 +1,6 @@
 #!/bin/bash
 codes_dependencies xraylib
+pip install srxraylib
 codes_download srio/shadow3
 codes_python_install
 # line 639 of ShadowLibExtensions.py has a non-breaking utf8 character
