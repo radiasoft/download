@@ -6,6 +6,11 @@ redhat_base_main() {
     if [[ ! -e /etc/fedora-release && ! -e /etc/yum.repos.d/epel.repo ]]; then
         yum --color=never --enablerepo=extras install -y -q epel-release
     fi
+    # mandb takes a really long time on some installs
+    local x=/usr/bin/mandb
+    if [[ ! -L $x && $(readlink -f $x) != /usr/bin/true ]]; then
+        install_sudo ln -s -f true /usr/bin/mandb
+    fi
     local x=(
         bind-utils
         biosdevname
