@@ -12,7 +12,7 @@ redhat_docker_main() {
     fi
     if selinuxenabled; then
         install_sudo perl -pi -e 's{(?<=^SELINUX=).*}{disabled}' /etc/selinux/config
-        install_err 'Disabled selinux. You need to "vagrant reload"'
+        install_err 'Disabled selinux. You need to "vagrant reload", then re-run this installer'
     fi
     local vg=docker
     # vps is supposed to be created by vagrant-persistent-storage
@@ -79,9 +79,15 @@ EOF
     mount '$data'
     install -d -m 700 /etc/docker/tls
     install -m 400 "$tmp_d/cert.pem" "$tmp_d/key.pem" /etc/docker/tls
+    install -m 400 /dev/stdin /etc/systemd/system/docker.service.d/override.conf <<'EOF2'
+# https://docs.docker.com/config/daemon/#troubleshoot-conflicts-between-the-daemonjson-and-startup-scripts
+[Service]
+ExecStart=
+ExecStart=/usr/bin/dockerd
+EOF2
     install -m 400 /dev/stdin /etc/docker/daemon.json <<'EOF2'
 {
-    "hosts": ["tcp://localhost.localdomain:2376", "unix:///run/docker.sock"],
+    "hosts": ["tcp://localhost.localdomain:2376", "unix://"],
     "iptables": true,
     "live-restore": true,
     "storage-driver": "overlay2",
