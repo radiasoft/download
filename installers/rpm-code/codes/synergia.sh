@@ -1,76 +1,12 @@
 #!/bin/bash
 codes_dependencies common
 
-#
-# You need 2GB RAM at least or mpicxx will run out of virtual memory
-#
-# Testing
-#     synergia=$(pwd)/install/bin/synergia
-#     cd build/synergia2/examples/fodo_simple1
-#     LD_LIBRARY_PATH=/usr/lib64/openmpi/lib $synergia fodo_simple1.py
-#
-#     cd build/synergia2
-#     make test
-#     Expect:
-#         100% tests passed, 0 tests failed out of 177
-#         Total Test time (real) = 421.95 sec
-#
-# Debugging:
-#     full clean: git clean -dfx
-#     partial clean: rm -rf db/*/chef-libs build/chef-libs
-#     ./contract.py
-#
-# Once bootstrap is installed, you can do this to see what's what:
-#     rm -rf config; DEBUG_CONFIG=1 ./contract.py --list-targets
-
-# We can't the stock RPMs from Fedora, because...
-#
-#     libpng: tries to import libpng.h directly, instead of /usr/include/libpng16/png.h
-#
-#     NLopt: finds it, but then causes a crash in "else" (!nlopt_internal):
-#          File "/home/vagrant/tmp/contract-synergia2/packages/nlopt.py", line 26, in <module>
-#            nlopt_lib = Option(local_root,"nlopt/lib",default_lib,str,"NLOPT library directory")
-#          NameError: name 'default_lib' is not defined
-#
-#     fftw3: doesn't work, b/c packages/fftw3.py looks for libfftw3.so, not libfftw3.so.3
-#
-#     bison: This is bison 3 so incompatible; force to bison_internal
-#         xsif_yacc.ypp:158:30: error: ‘yylloc’ was not declared in this scope
-#
-#     tables: always uses synergia's own tables (see below for bug with that)
-#
-#     boost-openmpi-devel: when running synergia:
-#         ImportError: /lib64/libboost_python.so.1.55.0: undefined symbol: PyUnicodeUCS4_FromEncodedObject
-#
-# This was happening at one point:
-#     fetching https://compacc.fnal.gov/projects/attachments/download/20/tables-2.1.2.tar.gz
-#     [...]
-#     File "/home/vagrant/.pyenv/versions/2.7.10/lib/python2.7/ssl.py", line 808, in do_handshake
-#       self._sslobj.do_handshake()
-#     IOError: [Errno socket error] [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:590)
-#
-# Synergia's internal hdf5 does not compile so have to use hdf5 from Fedora.
-#     h5tools_dump.c:635:9: error: expected expression before '/' token
-#        //HGOTO_ERROR(dimension_break, H5E_tools_min_id_g, "Could not allocate[...]
-#
-#
-# So copied to apa11, download the file and install in depot/foss
-#     wget --no-check-certificate https://compacc.fnal.gov/projects/attachments/download/20/tables-2.1.2.tar.gz
-#     chmod 444 tables-2.1.2.tar.gz
-#     perl -pi -e 's{https://compacc.fnal.gov/projects/attachments/download/20}{https://depot.radiasoft.org/foss}' packages/pytables_pkg.py
-#
-# h5py also installs hdf5 RPMs, which is what's needed (see above)
-pip install pyparsing nose
-
-synergia_radiasoft_depot=http://depot.radiasoft.org/foss/synergia
-
 synergia_bootstrap() {
     local fnal=http://cdcvs.fnal.gov/projects
     # "git clone --depth 1" doesn't work in some case
     #     fatal: dumb http transport does not support --depth
     # so if you don't pass a commit to codes_download, you'll see this error.
-    codes_download "$synergia_radiasoft_depot"/contract-synergia2.git origin/devel
-    fgrep -Rl "$fnal" . | xargs perl -pi -e "s{\\Q$fnal}{$synergia_radiasoft_depot}g"
+    codes_download  http://bitbucket.org/fnalacceleratormodeling/contract-synergia2.git origin/devel
     ./bootstrap
 }
 
