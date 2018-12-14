@@ -79,7 +79,7 @@ EOF
     mount '$data'
     install -d -m 700 /etc/docker/tls
     install -m 400 "$tmp_d/cert.pem" "$tmp_d/key.pem" /etc/docker/tls
-    install -m 400 /dev/stdin /etc/systemd/system/docker.service.d/override.conf <<'EOF2'
+    install -D -m 400 /dev/stdin /etc/systemd/system/docker.service.d/override.conf <<'EOF2'
 # https://docs.docker.com/config/daemon/#troubleshoot-conflicts-between-the-daemonjson-and-startup-scripts
 [Service]
 ExecStart=
