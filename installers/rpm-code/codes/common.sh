@@ -3,7 +3,7 @@
 common_python() {
     local v=$1
     local prev_d=$PWD
-    bivio_pyenv_"$v"
+    MAKE_OPTS=-j$(codes_num_cores) bivio_pyenv_"$v"
     pip install numpy
     pip install matplotlib
     pip install scipy
