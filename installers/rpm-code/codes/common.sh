@@ -29,6 +29,7 @@ common_main() {
         cmake
         eigen3-devel
         flex
+        fftw-openmpi-devel
         glib2-devel
         hdf5-devel
         hdf5-openmpi
