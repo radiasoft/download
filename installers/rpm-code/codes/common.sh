@@ -4,9 +4,7 @@ common_python() {
     local v=$1
     local prev_d=$PWD
     MAKE_OPTS=-j$(codes_num_cores) bivio_pyenv_"$v"
-    # https://github.com/radiasoft/ops/issues/324
-    # complex code in warp that is breaking.
-    pip install numpy==1.15.4
+    pip install numpy
     pip install matplotlib
     pip install scipy
     # used by synergia and has man/man1 duplicate problem so just include here
