@@ -40,6 +40,7 @@ EOF
     install_url radiasoft/download installers/rpm-code
     # rsconf.pkcli.tls is not available so have to run manually.
     # easier to include more in -config here so different syntax
+    # see https://github.com/urllib3/urllib3/issues/497
     openssl req -x509 -newkey rsa -keyout key.pem -out cert.pem -config /dev/stdin <<EOF
 [req]
 default_days = 9999
@@ -48,6 +49,10 @@ distinguished_name = subj
 encrypt_key = no
 prompt = no
 serial = $(date +%s)
+x509_extensions = v3_req
+
+[v3_req]
+subjectAltName = DNS:localhost.localdomain
 
 [subj]
 CN = localhost.localdomain
