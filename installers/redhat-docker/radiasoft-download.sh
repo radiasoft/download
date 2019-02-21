@@ -52,10 +52,10 @@ serial = $(date +%s)
 x509_extensions = v3_req
 
 [v3_req]
-subjectAltName = DNS:localhost.localdomain
+subjectAltName = DNS:$(hostname -f), DNS:localhost.localdomain
 
 [subj]
-CN = localhost.localdomain
+CN = $(hostname -f)
 EOF
     local tmp_d=$PWD
     install_sudo bash <<EOF
