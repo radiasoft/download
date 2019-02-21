@@ -41,9 +41,9 @@ EOF
     # rsconf.pkcli.tls is not available so have to run manually.
     # easier to include more in -config here so different syntax
     # see https://github.com/urllib3/urllib3/issues/497
-    openssl req -x509 -newkey rsa -keyout key.pem -out cert.pem -config /dev/stdin <<EOF
+    # default_days doesn't work with -x509 so have to pass days
+    openssl req -x509 -days 9999 -newkey rsa -keyout key.pem -out cert.pem -config /dev/stdin <<EOF
 [req]
-default_days = 9999
 default_md = sha256
 distinguished_name = subj
 encrypt_key = no
