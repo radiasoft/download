@@ -9,13 +9,13 @@ vagrant_rsconf_dev_main() {
         v3)
             vagrant_rsconf_dev_master
             ;;
-        v4|v5)
+        v2|v4|v5)
             vagrant_dev_barebones=1 \
                 install_server=http://v3.radia.run:2916 \
                 vagrant_rsconf_dev_worker
             ;;
         *)
-            install_err 'Must be run from v3, v4, or v5 dirs'
+            install_err 'Must be run from v2, v3, v4, or v5 dirs'
             ;;
    esac
 }
