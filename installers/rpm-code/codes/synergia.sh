@@ -65,16 +65,25 @@ synergia_install() {
 
 synergia_pyenv_exec() {
     local f=~/.pyenv/pyenv.d/exec/rs-beamsim-synergia.bash
-    perl -p -e "s{PREFIX}{$(pyenv prefix)}" <<'EOF' > "$f"
+    local p=$(pyenv prefix)
+    if [[ $p =~ : ]]; then
+        install_err "Invalid pyenv prefix, has a colon: $p"
+    fi
+    perl -p -e "s{PREFIX}{$p}" <<'EOF' > "$f"
 #!/bin/bash
 #
 # Synergia needs these special paths to work.
 #
-if [[ PREFIX == $(pyenv prefix) ]]; then
+if [[ :$(pyenv prefix): =~ :PREFIX: ]]; then
     # only set if in the environment we built synergia; prevents "jupyter" environment
     # from screwing this up.
     export SYNERGIA2DIR=PREFIX/lib/synergia
-    export LD_LIBRARY_PATH=$SYNERGIA2DIR:/usr/lib64/openmpi/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+    for i in /usr/lib64/openmpi/lib "$SYNERGIA2DIR"; do
+        if [[ ! :$LD_LIBRARY_PATH: =~ :$i: ]]; then
+            export LD_LIBRARY_PATH=$i${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+        fi
+    done
+    unset i
     export PYTHONPATH=$SYNERGIA2DIR
 fi
 EOF
