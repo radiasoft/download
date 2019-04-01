@@ -2,38 +2,30 @@
 codes_dependencies common
 
 synergia_bootstrap() {
-    local fnal=http://cdcvs.fnal.gov/projects
     # "git clone --depth 1" doesn't work in some case
     #     fatal: dumb http transport does not support --depth
     # so if you don't pass a commit to codes_download, you'll see this error.
-    codes_download  http://bitbucket.org/fnalacceleratormodeling/contract-synergia2.git origin/devel
+    codes_download https://bitbucket.org/fnalacceleratormodeling/contract-synergia2.git origin/devel
     ./bootstrap
 }
 
 synergia_contractor() {
-    # Turn off parallel make
-    local f
-    local -a x=()
     local cores=$(codes_num_cores)
-    codes_msg "Using cores=$cores"
-    for f in bison chef-libs fftw3 freeglut libpng nlopt qutexmlrpc qwt synergia2; do
-        x+=( "$f"/make_use_custom_parallel=1 "$f"/make_custom_parallel="$cores")
+    codes_msg "Using default_parallel=$cores"
+    local -a x=(
+        default_parallel=$cores
+        #TODO(robnagler) Need to figure out how to patch synergia2 itself
+        # before the build but after contractor downloads it.
+        synergia2/repo=https://bitbucket.org/robnagler/synergia2
+    )
+    local f
+    # chef_libs gets random make errors when running parallel
+    for f in chef-libs; do
+        x+=( "$f"/make_use_custom_parallel=1 "$f"/make_custom_parallel=1 )
     done
     for f in bison fftw3 libpng nlopt; do
         x+=( "$f"_internal=1 )
     done
-    x+=(
-        #NOT in master: boost/parallel="$cores"
-        #chef-libs/repo=https://github.com/radiasoft/accelerator-modeling-chef.git
-        #chef-libs/branch=5277ecbbdec02e9394eca4e079a651053b6a0ab4
-        #chef-libs/branch=radiasoft-devel
-    )
-    if [[ ${codes_synergia_branch:-} ]]; then
-        x+=( synergia2/branch=$codes_synergia_branch )
-        if [[ $codes_synergia_branch == devel-pre3 ]]; then
-            x+=( boost_internal=1 )
-        fi
-    fi
     ./contract.py --configure "${x[@]}"
     ./contract.py
 }
