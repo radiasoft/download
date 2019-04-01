@@ -27,3 +27,8 @@ if parallel:
              libraries.append(arg)
 EOF
 codes_make_install FCOMP="-F gfortran --fcompexec mpifort" pclean pinstall
+cd ..
+x=$(mpiexec -n 2 python -c 'import warp' 2>&1)
+if [[ ! $x =~ '# 2 proc' ]]; then
+    codes_err "mpiexec failed for warp: $x"
+fi
