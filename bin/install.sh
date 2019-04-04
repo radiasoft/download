@@ -5,14 +5,6 @@
 # Find repos in radiasoft/download/installers or radiasoft/*/radiasoft-download.sh
 # or any repo with a radiasoft-download.sh in its root.
 #
-# Testing an installer
-#     cd ~/src
-#     rm -f index.sh
-#     ln -s -r radiasoft/download/bin/index.sh .
-#     python -m SimpleHTTPServer 2916 &
-#
-#     # assumes radia_run defined properly
-#     install_server=http://$(dig $(hostname -f) +short):2916 radia_run unit-test arg1
 set -euo pipefail
 
 install_args() {
@@ -286,6 +278,13 @@ install_script_eval() {
     fi
     install_info "Source: $source"
     source "$source"
+    if [[ $(basename "$script") == radiasoft-download.sh ]]; then
+        local f=$(basename "$(dirname "$script")")
+        f=${f//-/_}_main
+        if [[ $(type -t $f) == function ]] && ! grep "^$f .*@" "$source" >&/dev/null; then
+            $f ${install_extra_args[@]+"${install_extra_args[@]}"}
+        fi
+    fi
 }
 
 install_source_bashrc() {
