@@ -27,5 +27,3 @@ unit_test_main() {
     fi
     echo PASSED
 }
-
-unit_test_main ${install_extra_args[@]+"${install_extra_args[@]}"}

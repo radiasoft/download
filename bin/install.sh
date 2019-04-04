@@ -276,14 +276,24 @@ install_script_eval() {
     if [[ ! $(head -1 "$source") =~ ^#! ]]; then
         install_err "$script: no #! at start of file: $source"
     fi
+    local m=
+    if [[ "$script" == radiasoft-download.sh ]]; then
+        # before sourcing, which can modify anything
+        local f=$(basename "$install_url")
+        f=${f//-/_}_main
+        # three cases: main without args or with install_extra_args
+        # Be loose in case there's a bug. Compliant scripts must
+        # not call main in any form
+        if ! egrep "^$f( *| .*@.*)$" "$source" >&/dev/null; then
+            m=$f
+            # Just in case repo was evaled already
+            unset "$m"
+        fi
+    fi
     install_info "Source: $source"
     source "$source"
-    if [[ $(basename "$script") == radiasoft-download.sh ]]; then
-        local f=$(basename "$(dirname "$script")")
-        f=${f//-/_}_main
-        if [[ $(type -t $f) == function ]] && ! grep "^$f .*@" "$source" >&/dev/null; then
-            $f ${install_extra_args[@]+"${install_extra_args[@]}"}
-        fi
+    if [[ $m && $(type -t "$m") == function ]]; then
+        $m ${install_extra_args[@]+"${install_extra_args[@]}"}
     fi
 }
 
