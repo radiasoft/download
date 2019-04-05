@@ -344,6 +344,10 @@ install_usage() {
 usage: $install_prog [verbose|quiet] [<installer>|*/*] [extra args]"
 }
 
+install_vars_export() {
+    echo "export install_server='$install_server' install_channel='$install_channel' install_debug='$install_debug'"
+}
+
 install_yum() {
     local args=( "$@" )
     local yum=yum

@@ -1,6 +1,6 @@
 #!/bin/bash
 set -euo pipefail
-. ./dev-env.sh
+source ./dev-env.sh
 if [[ ! -e ~/src/yum/fedora/radiasoft.repo ]]; then
     echo 'setting up one time'
     bash dev-setup.sh

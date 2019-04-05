@@ -1,25 +1,16 @@
 #!/bin/bash
+codes_dependencies common
 install -m 555 /dev/stdin "$(codes_bin_dir)/rscode-test" <<EOF
 #!/bin/bash
-echo 'Run this:
-
-rpm -ql ~/src/yum/fedora/*/x86_64/dev/rscode-test-$version*rpm
-
-which should produce:
-
-/home/vagrant/.pyenv/versions/py2/bin/rscode-test
-/home/vagrant/.pyenv/versions/py2/share
-/home/vagrant/.pyenv/versions/py2/share/doc
-/home/vagrant/.pyenv/versions/py2/share/doc/PASS
-'
+# POSIT: codes.sh sets locally-scoped version var
+echo "RPM_CODE_TEST_VERSION=$version"
 EOF
-codes_yum_dependencies rootfiles
 pyenv rehash
-_share=$(pyenv prefix)/share
-mkdir -p "$_share/doc"
+_xyz=$(pyenv prefix)/xyz
+mkdir -p "$_xyz"
 # otherwise directories are owned by root
-echo PASS > "$_share/doc/PASS"
+echo PASS > "$_xyz/PASS"
 _fail="$(pyenv prefix)/FAIL"
 mkdir -p "$_fail"
-rpm_code_build_include_add "$_share"
+rpm_code_build_include_add "$_xyz"
 rscode-test

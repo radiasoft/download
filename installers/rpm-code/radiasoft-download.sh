@@ -138,7 +138,7 @@ rpm_code_main() {
     : ${rpm_base_build:=$rpm_code_rpm_prefix-$code-build}
     : ${build_args:="$rpm_base $rpm_base_build $code"}
     : ${rpm_code_image:=radiasoft/rpm-code}
-    if [[ $code =~ ^(common|test)$ ]]; then
+    if [[ $code == common ]]; then
         rpm_code_image=radiasoft/fedora
     fi
     : ${rpm_code_user:=vagrant}
@@ -152,7 +152,7 @@ echo "$rpm_code_user ALL=(ALL) NOPASSWD: ALL" | install -m 440 /dev/stdin /etc/s
 su - "$rpm_code_user" <<EOF2
 set -euo pipefail
 cd '$rpm_code_guest_d'
-export install_server='$install_server' install_channel='$install_channel' install_debug='$install_debug'
+$(install_vars_export)
 radia_run rpm-code _build $build_args
 EOF2
 EOF

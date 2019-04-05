@@ -1,6 +1,6 @@
 #!/bin/bash
 set -euo pipefail
-. ./dev-env.sh
+source ./dev-env.sh
 if ! rpm -q createrepo >& /dev/null; then
     sudo yum install -y createrepo
 fi
@@ -17,3 +17,9 @@ gpgcheck=0
 # may be too fast for production
 metadata_expire=1m
 EOF
+if [[ ! -d ~/src/radiasoft/container-rpm-code ]]; then
+    (
+        cd ~/src/radiasoft
+        git clone https://github.com/radiasoft/container-rpm-code
+    )
+fi

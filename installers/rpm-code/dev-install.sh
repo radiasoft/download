@@ -1,5 +1,5 @@
 #!/bin/bash
 . ~/.bashrc
 set -euo pipefail
-. ./dev-env.sh
+source ./dev-env.sh
 radia_run code "$@"
