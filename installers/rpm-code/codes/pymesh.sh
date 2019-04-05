@@ -6,4 +6,4 @@ git submodule update --init
 NUM_CORES=$(codes_num_cores) codes_python_install
 # run tests outside build directory
 cd ..
-python -c "import pymesh; pymesh.test()"
+python -c 'import pymesh; pymesh.test()'
