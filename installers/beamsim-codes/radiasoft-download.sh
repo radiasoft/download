@@ -14,6 +14,7 @@ beamsim_codes_main() {
         jspec
         opal
         pydicom
+        pymesh
         rsbeams
         rslinac
         shadow3
