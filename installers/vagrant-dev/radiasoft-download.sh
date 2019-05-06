@@ -170,7 +170,9 @@ vagrant_dev_vagrantfile() {
         ]'
     fi
     local box=$os
-    if [[ $os =~ fedora ]]; then
+    if [[ ${vagrant_dev_box:-} ]]; then
+        box=$vagrant_dev_box
+    elif [[ $os =~ fedora ]]; then
         if [[ $box == fedora ]]; then
             box=fedora/27-cloud-base
         fi
