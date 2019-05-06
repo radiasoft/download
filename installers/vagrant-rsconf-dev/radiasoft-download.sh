@@ -22,6 +22,14 @@ vagrant_rsconf_dev_main() {
 
 vagrant_rsconf_dev_master() {
     install_repo_eval vagrant-centos7
+    bivio_vagrant_ssh <<'EOF' || true
+    install_repo_eval redhat-docker
+EOF
+    vagrant reload
+    bivio_vagrant_ssh <<'EOF'
+    install_repo_eval redhat-docker
+    sudo usermod -aG docker vagrant
+EOF
     bivio_vagrant_ssh <<'EOF'
         bivio_pyenv_2
         set -euo pipefail
@@ -49,7 +57,6 @@ EOF
     vagrant reload
     install_server=$s vagrant_rsconf_dev_run
     # For building perl rpms (see build-perl-rpm.sh)
-    bivio_vagrant_ssh sudo usermod -aG docker vagrant
 }
 
 vagrant_rsconf_dev_run() {
