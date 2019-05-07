@@ -1,5 +1,7 @@
 #!/bin/bash
 
+_codes_home_local=$HOME/.local
+
 codes_assert_easy_install() {
     local easy=$(find  $(pyenv prefix)/lib -name easy-install.pth)
     if [[ $easy ]]; then
@@ -8,11 +10,6 @@ codes_assert_easy_install() {
 $(cat "$easy")"
     fi
 }
-
-codes_bin_dir() {
-    dirname "$(pyenv which python)"
-}
-
 codes_cmake() {
     mkdir build
     cd build
@@ -30,6 +27,35 @@ codes_dependencies() {
     done
     install_repo_eval code "$@"
     codes_touch_sentinel
+}
+
+
+codes_dir() {
+    local d=$_codes_home_local/$1
+    if [[ ! -d $d ]]; then
+        # POSIT: codes are public
+        (umask 022 && install -d "$d")
+    fi
+    if ! codes_is_common; then
+        rpm_code_build_exclude_add "$d"
+    fi
+    echo "$d"
+}
+
+codes_dir_bashrc_d() {
+    codes_dir etc/bashrc.d
+}
+
+codes_dir_bin() {
+    codes_dir bin
+}
+
+codes_dir_lib() {
+    codes_dir lib
+}
+
+codes_dir_share() {
+    codes_dir share
 }
 
 codes_download() {
@@ -106,6 +132,14 @@ codes_download() {
     return 0
 }
 
+codes_is_common() {
+    [[ $codes_module == common ]]
+}
+
+codes_is_function() {
+    compgen -A function "$1"
+}
+
 codes_download_foss() {
     local path=$1
     shift
@@ -137,12 +171,23 @@ codes_install() {
     codes_touch_sentinel
     local codes_module=$module
     install_script_eval "codes/$module.sh"
+    local f=${module}_main
+    if codes_is_function "$f"; then
+        $f
+    fi
     cd "$prev"
-    if [[ $module == common ]]; then
+    if codes_is_common; then
+        # create all these directories and own them
+        rpm_code_build_include_add \
+            "$(codes_dir_bashrc_d)" \
+            "$(codes_dir_bin)" \
+            "$(codes_dir_lib)" \
+            "$(codes_dir_share)"
         return
     fi
     local p=${module}_python_install
-    if compgen -A function "$p"; then
+    local codes_python_version=2
+    if codes_is_function "$p"; then
         # Needed for pyenv
         install_source_bashrc
         local v
@@ -151,6 +196,7 @@ codes_install() {
         # No quotes so splits
         for v in ${!vs}; do
             cd "$build_d"
+            codes_python_version=$v
             install_not_strict_cmd pyenv activate py"$v"
             "$p" "$v"
             codes_install_add_python
@@ -160,6 +206,16 @@ codes_install() {
         codes_install_add_python
     fi
     cd "$prev"
+}
+
+codes_install_python_files() {
+    local files=( "$@" )
+    local d=$(python -c 'import sys; from distutils.sysconfig import get_python_lib as g; sys.stdout.write(g())')
+    local a=$(python -c 'import sys; from sysconfig import get_config_var as g; sys.stdout.write(g("SOABI"))')
+    if (( $v >= 3 )); then
+        so=${so/./.$x.}
+    fi
+
 }
 
 codes_install_add_python() {

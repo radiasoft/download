@@ -14,7 +14,6 @@ codes=(
     srw
     radia
 
-    sdds
     elegant
 
     H5hut

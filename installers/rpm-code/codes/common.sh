@@ -54,5 +54,3 @@ common_main() {
     rpm_code_build_include_add "$(pyenv root)" "$HOME"/.gem "$HOME"/bin/fpm
     rpm_code_build_exclude_add "$HOME"/bin
 }
-
-common_main

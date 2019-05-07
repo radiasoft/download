@@ -1,13 +1,10 @@
 #!/bin/bash
 source ~/.bashrc
 set -euo pipefail
-#sudo dnf install -q -y subversion openmotif-devel motif-devel libXaw-devel libXt-devel libXp-devel tcsh
-export QA_RPATHS=19
-export HOST_ARCH=linux-x86_64
-export EPICS_HOST_ARCH=$HOST_ARCH
+sudo dnf install -q -y subversion openmotif-devel motif-devel libXaw-devel libXt-devel libXp-devel tcsh
+export EPICS_HOST_ARCH=linux-x86_64
 export MOTIF_LIB=/usr/lib64
 export X11_LIB=/usr/lib64
-export TCL_LIB=/usr/lib64
 export MPI_PATH=$(dirname $(type -p mpicc))/
 rm -rf oagsoftware
 mkdir oagsoftware
