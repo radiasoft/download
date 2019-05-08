@@ -25,6 +25,8 @@ common_main() {
     local rpms=(
         atlas-devel
         blas-devel
+        boost-devel
+        boost-python2-devel
         boost-static
         cmake
         eigen3-devel
