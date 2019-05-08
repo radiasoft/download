@@ -137,7 +137,7 @@ codes_is_common() {
 }
 
 codes_is_function() {
-    compgen -A function "$1"
+    [[ $(type -t "$1") == function ]]
 }
 
 codes_download_foss() {
@@ -208,20 +208,10 @@ codes_install() {
     cd "$prev"
 }
 
-codes_install_python_files() {
-    local files=( "$@" )
-    local d=$(python -c 'import sys; from distutils.sysconfig import get_python_lib as g; sys.stdout.write(g())')
-    local a=$(python -c 'import sys; from sysconfig import get_config_var as g; sys.stdout.write(g("SOABI"))')
-    if (( $v >= 3 )); then
-        so=${so/./.$x.}
-    fi
-
-}
-
 codes_install_add_python() {
     local pp=$(pyenv prefix)
     # This excludes all the top level directories and python2.7/site-packages
-    rpm_code_build_exclude_add "$pp"/* "$(codes_pylib_dir)"
+    rpm_code_build_exclude_add "$pp"/* "$(codes_python_lib_dir)"
     codes_assert_easy_install
     # note: --newer doesn't work, because some installers preserve mtime
     find "$pp/" ! -name pip-selfcheck.json ! -name '*.pyc' ! -name '*.pyo' \
@@ -280,13 +270,23 @@ codes_num_cores() {
     echo "$res"
 }
 
-codes_pylib_dir() {
-    python -c 'import sys; from distutils.sysconfig import get_python_lib as x; sys.stdout.write(x())'
-}
-
 codes_python_install() {
+    # normal python install
     pip install .
     codes_assert_easy_install
+}
+
+codes_python_lib_copy() {
+    # simple file copies for packages without setup.py
+    install -m 644 "$@" $(codes_python_lib_dir)
+}
+
+codes_python_lib_dir() {
+    python <<'EOF'
+import sys
+from distutils.sysconfig import get_python_lib as x
+sys.stdout.write(x())
+EOF
 }
 
 codes_touch_sentinel() {
