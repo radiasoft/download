@@ -19,9 +19,13 @@ elegant_build() {
     echo CROSS_COMPILER_TARGET_ARCHS= >> CONFIG
     elegant_make shared
     cd "$h"/epics/extensions/src/SDDS
+    # builds ./epics/extensions/bin/linux-x86_64/bin/*
+    # epics/extensions/lib/linux-x86_64/libSDDS1.a (plus other *.a)
     elegant_make x11
     cd "$h"/oag/apps/src/utils/tools
     elegant_make x11
+    # Do not install any of the tools (token, mecho, minpath, etc.)
+    local to_exclude=( $(find * -executable -type f -printf '%f\n') )
     cd "$h"/oag/apps/src/physics
     elegant_make static
     cd ../xraylib
@@ -33,21 +37,31 @@ elegant_build() {
     cd ../sddsbrightness
     elegant_make static
     cd "$h"/epics/extensions/src/SDDS/SDDSlib
-    echo 'xxxxxxxxxxxxxxxxxxxxxx'
-    ls -alt O.*
     elegant_make clean
+    # builds epics/extensions/lib/linux-x86_64/libSDDSmpi.a
     elegant_make mpi
     cd ../pgapack
     elegant_make mpi
     cd ../../../../../oag/apps/src/elegant
     elegant_make clean
     elegant_make mpi "$with_path" Pelegant
-    # remake SDDSlib for python(?)
-    cd "$h"/epics/extensions/src/SDDS/SDDSlib
-    echo 'yyyyyyyyyyyyyyyyyyyyyy'
-    ls -alt O.*
-    elegant_make clean
-    elegant_make static
+    # Not installing things like:
+    # ./oag/apps/src/physics/spectraCLITemplates
+    # ./oag/apps/src/elegant/ringAnalysisTemplates
+    # ./oag/apps/src/elegant/elegantTools/*.lte
+    #
+    # Some epics/extensions/src/SDDS/SDDSaps are not in the sdds or elegant rpm
+    # but we install them anyway (e.g. sdds2stl, col2sdds) since they don't collide
+    cd "$h"
+    local f b
+    local dst=$(codes_dir_bin)
+    for f in {oag/apps,epics/extensions}/bin/linux-x86_64/*; do
+        b=$(basename "$f")
+        if [[ ! " ${to_exclude[*]} " =~ " $b " ]]; then
+            install -m 555 "$f" "$dst"
+            echo "$dst/$b"
+        fi
+    done | rpm_code_build_include_add
 }
 
 elegant_download() {
@@ -119,13 +133,19 @@ elegant_python_install() {
     local v=$1
     local h=$PWD
     cd epics/extensions/src/SDDS/python
-PYTHON_DIR=/usr/lib/python2.2
-PYTHON_INCLUDE=/usr/include/python2.2
     elegant_make clean
-    elegant_make shared PYTHON3=$(( $v - 2 ))
+    # builds extensions/lib/linux-x86_64/sddsdatamodule.so
+    local p3=
+    if (( v - 2 )); then
+        p3=PYTHON3=1
+    fi
+    # PYTHON3 is ifdef'd so no quotes
+    elegant_make shared $p3
+    # py3 builds sddsdata.so; py2 builds sddsdatamodule.so
     codes_python_lib_copy "$h"/epics/extensions/src/SDDS/python/sdds.py \
-       "$h"/epics/extensions/lib/linux-x86_64/sddsdatamodule*.so
-    rm -f "$h"/epics/extensions/lib/linux-x86_64/sddsdatamodule*.so
+        "$h"/epics/extensions/lib/linux-x86_64/sddsdata*.so
+    # remove just for in case sddsdata gets renamed
+    rm -f "$h"/epics/extensions/lib/linux-x86_64/sddsdata*.so
 }
 
 elegant_share() {
