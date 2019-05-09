@@ -25,7 +25,7 @@ beamsim_codes_main() {
         srw
         synergia
         warp
-#        zgoubi
+        zgoubi
 
         # depends on srw
 #        radia
