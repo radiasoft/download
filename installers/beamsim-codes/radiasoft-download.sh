@@ -15,7 +15,7 @@ beamsim_codes_main() {
 
         elegant
         jspec
-#        pymesh
+        pymesh
         rsbeams
         rslinac
 #        shadow3

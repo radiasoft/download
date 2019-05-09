@@ -74,6 +74,10 @@ codes_download() {
     case $repo in
         *.git)
             local d=$(basename "$repo" .git)
+            local r=--recursive
+            if [[ ${codes_download_nonrecursive:-} ]]; then
+               r=
+            fi
             if [[ -d "$d" && ${codes_download_reuse_git:-} ]]; then
                 cd "$d"
                 codes_msg "Cleaning: $PWD"
@@ -82,11 +86,11 @@ codes_download() {
                 # Don't pass --depth in this case for a couple of reasons:
                 # 1) we don't know where the commit is; 2) It might be a simple http
                 # transport (synergia.sh) which doesn't support git
-                git clone --recursive -q "$repo"
+                git clone $r -q "$repo"
                 cd "$d"
                 git checkout "$qualifier"
             else
-                git clone --recursive --depth 1 "$repo"
+                git clone $r --depth 1 "$repo"
                 cd "$d"
             fi
             local manifest=('' '')
