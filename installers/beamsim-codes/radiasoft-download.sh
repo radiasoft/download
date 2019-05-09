@@ -15,7 +15,7 @@ beamsim_codes_main() {
 
         elegant
         hypre
-#        jspec
+        jspec
         pydicom
         pymesh
         rsbeams
