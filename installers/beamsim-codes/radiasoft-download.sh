@@ -14,7 +14,7 @@ beamsim_codes_main() {
         common
 
         elegant
-#        hypre
+        hypre
 #        jspec
 #        opal
 #        pydicom
