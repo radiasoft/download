@@ -15,7 +15,6 @@ beamsim_codes_main() {
 
         elegant
         jspec
-        pydicom
         pymesh
         rsbeams
         rslinac
@@ -29,6 +28,7 @@ beamsim_codes_main() {
         codes+=(
             hypre
             opal
+            pydicom
             # depends on srw
             radia
         )
