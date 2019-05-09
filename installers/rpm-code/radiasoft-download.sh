@@ -9,8 +9,7 @@ rpm_code_guest_d=/rpm-code
 
 rpm_code_build() {
     local rpm_base=$1
-    local rpm_base_build=$2
-    local code=$3
+    local code=$2
     local version=$(date -u +%Y%m%d.%H%M%S)
     # flag used by code.sh to know if inside this function
     local rpm_code_build=1
@@ -74,12 +73,6 @@ rpm_code_build() {
         "${exclude[@]}" \
         "${deps[@]}" \
         --inputs "$rpm_code_build_include_f"
-    fpm -t rpm -s dir -n "$rpm_base_build" -v "$version" \
-        --rpm-rpmbuild-define "_build_id_links none" \
-        --rpm-use-file-permissions --rpm-auto-add-directories \
-        "${exclude[@]}" \
-        "${deps[@]}" \
-        "$rpm_code_build_src_dir"
 }
 
 rpm_code_build_include_add() {
@@ -135,8 +128,7 @@ rpm_code_main() {
     umask 077
     install_tmp_dir
     : ${rpm_base:=$rpm_code_rpm_prefix-$code}
-    : ${rpm_base_build:=$rpm_code_rpm_prefix-$code-build}
-    : ${build_args:="$rpm_base $rpm_base_build $code"}
+    : ${build_args:="$rpm_base $code"}
     : ${rpm_code_image:=radiasoft/rpm-code}
     if [[ $code == common ]]; then
         rpm_code_image=radiasoft/fedora
@@ -157,7 +149,6 @@ radia_run rpm-code _build $build_args
 EOF2
 EOF
     rpm_code_install_rpm "$rpm_base"
-    rpm_code_install_rpm "$rpm_base_build"
     (umask 022; createrepo -q --update "$rpm_code_yum_dir")
 }
 
