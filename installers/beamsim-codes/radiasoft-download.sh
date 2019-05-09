@@ -28,7 +28,7 @@ beamsim_codes_main() {
         zgoubi
 
         # depends on srw
-#        radia
+        radia
     )
     install_repo_eval code "${codes[@]}"
 }
