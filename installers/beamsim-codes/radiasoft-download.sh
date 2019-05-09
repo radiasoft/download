@@ -14,7 +14,6 @@ beamsim_codes_main() {
         common
 
         elegant
-        hypre
         jspec
         pydicom
         pymesh
@@ -28,6 +27,7 @@ beamsim_codes_main() {
     )
     if [[ ! ${sirepo_dev_codes_only:-} ]]; then
         codes+=(
+            hypre
             opal
             # depends on srw
             radia
