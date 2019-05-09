@@ -23,6 +23,8 @@ codes=(
     pyOPALTools
     opal
 
+    pymesh
+
     Forthon
     openPMD
     pygist
