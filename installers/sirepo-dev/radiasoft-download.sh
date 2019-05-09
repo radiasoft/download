@@ -8,7 +8,7 @@ sirepo_dev_main() {
         install_err 'run as vagrant (or other ordinary user), not root'
     fi
     install_source_bashrc
-    install_repo_eval beamsim-codes
+    sirepo_dev_codes_only=1 install_repo_eval beamsim-codes
     # rerun source, because beamsim-codes installs pyenv
     install_source_bashrc
     mkdir -p ~/src/radiasoft
