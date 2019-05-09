@@ -17,7 +17,7 @@ beamsim_codes_main() {
         hypre
 #        jspec
 #        opal
-#        pydicom
+        pydicom
         pymesh
         rsbeams
         rslinac
