@@ -36,6 +36,8 @@ codes=(
     shadow3
 
     rsbeams
+
+    zgoubi
 )
 for c in "${codes[@]}"; do
     echo "$c"
