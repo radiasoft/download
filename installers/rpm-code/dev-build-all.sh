@@ -16,12 +16,18 @@ codes=(
 
     elegant
 
+    epics
+
+    hypre
+
     H5hut
     parmetis
     metis
     trilinos
     pyOPALTools
     opal
+
+    pydicom
 
     pymesh
 
