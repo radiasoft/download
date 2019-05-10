@@ -1,7 +1,7 @@
 #!/bin/bash
 codes_dependencies xraylib
 pip install srxraylib
-codes_download srio/shadow3
+codes_download oasys-kit/shadow3
 codes_python_install
 # line 639 of ShadowLibExtensions.py has a non-breaking utf8 character
 # https://www.python.org/dev/peps/pep-0263/ says must define coding
