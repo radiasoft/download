@@ -14,6 +14,7 @@ beamsim_codes_main() {
         common
 
         elegant
+        epics
         jspec
         pymesh
         rsbeams
