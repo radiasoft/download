@@ -8,8 +8,8 @@ container_run_main() {
     radia_run_assert_not_root
     if (( $# < 1 )); then
         container_run_image=$(basename "$PWD")
-        if [[ ! $container_run_image =~ ^(beamsim|jupyter|python2|rs4pi|sirepo)$ ]]; then
-            install_usage "Please supply an install name: beamsim, jupyter, python2, rs4pi, sirepo, OR <docker/image>"
+        if [[ ! $container_run_image =~ ^(beamsim|jupyter|sirepo)$ ]]; then
+            install_usage "Please supply an install name: beamsim, jupyter, sirepo, OR <docker/image>"
         fi
     else
         container_run_image=$1
@@ -22,17 +22,18 @@ container_run_main() {
         container_run_image=radiasoft/$container_run_image
     fi
     container_run_interactive=
-    if [[ $container_run_image =~ ^radiasoft/(beamsim|python2)$ ]]; then
+    if [[ $container_run_image =~ ^radiasoft/beamsim$ ]]; then
         container_run_interactive=1
     fi
-    if [[ ${install_channel_is_default:-} \
-        && $container_run_image =~ ^radiasoft/(beamsim|python2|rs4pi|beamsim-jupyter)$ \
-    ]]; then
-        install_channel=alpha
+    if [[ ${install_channel_is_default:-} ]]; then
+        install_channel=prod
     fi
-    install_info 'Installing with docker'
-    local tag=$container_run_image:$install_channel
-    install_info "Downloading $tag"
+    if ! type -p docker >& /dev/null; then
+        if [[ $(uname Darwin) && -e /Applications/Docker.app ]]; then
+            install_err 'docker is not running. Please start the Docker application'
+        fi
+        install_err 'docker command not found. Please install Docker.'
+    fi
     container_run_radia_run
 }
 
@@ -47,17 +48,14 @@ container_run_radia_run() {
     local uri=
     local db=
     local daemon=
-    if [[ $container_run_image =~ ^radiasoft/(sirepo|rs4pi)$ ]]; then
+    if [[ $container_run_image == radiasoft/sirepo ]]; then
         db=/sirepo
         # Command needs to be absolute (see containers/bin/build-docker.sh)
         cmd='exec /home/vagrant/.radia-run/tini -- /home/vagrant/.radia-run/start'
         uri=/
-        if [[ $container_run_image =~ rs4pi ]]; then
-            uri=/robot
-        fi
         daemon=1
         container_run_port=8000
-    elif [[ $container_run_image =~ ^radiasoft/beamsim-jupyter$ ]]; then
+    elif [[ $container_run_image == radiasoft/beamsim-jupyter ]]; then
         # Command needs to be absolute (see containers/bin/build-docker.sh)
         cmd='exec /home/vagrant/.radia-run/tini -- /home/vagrant/.radia-run/start'
         local t
@@ -226,7 +224,7 @@ radia_run_main() {
     local image=$radia_run_image:$radia_run_channel
     radia_run_msg "Updating Docker image: $image ..."
     local res
-    if false && ! res=$(docker pull "$image" 2>&1); then
+    if ! res=$(docker pull "$image" 2>&1); then
         radia_run_msg "$res"
         radia_run_msg 'Update failed: Assuming network failure, continuing.'
     fi
