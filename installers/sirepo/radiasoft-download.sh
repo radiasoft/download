@@ -2,6 +2,6 @@
 #
 # To run: curl radia.run | bash -s sirepo
 #
-home_main() {
+sirepo_main() {
     install_repo_eval container-run sirepo "$@"
 }
