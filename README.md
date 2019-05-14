@@ -5,37 +5,52 @@ and other open source physics codes.
 
 ## Automatic Installer (Mac, Linux, and Cygwin)
 
-The most straightforward way to install a RadiaSoft container image is
-to create an empty directory and run the installer. For example, to
-install the `sirepo` container in a new directory:
+We support automatic installation of our Docker images on Unix-like
+systems with `curl` installers. You will need to
+[Install Docker](#install-docker) before proceeding with these
+instructions.
+
+### Sirepo
+
+Most people use Sirepo in the cloud at [sirepo.com](https://sirepo.com).
+However, to run Sirepo locally, you can use this command:
 
 ```sh
-mkdir sirepo
-cd sirepo
-curl radia.run | bash
+$ curl sirepo.run | bash
 ```
 
-This will install, configure the image named by the current
-directory, and run it from the current directory. The image name
-is taken from the directory name.
+### Jupyter
 
-For a complete list of containers, [see the next section](#containers).
-
-You can also be explicit and request a different container:
+We run a public JupyterHub at [jupyter.radiasoft.org](https://jupyter.radiasoft.org).
+You can also run our Jupyter Docker image with the same
+[pre-installed of particle accelerator and beam simulation codes](https://github.com/radiasoft/container-beamsim)
+on your desktop with:
 
 ```sh
-mkdir foobar
-cd foobar
-curl radia.run | bash -s sirepo
+$ curl jupyter.run | bash
 ```
 
-There are a few other options (words) which may be useful, e.g.
+### Other images and installers
+
+To run a different installer, you simply pass it as an argument to bash.
+For example, to run the `vagrant-sirepo-dev` installer, which installs
+a Vagrant/VirtualBox development environment for Sirepo, just type:
 
 ```sh
-curl radia.run | bash -s sirepo verbose
+$ curl radia.run | bash -s vagrant-sirepo-dev
 ```
 
-The order of the optional keywords after the `bash -s` do not matter.
+### `radia_run` command
+
+If you use RadiaSoft's home environment (aka. dot files), you get the
+`radia_run` command, which makes it easier to run an installer, e.g.
+
+```sh
+$ radia_run vagrant-sirepo-dev
+```
+
+This runs over TLS (https) so it is more secure. It also allows you to
+set [an `install_server`, which is helpful for developing](#development-notes).
 
 ## Quick Start if you already know Docker
 
@@ -73,7 +88,7 @@ $ ./radia-run
 
 Point your browser to:
 
-http://127.0.0.1:8000/srw
+http://127.0.0.1:8000
 
  * Running on http://0.0.0.0:8000/ (Press CTRL+C to quit)
  * Restarting with stat
@@ -98,7 +113,7 @@ ln -s -r radiasoft/download/bin/index.sh .
 python -m SimpleHTTPServer 1313
 # another window
 export install_server=http://$(dig $(hostname -f) +short):1313
-# assumes radia_run: curl $install_server/index.sh | bash -s unit-test arg1
+z# assumes radia_run: curl $install_server/index.sh | bash -s unit-test arg1
 radia_run unit-test arg1
 ```
 
