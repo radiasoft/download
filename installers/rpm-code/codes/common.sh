@@ -25,6 +25,8 @@ common_main() {
     local rpms=(
         atlas-devel
         blas-devel
+        boost-devel
+        boost-python2-devel
         boost-static
         cmake
         eigen3-devel
@@ -54,5 +56,3 @@ common_main() {
     rpm_code_build_include_add "$(pyenv root)" "$HOME"/.gem "$HOME"/bin/fpm
     rpm_code_build_exclude_add "$HOME"/bin
 }
-
-common_main

@@ -1,14 +1,14 @@
 #!/bin/bash
 
 sirepo_dev_main() {
-    if [[ ! -r /etc/redhat-release ]]; then
-        install_err 'only works on Red Hat flavored Linux'
+    if ! grep -i fedora  /etc/redhat-release >& /dev/null; then
+        install_err 'only works on Fedora Linux'
     fi
     if (( $EUID == 0 )); then
         install_err 'run as vagrant (or other ordinary user), not root'
     fi
     install_source_bashrc
-    install_repo_eval beamsim-codes
+    sirepo_dev_codes_only=1 install_repo_eval beamsim-codes
     # rerun source, because beamsim-codes installs pyenv
     install_source_bashrc
     mkdir -p ~/src/radiasoft

@@ -14,8 +14,11 @@ codes=(
     srw
     radia
 
-    sdds
     elegant
+
+    epics
+
+    hypre
 
     H5hut
     parmetis
@@ -23,6 +26,10 @@ codes=(
     trilinos
     pyOPALTools
     opal
+
+    pydicom
+
+    pymesh
 
     Forthon
     openPMD
@@ -35,6 +42,8 @@ codes=(
     shadow3
 
     rsbeams
+
+    zgoubi
 )
 for c in "${codes[@]}"; do
     echo "$c"

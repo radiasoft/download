@@ -1,6 +1,6 @@
 #!/bin/bash
 codes_dependencies common
-install -m 555 /dev/stdin "$(codes_bin_dir)/rscode-test" <<EOF
+install -m 555 /dev/stdin "$(codes_dir_bin)/rscode-test" <<EOF
 #!/bin/bash
 # POSIT: codes.sh sets locally-scoped version var
 echo "RPM_CODE_TEST_VERSION=$version"

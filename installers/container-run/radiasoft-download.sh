@@ -8,30 +8,32 @@ container_run_main() {
     radia_run_assert_not_root
     if (( $# < 1 )); then
         container_run_image=$(basename "$PWD")
-        if [[ ! $container_run_image =~ ^(beamsim|python2|rs4pi|sirepo)$ ]]; then
-            install_usage "Please supply an install name: beamsim, python2, rs4pi, sirepo, OR <docker/image>"
+        if [[ ! $container_run_image =~ ^(beamsim|jupyter|sirepo)$ ]]; then
+            install_usage "Please supply an install name: beamsim, jupyter, sirepo, OR <docker/image>"
         fi
     else
         container_run_image=$1
         shift
     fi
+    if [[ $container_run_image =~ jupyter ]]; then
+        container_run_image=beamsim-jupyter
+    fi
     if [[ ! $container_run_image =~ / ]]; then
         container_run_image=radiasoft/$container_run_image
     fi
     container_run_interactive=
-    if [[ $container_run_image =~ ^radiasoft/(beamsim|python2)$ ]]; then
+    if [[ $container_run_image =~ ^radiasoft/beamsim$ ]]; then
         container_run_interactive=1
     fi
-    if [[ ${install_channel_is_default:-} \
-        && $container_run_image =~ ^radiasoft/(beamsim|python2|rs4pi)$ \
-    ]]; then
-        install_channel=alpha
+    if [[ ${install_channel_is_default:-} ]]; then
+        install_channel=prod
     fi
-    install_info 'Installing with docker'
-    local tag=$container_run_image:$install_channel
-    install_info "Downloading $tag"
-    # docker pull fails when image is up to date
-    docker pull "$tag" || true
+    if ! type -p docker >& /dev/null; then
+        if [[ $(uname Darwin) && -e /Applications/Docker.app ]]; then
+            install_err 'docker is not running. Please start the Docker application'
+        fi
+        install_err 'docker command not found. Please install Docker.'
+    fi
     container_run_radia_run
 }
 
@@ -46,16 +48,29 @@ container_run_radia_run() {
     local uri=
     local db=
     local daemon=
-    if [[ $container_run_image =~ ^radiasoft/(sirepo|rs4pi)$ ]]; then
+    if [[ $container_run_image == radiasoft/sirepo ]]; then
         db=/sirepo
         # Command needs to be absolute (see containers/bin/build-docker.sh)
         cmd='exec /home/vagrant/.radia-run/tini -- /home/vagrant/.radia-run/start'
         uri=/
-        if [[ $container_run_image =~ rs4pi ]]; then
-            uri=/robot
-        fi
         daemon=1
         container_run_port=8000
+    elif [[ $container_run_image == radiasoft/beamsim-jupyter ]]; then
+        # Command needs to be absolute (see containers/bin/build-docker.sh)
+        cmd='exec /home/vagrant/.radia-run/tini -- /home/vagrant/.radia-run/start'
+        local t
+        if [[ -r /dev/urandom ]]; then
+            t=$(dd if=/dev/urandom bs=64 count=1 2>/dev/null | LC_CTYPE=C tr -cd '[:alnum:]')
+        else
+            # good enough for a random key when no alternative
+            t=$RANDOM$RANDOM$RANDOM$RANDOM$RANDOM
+        fi
+        uri="/?token=$t"
+        # POSIT: container-beamsim-jupyter/container-conf/radia-run.sh
+        echo "$t" > .radia-run-jupyter-token
+        daemon=1
+        guest_dir=/home/$guest_user/jupyter
+        container_run_port=8888
     fi
     cat > "$script" <<EOF
 #!/bin/bash
@@ -227,7 +242,10 @@ radia_run_main() {
         fi
     fi
     if [[ $radia_run_port ]]; then
-        cmd+=( -p "$radia_run_port:$radia_run_port" )
+        cmd+=(
+            -p "$radia_run_port:$radia_run_port"
+            -e "RADIA_RUN_PORT=$radia_run_port"
+        )
     fi
     # if linux and uid or gid is different...
     # POSIT: $radia_run_guest_uid is same as its gid

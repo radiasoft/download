@@ -14,22 +14,26 @@ beamsim_codes_main() {
         common
 
         elegant
-        hypre
+        epics
         jspec
-        opal
-        pydicom
         pymesh
         rsbeams
         rslinac
-        shadow3
+#        shadow3
         srw
         synergia
         warp
         zgoubi
-
-        # depends on srw
-        radia
     )
+    if [[ ! ${sirepo_dev_codes_only:-} ]]; then
+        codes+=(
+            hypre
+            opal
+            pydicom
+            # depends on srw
+            radia
+        )
+    fi
     install_repo_eval code "${codes[@]}"
 }
 

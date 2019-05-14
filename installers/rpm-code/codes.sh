@@ -1,5 +1,7 @@
 #!/bin/bash
 
+_codes_home_local=$HOME/.local
+
 codes_assert_easy_install() {
     local easy=$(find  $(pyenv prefix)/lib -name easy-install.pth)
     if [[ $easy ]]; then
@@ -8,11 +10,6 @@ codes_assert_easy_install() {
 $(cat "$easy")"
     fi
 }
-
-codes_bin_dir() {
-    dirname "$(pyenv which python)"
-}
-
 codes_cmake() {
     mkdir build
     cd build
@@ -32,6 +29,35 @@ codes_dependencies() {
     codes_touch_sentinel
 }
 
+
+codes_dir() {
+    local d=$_codes_home_local/$1
+    if [[ ! -d $d ]]; then
+        # POSIT: codes are public
+        (umask 022 && install -d "$d")
+    fi
+    if ! codes_is_common; then
+        rpm_code_build_exclude_add "$d"
+    fi
+    echo "$d"
+}
+
+codes_dir_bashrc_d() {
+    codes_dir etc/bashrc.d
+}
+
+codes_dir_bin() {
+    codes_dir bin
+}
+
+codes_dir_lib() {
+    codes_dir lib
+}
+
+codes_dir_share() {
+    codes_dir share
+}
+
 codes_download() {
     # If download is an rpm, also installs
     local repo=$1
@@ -48,6 +74,10 @@ codes_download() {
     case $repo in
         *.git)
             local d=$(basename "$repo" .git)
+            local r=--recursive
+            if [[ ${codes_download_nonrecursive:-} ]]; then
+               r=
+            fi
             if [[ -d "$d" && ${codes_download_reuse_git:-} ]]; then
                 cd "$d"
                 codes_msg "Cleaning: $PWD"
@@ -56,11 +86,11 @@ codes_download() {
                 # Don't pass --depth in this case for a couple of reasons:
                 # 1) we don't know where the commit is; 2) It might be a simple http
                 # transport (synergia.sh) which doesn't support git
-                git clone --recursive -q "$repo"
+                git clone $r -q "$repo"
                 cd "$d"
                 git checkout "$qualifier"
             else
-                git clone --recursive --depth 1 "$repo"
+                git clone $r --depth 1 "$repo"
                 cd "$d"
             fi
             local manifest=('' '')
@@ -106,6 +136,14 @@ codes_download() {
     return 0
 }
 
+codes_is_common() {
+    [[ $codes_module == common ]]
+}
+
+codes_is_function() {
+    [[ $(type -t "$1") == function ]]
+}
+
 codes_download_foss() {
     local path=$1
     shift
@@ -137,12 +175,23 @@ codes_install() {
     codes_touch_sentinel
     local codes_module=$module
     install_script_eval "codes/$module.sh"
+    local f=${module}_main
+    if codes_is_function "$f"; then
+        $f
+    fi
     cd "$prev"
-    if [[ $module == common ]]; then
+    if codes_is_common; then
+        # create all these directories and own them
+        rpm_code_build_include_add \
+            "$(codes_dir_bashrc_d)" \
+            "$(codes_dir_bin)" \
+            "$(codes_dir_lib)" \
+            "$(codes_dir_share)"
         return
     fi
     local p=${module}_python_install
-    if compgen -A function "$p"; then
+    local codes_python_version=2
+    if codes_is_function "$p"; then
         # Needed for pyenv
         install_source_bashrc
         local v
@@ -151,6 +200,7 @@ codes_install() {
         # No quotes so splits
         for v in ${!vs}; do
             cd "$build_d"
+            codes_python_version=$v
             install_not_strict_cmd pyenv activate py"$v"
             "$p" "$v"
             codes_install_add_python
@@ -165,7 +215,7 @@ codes_install() {
 codes_install_add_python() {
     local pp=$(pyenv prefix)
     # This excludes all the top level directories and python2.7/site-packages
-    rpm_code_build_exclude_add "$pp"/* "$(codes_pylib_dir)"
+    rpm_code_build_exclude_add "$pp"/* "$(codes_python_lib_dir)"
     codes_assert_easy_install
     # note: --newer doesn't work, because some installers preserve mtime
     find "$pp/" ! -name pip-selfcheck.json ! -name '*.pyc' ! -name '*.pyo' \
@@ -224,13 +274,23 @@ codes_num_cores() {
     echo "$res"
 }
 
-codes_pylib_dir() {
-    python -c 'import sys; from distutils.sysconfig import get_python_lib as x; sys.stdout.write(x())'
-}
-
 codes_python_install() {
+    # normal python install
     pip install .
     codes_assert_easy_install
+}
+
+codes_python_lib_copy() {
+    # simple file copies for packages without setup.py
+    install -m 644 "$@" $(codes_python_lib_dir)
+}
+
+codes_python_lib_dir() {
+    python <<'EOF'
+import sys
+from distutils.sysconfig import get_python_lib as x
+sys.stdout.write(x())
+EOF
 }
 
 codes_touch_sentinel() {

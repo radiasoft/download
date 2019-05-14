@@ -101,5 +101,3 @@ synergia_version() {
         )
     done
 }
-
-synergia_main
