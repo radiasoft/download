@@ -54,13 +54,7 @@ redhat_base_main() {
         zip
         zlib-devel
     )
-    if [[ -e /.dockerenv ]]; then
-        if type -p dnf >& /dev/null; then
-            x+=( dnf-plugin-ovl )
-        else
-            x+=( yum-plugin-ovl )
-        fi
-    else
+    if [[ ! -e /.dockerenv ]]; then
         x+=(
             lvm2
             strace
