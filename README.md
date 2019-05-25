@@ -16,7 +16,7 @@ Most people use Sirepo in the cloud at [sirepo.com](https://sirepo.com).
 However, to run Sirepo locally, you can use this command:
 
 ```sh
-$ curl sirepo.run | bash
+$ curl https://sirepo.run | bash
 ```
 
 ### Jupyter
@@ -27,7 +27,7 @@ You can also run our Jupyter Docker image with the same
 on your desktop with:
 
 ```sh
-$ curl jupyter.run | bash
+$ curl https://jupyter.run | bash
 ```
 
 ### Other images and installers
