@@ -37,7 +37,7 @@ For example, to run the `vagrant-sirepo-dev` installer, which installs
 a Vagrant/VirtualBox development environment for Sirepo, just type:
 
 ```sh
-$ curl radia.run | bash -s vagrant-sirepo-dev
+$ curl https://radia.run | bash -s vagrant-sirepo-dev
 ```
 
 ### `radia_run` command
@@ -49,8 +49,8 @@ If you use RadiaSoft's home environment (aka. dot files), you get the
 $ radia_run vagrant-sirepo-dev
 ```
 
-This runs over TLS (https) so it is more secure. It also allows you to
-set [an `install_server`, which is helpful for developing](#development-notes).
+It is more convenient and also allows you to set
+[an `install_server`, which is helpful for developing](#development-notes).
 
 ## Quick Start if you already know Docker
 
