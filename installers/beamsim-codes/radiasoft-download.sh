@@ -19,7 +19,6 @@ beamsim_codes_main() {
         pydicom
         pymesh
         rsbeams
-        rslinac
 #        shadow3
         srw
         synergia

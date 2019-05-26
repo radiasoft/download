@@ -36,8 +36,6 @@ codes=(
     pygist
     warp
 
-    rslinac
-
     xraylib
     shadow3
 
