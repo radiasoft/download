@@ -3,6 +3,28 @@
 # Setup execution environment for warp based on script's location
 # Build warp if not built, and add to path
 #
+# Buidling without picsar:
+# export WARP=$HOME/warp
+# rm -rf $WARP
+# mkdir $WARP
+# cd $WARP
+# module swap PrgEnv-intel PrgEnv-gnu
+# module load h5py-parallel
+# module load python/2.7-anaconda
+# module load openmpi
+# export PATH=$WARP/bin:$PATH
+# export PYTHONPATH=$WARP/lib/python:$PYTHONPATH
+# git clone https://github.com/dpgrote/Forthon.git
+# cd Forthon
+# python setup.py install --home="$WARP"
+# cd ..
+# git clone https://bitbucket.org/berkeleylab/warp.git
+# cd warp/pywarp90
+# cat > Makefile.local.pympi <<EOF
+# FCOMP = -F gfortran --fcompexec ftn --fargs -fPIC --cargs -fPIC
+# INSTALLOPTIONS = --home='$WARP'
+# EOF
+# make FCOMP="-F gfortran --fcompexec mpifort" pinstall
 
 if [ -z "$BASH" ]; then
     echo 'This script only works with bash'
