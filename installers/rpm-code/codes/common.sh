@@ -38,6 +38,8 @@ common_main() {
         hdf5-openmpi-devel
         hdf5-openmpi-static
         lapack-devel
+        # https://bugs.python.org/issue31652
+        libffi-devel
         libtool
         llvm-libs
         openmpi-devel
