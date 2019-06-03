@@ -9,6 +9,6 @@ perl -pi -e 's{\`which}{\`type -p}' autogen.sh
 perl -pi -e 's{\`which}{\`type -p}' configure
 CC=mpicc CXX=mpicxx ./configure \
   --enable-parallel \
-  --prefix="$(pyenv prefix)" \
+  --prefix="$(codes_dir)" \
   --with-pic
 codes_make_install

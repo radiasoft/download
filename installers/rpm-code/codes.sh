@@ -31,7 +31,7 @@ codes_dependencies() {
 
 
 codes_dir() {
-    local d=$_codes_home_local/$1
+    local d=$_codes_home_local/${1:-}
     if [[ ! -d $d ]]; then
         # POSIT: codes are public
         (umask 022 && install -d "$d")
