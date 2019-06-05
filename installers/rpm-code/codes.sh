@@ -13,7 +13,7 @@ $(cat "$easy")"
 codes_cmake() {
     mkdir build
     cd build
-    cmake "$@" ..
+    cmake -DCMAKE_RULE_MESSAGES:BOOL=OFF "$@" ..
 }
 
 codes_curl() {
