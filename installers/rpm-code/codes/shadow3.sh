@@ -1,7 +1,9 @@
 #!/bin/bash
 codes_dependencies xraylib
 pip install srxraylib
-codes_download oasys-kit/shadow3
+# fix https://github.com/radiasoft/download/issues/54
+# codes_download oasys-kit/shadow3
+codes_download PaNOSC-ViNYL/shadow3 gfortran8-fixes
 codes_python_install
 # line 639 of ShadowLibExtensions.py has a non-breaking utf8 character
 # https://www.python.org/dev/peps/pep-0263/ says must define coding
