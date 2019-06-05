@@ -207,16 +207,16 @@ codes_install() {
             codes_python_version=$v
             install_not_strict_cmd pyenv activate py"$v"
             "$p" "$v"
-            codes_install_add_python
+            codes_install_add_all
             codes_download_reuse_git=1
         done
     else
-        codes_install_add_python
+        codes_install_add_all
     fi
     cd "$prev"
 }
 
-codes_install_add_python() {
+codes_install_add_all() {
     local pp=$(pyenv prefix)
     # This excludes all the top level directories and python2.7/site-packages
     rpm_code_build_exclude_add "$pp"/* "$(codes_python_lib_dir)"
