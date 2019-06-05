@@ -54,6 +54,10 @@ codes_dir_lib() {
     codes_dir lib
 }
 
+codes_dir_include() {
+    codes_dir include
+}
+
 codes_dir_share() {
     codes_dir share
 }
