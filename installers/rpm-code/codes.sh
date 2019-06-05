@@ -222,7 +222,7 @@ codes_install_add_python() {
     rpm_code_build_exclude_add "$pp"/* "$(codes_python_lib_dir)"
     codes_assert_easy_install
     # note: --newer doesn't work, because some installers preserve mtime
-    find "$pp/" ! -name pip-selfcheck.json ! -name '*.pyc' ! -name '*.pyo' \
+    find "$pp/" $(codes_dir) ! -name pip-selfcheck.json ! -name '*.pyc' ! -name '*.pyo' \
          \( -type f -o -type l \) -cnewer "$codes_install_sentinel" \
          | rpm_code_build_include_add
 }
