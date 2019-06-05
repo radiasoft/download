@@ -54,14 +54,13 @@ elegant_build() {
     # but we install them anyway (e.g. sdds2stl, col2sdds) since they don't collide
     cd "$h"
     local f b
-    local dst=$(codes_dir_bin)
+    local dst=${codes_dir[bin]}
     for f in {oag/apps,epics/extensions}/bin/linux-x86_64/*; do
         b=$(basename "$f")
         if [[ ! " ${to_exclude[*]} " =~ " $b " ]]; then
             install -m 555 "$f" "$dst"
-            echo "$dst/$b"
         fi
-    done | rpm_code_build_include_add
+    done
 }
 
 elegant_download() {
@@ -149,7 +148,7 @@ elegant_python_install() {
 }
 
 elegant_share() {
-    local share_d=$(codes_dir_share)/elegant
+    local share_d=${codes_dir[share]}/elegant
     install -d -m 755 "$share_d"
     local f d
     for f in defns.rpn LICENSE; do
@@ -157,11 +156,9 @@ elegant_share() {
         d=$share_d/$f
         install -m 444 "$f" "$d"
     done
-    rpm_code_build_include_add "$share_d"
-    f=$(codes_dir_bashrc_d)/rscode-elegant.sh
+    f=${codes_dir[bashrc_d]}/rscode-elegant.sh
     cat > "$f" <<EOF
 #!/bin/bash
 export RPN_DEFNS=$share_d/defns.rpn
 EOF
-    rpm_code_build_include_add "$f"
 }

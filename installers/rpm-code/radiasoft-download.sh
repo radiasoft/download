@@ -40,12 +40,13 @@ rpm_code_build() {
         d=$i
         while true; do
             d=$(dirname "$d")
-            if [[ ${include_dirs[$d]+1} ]]; then
+            if [[ ${rpm_code_build_exclude[$d]+1} || $d == / ]]; then
+                # explicit include of a directory takes precedence
+                # over exclude
+                printf '%s\n' "$i"
                 break
             fi
-            if [[ ${rpm_code_build_exclude[$d]+1} || $d == / ]]; then
-                # include takes precedence over exclude
-                printf '%s\n' "$i"
+            if [[ ${include_dirs[$d]+1} ]]; then
                 break
             fi
         done
@@ -79,7 +80,7 @@ rpm_code_build_include_add() {
     if [[ "$@" ]]; then
         local f
         for f in "$@"; do
-            echo "$(realpath f)"
+            realpath "$f"
         done >> "$rpm_code_build_include_f"
     else
         xargs -n 1 realpath >> "$rpm_code_build_include_f"
@@ -109,7 +110,9 @@ rpm_code_install_rpm() {
     local f="$(ls -t "$base"-20[0-9][0-9]*rpm | head -1)"
     # signing doesn't work, because rpmsign always prompts for password. People
     # have worked around it with an expect script, but that's just messed up.
-    install -m 444 "$f" "$rpm_code_yum_dir/$f"
+    local dst=$rpm_code_yum_dir/$f
+    install -m 444 "$f" "$dst"
+    install_msg "$dst"
 }
 
 rpm_code_main() {

@@ -1,7 +1,5 @@
 #!/bin/bash
 
-_codes_home_local=$HOME/.local
-
 codes_assert_easy_install() {
     local easy=$(find  $(pyenv prefix)/lib -name easy-install.pth)
     if [[ $easy ]]; then
@@ -29,38 +27,6 @@ codes_dependencies() {
     codes_touch_sentinel
 }
 
-
-codes_dir() {
-    local d=$_codes_home_local/${1:-}
-    if [[ ! -d $d ]]; then
-        # POSIT: codes are public
-        (umask 022 && install -d "$d")
-    fi
-    if ! codes_is_common; then
-        rpm_code_build_exclude_add "$d"
-    fi
-    echo "$d"
-}
-
-codes_dir_bashrc_d() {
-    codes_dir etc/bashrc.d
-}
-
-codes_dir_bin() {
-    codes_dir bin
-}
-
-codes_dir_lib() {
-    codes_dir lib
-}
-
-codes_dir_include() {
-    codes_dir include
-}
-
-codes_dir_share() {
-    codes_dir share
-}
 
 codes_download() {
     # If download is an rpm, also installs
@@ -140,14 +106,6 @@ codes_download() {
     return 0
 }
 
-codes_is_common() {
-    [[ $codes_module == common ]]
-}
-
-codes_is_function() {
-    [[ $(type -t "$1") == function ]]
-}
-
 codes_download_foss() {
     local path=$1
     shift
@@ -178,21 +136,14 @@ codes_install() {
     codes_install_sentinel=$build_d/.codes_install
     codes_touch_sentinel
     local codes_module=$module
+    local -A codes_dir=()
+    codes_dir_setup
     install_script_eval "codes/$module.sh"
     local f=${module}_main
     if codes_is_function "$f"; then
         $f
     fi
     cd "$prev"
-    if codes_is_common; then
-        # create all these directories and own them
-        rpm_code_build_include_add \
-            "$(codes_dir_bashrc_d)" \
-            "$(codes_dir_bin)" \
-            "$(codes_dir_lib)" \
-            "$(codes_dir_share)"
-        return
-    fi
     local p=${module}_python_install
     local codes_python_version=2
     if codes_is_function "$p"; then
@@ -219,12 +170,56 @@ codes_install() {
 codes_install_add_all() {
     local pp=$(pyenv prefix)
     # This excludes all the top level directories and python2.7/site-packages
-    rpm_code_build_exclude_add "$pp"/* "$(codes_dir)"/* "$(codes_python_lib_dir)"
+    rpm_code_build_exclude_add "$pp"/* "$(codes_python_lib_dir)"
     codes_assert_easy_install
     # note: --newer doesn't work, because some installers preserve mtime
-    find "$pp/" $(codes_dir) ! -name pip-selfcheck.json ! -name '*.pyc' ! -name '*.pyo' \
-         \( -type f -o -type l \) -cnewer "$codes_install_sentinel" \
-         | rpm_code_build_include_add
+    find "$pp/" "${codes_dir[prefix]}" \
+        ! -name pip-selfcheck.json ! -name '*.pyc' ! -name '*.pyo' \
+        \( -type f -o -type l \) -cnewer "$codes_install_sentinel" \
+        | rpm_code_build_include_add
+}
+
+codes_is_common() {
+    [[ $codes_module == common ]]
+}
+
+codes_is_function() {
+    [[ $(type -t "$1") == function ]]
+}
+
+codes_dir_setup() {
+    local a=rpm_code_build_exclude_add
+    if codes_is_common; then
+        a=rpm_code_build_include_add
+    fi
+    local d n p
+    # order matters
+    for n in prefix \
+        etc \
+        bashrc_d \
+        bin \
+        lib \
+        include \
+        share
+    do
+        case $n in
+            bashrc_d)
+                p=/etc/bashrc.d
+                ;;
+            prefix)
+                p=
+                ;;
+            *)
+                p=/$n
+                ;;
+        esac
+        d=$HOME/.local$p
+        # POSIT: codes are public;
+        # umask needed to make parent dirs
+        install -d "$d"
+        $a "$d"
+        codes_dir[$n]=$d
+    done
 }
 
 codes_main() {

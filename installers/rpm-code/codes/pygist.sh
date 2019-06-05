@@ -43,4 +43,4 @@ EOF
 python setup.py config
 python setup.py build
 codes_python_install
-rpm_code_build_include_add $(pyenv prefix)/gist
+rpm_code_build_include_add "$(pyenv prefix)"/gist

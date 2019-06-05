@@ -3,13 +3,13 @@ codes_dependencies metis
 # https://trilinos.org/oldsite/download/download.html
 codes_download_foss trilinos-12.10.1-Source.tar.gz
 CC=mpicc CXX=mpicxx codes_cmake \
-  -DCMAKE_INSTALL_PREFIX:PATH="$(codes_dir)" \
+  -DCMAKE_INSTALL_PREFIX:PATH="${codes_dir[prefix]}" \
   -DCMAKE_CXX_FLAGS:STRING="-DMPICH_IGNORE_CXX_SEEK -fPIC" \
   -DCMAKE_C_FLAGS:STRING="-DMPICH_IGNORE_CXX_SEEK -fPIC" \
   -DCMAKE_CXX_STANDARD:STRING="11" \
   -DCMAKE_Fortran_FLAGS:STRING="-fPIC" \
   -DCMAKE_BUILD_TYPE:STRING=Release \
-  -DMETIS_LIBRARY_DIRS="$(codes_dir_lib)" \
+  -DMETIS_LIBRARY_DIRS="${codes_dir[lib]}" \
   -DTPL_ENABLE_DLlib:BOOL=OFF \
   -DTPL_ENABLE_QT:BOOL=OFF \
   -DTPL_ENABLE_MPI:BOOL=ON \

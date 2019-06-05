@@ -11,9 +11,10 @@ if [[ ! $x =~ $re ]]; then
 fi
 x=$rpm_code_yum_dir/rscode-test-${BASH_REMATCH[1]}-1.x86_64.rpm
 actual="$(rpm -qlp "$x" | sort)"
-expect='/home/vagrant/.pyenv/versions/py2/bin/rscode-test
-/home/vagrant/.pyenv/versions/py2/xyz
-/home/vagrant/.pyenv/versions/py2/xyz/PASS'
+expect="/home/vagrant/.local/bin/rscode-test
+/home/vagrant/.local/etc/bashrc.d/my.sh
+/home/vagrant/.pyenv/versions/2.7.16/envs/py2/xyz
+/home/vagrant/.pyenv/versions/2.7.16/envs/py2/xyz/PASS"
 if [[ $expect != $actual ]]; then
     echo "FAIL: unexpected output of:
 rpm -qlp $x

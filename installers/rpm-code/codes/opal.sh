@@ -10,13 +10,13 @@ codes_dependencies trilinos H5hut pyOPALTools
 # The git repo is 1.6G, and takes a long time to load. The tgz is 3M
 # Last known working version of OPAL
 codes_download_foss OPAL-1.9-20180206.090701.tar.gz
-CMAKE_PREFIX_PATH="$(codes_dir)" H5HUT_PREFIX="$(codes_dir)" \
+CMAKE_PREFIX_PATH="${codes_dir[prefix]}" H5HUT_PREFIX="$(codes_dir)" \
     HDF5_INCLUDE_DIR=/usr/include \
     HDF5_LIBRARY_DIR=/usr/lib64/openmpi/lib \
     CC=mpicc CXX=mpicxx \
     codes_cmake \
-    --prefix="$(codes_dir)" \
-    -DCMAKE_INSTALL_PREFIX="$(codes_dir)" \
+    --prefix="${codes_dir[prefix]}" \
+    -DCMAKE_INSTALL_PREFIX="${codes_dir[prefix]}" \
     -DENABLE_SAAMG_SOLVER=TRUE
 # Need to add -lsz, and this was the easiest way...
 # /usr/bin/ld: /usr/lib64/openmpi/lib/libhdf5.a(H5Zszip.o): undefined reference to symbol 'SZ_BufftoBuffDecompress'
