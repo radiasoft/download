@@ -219,7 +219,7 @@ codes_install() {
 codes_install_add_all() {
     local pp=$(pyenv prefix)
     # This excludes all the top level directories and python2.7/site-packages
-    rpm_code_build_exclude_add "$pp"/* "$(codes_python_lib_dir)"
+    rpm_code_build_exclude_add "$pp"/* "$(codes_dir)"/* "$(codes_python_lib_dir)"
     codes_assert_easy_install
     # note: --newer doesn't work, because some installers preserve mtime
     find "$pp/" $(codes_dir) ! -name pip-selfcheck.json ! -name '*.pyc' ! -name '*.pyo' \
