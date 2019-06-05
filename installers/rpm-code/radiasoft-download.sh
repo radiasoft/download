@@ -80,17 +80,17 @@ rpm_code_build_include_add() {
     if [[ "$@" ]]; then
         local f
         for f in "$@"; do
-            realpath "$f"
+            realpath --no-symlinks --canonicalize-missing "$f"
         done >> "$rpm_code_build_include_f"
     else
-        xargs -n 1 realpath >> "$rpm_code_build_include_f"
+        xargs -n 1 realpath --no-symlinks --canonicalize-missing >> "$rpm_code_build_include_f"
     fi
 }
 
 rpm_code_build_exclude_add() {
     local d
     for d in "$@"; do
-        d=$(realpath -m "$d")
+        d=$(realpath --no-symlinks --canonicalize-missing "$d")
         if [[ ! $d =~ ^/ ]]; then
             install_err "$d: must begin with a /"
         fi
