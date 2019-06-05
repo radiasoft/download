@@ -79,16 +79,17 @@ rpm_code_build_include_add() {
     if [[ "$@" ]]; then
         local f
         for f in "$@"; do
-            echo "$f"
+            echo "$(realpath f)"
         done >> "$rpm_code_build_include_f"
     else
-        cat >> "$rpm_code_build_include_f"
+        xargs -n 1 realpath >> "$rpm_code_build_include_f"
     fi
 }
 
 rpm_code_build_exclude_add() {
     local d
     for d in "$@"; do
+        d=$(realpath -m "$d")
         if [[ ! $d =~ ^/ ]]; then
             install_err "$d: must begin with a /"
         fi
