@@ -1,7 +1,6 @@
 #!/bin/bash
 
 srw_python_install() {
-    local v=$1
     cd SRW
     make pylib
     codes_python_lib_copy env/work/srw_python/{{srwl,uti}*.py,srwlpy*.so}
