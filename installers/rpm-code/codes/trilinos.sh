@@ -9,7 +9,7 @@ CC=mpicc CXX=mpicxx codes_cmake \
   -DCMAKE_CXX_STANDARD:STRING="11" \
   -DCMAKE_Fortran_FLAGS:STRING="-fPIC" \
   -DCMAKE_BUILD_TYPE:STRING=Release \
-  -DMETIS_LIBRARY_DIRS="$(codes_dir lib)" \
+  -DMETIS_LIBRARY_DIRS="$(codes_dir_lib)" \
   -DTPL_ENABLE_DLlib:BOOL=OFF \
   -DTPL_ENABLE_QT:BOOL=OFF \
   -DTPL_ENABLE_MPI:BOOL=ON \
