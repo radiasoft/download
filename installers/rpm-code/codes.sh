@@ -137,6 +137,8 @@ codes_install() {
     local codes_module=$module
     local -A codes_dir=()
     codes_dir_setup
+    # Needed for pyenv
+    install_source_bashrc
     install_script_eval "codes/$module.sh"
     local f=${module}_main
     if codes_is_function "$f"; then
@@ -146,8 +148,6 @@ codes_install() {
     local p=${module}_python_install
     local codes_python_version=2
     if codes_is_function "$p"; then
-        # Needed for pyenv
-        install_source_bashrc
         local v
         local codes_download_reuse_git=
         local vs=${module}_python_versions
