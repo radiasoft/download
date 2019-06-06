@@ -4,7 +4,6 @@ common_python() {
     local v=$1
     local prev_d=$PWD
     MAKE_OPTS=-j$(codes_num_cores) bivio_pyenv_"$v"
-return
     pip install numpy
     pip install matplotlib
     pip install scipy
@@ -24,33 +23,33 @@ return
 
 common_main() {
     local rpms=(
-#        atlas-devel
-#        blas-devel
-#        boost-devel
-#        boost-python2-devel
-#        boost-static
+        atlas-devel
+        blas-devel
+        boost-devel
+        boost-python2-devel
+        boost-static
         cmake
-#        eigen3-devel
-#        flex
-#        fftw-openmpi-devel
+        eigen3-devel
+        flex
+        fftw-openmpi-devel
         glib2-devel
-#        hdf5-devel
-#        hdf5-openmpi
-#        hdf5-openmpi-devel
-#        hdf5-openmpi-static
-#        lapack-devel
+        hdf5-devel
+        hdf5-openmpi
+        hdf5-openmpi-devel
+        hdf5-openmpi-static
+        lapack-devel
         # https://bugs.python.org/issue31652
-#        libffi-devel
+        libffi-devel
         libtool
         llvm-libs
-#        openmpi-devel
-#        valgrind-devel
+        openmpi-devel
+        valgrind-devel
     )
     codes_yum_dependencies "${rpms[@]}"
     install_source_bashrc
     # after rpm installs, required for builds
     # py3 is first, because bivio_pyenv_[23] sets global version
-#    common_python 3
-#    local codes_download_reuse_git=1
+    common_python 3
+    local codes_download_reuse_git=1
     common_python 2
 }
