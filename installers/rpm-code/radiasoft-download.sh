@@ -81,9 +81,12 @@ rpm_code_build_include_add() {
         local f
         for f in "$@"; do
             realpath --no-symlinks --canonicalize-missing "$f"
+            if [[ ! -L $f && ! -e $f ]]; then
+                install_err "$f missing"
+            fi
         done >> "$rpm_code_build_include_f"
     else
-        xargs -n 1 realpath --no-symlinks --canonicalize-missing >> "$rpm_code_build_include_f"
+        xargs --null --max-args=1 realpath --no-symlinks --canonicalize-missing >> "$rpm_code_build_include_f"
     fi
 }
 
@@ -102,6 +105,10 @@ rpm_code_build_exclude_add() {
             d=$(dirname "$d")
         done
     done
+}
+
+rpm_code_is_common() {
+    [[ $1 =~ ^(common|common-test)$ ]]
 }
 
 rpm_code_install_rpm() {
@@ -134,7 +141,7 @@ rpm_code_main() {
     : ${rpm_base:=$rpm_code_rpm_prefix-$code}
     : ${build_args:="$rpm_base $code"}
     : ${rpm_code_image:=radiasoft/rpm-code}
-    if [[ $code == common ]]; then
+    if rpm_code_is_common "$code" || [[ $code == test ]]; then
         rpm_code_image=radiasoft/fedora
     fi
     : ${rpm_code_user:=vagrant}

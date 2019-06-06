@@ -1,5 +1,4 @@
 #!/bin/bash
-set +euo pipefail
 source ~/.bashrc
 set -euo pipefail
 source ./dev-env.sh

@@ -1,9 +1,8 @@
 #!/bin/bash
 
 codes_assert_easy_install() {
-    local easy=$(find  $(pyenv prefix)/lib -name easy-install.pth)
+    local easy=$(find $(pyenv prefix)/lib -name easy-install.pth)
     if [[ $easy ]]; then
-
         install_err "$easy: packages used python setup.py install instead of pip:
 $(cat "$easy")"
     fi
@@ -169,18 +168,23 @@ codes_install() {
 
 codes_install_add_all() {
     local pp=$(pyenv prefix)
+    if [[ ! $pp ]]; then
+        install_err 'pyenv prefix not working'
+    fi
     # This excludes all the top level directories and python2.7/site-packages
-    rpm_code_build_exclude_add "$pp"/* "$(codes_python_lib_dir)"
+    if ! codes_is_common; then
+        rpm_code_build_exclude_add "$pp"/* "$(codes_python_lib_dir)"
+    fi
     codes_assert_easy_install
     # note: --newer doesn't work, because some installers preserve mtime
     find "$pp/" "${codes_dir[prefix]}" \
         ! -name pip-selfcheck.json ! -name '*.pyc' ! -name '*.pyo' \
-        \( -type f -o -type l \) -cnewer "$codes_install_sentinel" \
+        \( -type f -o -type l \) -cnewer "$codes_install_sentinel" -print0 \
         | rpm_code_build_include_add
 }
 
 codes_is_common() {
-    [[ $codes_module == common ]]
+    rpm_code_is_common "$codes_module"
 }
 
 codes_is_function() {

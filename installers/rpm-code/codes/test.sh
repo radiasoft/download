@@ -1,11 +1,15 @@
 #!/bin/bash
-codes_dependencies common
+codes_dependencies common-test
 install -m 555 /dev/stdin "${codes_dir[bin]}"/rscode-test <<EOF
 #!/bin/bash
 # POSIT: codes.sh sets locally-scoped version var
 echo "RPM_CODE_TEST_VERSION=$version"
 EOF
-pyenv rehash
+install_source_bashrc
+# mock
+codes_python_lib_dir() {
+    echo /home/vagrant/.pyenv/versions/py2/lib/python2.7/site-packages
+}
 _xyz=$(pyenv prefix)/xyz
 mkdir -p "$_xyz"
 my_sh=${codes_dir[bashrc_d]}/my.sh
