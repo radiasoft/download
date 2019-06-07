@@ -10,5 +10,5 @@ epics_main() {
          LINKER_USE_RPATH=NO \
          SHARED_LIBRARIES=NO
     cd bin/"$arch"
-    ls | egrep -v '^S99|\.pl$' | xargs -n 100 install -m 555 "${codes_dir[bin]}"
+    ls | egrep -v '^S99|\.pl$' | xargs -I % install -m 555 % "${codes_dir[bin]}"
 }
