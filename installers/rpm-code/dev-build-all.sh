@@ -1,5 +1,6 @@
 #!/bin/bash
 set -euo pipefail
+start_at=${1:-}
 codes=(
     common
 
@@ -37,13 +38,19 @@ codes=(
     warp
 
     xraylib
-    shadow3
+#    shadow3
 
     rsbeams
 
     zgoubi
 )
 for c in "${codes[@]}"; do
+    if [[ $start_at ]]; then
+        if [[ $start_at != $c ]]; then
+            continue
+        fi
+        start_at=
+    fi
     echo "$c"
     bash ./dev-build.sh "$c"
 done
