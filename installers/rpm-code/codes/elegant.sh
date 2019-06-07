@@ -3,10 +3,6 @@
 _elegant_arch=linux-x86_64
 
 elegant_build() {
-    local arch=arch
-    local make_static=( "${make[@]}" SHARED_LIBRARIES=NO )
-    local make_x11=( "${make_static[@]}" MOTIF_LIB=/usr/lib64 X11_LIB=/usr/lib64 )
-    local make_mpi=( "${make_static[@]}" MPI=1 MPI_PATH=$(dirname $(type -p mpicc))/ )
     local h=$PWD
     local with_path="PATH=$h/epics/extensions/bin/$_elegant_arch:$PATH"
     cd epics/base
