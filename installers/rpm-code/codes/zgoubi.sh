@@ -2,6 +2,7 @@
 
 zgoubi_python_install() {
     pip install pyzgoubi
+    perl -pi -e "s{(?<=^#\!).*}{$(pyenv which python)}" "$(pyenv which pyzgoubi)"
 }
 
 zgoubi_main() {
