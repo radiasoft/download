@@ -110,10 +110,10 @@ To test the installer, you can set:
 cd ~/src
 rm -f index.sh
 ln -s -r radiasoft/download/bin/index.sh .
-python -m SimpleHTTPServer 1313
+python3 -m http.server 2916
 # another window
-export install_server=http://$(dig $(hostname -f) +short):1313
-z# assumes radia_run: curl $install_server/index.sh | bash -s unit-test arg1
+export install_server=http://$(dig $(hostname -f) +short):2916
+# assumes radia_run: curl $install_server/index.sh | bash -s unit-test arg1
 radia_run unit-test arg1
 ```
 
