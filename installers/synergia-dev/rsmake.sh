@@ -35,7 +35,16 @@ rsmake_main() {
         fi
     fi
     if [[ -d build/synergia2 ]]; then
+        local root=$PWD
         cd build/synergia2
+        if [[ $(find CMake CMakeLists.txt -newer Makefile) ]]; then
+            cmake -DCMAKE_INSTALL_PREFIX:PATH="$root"/install \
+                -DBoost_INCLUDE_DIR=/usr/include \
+                -DBOOST_LIBRARYDIR:PATH=/usr/lib64 \
+                -DFFTW3_LIBRARY_DIRS:PATH="$root"/install/lib \
+                -DCMAKE_BUILD_TYPE=Release \
+                "$root"/build/synergia2
+        fi
         make -j "$cores"
         make install
         cd ../..
