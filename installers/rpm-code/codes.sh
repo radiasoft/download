@@ -65,12 +65,17 @@ codes_download() {
             local manifest=('' '')
             repo=
             ;;
-        *.tar\.gz)
+        *.tar.gz|*.tar.xz)
+            local z=z
             local b=$(basename "$repo" .tar.gz)
+            if [[ $b == $repo ]]; then
+                b=$(basename "$repo" .tar.xz)
+                z=J
+            fi
             local d=${qualifier:-$b}
             local t=tarball-$RANDOM
             codes_curl -o "$t" "$repo"
-            tar xzf "$t"
+            tar xf"$z" "$t"
             rm -f "$t"
             cd "$d"
             if [[ ! $b =~ ^(.+)-([[:digit:]].+)$ ]]; then
@@ -96,7 +101,7 @@ codes_download() {
             )
             ;;
         *)
-            codes_err "$repo: unknown repository format; must end in .git, .rpm, .tar.gz"
+            codes_err "$repo: unknown repository format; must end in .git, .rpm, .tar.gz, .tar.xz"
             ;;
     esac
     if [[ ! ${codes_download_reuse_git:-} ]]; then
