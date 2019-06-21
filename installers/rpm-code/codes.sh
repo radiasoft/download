@@ -66,12 +66,21 @@ codes_download() {
             repo=
             ;;
         *.tar.gz|*.tar.xz)
-            local z=z
-            local b=$(basename "$repo" .tar.gz)
-            if [[ $b == $repo ]]; then
-                b=$(basename "$repo" .tar.xz)
-                z=J
-            fi
+            local z s
+            case $repo in
+                *gz)
+                    z=z
+                    s=gz
+                    ;;
+                *xz)
+                    s=xz
+                    z=J
+                    ;;
+                *)
+                    install_err "PROGRAM ERROR: repo=$repo must match outer case"
+                    ;;
+            esac
+            local b=$(basename "$repo" .tar."$s")
             local d=${qualifier:-$b}
             local t=tarball-$RANDOM
             codes_curl -o "$t" "$repo"
