@@ -1,5 +1,5 @@
 #!/bin/bash
-codes_dependencies trilinos H5hut pyOPALTools
+codes_dependencies trilinos H5hut
 
 # /home/vagrant/src/radiasoft/codes/opal-20171212.221025/OPAL-1.9-20171123.105913/opt-pilot/Expression/Parser/expression_def.hpp:178:50:   required from ‘client::parser::expression<Iterator>::expression(client::error_handler<Iterator>&) [with Iterator = __gnu_cxx::__normal_iterator<const char*, std::__cxx11::basic_string<char> >]’
 # /home/vagrant/src/radiasoft/codes/opal-20171212.221025/OPAL-1.9-20171123.105913/opt-pilot/Expression/Parser/expression.cpp:10:33:   required from here
