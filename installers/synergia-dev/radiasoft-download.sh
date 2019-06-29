@@ -13,7 +13,8 @@ synergia_dev_main() {
         cd='cd contract-synergia2
 '
     fi
-    install_download rsmake.sh > rsmake
+    #TODO(robnagler) remove once home-env updated
+    install_download rsmake.sh | perl -p -e "s{BIVIO_MPI_PREFIX}{$BIVIO_MPI_PREFIX}"g > rsmake
     chmod +x rsmake
     install_msg "Synergia is downloaded. To compile and install:
 ${cd}./rsmake"

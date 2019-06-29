@@ -9,4 +9,4 @@ cd ~/src
 if [[ ! -r index.sh ]]; then
     ln -s -r radiasoft/download/bin/index.sh .
 fi
-python -m SimpleHTTPServer "$dev_port"
+exec python3 -m http.server "$dev_port"

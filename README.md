@@ -120,3 +120,20 @@ radia_run unit-test arg1
 This will set the `$install_url` to `file://$HOME/src`.
 
 You can also pass `debug` to get more output.
+
+### Git repos
+
+For each local git repo that is being served, you'll need to:
+
+```sh
+git update-server-info
+```
+
+Currently, the list is short, e.g. radiasoft/pykern and biviosoftware/home-env:
+
+```sh
+cd ~/src/radiasoft/pykern
+git update-server-info
+cd ~/src/biviosoftware/home-env
+git update-server-info
+```

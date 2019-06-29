@@ -12,14 +12,10 @@ codes_dependencies trilinos H5hut
 codes_download_foss OPAL-2.0.1.tar.xz
 CMAKE_PREFIX_PATH="${codes_dir[prefix]}" H5HUT_PREFIX="${codes_dir[prefix]}" \
     HDF5_INCLUDE_DIR=/usr/include \
-    HDF5_LIBRARY_DIR=/usr/lib64/openmpi/lib \
+    HDF5_LIBRARY_DIR="$BIVIO_MPI_PREFIX"/lib \
     CC=mpicc CXX=mpicxx \
     codes_cmake \
     --prefix="${codes_dir[prefix]}" \
     -DCMAKE_INSTALL_PREFIX="${codes_dir[prefix]}" \
     -DENABLE_SAAMG_SOLVER=TRUE
-# Need to add -lsz, and this was the easiest way...
-# /usr/bin/ld: /usr/lib64/openmpi/lib/libhdf5.a(H5Zszip.o): undefined reference to symbol 'SZ_BufftoBuffDecompress'
-# /usr/lib64/libsz.so.2: error adding symbols: DSO missing from command line
-#perl -pi -e 's/-lquadmath/$& -lsz/' src/CMakeFiles/opal.dir/link.txt
 codes_make_install

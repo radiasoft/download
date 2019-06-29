@@ -3,16 +3,20 @@
 common_python() {
     local v=$1
     local prev_d=$PWD
+    local mpicc=$(type -p mpicc)
+    if [[ ! $mpicc ]]; then
+        install_err mpicc not found
+    fi
     MAKE_OPTS=-j$(codes_num_cores) bivio_pyenv_"$v"
+    pip install mpi4py
     pip install numpy
     pip install matplotlib
     pip install scipy
     # used by synergia and has man/man1 duplicate problem so just include here
     pip install nose
-    MPICC="$(type -p mpicc)" pip install mpi4py
     pip install Cython
     # Force MPI mode (not auto-detected)
-    CC="$(type -p mpicc)" HDF5_MPI=ON pip install --no-binary=h5py h5py
+    CC=$mpicc HDF5_MPI=ON pip install --no-binary=h5py h5py
     pip install tables
     # Lots of dependencies so we install here to avoid rpm collisions.
     # Slows down builds of pykern, but doesn't affect development.
@@ -22,6 +26,7 @@ common_python() {
 }
 
 common_main() {
+    local mpi=openmpi
     local rpms=(
         atlas-devel
         blas-devel
@@ -31,20 +36,26 @@ common_main() {
         cmake
         eigen3-devel
         flex
-        fftw-openmpi-devel
         glib2-devel
-        hdf5-devel
-        hdf5-openmpi
-        hdf5-openmpi-devel
-        hdf5-openmpi-static
         lapack-devel
         # https://bugs.python.org/issue31652
         libffi-devel
         libtool
         llvm-libs
-        openmpi-devel
         valgrind-devel
     )
+    if [[ $mpi =~ local ]]; then
+        install_err 'need to install mpi versions of hdf5 and fftw'
+    else
+        rpms+=(
+            $mpi-devel
+            fftw-$mpi-devel
+            hdf5-devel
+            hdf5-$mpi
+            hdf5-$mpi-devel
+            hdf5-$mpi-static
+        )
+    fi
     codes_yum_dependencies "${rpms[@]}"
     install_source_bashrc
     # after rpm installs, required for builds

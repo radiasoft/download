@@ -35,10 +35,23 @@ install_args() {
         shift
     done
     if [[ -n $install_debug ]]; then
+        export PS4='+ [${BASH_SOURCE##*/}:${LINENO}] '
         set -x
     fi
     if [[ ! $install_repo ]]; then
         install_repo=$install_default_repo
+    fi
+}
+
+install_bivio_mpi_prefix() {
+    if [[ ${BIVIO_MPI_PREFIX:-} ]]; then
+        return
+    elif [[ -x /usr/local/bin/mpiexec ]]; then
+        export BIVIO_MPI_PREFIX=/usr/local
+    elif [[ -x /usr/lib64/mpich/bin/mpiexec ]]; then
+        export BIVIO_MPI_PREFIX=/usr/lib64/mpich
+    elif [[ -x /usr/lib64/openmpi/bin/mpiexec ]]; then
+        export BIVIO_MPI_PREFIX=/usr/lib64/openmpi
     fi
 }
 
@@ -132,6 +145,8 @@ install_init_vars() {
         install_channel=beta
         install_channel_is_default=1
     fi
+    # TODO(robnagler) remove once home-env updated everywhere
+    install_bivio_mpi_prefix
     : ${install_debug:=}
     : ${install_default_repo:=container-run}
     : ${install_server:=github}

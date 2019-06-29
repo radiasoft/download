@@ -51,9 +51,10 @@ rsmake_main() {
     else
         ./contract.py
     fi
+    #TODO(robnagler) change to $BIVIO_MPI_PREFIX after home-env released
     perl -pi -e '
         s{(?<=install_dir/lib)}{/synergia};
-        s{(?=ldpathadd ")}{ldpathadd /usr/lib64/openmpi/lib\n}s;
+        s{(?=ldpathadd ")}{ldpathadd BIVIO_MPI_PREFIX/lib\n}s;
     ' install/bin/synergia
     # Synergia installer doesn't set modes correctly in all cases
     chmod -R a+rX install
