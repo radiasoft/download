@@ -12,7 +12,7 @@ codes_dependencies trilinos H5hut
 codes_download_foss OPAL-2.0.1.tar.xz
 CMAKE_PREFIX_PATH="${codes_dir[prefix]}" H5HUT_PREFIX="${codes_dir[prefix]}" \
     HDF5_INCLUDE_DIR=/usr/include \
-    HDF5_LIBRARY_DIR="$BIVIO_MPI_PREFIX"/lib \
+    HDF5_LIBRARY_DIR="$BIVIO_MPI_LIB" \
     CC=mpicc CXX=mpicxx \
     codes_cmake \
     --prefix="${codes_dir[prefix]}" \

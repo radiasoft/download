@@ -26,7 +26,7 @@ common_python() {
 }
 
 common_main() {
-    local mpi=openmpi
+    local mpi=mpich
     local rpms=(
         atlas-devel
         blas-devel

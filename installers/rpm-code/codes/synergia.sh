@@ -33,10 +33,10 @@ synergia_contractor() {
 synergia_install() {
     # mpi should be added automatically (/etc/ld.so.conf.d), but there's
     # a conflict with hdf5, which has same library name in /usr/lib64 as in
-    # $BIVIO_MPI_PREFIX/lib.
+    # $BIVIO_MPI_LIB.
     perl -pi -e '
         s{(?<=install_dir/lib)}{/synergia};
-        s{(?=ldpathadd ")}{ldpathadd '"$BIVIO_MPI_PREFIX"'/lib\n}s;
+        s{(?=ldpathadd ")}{ldpathadd '"$BIVIO_MPI_LIB"'\n}s;
     ' install/bin/synergia
     local d=$(pyenv prefix)
     # Synergia installer doesn't set modes correctly in all cases
@@ -61,7 +61,7 @@ synergia_pyenv_exec() {
     if [[ $p =~ : ]]; then
         install_err "Invalid pyenv prefix, has a colon: $p"
     fi
-    perl -p -e "s{PYENV_PREFIX}{$p};s{BIVIO_MPI_PREFIX}{$BIVIO_MPI_PREFIX}" <<'EOF' > "$f"
+    perl -p -e "s{PYENV_PREFIX}{$p};s{BIVIO_MPI_LIB}{$BIVIO_MPI_LIB}" <<'EOF' > "$f"
 #!/bin/bash
 #
 # Synergia needs these special paths to work.
@@ -70,7 +70,7 @@ if [[ :$(pyenv prefix): =~ :PYENV_PREFIX: ]]; then
     # only set if in the environment we built synergia; prevents "jupyter" environment
     # from screwing this up.
     export SYNERGIA2DIR=PYENV_PREFIX/lib/synergia
-    for i in $BIVIO_MPI_PREFIX/lib "$SYNERGIA2DIR"; do
+    for i in $BIVIO_MPI_LIB "$SYNERGIA2DIR"; do
         if [[ ! :$LD_LIBRARY_PATH: =~ :$i: ]]; then
             export LD_LIBRARY_PATH=$i${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
         fi

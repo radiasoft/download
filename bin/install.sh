@@ -43,7 +43,22 @@ install_args() {
     fi
 }
 
-install_bivio_mpi_prefix() {
+install_bivio_mpi_lib() {
+    if [[ ${BIVIO_MPI_LIB:-} ]]; then
+        return
+    fi
+    for f in \
+        /opt/udiImage/modules/mpich/lib64 \
+        /usr/local/lib \
+        /usr/lib64/mpich/lib \
+        /usr/lib64/openmpi/lib
+    do
+        if [[ ! ${BIVIO_MPI_LIB:-} && -d $f && $(shopt -s nullglob && echo $f/libmpi.so*) ]]; then
+            export BIVIO_MPI_LIB=$f
+            break
+        fi
+    done
+    #TODO(robnagler) remove this once new builders are installed
     if [[ ${BIVIO_MPI_PREFIX:-} ]]; then
         return
     elif [[ -x /usr/local/bin/mpiexec ]]; then
@@ -146,7 +161,7 @@ install_init_vars() {
         install_channel_is_default=1
     fi
     # TODO(robnagler) remove once home-env updated everywhere
-    install_bivio_mpi_prefix
+    install_bivio_mpi_lib
     : ${install_debug:=}
     : ${install_default_repo:=container-run}
     : ${install_server:=github}
