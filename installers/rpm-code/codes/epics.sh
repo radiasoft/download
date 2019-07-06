@@ -14,6 +14,7 @@ epics_main() {
     # leave bin because there are other files (.pl & .pm) that may be referenced
     # Some of these are large, e.g. modules
     rm -rf modules documentation html src test
+    find lib -name '*.a' | xargs -n 100 rm -f
     cd bin/"$arch"
     ls | egrep -v '^S99|\.p[lm]$' | xargs -I % install -m 555 % "${codes_dir[bin]}"
 }
