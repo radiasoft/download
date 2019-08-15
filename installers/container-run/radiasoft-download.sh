@@ -29,7 +29,7 @@ container_run_main() {
         install_channel=prod
     fi
     if ! type -p docker >& /dev/null; then
-        if [[ $(uname Darwin) && -e /Applications/Docker.app ]]; then
+        if [[ $(uname) == Darwin && -e /Applications/Docker.app ]]; then
             install_err 'docker is not running. Please start the Docker application'
         fi
         install_err 'docker command not found. Please install Docker.'
