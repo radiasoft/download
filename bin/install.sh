@@ -35,7 +35,9 @@ install_args() {
         shift
     done
     if [[ -n $install_debug ]]; then
-        export PS4='+ [${BASH_SOURCE##*/}:${LINENO}] '
+        if [[ ${BASH_SOURCE:-} ]]; then
+            export PS4='+ [${BASH_SOURCE##*/}:${LINENO}] '
+        fi
         set -x
     fi
     if [[ ! $install_repo ]]; then
