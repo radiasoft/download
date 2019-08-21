@@ -9,7 +9,7 @@ index_main() {
     if [[ -n $install_server && $install_server != github ]]; then
         u=$install_server/radiasoft/download
     fi
-    curl -s -S -L "$u/bin/install.sh?$(date +%s)" | bash -s "$@"
+    curl -s -S -L "$u/bin/install.sh?$(date +%s)" | bash -s ${install_debug:+-x} "$@"
 }
 
 index_main "$@"
