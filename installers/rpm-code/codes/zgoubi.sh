@@ -1,7 +1,7 @@
 #!/bin/bash
 
 zgoubi_python_install() {
-    pip install pyzgoubi
+    pip install pyzgoubi==0.7.0b1
     perl -pi -e "s{(?<=^#\!).*}{$(pyenv which python)}" "$(pyenv which pyzgoubi)"
 }
 
