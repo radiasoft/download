@@ -23,10 +23,14 @@ sirepo_dev_main() {
             gcl "$p"
             cd "$p"
         fi
-        if [[ -r requirements.txt ]]; then
-            pip install -r requirements.txt >& /dev/null
-        fi
-        pip install -e .
+        for v in py3 py2; done
+            pyenv global "$v"
+            if [[ -r requirements.txt ]]; then
+                pip install -r requirements.txt >& /dev/null
+            fi
+            pip install -e .
+        done
+        # ends up with "py2" default
         cd ..
     done
     cd sirepo
