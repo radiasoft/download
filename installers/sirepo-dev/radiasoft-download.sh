@@ -23,7 +23,7 @@ sirepo_dev_main() {
             gcl "$p"
             cd "$p"
         fi
-        for v in py3 py2; done
+        for v in py3 py2; do
             pyenv global "$v"
             if [[ -r requirements.txt ]]; then
                 pip install -r requirements.txt >& /dev/null
