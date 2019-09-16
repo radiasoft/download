@@ -1,8 +1,8 @@
 #!/bin/bash
 
 radia_python_install() {
-    cd Radia
-    make pylib
+    cd Radia/cpp/py
+    make python
     codes_python_lib_copy env/radia_python/radia*.so
     find . -name radia\*.so -exec rm {} \;
 }
@@ -15,9 +15,8 @@ radia_main() {
     # committed *.so files are not so good.
     find . -name \*.so -o -name \*.a -o -name \*.pyd -exec rm {} \;
     rm -rf ext_lib
-    cores=$(codes_num_cores)
-    perl -pi -e "s/-j\\s*8/-j$cores/" Makefile
     perl -pi -e "s/'fftw'/'sfftw'/" cpp/py/setup.py
     perl -pi -e 's/-lfftw/-lsfftw/; s/\bcc\b/gcc/; s/\bc\+\+/g++/' cpp/gcc/Makefile
-    make core
+    cd cpp/gcc
+    make "-j$(codes_num_cores)" lib
 }
