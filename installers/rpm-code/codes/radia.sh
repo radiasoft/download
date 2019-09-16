@@ -3,6 +3,7 @@
 radia_python_install() {
     cd Radia/cpp/py
     make python
+    cd ../..
     codes_python_lib_copy env/radia_python/radia*.so
     find . -name radia\*.so -exec rm {} \;
 }
