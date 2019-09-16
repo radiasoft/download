@@ -10,7 +10,7 @@ radia_python_install() {
 radia_main() {
     # needed for fftw and uti_*.py
     codes_dependencies srw
-    codes_download ochubar/Radia
+    codes_download robnagler/Radia feat/objgeometry
     radia_python_versions='2 3'
     # committed *.so files are not so good.
     find . -name \*.so -o -name \*.a -o -name \*.pyd -exec rm {} \;
