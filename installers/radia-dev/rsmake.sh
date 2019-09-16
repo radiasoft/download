@@ -21,7 +21,6 @@ rsmake_main() {
         rm -rf ext_lib
     fi
     # idemotent so always run these
-    perl -pi -e "s/-j\\s*8/-j$cores/" Makefile
     perl -pi -e "s/'fftw'/'sfftw'/" cpp/py/setup.py
     perl -pi -e '
         s/-lfftw/-lsfftw/;
