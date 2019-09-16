@@ -167,6 +167,7 @@ codes_install() {
         local vs=${module}_python_versions
         # No quotes so splits
         for v in ${!vs}; do
+            codes_msg "Building: py$v"
             cd "$build_d"
             codes_python_version=$v
             install_not_strict_cmd pyenv activate py"$v"
