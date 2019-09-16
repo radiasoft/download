@@ -39,7 +39,9 @@ rsmake_main() {
     local p
     for p in py2 py3; do
         pyenv activate "$p"
-        make pylib
+        cd cpp/py
+        make python
+        cd ../..
         install -m 555 env/radia_python/radia*.so "$(rsmake_lib_dir)"
         find . -name radia\*.so -exec rm {} \;
     done
