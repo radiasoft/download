@@ -65,7 +65,7 @@ elegant_download() {
         svn --non-recursive -q checkout https://svn.aps.anl.gov/AOP/oag/trunk"$f" oag"$f"
     done
     local u=https://ops.aps.anl.gov/downloads/
-    for f in elegant.2019.1.1 SDDS.4.1 epics.base.configure epics.extensions.configure; do
+    for f in elegant.2019.3.0 SDDS.4.1 epics.base.configure epics.extensions.configure; do
         u=https://ops.aps.anl.gov/downloads/$f.tar.gz
         if [[ $f =~ ^(.+[[:alpha:]])\.([[:digit:]].+)$ ]]; then
             codes_manifest_add_code "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}" "$u"
