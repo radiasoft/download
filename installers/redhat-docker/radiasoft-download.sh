@@ -110,5 +110,3 @@ EOF2
     systemctl enable docker
 EOF
 }
-
-redhat_docker_main "${install_extra_args[@]}"
