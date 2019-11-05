@@ -13,5 +13,3 @@ redhat_dev_main() {
     install_repo_as_root home
     install_repo_eval home
 }
-
-redhat_dev_main ${install_extra_args[@]+"${install_extra_args[@]}"}
