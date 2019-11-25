@@ -186,6 +186,9 @@ codes_install_add_all() {
     if [[ ! $pp ]]; then
         install_err 'pyenv prefix not working'
     fi
+    # Ensure pyenv paths are up to date
+    # See https://github.com/biviosoftware/home-env/issues/8
+    pyenv rehash
     # This excludes all the top level directories and python2.7/site-packages
     if ! codes_is_common; then
         rpm_code_build_exclude_add "$pp"/* "$(codes_python_lib_dir)"
