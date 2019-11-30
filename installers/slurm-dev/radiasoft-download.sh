@@ -50,7 +50,9 @@ systemctl restart nfs-server
     fi
     local f
     for f in ~/src/radiasoft/{pykern,sirepo}; do
-        echo "$_slurm_dev_nfs_server:$f $f nfs defaults,vers=4.1,soft,noacl,_netdev 0 0"
+        # do not put vers=4.1 because will get "no client callback" errors
+        # F29 uses v4.2 by default
+        echo "$_slurm_dev_nfs_server:$f $f nfs defaults,soft,noacl,_netdev 0 0"
     done | install_sudo tee -a /etc/fstab > /dev/null
     install_sudo mount -av
 }
