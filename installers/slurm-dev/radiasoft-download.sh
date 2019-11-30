@@ -43,17 +43,13 @@ dnf install -y nfs-utils
 cat << EOF > /etc/exports.d/home_vagrant.exports
 /home/vagrant 10.10.10.0/24(rw,root_squash,no_subtree_check,async,secure)
 EOF
-cat << EOF > /etc/exports.d/usr.exports
-/usr 10.10.10.0/24(rw,root_squash,no_subtree_check,async,secure)
-EOF
 systemctl enable nfs-server
 systemctl restart nfs-server
 
 '
     fi
-    # do this first, because we want to mount /etc/fstab on reboot
     local f
-    for f in ~/.local ~/.pyenv ~/src ~/bin /usr; do
+    for f in ~/.local ~/.pyenv ~/src; do
         mkdir -p "$f"
         echo "$_slurm_dev_nfs_server:$f $f nfs defaults,vers=4.1,soft,noacl,_netdev 0 0"
     done | sudo tee -a /etc/fstab > /dev/null
