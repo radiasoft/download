@@ -49,8 +49,7 @@ systemctl restart nfs-server
 '
     fi
     local f
-    for f in ~/.local ~/.pyenv ~/src; do
-        mkdir -p "$f"
+    for f in ~/src/radiasoft/{pykern,sirepo}; do
         echo "$_slurm_dev_nfs_server:$f $f nfs defaults,vers=4.1,soft,noacl,_netdev 0 0"
     done | sudo tee -a /etc/fstab > /dev/null
     install_err 'You need to:
