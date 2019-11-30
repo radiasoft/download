@@ -31,7 +31,7 @@ radia_run slurm-dev
 }
 
 slurm_dev_nfs() {
-    if grep -s -q $_slurm_dev_nfs_server:/usr /etc/fstab; then
+    if grep -s -q $_slurm_dev_nfs_server:/home/vagrant /etc/fstab; then
         return
     fi
     install_yum install nfs-utils
