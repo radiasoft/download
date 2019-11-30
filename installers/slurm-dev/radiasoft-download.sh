@@ -27,7 +27,11 @@ radia_run slurm-dev
         install_sudo systemctl start "$f"
         install_sudo systemctl enable "$f"
     done
-
+    pyenv global py3
+    for f in pykern sirepo; do
+        cd ~/src/radiasoft/"$f"
+        pip install -e .
+    done
 }
 
 slurm_dev_nfs() {
