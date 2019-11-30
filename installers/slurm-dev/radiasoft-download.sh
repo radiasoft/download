@@ -32,7 +32,7 @@ radia_run slurm-dev
 }
 
 slurm_dev_nfs() {
-    install_yum nfs-utils
+    install_yum install nfs-utils
     if ! showmount -e "$_slurm_dev_nfs_server" >&/dev/null; then
         install_error '
 on $_slurm_dev_nfs_server you need to:
