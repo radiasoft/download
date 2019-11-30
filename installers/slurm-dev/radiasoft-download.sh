@@ -19,7 +19,7 @@ radia_run slurm-dev
     fi
     install_yum update
     slurm_dev_nfs
-    install_yum slurm-slurmd slurm-slurmctld
+    install_yum install slurm-slurmd slurm-slurmctld
     dd if=/dev/urandom bs=1 count=1024 \
         | install -m 400 -o munge -g munge /dev/stdin /etc/munge/munge.key
     local f
