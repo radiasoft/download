@@ -31,7 +31,7 @@ radia_run slurm-dev
 
 }
 
-slurm_def_nfs() {
+slurm_dev_nfs() {
     install_yum nfs-utils
     if ! showmount -e "$_slurm_dev_nfs_server" >&/dev/null; then
         install_error '
@@ -47,8 +47,11 @@ systemctl restart nfs-server
 '
     fi
     # do this first, because we want to mount /etc/fstab on reboot
-    echo "$_slurm_dev_nfs_server:/home/vagrant /home/vagrant nfs defaults,vers=4.1,soft,noacl,_netdev 0 0" \
-         | sudo tee -a /etc/fstab > /dev/null
+    local f
+    for f in .local .pyenv src; do
+        echo "$_slurm_dev_nfs_server:$f $f nfs defaults,vers=4.1,soft,noacl,_netdev 0 0"
+    done | sudo tee -a /etc/fstab > /dev/null
+
 }
 
 slurm_dev_no_nfs() {
