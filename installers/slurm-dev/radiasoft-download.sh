@@ -59,32 +59,3 @@ vssh
 radia_run slurm-dev
 '
 }
-
-slurm_dev_no_nfs() {
-    install_repo_eval code common
-    # rerun source, because common installs pyenv
-    install_source_bashrc
-    mkdir -p ~/src/radiasoft
-    cd ~/src/radiasoft
-    local p
-    for p in pykern sirepo; do
-        if [[ -d $p ]]; then
-            cd "$p"
-            git pull
-        else
-            gcl "$p"
-            cd "$p"
-        fi
-        for v in py3; do
-            pyenv global "$v"
-            pip uninstall -y "$p" >& /dev/null || true
-            if [[ -r requirements.txt ]]; then
-                pip install -r requirements.txt >& /dev/null
-            fi
-            pip install -e .
-        done
-        # ends up with "py3" default
-        cd ..
-    done
-    # this box should not need py2
-}
