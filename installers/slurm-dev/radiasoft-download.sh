@@ -4,6 +4,14 @@ _slurm_dev_nfs_server=v.radia.run
 
 slurm_dev_main() {
     if ! grep -i fedora  /etc/redhat-release >& /dev/null; then
+        if [[ $(uname) == Darwin ]]; then
+            install_err 'You need to run:
+
+radia_run vagrant-dev fedora
+vssh
+radia_run slurm-dev
+'
+        fi
         install_err 'only works on Fedora Linux'
     fi
     if (( $EUID == 0 )); then
