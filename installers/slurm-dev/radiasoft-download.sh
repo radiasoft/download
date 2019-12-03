@@ -43,7 +43,7 @@ slurm_dev_nfs() {
     fi
     install_yum install nfs-utils
     if ! showmount -e "$_slurm_dev_nfs_server" >&/dev/null; then
-        install_error '
+        install_err '
 on $_slurm_dev_nfs_server you need to:
 
 dnf install -y nfs-utils
