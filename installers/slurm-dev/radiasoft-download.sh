@@ -31,10 +31,13 @@ radia_run slurm-dev
         install_sudo systemctl enable "$f"
     done
     install_source_bashrc
-    pyenv global py3
-    for f in pykern sirepo; do
-        cd ~/src/radiasoft/"$f"
-        pip install -e .
+    local p
+    for p in py2 py3; do
+        pyenv global $p
+        for f in pykern sirepo; do
+            cd ~/src/radiasoft/"$f"
+            pip install -e .
+        done
     done
 }
 
