@@ -22,6 +22,9 @@ radia_run slurm-dev
     install_yum install slurm-slurmd slurm-slurmctld
     dd if=/dev/urandom bs=1 count=1024 \
         | install_sudo install -m 400 -o munge -g munge /dev/stdin /etc/munge/munge.key
+    # specify 4 CPUs
+    perl -pi -e 's{^NodeName=.*}{NodeName=localhost CPUs=4 State=UNKNOWN}' \
+         /etc/slurm/slurm.conf
     local f
     for f in munge slurmctld slurmd; do
         install_sudo systemctl start "$f"
