@@ -152,11 +152,13 @@ vagrant_dev_plugins() {
 vagrant_dev_vagrantfile() {
     local os=$1 host=$2 ip=$3 vdi=$4 first=$5
     local vbguest='' timesync=''
-    if [[ $first || ${vagrant_dev_no_vbguest:+1} ]]; then
-        vbguest='config.vbguest.auto_update = false'
-    else
-        # https://medium.com/carwow-product-engineering/time-sync-problems-with-vagrant-and-virtualbox-383ab77b6231
-        timesync='v.customize ["guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-set-threshold", 5000]'
+    if [[ ! ${vagrant_dev_no_vbguest:+1} ]]; then
+        if [[ $first ]]; then
+            vbguest='config.vbguest.auto_update = false'
+        else
+            # https://medium.com/carwow-product-engineering/time-sync-problems-with-vagrant-and-virtualbox-383ab77b6231
+            timesync='v.customize ["guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-set-threshold", 5000]'
+        fi
     fi
     local macos_fixes=
     if [[ $(uname) == Darwin ]]; then
