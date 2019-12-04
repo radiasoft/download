@@ -49,8 +49,10 @@ install_bivio_mpi_lib() {
     if [[ ${BIVIO_MPI_LIB:-} ]]; then
         return
     fi
+    # we do not build with Shifter so this isn't included
+    # see biviosoftware/home-env/bashrc.d/zz-10-base.sh
+    # /opt/udiImage/modules/mpich/lib64
     for f in \
-        /opt/udiImage/modules/mpich/lib64 \
         /usr/local/lib \
         /usr/lib64/mpich/lib \
         /usr/lib64/openmpi/lib
@@ -60,16 +62,6 @@ install_bivio_mpi_lib() {
             break
         fi
     done
-    #TODO(robnagler) remove this once new builders are installed
-    if [[ ${BIVIO_MPI_PREFIX:-} ]]; then
-        return
-    elif [[ -x /usr/local/bin/mpiexec ]]; then
-        export BIVIO_MPI_PREFIX=/usr/local
-    elif [[ -x /usr/lib64/mpich/bin/mpiexec ]]; then
-        export BIVIO_MPI_PREFIX=/usr/lib64/mpich
-    elif [[ -x /usr/lib64/openmpi/bin/mpiexec ]]; then
-        export BIVIO_MPI_PREFIX=/usr/lib64/openmpi
-    fi
 }
 
 install_clean() {
