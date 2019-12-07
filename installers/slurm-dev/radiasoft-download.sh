@@ -18,27 +18,37 @@ radia_run slurm-dev
         install_err 'run as vagrant, not root'
     fi
     install_yum update
-    slurm_dev_nfs
+    local c=2 n=
+    if [[ $(hostname) != $_slurm_dev_nfs_server ]]; then
+        # specify 4 CPUs if non-local
+        c=4
+        n=1
+        slurm_dev_nfs
+    fi
     install_yum install slurm-slurmd slurm-slurmctld
-    dd if=/dev/urandom bs=1 count=1024 \
-        | install_sudo install -m 400 -o munge -g munge /dev/stdin /etc/munge/munge.key
-    # specify 4 CPUs
-    install_sudo perl -pi -e 's{^NodeName=.*}{NodeName=localhost CPUs=4 State=UNKNOWN}' \
+    if ! install_sudo test -e /etc/munge/munge.key; then
+        dd if=/dev/urandom bs=1 count=1024 \
+            | install_sudo install -m 400 -o munge -g munge /dev/stdin /etc/munge/munge.key
+    fi
+    if
+    install_sudo perl -pi -e "s{^NodeName=.*}{NodeName=localhost CPUs=$c State=UNKNOWN}" \
          /etc/slurm/slurm.conf
     local f
     for f in munge slurmctld slurmd; do
         install_sudo systemctl start "$f"
         install_sudo systemctl enable "$f"
     done
-    install_source_bashrc
-    local p
-    for p in py2 py3; do
-        pyenv global $p
-        for f in pykern sirepo; do
-            cd ~/src/radiasoft/"$f"
-            pip install -e .
+    if [[ $n ]]; then
+        install_source_bashrc
+        local p
+        for p in py2 py3; do
+            pyenv global $p
+            for f in pykern sirepo; do
+                cd ~/src/radiasoft/"$f"
+                pip install -e .
+            done
         done
-    done
+    fi
 }
 
 slurm_dev_nfs() {
