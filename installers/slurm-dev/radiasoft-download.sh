@@ -30,7 +30,6 @@ radia_run slurm-dev
         dd if=/dev/urandom bs=1 count=1024 \
             | install_sudo install -m 400 -o munge -g munge /dev/stdin /etc/munge/munge.key
     fi
-    if
     install_sudo perl -pi -e "s{^NodeName=.*}{NodeName=localhost CPUs=$c State=UNKNOWN}" \
          /etc/slurm/slurm.conf
     local f
