@@ -70,13 +70,13 @@ if [[ :$(pyenv prefix): =~ :PYENV_PREFIX: ]]; then
     # only set if in the environment we built synergia; prevents "jupyter" environment
     # from screwing this up.
     export SYNERGIA2DIR=PYENV_PREFIX/lib/synergia
-    for i in $BIVIO_MPI_LIB "$SYNERGIA2DIR"; do
+    for i in BIVIO_MPI_LIB "$SYNERGIA2DIR"; do
         if [[ ! :$LD_LIBRARY_PATH: =~ :$i: ]]; then
             export LD_LIBRARY_PATH=$i${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
         fi
     done
     unset i
-    export PYTHONPATH=$SYNERGIA2DIR
+    export PYTHONPATH=${PYTHONPATH:+$PYTHONPATH:}$SYNERGIA2DIR
 fi
 EOF
     rpm_code_build_include_add "$f"
