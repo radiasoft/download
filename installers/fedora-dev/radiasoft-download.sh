@@ -181,7 +181,7 @@ EOF
 }
 
 _fedora_dev_main() {
-    if (( $UID != 0 )); then
+    if (( $EUID != 0 )); then
         echo 'must be run as root' 1>&2
         return 1
     fi

@@ -145,7 +145,7 @@ rpm_code_main() {
         rpm_code_image=radiasoft/fedora
     fi
     : ${rpm_code_user:=vagrant}
-    if [[ $UID == 0 ]]; then
+    if [[ $EUID == 0 ]]; then
         # Needs to be owned by rpm_code_user
         chown "${rpm_code_user}:" "$PWD"
     fi

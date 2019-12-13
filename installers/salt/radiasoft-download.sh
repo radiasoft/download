@@ -23,7 +23,7 @@ salt_alarm() {
 }
 
 salt_assert() {
-    if (( $UID != 0 )); then
+    if (( $EUID != 0 )); then
         install_err 'Must run as root'
     fi
     if [[ ! -r /etc/fedora-release ]]; then
