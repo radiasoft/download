@@ -3,13 +3,17 @@
 # Install important rpms and fixup some redhat distro issues
 #
 redhat_base_main() {
+    if (( $EUID != 0 )); then
+        echo 'must be run as root' 1>&2
+        return 1
+    fi
     if [[ ! -e /etc/fedora-release && ! -e /etc/yum.repos.d/epel.repo ]]; then
         yum --color=never --enablerepo=extras install -y -q epel-release
     fi
     # mandb takes a really long time on some installs
     local x=/usr/bin/mandb
     if [[ ! -L $x && $(readlink -f $x) != /usr/bin/true ]]; then
-        install_sudo ln -s -f true /usr/bin/mandb
+        ln -s -f true /usr/bin/mandb
     fi
     if [[ ! -r /usr/share/terminfo/x/xterm-256color-screen ]]; then
         # emacs matches $TERM name by splitting on the first dash. screen.xterm-256color
