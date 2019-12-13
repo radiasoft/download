@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Install important rpms
+# Install important rpms and fixup some redhat distro issues
 #
 redhat_base_main() {
     if [[ ! -e /etc/fedora-release && ! -e /etc/yum.repos.d/epel.repo ]]; then
@@ -10,6 +10,16 @@ redhat_base_main() {
     local x=/usr/bin/mandb
     if [[ ! -L $x && $(readlink -f $x) != /usr/bin/true ]]; then
         install_sudo ln -s -f true /usr/bin/mandb
+    fi
+    if [[ ! -r /usr/share/terminfo/x/xterm-256color-screen ]]; then
+        # emacs matches $TERM name by splitting on the first dash. screen.xterm-256color
+        # is not recognized as an xterm by emacs so it was not working properly.
+        # This entry is set by
+        # https://github.com/biviosoftware/home-env/blob/master/bashrc.d/zz-10-base.sh
+        (
+            umask 022
+            echo 'xterm-256color-screen|needed for emacs to recognize screen.xterm-256color,use=screen.xterm-256color,' | tic /dev/stdin
+        )
     fi
     local x=(
         bind-utils
@@ -64,5 +74,3 @@ redhat_base_main() {
     fi
     install_yum_install "${x[@]}"
 }
-
-redhat_base_main ${install_extra_args[@]+"${install_extra_args[@]}"}
