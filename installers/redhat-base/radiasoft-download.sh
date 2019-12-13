@@ -20,9 +20,11 @@ redhat_base_main() {
         # is not recognized as an xterm by emacs so it was not working properly.
         # This entry is set by
         # https://github.com/biviosoftware/home-env/blob/master/bashrc.d/zz-10-base.sh
+        install_tmp_dir
         (
             umask 022
-            echo 'xterm-256color-screen|needed for emacs to recognize screen.xterm-256color,use=screen.xterm-256color,' | tic /dev/stdin
+            echo 'xterm-256color-screen|needed for emacs to recognize screen.xterm-256color,use=screen.xterm-256color,' > t
+            tic t
         )
     fi
     local x=(
