@@ -15,17 +15,27 @@ redhat_base_main() {
     if [[ ! -L $x && $(readlink -f $x) != /usr/bin/true ]]; then
         ln -s -f true /usr/bin/mandb
     fi
-    if [[ ! -r /usr/share/terminfo/x/xterm-256color-screen ]]; then
+    local t=xterm-256color-screen
+    if [[ ! -r /usr/share/terminfo/${t::1}/$t ]]; then
         # emacs matches $TERM name by splitting on the first dash. screen.xterm-256color
         # is not recognized as an xterm by emacs so it was not working properly.
         # This entry is set by
         # https://github.com/biviosoftware/home-env/blob/master/bashrc.d/zz-10-base.sh
         install_tmp_dir
-        (
-            umask 022
-            echo 'xterm-256color-screen|needed for emacs to recognize screen.xterm-256color,use=screen.xterm-256color,' > t
-            tic t
-        )
+        local s
+        for s in screen.xterm-256color screen-256color; do
+            # centos7 has screen-256color, not screen.xterm-256color
+            if [[ -r /usr/share/terminfo/${s::1}/$s ]]; then
+                break
+            fi
+        done
+        if [[ $s ]]; then
+            (
+                umask 022
+                echo "$t|make emacs recognize $t,use=$s," > t
+                tic t
+            )
+        fi
     fi
     local x=(
         bind-utils
