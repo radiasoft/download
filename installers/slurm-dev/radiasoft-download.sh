@@ -3,6 +3,10 @@
 _slurm_dev_nfs_server=v.radia.run
 
 slurm_dev_main() {
+    if [[ $(type -t sbatch) ]]; then
+        install_msg 'sbatch already installed, nothing to do'
+        return
+    fi
     if ! grep -i fedora  /etc/redhat-release >& /dev/null; then
         if [[ $(uname) == Darwin ]]; then
             install_err 'You need to run:
@@ -26,9 +30,10 @@ radia_run slurm-dev
         slurm_dev_nfs
     fi
     install_yum install slurm-slurmd slurm-slurmctld
-    if ! install_sudo test -e /etc/munge/munge.key; then
+    local k=/etc/munge/munge.key
+    if ! install_sudo test -e "$k"; then
         dd if=/dev/urandom bs=1 count=1024 \
-            | install_sudo install -m 400 -o munge -g munge /dev/stdin /etc/munge/munge.key
+            | install_sudo install -m 400 -o munge -g munge /dev/stdin "$k"
     fi
     install_sudo perl -pi -e "s{^NodeName=.*}{NodeName=localhost CPUs=$c State=UNKNOWN}" \
          /etc/slurm/slurm.conf
