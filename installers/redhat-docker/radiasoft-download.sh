@@ -6,7 +6,7 @@ set -euo pipefail
 
 redhat_docker_main() {
     local data=/var/lib/docker
-    if [[ -f $data ]]; then
+    if [[ -d $data ]]; then
         install_info "$data exists, so assuming docker installed"
         return
     fi
