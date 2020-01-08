@@ -2,7 +2,7 @@
 #
 # Update shifter image and pyenv
 #
-nersc_sirepo_update() {
+nersc_sirepo_update_main() {
     local c=${1:-}
     if [[ ! $c =~ ^(alpha|beta|prod)$ ]]; then
         install_err "invalid channel=${c:-<missing arg>}"
