@@ -95,6 +95,7 @@ EOF2
     "hosts": ["tcp://localhost.localdomain:2376", "unix://"],
     "iptables": true,
     "live-restore": true,
+    "log-driver": "journald",
     "storage-driver": "overlay2",
     "storage-opts": [
         "overlay2.override_kernel_check=true"
