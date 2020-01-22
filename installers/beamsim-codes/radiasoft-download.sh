@@ -15,6 +15,7 @@ beamsim_codes_main() {
 
         elegant
         epics
+        genesis
         jspec
         opal
         pydicom
