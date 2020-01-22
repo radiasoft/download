@@ -1,6 +1,6 @@
 #!/bin/bash
 codes_dependencies common
-codes_download http://genesis.web.psi.ch/download/source/genesis_source_2.0_120629.tar.gz Genesis_Current
+codes_download_foss genesis-2.0-120629.tar.gz
 make
 make multi
 make EXECUTABLE=genesis_mpi COMPILER=mpif77
