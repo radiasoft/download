@@ -19,6 +19,8 @@ codes=(
 
     epics
 
+    genesis
+
     hypre
 
     H5hut
