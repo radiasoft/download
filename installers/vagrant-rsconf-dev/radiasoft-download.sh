@@ -23,11 +23,11 @@ vagrant_rsconf_dev_main() {
 vagrant_rsconf_dev_master() {
     install_repo_eval vagrant-centos7
     bivio_vagrant_ssh <<'EOF' || true
-    install_repo_eval redhat-docker
+    radia_run redhat-docker
 EOF
     vagrant reload
     bivio_vagrant_ssh <<'EOF'
-    install_repo_eval redhat-docker
+    radia_run redhat-docker
     sudo usermod -aG docker vagrant
 EOF
     bivio_vagrant_ssh <<'EOF'
