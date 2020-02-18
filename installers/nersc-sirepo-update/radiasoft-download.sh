@@ -7,6 +7,9 @@ nersc_sirepo_update_main() {
     if [[ ! $c =~ ^(alpha|beta|prod)$ ]]; then
         install_err "invalid channel=${c:-<missing arg>}"
     fi
+    if ! [[ $PATH =~ pyenv/bin ]]; then
+        export PATH="$HOME/.pyenv/bin:$PATH"
+    fi
     install_not_strict_cmd eval "$(pyenv init -)"
     install_not_strict_cmd eval "$(pyenv virtualenv-init -)"
     local i=docker:radiasoft/sirepo:$c
