@@ -37,6 +37,7 @@ common_main() {
         eigen3-devel
         flex
         glib2-devel
+        graphviz
         lapack-devel
         # https://bugs.python.org/issue31652
         libffi-devel
