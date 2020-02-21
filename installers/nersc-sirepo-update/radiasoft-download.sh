@@ -10,8 +10,8 @@ nersc_sirepo_update_main() {
     if ! [[ $PATH =~ pyenv/bin ]]; then
         export PATH="$HOME/.pyenv/bin:$PATH"
     fi
-    install_not_strict_cmd eval "$(pyenv init -)"
-    install_not_strict_cmd eval "$(pyenv virtualenv-init -)"
+    install_not_strict_cmd eval '$(pyenv init -)'
+    install_not_strict_cmd eval '$(pyenv virtualenv-init -)'
     local i=docker:radiasoft/sirepo:$c
     shifterimg pull "$i"
     local v=sirepo-$c
