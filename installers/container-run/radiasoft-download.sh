@@ -15,6 +15,14 @@ container_run_main() {
         container_run_image=$1
         shift
     fi
+    if [[ ${1:-} =~ ^20[[:digit:]]{6}\.[[:digit:]]{6}$ ]]; then
+        install_channel=$1
+    elif [[ ${install_channel_is_default:-} ]]; then
+        install_channel=prod
+    fi
+    if (( $# >= 1 )); then
+        install_usage "too many arguments: $*"
+    fi
     if [[ $container_run_image =~ jupyter ]]; then
         container_run_image=beamsim-jupyter
     fi
@@ -24,9 +32,6 @@ container_run_main() {
     container_run_interactive=
     if [[ $container_run_image =~ ^radiasoft/beamsim$ ]]; then
         container_run_interactive=1
-    fi
-    if [[ ${install_channel_is_default:-} ]]; then
-        install_channel=prod
     fi
     if ! type -p docker >& /dev/null; then
         if [[ $(uname) == Darwin && -e /Applications/Docker.app ]]; then
