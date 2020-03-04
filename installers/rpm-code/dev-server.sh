@@ -9,4 +9,4 @@ cd ~/src
 if [[ ! -r index.sh ]]; then
     ln -s -r radiasoft/download/bin/index.sh .
 fi
-exec python3 -m http.server "$dev_port"
+PYENV_VERSION=py3 exec pyenv exec python -m http.server "$dev_port"
