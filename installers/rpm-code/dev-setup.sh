@@ -31,6 +31,7 @@ if [[ ! -d ~/src/radiasoft/container-fedora ]]; then
         cd ~/src/radiasoft
         git clone https://github.com/radiasoft/container-fedora
         cd container-fedora
-        radia_run container-build
+        # in case set by dev-env.sh
+        install_server= radia_run container-build
     )
 fi
