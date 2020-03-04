@@ -151,7 +151,7 @@ install_init_vars() {
     install_clean_cmds=()
     install_channel_is_default=
     if [[ ! ${install_channel-} ]]; then
-        install_channel=beta
+        install_channel=prod
         install_channel_is_default=1
     fi
     # TODO(robnagler) remove once home-env updated everywhere
