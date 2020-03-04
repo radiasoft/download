@@ -1,13 +1,5 @@
 #!/bin/bash
 
-radia_python_install() {
-    cd Radia/cpp/py
-    make python
-    cd ../..
-    codes_python_lib_copy env/radia_python/radia*.so
-    find . -name radia\*.so -exec rm {} \;
-}
-
 radia_main() {
     # needed for fftw and uti_*.py
     codes_dependencies srw
@@ -20,4 +12,12 @@ radia_main() {
     perl -pi -e 's/-lfftw/-lsfftw/; s/\bcc\b/gcc/; s/\bc\+\+/g++/' cpp/gcc/Makefile
     cd cpp/gcc
     make "-j$(codes_num_cores)" lib
+}
+
+radia_python_install() {
+    cd Radia/cpp/py
+    make python
+    cd ../..
+    codes_python_lib_copy env/radia_python/radia*.so
+    find . -name radia\*.so -exec rm {} \;
 }
