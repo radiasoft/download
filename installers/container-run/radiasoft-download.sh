@@ -17,6 +17,7 @@ container_run_main() {
     fi
     if [[ ${1:-} =~ ^20[[:digit:]]{6}\.[[:digit:]]{6}$ ]]; then
         install_channel=$1
+        shift
     elif [[ ${install_channel_is_default:-} ]]; then
         install_channel=prod
     fi
