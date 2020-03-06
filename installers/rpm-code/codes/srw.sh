@@ -4,6 +4,8 @@ srw_python_install() {
     cd SRW/cpp/py
     make python
     cd ../..
+    # Installs PIL
+    pip install Pillow
     codes_python_lib_copy env/work/srw_python/{{srwl,uti}*.py,srwlpy*.so}
     find . -name srwlpy\*.so -exec rm {} \;
 }

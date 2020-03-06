@@ -17,6 +17,7 @@ beamsim_codes_main() {
         epics
         genesis
         jspec
+        ml_for_py3
         opal
         pydicom
         pymesh
