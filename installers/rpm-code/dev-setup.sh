@@ -1,7 +1,9 @@
 #!/bin/bash
+source ~/.bashrc
 set -euo pipefail
 source ./dev-env.sh
-if ! rpm -q createrepo >& /dev/null; then
+# F29 has createrepo_c, but createrepo installs it
+if [[ ! $(rpm -qa | grep createrepo) ]]; then
     sudo yum install -y createrepo
 fi
 if [[ ! -d $rpm_code_yum_dir ]]; then
@@ -17,31 +19,24 @@ gpgcheck=0
 # may be too fast for production
 metadata_expire=1m
 EOF
-if [[ ! -d ~/src/radiasoft/container-rpm-code ]]; then
-    (
-        cd ~/src/radiasoft
-        git clone https://github.com/radiasoft/container-rpm-code
-    )
-fi
-if [[ ! -d ~/src/radiasoft/container-fedora ]]; then
-    (
-        set +euo pipefail
-        source ~/.bashrc
-        set -euo pipefail
-        cd ~/src/radiasoft
-        git clone https://github.com/radiasoft/container-fedora
-        cd container-fedora
-        # in case set by dev-env.sh
-        install_server= radia_run container-build
-    )
-fi
 cd ~/src
-if [[ ! -d radiasoft/containers ]]; then
-    ( cd radiasoft && git clone https://github.com/radiasoft/containers )
-fi
 if [[ ! -r index.sh ]]; then
     ln -s -r radiasoft/download/bin/index.sh .
 fi
 if [[ ! -r index.html ]]; then
     ln -s ~/src/radiasoft/download/bin/install.sh index.html
+fi
+cd radiasoft
+for d in containers container-rpm-code container-fedora; do
+    if [[ ! -d $d ]]; then
+        git clone https://github.com/radiasoft/"$d"
+    fi
+done
+if [[ ! $(type -p docker) ]]; then
+    radia_run redhat-docker
+fi
+if [[ ! $(docker images | grep radiasoft/fedora) ]]; then
+    cd container-fedora
+    # in case set by dev-env.sh, because server isn't running yet
+    install_server= radia_run container-build
 fi
