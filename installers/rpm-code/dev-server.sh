@@ -6,7 +6,4 @@ if [[ ! -e ~/src/yum/fedora/radiasoft.repo ]]; then
     bash dev-setup.sh
 fi
 cd ~/src
-if [[ ! -r index.sh ]]; then
-    ln -s -r radiasoft/download/bin/index.sh .
-fi
 PYENV_VERSION=py3 exec pyenv exec python -m http.server "$dev_port"

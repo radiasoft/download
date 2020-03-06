@@ -35,3 +35,13 @@ if [[ ! -d ~/src/radiasoft/container-fedora ]]; then
         install_server= radia_run container-build
     )
 fi
+cd ~/src
+if [[ ! -d radiasoft/download ]]; then
+    ( cd radiasoft && git clone https://github.com/radiasoft/download )
+fi
+if [[ ! -r index.sh ]]; then
+    ln -s -r radiasoft/download/bin/index.sh .
+fi
+if [[ ! -r index.html ]]; then
+    ln -s ~/src/radiasoft/download/bin/install.sh index.html
+fi
