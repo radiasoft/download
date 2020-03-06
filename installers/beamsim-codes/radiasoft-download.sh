@@ -21,7 +21,7 @@ beamsim_codes_main() {
         pydicom
         pymesh
         rsbeams
-#        shadow3
+        shadow3
         srw
         # depends on srw
         radia
