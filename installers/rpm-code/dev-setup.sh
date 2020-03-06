@@ -36,8 +36,8 @@ if [[ ! -d ~/src/radiasoft/container-fedora ]]; then
     )
 fi
 cd ~/src
-if [[ ! -d radiasoft/download ]]; then
-    ( cd radiasoft && git clone https://github.com/radiasoft/download )
+if [[ ! -d radiasoft/containers ]]; then
+    ( cd radiasoft && git clone https://github.com/radiasoft/containers )
 fi
 if [[ ! -r index.sh ]]; then
     ln -s -r radiasoft/download/bin/index.sh .
