@@ -7,5 +7,9 @@ ml_for_py3_main() {
 
 ml_for_py3_python_install() {
     # pydot is needed for keras to access graphviz
-    pip install pydot keras scikit-learn tensorflow
+    # sympy is needed for webcon
+    pip install pydot keras \
+        scikit-learn \
+        sympy \
+        tensorflow
 }
