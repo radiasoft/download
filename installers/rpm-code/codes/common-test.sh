@@ -5,6 +5,8 @@ pyenv() {
         prefix)
             echo /home/vagrant/.pyenv/versions/py2
             ;;
+        rehash)
+            ;;
         *)
             echo "unknown pyenv mock command=$1" 1>&2
             exit 1
