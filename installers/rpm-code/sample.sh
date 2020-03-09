@@ -1,4 +1,6 @@
 #!/bin/bash
+# https://stackoverflow.com/questions/880227/what-is-the-minimum-i-have-to-do-to-create-an-rpm-file
+# https://wiki.centos.org/HowTos/SetupRpmBuildEnvironment
 mkdir -p ~/rpmbuild/{RPMS,SRPMS,BUILD,SOURCES,SPECS,tmp}
 cat <<EOF >~/.rpmmacros
 %_topdir   %(echo $HOME)/rpmbuild
