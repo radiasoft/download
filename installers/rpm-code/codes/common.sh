@@ -22,6 +22,9 @@ common_python() {
     # Slows down builds of pykern, but doesn't affect development.
     codes_download pykern
     codes_python_install
+    # xraylib puts files in include; needs to be in common
+    # https://github.com/radiasoft/containers/issues/92
+    install -d -m 755 "$(pyenv prefix)"/include
     cd "$prev_d"
 }
 
