@@ -67,14 +67,13 @@ rpm_code_build() {
     fi
     install_info "fpm prep: $(( $(date +%s) - $start ))s"
     cd "$rpm_code_guest_d"
-    FPM_EDITOR="cat > spec_file " fpm -e -t rpm -s dir -n "$rpm_base" -v "$version" \
+    fpm -t rpm -s dir -n "$rpm_base" -v "$version" \
         --rpm-rpmbuild-define "_build_id_links none" \
         --rpm-use-file-permissions --rpm-auto-add-directories \
         ${rpm_code_build_desc:+'--description' "$rpm_code_build_desc"} \
         "${exclude[@]}" \
         "${deps[@]}" \
-        --inputs "$rpm_code_build_include_f" || true
-    cat spec_file
+        --inputs "$rpm_code_build_include_f"
 }
 
 rpm_code_build_include_add() {
