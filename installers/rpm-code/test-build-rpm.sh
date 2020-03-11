@@ -16,6 +16,4 @@ EOF
 perl build-rpm.PL . foo 1.1 'first line
 second line' > ~/rpmbuild/SPECS/foo.spec
 mkdir -p ~/rpmbuild/BUILDROOT/$PWD
-cp -a --link * ~/rpmbuild/BUILDROOT/$PWD
-cd ~/rpmbuild
 rpmbuild --buildroot $PWD/BUILDROOT -bb SPECS/foo.spec

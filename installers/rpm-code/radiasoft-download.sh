@@ -31,7 +31,19 @@ rpm_code_build() {
         echo "$i"
     done > "$rpm_code_build_depends_f"
     rpm_code_build_exclude_add "$HOME"
-    perl build-rpm.PL "$rpm_code_guest_d" "$rpm_base" "$version" "$rpm_code_build_desc"
+    rm -rf ~/rpmbuild ~/.rpmmacros
+    mkdir -p ~/rpmbuild/{RPMS,BUILD,BUILDROOT,SPECS,tmp}
+    cat <<'EOF' >~/.rpmmacros
+%_topdir   %(echo $HOME)/rpmbuild
+%_tmppath  %{_topdir}/tmp
+EOF
+    local r=~/rpmbuild/BUILDROOT
+    local s=~/rpmbuild/SPECS/"$rpm_base".spec
+    rsync -aq --recursive --link-dest=/ --files-from="$rpm_code_build_include_f" / "$r"
+    install_download rpm-spec.PL \
+        | perl -w - "$rpm_code_guest_d" "$rpm_base" "$version" "$rpm_code_build_desc" > "$s"
+    cat $s
+    rpmbuild --buildroot "$r" -bb "$s"
 }
 
 rpm_code_build_include_add() {
@@ -48,6 +60,9 @@ rpm_code_build_include_add() {
 rpm_code_build_exclude_add() {
     local d
     for d in "$@"; do
+        if [[ ! ( $d =~ ^/ && -d $d ) ]]; then
+            install_err "rpm_code_build_exclude_add $d must be absolute path and a directory"
+        fi
         echo "$d"
     done >> "$rpm_code_build_exclude_f"
 }

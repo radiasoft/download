@@ -23,11 +23,11 @@ sub main {
             follow => 0,
             no_chdir => 1,
             wanted => sub {
-                if (-d $File::Find::name) {
-                    push(@$dirs, $File::Find::name);
+                if (-l $File::Find::name || ! -d _) {
+                    $files->{$File::Find::name} = ! -l _ && -x _ ? '%attr(555,-,-)' : '';
                 }
                 else {
-                    $files->{$File::Find::name} = -x _;
+                    push(@$dirs, $File::Find::name);
                 }
                 return;
             },
@@ -59,13 +59,13 @@ sub main {
         }
     }
     foreach my $f (sort(keys(%$include))) {
-        $spec_files .= "\%dir $f\n";
+        $spec_files .= qq{\%dir "$f"\n};
     }
     foreach my $f (sort(keys(%$files))) {
         if ($files->{$f}) {
             $spec_files .= '%attr(555,-,-) ';
         }
-        $spec_files .= "$f\n";
+        $spec_files .= qq{"$f"\n};
     }
     $template =~ s/(\$spec_\w+)/$1/eeg;
     print($template);
@@ -96,73 +96,6 @@ sub _read_list {
 main(@ARGV);
 
 1;
-my($x) = <<'EOF';
-rpm_code_build_exclude_add() {
-    local d
-    for d in "$@"; do
-        d=$(realpath --no-symlinks --canonicalize-missing "$d")
-        if [[ ! $d =~ ^/ ]]; then
-            install_err "$d: must begin with a /"
-        fi
-        while [[ $d != / ]]; do
-            if [[ ${rpm_code_build_exclude[$d]+1} ]]; then
-                break
-            fi
-            rpm_code_build_exclude[$d]=1
-            d=$(dirname "$d")
-        done
-
-
-    local start=$(date +%s)
-    local deps=()
-    local i
-    for i in "${rpm_code_build_depends[@]}"; do
-        echo "$i"
-    done > "$rpm_code_build_depends_f"
-    local -A include_dirs
-    local sorted=$rpm_code_build_include_f.sorted
-    sort -u "$rpm_code_build_include_f" > "$sorted"
-    local d
-    while IFS="" read -r i; do
-        d=$i
-        while true; do
-            d=$(dirname "$d")
-            if [[ ${rpm_code_build_exclude[$d]+1} || $d == / ]]; then
-                # explicit include of a directory takes precedence
-                # over exclude
-                printf '%s\n' "$i"
-                break
-            fi
-            if [[ ${include_dirs[$d]+1} ]]; then
-                break
-            fi
-        done
-        if [[ -d $i ]]; then
-            include_dirs[$i]=1
-        fi
-    done < "$sorted" > "$rpm_code_build_include_f"
-    rm -f "$sorted"
-    local exclude=()
-    for i in "${!rpm_code_build_exclude[@]}"; do
-        if [[ ! ${include_dirs[$i]+1} ]]; then
-            exclude+=( --rpm-auto-add-exclude-directories "$i" )
-        fi
-    done
-    if [[ $install_debug ]]; then
-        install_msg "$rpm_code_build_include_f"
-        cat "$rpm_code_build_include_f" 1>&2
-    fi
-    install_info "fpm prep: $(( $(date +%s) - $start ))s"
-    cd "$rpm_code_guest_d"
-    FPM_EDITOR="cat > spec_file " fpm -e -t rpm -s dir -n "$rpm_base" -v "$version" \
-        --rpm-rpmbuild-define "_build_id_links none" \
-        --rpm-use-file-permissions --rpm-auto-add-directories \
-        ${rpm_code_build_desc:+'--description' "$rpm_code_build_desc"} \
-        "${exclude[@]}" \
-        "${deps[@]}" \
-        --inputs "$rpm_code_build_include_f" || true
-    cat spec_file
-EOF
 
 __DATA__
 
