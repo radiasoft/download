@@ -30,7 +30,14 @@ synergia_contractor() {
     ./contract.py
 }
 
-synergia_install() {
+synergia_main() {
+    synergia_bootstrap
+    synergia_contractor
+    synergia_version
+    synergia_python_versions=2
+}
+
+synergia_python_install() {
     # mpi should be added automatically (/etc/ld.so.conf.d), but there's
     # a conflict with hdf5, which has same library name in /usr/lib64 as in
     # $BIVIO_MPI_LIB.
@@ -38,7 +45,7 @@ synergia_install() {
         s{(?<=install_dir/lib)}{/synergia};
         s{(?=ldpathadd ")}{ldpathadd '"$BIVIO_MPI_LIB"'\n}s;
     ' install/bin/synergia
-    local d=$(pyenv prefix)
+    local d=${codes_dir[pyenv_prefix]}
     # Synergia installer doesn't set modes correctly in all cases
     chmod -R a+rX install
     (
@@ -52,10 +59,13 @@ synergia_install() {
         # sanity check to make sure directory is empty
         rmdir "$p" "$(dirname "$p")"
     )
-    return $?
+    if (( $? != 0 )); then
+        return 1
+    fi
+    synergia_python_pyenv_exec
 }
 
-synergia_pyenv_exec() {
+synergia_python_pyenv_exec() {
     local f=~/.pyenv/pyenv.d/exec/rs-beamsim-synergia.bash
     local p=${codes_dir[pyenv_prefix]}
     if [[ $p =~ : ]]; then
@@ -81,14 +91,6 @@ fi
 EOF
     rpm_code_build_include_add "$f"
     rpm_code_build_exclude_add "$(dirname "$f")"
-}
-
-synergia_main() {
-    synergia_bootstrap
-    synergia_contractor
-    synergia_install
-    synergia_pyenv_exec
-    synergia_version
 }
 
 synergia_version() {

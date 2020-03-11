@@ -8,6 +8,8 @@ common_python() {
         install_err mpicc not found
     fi
     MAKE_OPTS=-j$(codes_num_cores) bivio_pyenv_"$v"
+    # Need to set here
+    codes_dir[pyenv_prefix]=$(realpath "$(pyenv prefix)")
     pip install mpi4py
     pip install numpy
     pip install matplotlib

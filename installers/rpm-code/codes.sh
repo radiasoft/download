@@ -154,10 +154,6 @@ codes_install() {
     # Needed for pyenv
     install_source_bashrc
     install_script_eval "codes/$module.sh"
-    # Note: this is after parsing the script. If there's a <module>_main, no harm.
-    # If there isn't, then it can't reference this. The only code that does
-    # this is common-test.sh which mocks pyenv and then sources bashrc again.
-    codes_dir[pyenv_prefix]=$(realpath "$(pyenv prefix)")
     local f=${module}_main
     if codes_is_function "$f"; then
         $f
@@ -181,6 +177,7 @@ codes_install() {
             codes_download_reuse_git=1
         done
     else
+        codes_dir[pyenv_prefix]=$(realpath "$(pyenv prefix)")
         codes_install_add_all
     fi
     cd "$prev"

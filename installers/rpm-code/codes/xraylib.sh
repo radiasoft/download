@@ -9,7 +9,7 @@ xraylib_python_install() {
     codes_download http://lvserver.ugent.be/xraylib/xraylib-3.2.0.tar.gz
     # can't use codes_dir[prefix], because it installs ~/.local/lib/python3.7
     # instead of asking python where to install.
-    ./configure --prefix="$(pyenv prefix)" \
+    ./configure --prefix="${codes_dir[pyenv_prefix]}" \
         --enable-python --disable-perl \
         --disable-ruby \
         --disable-python-numpy \
