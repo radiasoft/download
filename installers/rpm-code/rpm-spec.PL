@@ -84,7 +84,8 @@ sub _read_list {
         {
             m{^/} or die("$_: $base file must begin with '/'\n");
             s{//+}{/}g;
-            # so we ensure termination on /dir1/
+            # so we ensure termination on /dir1/ and trailing slash
+            # means "whole directory" in %files
             s{/$}{};
             $_ or die("$_: $base file may not be '/'\n");
             $_;
@@ -98,6 +99,8 @@ main(@ARGV);
 1;
 
 __DATA__
+
+# Most of this was taken from the output of fpm:
 
 # Don't try fancy stuff like debuginfo, which is useless on binary-only
 # packages. Don't strip binary too
@@ -128,6 +131,9 @@ __DATA__
 # Use gzip payload compression
 %define _binary_payload w9.gzdio
 %undefine __check_files
+
+# Avoids duplicate build_ids error, because pyenv copies files to virtualenv
+%define _build_id_links none
 
 %define          debug_package %{nil}
 %define        __os_install_post %{nil}

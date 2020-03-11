@@ -3,7 +3,7 @@ cat >> ~/.post_bivio_bashrc <<'EOF'
 pyenv() {
     case $1 in
         prefix)
-            echo /home/vagrant/.pyenv/versions/py2
+            echo /home/vagrant/.pyenv/versions/2.7.16/envs/py2
             ;;
         rehash)
             ;;

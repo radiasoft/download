@@ -57,7 +57,7 @@ synergia_install() {
 
 synergia_pyenv_exec() {
     local f=~/.pyenv/pyenv.d/exec/rs-beamsim-synergia.bash
-    local p=$(pyenv prefix)
+    local p=${codes_dir[pyenv_prefix]}
     if [[ $p =~ : ]]; then
         install_err "Invalid pyenv prefix, has a colon: $p"
     fi

@@ -31,19 +31,20 @@ rpm_code_build() {
         echo "$i"
     done > "$rpm_code_build_depends_f"
     rpm_code_build_exclude_add "$HOME"
-    rm -rf ~/rpmbuild ~/.rpmmacros
-    mkdir -p ~/rpmbuild/{RPMS,BUILD,BUILDROOT,SPECS,tmp}
-    cat <<'EOF' >~/.rpmmacros
-%_topdir   %(echo $HOME)/rpmbuild
+    mkdir "$HOME"/rpmbuild
+    cd "$HOME"/rpmbuild
+    mkdir {RPMS,BUILD,BUILDROOT,SPECS,tmp}
+    cat <<EOF > "$HOME"/.rpmmacros
+%_topdir   $PWD
 %_tmppath  %{_topdir}/tmp
 EOF
-    local r=~/rpmbuild/BUILDROOT
-    local s=~/rpmbuild/SPECS/"$rpm_base".spec
+    local r=$PWD/BUILDROOT
+    local s=$PWD/SPECS/"$rpm_base".spec
     rsync -aq --recursive --link-dest=/ --files-from="$rpm_code_build_include_f" / "$r"
     install_download rpm-spec.PL \
         | perl -w - "$rpm_code_guest_d" "$rpm_base" "$version" "$rpm_code_build_desc" > "$s"
-    cat $s
     rpmbuild --buildroot "$r" -bb "$s"
+    mv RPMS/x86_64/*.rpm "$rpm_code_guest_d"
 }
 
 rpm_code_build_include_add() {

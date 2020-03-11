@@ -1,7 +1,7 @@
 #!/bin/bash
 
 codes_assert_easy_install() {
-    local easy=$(find $(pyenv prefix)/lib -name easy-install.pth)
+    local easy=$(find "${codes_dir[pyenv_prefix]}"/lib -name easy-install.pth)
     if [[ $easy ]]; then
         install_err "$easy: packages used python setup.py install instead of pip:
 $(cat "$easy")"
@@ -154,23 +154,28 @@ codes_install() {
     # Needed for pyenv
     install_source_bashrc
     install_script_eval "codes/$module.sh"
+    # Note: this is after parsing the script. If there's a <module>_main, no harm.
+    # If there isn't, then it can't reference this. The only code that does
+    # this is common-test.sh which mocks pyenv and then sources bashrc again.
+    codes_dir[pyenv_prefix]=$(realpath "$(pyenv prefix)")
     local f=${module}_main
     if codes_is_function "$f"; then
         $f
     fi
     cd "$prev"
     local p=${module}_python_install
-    local codes_python_version=2
     if codes_is_function "$p"; then
         local v
         local codes_download_reuse_git=
         local vs=${module}_python_versions
+        local codes_python_version
         # No quotes so splits
         for v in ${!vs}; do
             codes_msg "Building: py$v"
             cd "$build_d"
             codes_python_version=$v
             install_not_strict_cmd pyenv activate py"$v"
+            codes_dir[pyenv_prefix]=$(realpath "$(pyenv prefix)")
             "$p" "$v"
             codes_install_add_all
             codes_download_reuse_git=1
@@ -182,7 +187,7 @@ codes_install() {
 }
 
 codes_install_add_all() {
-    local pp=$(pyenv prefix)
+    local pp=${codes_dir[pyenv_prefix]}
     if [[ ! $pp ]]; then
         install_err 'pyenv prefix not working'
     fi
@@ -197,7 +202,7 @@ codes_install_add_all() {
     # note: --newer doesn't work, because some installers preserve mtime
     find "$pp/" "${codes_dir[prefix]}" \
         ! -name pip-selfcheck.json ! -name '*.pyc' ! -name '*.pyo' \
-        \( -type f -o -type l \) -cnewer "$codes_install_sentinel" -print0 \
+        \( -type f -o -type l \) -cnewer "$codes_install_sentinel" -print \
         | rpm_code_build_include_add
 }
 

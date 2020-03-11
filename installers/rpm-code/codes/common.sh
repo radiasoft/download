@@ -66,5 +66,5 @@ common_main() {
     common_python 3
     local codes_download_reuse_git=1
     common_python 2
-    rpm_code_build_include_add "$(pyenv root)" "${codes_dir[prefix]}"
+    rpm_code_build_include_add "$(realpath "$(pyenv root)")" "${codes_dir[prefix]}"
 }

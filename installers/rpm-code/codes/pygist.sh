@@ -1,7 +1,16 @@
 #!/bin/bash
-codes_dependencies common
-codes_download https://bitbucket.org/dpgrote/pygist.git
-patch src/play/unix/fputest.c <<'EOF'
+pygist_python_install() {
+    python setup.py config
+    python setup.py build
+    codes_python_install
+    rpm_code_build_include_add "${codes_dir[pyenv_prefix]}"/gist
+}
+
+pygist_main() {
+    codes_dependencies common
+    pygist_python_versions='2 3'
+    codes_download https://bitbucket.org/dpgrote/pygist.git
+    patch src/play/unix/fputest.c <<'EOF'
 diff --git a/src/play/unix/fputest.c b/src/play/unix/fputest.c
 index b56702a..aaf8c08 100644
 --- a/src/play/unix/fputest.c
@@ -40,7 +49,4 @@ index b56702a..aaf8c08 100644
      puts("u_sigfpe called, but with bad parameter");
 
 EOF
-python setup.py config
-python setup.py build
-codes_python_install
-rpm_code_build_include_add "$(pyenv prefix)"/gist
+}
