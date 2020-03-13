@@ -24,7 +24,7 @@ sub main {
             no_chdir => 1,
             wanted => sub {
                 if (-l $File::Find::name || ! -d _) {
-                    $files->{$File::Find::name} = ! -l _ && -x _ ? '%attr(555,-,-)' : '';
+                    $files->{$File::Find::name} = ! -l _ && -x _ ? '%attr(755,-,-)' : '';
                 }
                 else {
                     push(@$dirs, $File::Find::name);
@@ -170,7 +170,7 @@ $spec_description
 # empty
 
 %files
-%defattr(444,vagrant,vagrant,755)
+%defattr(644,vagrant,vagrant,755)
 $spec_files
 
 %changelog
