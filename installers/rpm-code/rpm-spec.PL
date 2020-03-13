@@ -119,6 +119,7 @@ __DATA__
 %define __spec_clean_post true
 %define __spec_clean_pre true
 
+
 # Allow building noarch packages that contain binaries
 %define _binaries_in_noarch_packages_terminate_build 0
 
@@ -138,6 +139,10 @@ __DATA__
 %define          debug_package %{nil}
 %define        __os_install_post %{nil}
 
+
+# Do not generate dependencies, because they seem to get screwed up too easily,
+# e.g. nothing provides libmpi.so.12()(64bit) needed by rscode-parmetis-...rpm
+Autoreq: 0
 Summary: $spec_summary
 Name: $spec_name
 Version: $spec_version
