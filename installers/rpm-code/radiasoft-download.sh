@@ -61,8 +61,8 @@ rpm_code_build_include_add() {
 rpm_code_build_exclude_add() {
     local d
     for d in "$@"; do
-        if [[ ! ( $d =~ ^/ && -d $d ) ]]; then
-            install_err "rpm_code_build_exclude_add $d must be absolute path and a directory"
+        if [[ ! $d =~ ^/ ]]; then
+            install_err "rpm_code_build_exclude_add $d must be absolute path"
         fi
         echo "$d"
     done >> "$rpm_code_build_exclude_f"
