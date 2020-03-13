@@ -4,6 +4,11 @@ start_at=${1:-}
 codes=(
     common
 
+    # some simple ones first
+    rsbeams
+
+    genesis
+
     # create a delay here so radiasoft.repo in radiasoft/rpm-code
     # is "old" by the time bnlcrl (or other fast build) happens
     # otherwise, the cache will be stale
@@ -18,8 +23,6 @@ codes=(
     elegant
 
     epics
-
-    genesis
 
     hypre
 
@@ -39,10 +42,9 @@ codes=(
     pygist
     warp
 
+    libgfortran4
     xraylib
-#    shadow3
-
-    rsbeams
+    shadow3
 
     zgoubi
 )
