@@ -1,6 +1,21 @@
 #!/bin/bash
 codes_dependencies common
 
+codes_yum_dependencies boost-mpich-python3-devel
+git clone -b mac-native https://bitbucket.org/fnalacceleratormodeling/chef.git
+mkdir chef/build
+cd chef/build
+declare -A codes_dir
+codes_dir[pyenv_prefix]=$(realpath $(pyenv prefix))
+cmake -DCMAKE_BUILD_TYPE=Release \
+    -DFFTW3_LIBRARY_DIRS=/usr/lib64/mpich/lib \
+    -DUSE_PYTHON_3=1 \
+    -DCMAKE_INSTALL_PREFIX="${codes_dir[pyenv_prefix]}" ..
+make
+make install
+
+
+
 synergia_bootstrap() {
     # "git clone --depth 1" doesn't work in some case
     #     fatal: dumb http transport does not support --depth
