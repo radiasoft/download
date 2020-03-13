@@ -63,7 +63,7 @@ sub main {
     }
     foreach my $f (sort(keys(%$files))) {
         if ($files->{$f}) {
-            $spec_files .= '%attr(555,-,-) ';
+            $spec_files .= '%attr(755,-,-) ';
         }
         $spec_files .= qq{"$f"\n};
     }
