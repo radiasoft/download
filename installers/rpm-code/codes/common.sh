@@ -26,7 +26,7 @@ common_python() {
     codes_python_install
     # xraylib puts files in include; needs to be in common
     # https://github.com/radiasoft/containers/issues/92
-    install -d -m 755 "$(pyenv prefix)"/include
+    install -d -m 755 "${codes_dir[pyenv_prefix]}"/include
     cd "$prev_d"
 }
 
