@@ -11,7 +11,7 @@ cmake -DCMAKE_BUILD_TYPE=Release \
     -DFFTW3_LIBRARY_DIRS=/usr/lib64/mpich/lib \
     -DUSE_PYTHON_3=1 \
     -DCMAKE_INSTALL_PREFIX="${codes_dir[pyenv_prefix]}" ..
-make
+make VERBOSE=1
 make install
 
 

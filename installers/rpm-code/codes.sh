@@ -65,12 +65,16 @@ codes_download() {
             local manifest=('' '')
             repo=
             ;;
-        *.tar.gz|*.tar.xz)
+        *.tar.gz|*.tar.xz|*.tar.bz2)
             local z s
             case $repo in
+                *bz2)
+                    s=bz2
+                    z=j
+                    ;;
                 *gz)
-                    z=z
                     s=gz
+                    z=z
                     ;;
                 *xz)
                     s=xz
@@ -87,13 +91,14 @@ codes_download() {
             tar xf"$z" "$t"
             rm -f "$t"
             cd "$d"
-            if [[ ! $b =~ ^(.+)-([[:digit:]].+)$ ]]; then
-                codes_err "$repo: basename does not match version regex"
+            if [[ ${version:-} ]]; then
+                local manifest=( "$package" "$version" )
+            else
+                if [[ ! $b =~ ^(.+)-([[:digit:]].+)$ ]]; then
+                    codes_err "$repo: basename=$b does not match version regex"
+                fi
+                local manifest=( "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}" )
             fi
-            local manifest=(
-                "${BASH_REMATCH[1]}"
-                "${BASH_REMATCH[2]}"
-            )
             ;;
         *.rpm)
             local b=$(basename "$repo")
@@ -110,7 +115,7 @@ codes_download() {
             )
             ;;
         *)
-            codes_err "$repo: unknown repository format; must end in .git, .rpm, .tar.gz, .tar.xz"
+            codes_err "$repo: unknown repository format; must end in .git, .rpm, .tar.gz, .tar.xz, .tar.bz2"
             ;;
     esac
     if [[ ! ${codes_download_reuse_git:-} ]]; then

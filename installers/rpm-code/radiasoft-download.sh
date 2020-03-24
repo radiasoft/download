@@ -31,6 +31,7 @@ rpm_code_build() {
         echo "$i"
     done > "$rpm_code_build_depends_f"
     rpm_code_build_exclude_add "$HOME"
+    rm -rf "$HOME"/rpmbuild
     mkdir "$HOME"/rpmbuild
     cd "$HOME"/rpmbuild
     mkdir {RPMS,BUILD,BUILDROOT,SPECS,tmp}
@@ -106,6 +107,11 @@ rpm_code_main() {
         rpm_code_image=radiasoft/fedora
     fi
     : ${rpm_code_user:=vagrant}
+    if [[ ${rpm_code_debug:-} ]]; then
+        export rpm_code_guest_d=$PWD
+        rpm_code_build $build_args
+        return
+    fi
     if [[ $EUID == 0 ]]; then
         # Needs to be owned by rpm_code_user
         chown "${rpm_code_user}:" "$PWD"

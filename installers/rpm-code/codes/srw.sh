@@ -13,7 +13,7 @@ srw_python_install() {
 srw_main() {
     codes_yum_dependencies fftw2-devel
     codes_dependencies bnlcrl
-    srw_python_versions='2 3'
+    srw_python_versions=3
     codes_download ochubar/SRW
     # committed *.so files are not so good.
     find . -name \*.so -o -name \*.a -o -name \*.pyd -exec rm {} \;

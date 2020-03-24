@@ -32,35 +32,30 @@ common_python() {
 
 common_main() {
     local mpi=mpich
+    if [[ $mpi =~ local ]]; then
+        install_err 'need to install mpi versions of hdf5 and fftw'
+    fi
     local rpms=(
-        atlas-devel
-        blas-devel
-        boost-devel
-        boost-python2-devel
-        boost-static
+        $mpi-devel
         cmake
-        eigen3-devel
+        fftw-$mpi-devel
         flex
         glib2-devel
-        lapack-devel
+        hdf5-$mpi
+        hdf5-$mpi-devel
+        hdf5-$mpi-static
+        hdf5-devel
         # https://bugs.python.org/issue31652
         libffi-devel
         libtool
         llvm-libs
         valgrind-devel
+#?        atlas-devel
+#?        eigen3-devel
+
+        #        blas-devel
+        #        lapack-devel
     )
-    if [[ $mpi =~ local ]]; then
-        install_err 'need to install mpi versions of hdf5 and fftw'
-    else
-        rpms+=(
-            $mpi-devel
-            fftw-$mpi-devel
-            hdf5-devel
-            hdf5-$mpi
-            hdf5-$mpi-devel
-            hdf5-$mpi-static
-        )
-    fi
     codes_yum_dependencies "${rpms[@]}"
     install_source_bashrc
     # after rpm installs, required for builds
