@@ -1,15 +1,5 @@
 #!/bin/bash
 
-srw_python_install() {
-    cd SRW/cpp/py
-    make python
-    cd ../..
-    # Installs PIL
-    pip install Pillow
-    codes_python_lib_copy env/work/srw_python/{{srwl,uti}*.py,srwlpy*.so}
-    find . -name srwlpy\*.so -exec rm {} \;
-}
-
 srw_main() {
     codes_yum_dependencies fftw2-devel
     codes_dependencies bnlcrl
@@ -21,4 +11,14 @@ srw_main() {
     perl -pi -e 's/-lfftw/-lsfftw/; s/\bcc\b/gcc/; s/\bc\+\+/g++/' cpp/gcc/Makefile
     cd cpp/gcc
     make -j"$(codes_num_cores)" lib
+}
+
+srw_python_install() {
+    cd SRW/cpp/py
+    make python
+    cd ../..
+    # Installs PIL
+    pip install Pillow
+    codes_python_lib_copy env/work/srw_python/{{srwl,uti}*.py,srwlpy*.so}
+    find . -name srwlpy\*.so -exec rm {} \;
 }
