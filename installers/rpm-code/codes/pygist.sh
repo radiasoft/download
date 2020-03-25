@@ -1,5 +1,6 @@
 #!/bin/bash
 pygist_python_install() {
+    cd pygist
     python setup.py config
     python setup.py build
     codes_python_install
