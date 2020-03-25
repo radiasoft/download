@@ -17,5 +17,5 @@ CMAKE_PREFIX_PATH="${codes_dir[prefix]}" \
     --prefix="${codes_dir[prefix]}" \
     -DCMAKE_INSTALL_PREFIX="${codes_dir[prefix]}" \
     -DENABLE_SAAMG_SOLVER=TRUE
-ls -al ~/.local/lib/cmake
+ls -ald /home/vagrant/.local/lib/cmake
 codes_make_install

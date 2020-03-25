@@ -2,34 +2,34 @@
 set -euo pipefail
 start_at=${1:-}
 codes=(
-#    common
+    common
 
     # some simple ones first
-#    rsbeams
+    rsbeams
 
-#    genesis
+    genesis
 
     # create a delay here so radiasoft.repo in radiasoft/rpm-code
     # is "old" by the time bnlcrl (or other fast build) happens
     # otherwise, the cache will be stale
-#    synergia
+    synergia
 
-#    jspec
+    jspec
 
-#    bnlcrl
-#    srw
-#    radia
+    bnlcrl
+    srw
+    radia
 
-#    elegant
+    elegant
 
-#    epics
-#
-#    hypre
+    epics
 
-#    H5hut
-#    parmetis
-#    metis
-#    trilinos
+    hypre
+
+    H5hut
+    parmetis
+    metis
+    trilinos
 # not in use
 #    pyOPALTools
     opal
