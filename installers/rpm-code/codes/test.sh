@@ -1,4 +1,19 @@
 #!/bin/bash
+cat >> ~/.post_bivio_bashrc <<'EOF'
+pyenv() {
+    case $1 in
+        prefix)
+            echo /home/vagrant/.pyenv/versions/2.7.16/envs/py2
+            ;;
+        activate|rehash)
+            ;;
+        *)
+            echo "unknown pyenv mock command=$1" 1>&2
+            exit 1
+            ;;
+    esac
+}
+EOF
 
 # mock
 codes_python_lib_dir() {
@@ -27,7 +42,7 @@ test_python_install() {
     codes_python_lib_copy my.py
     # otherwise directories are owned by root
     echo PASS > "$_xyz/PASS"
-    local _fail="${codes_dir[pyenv_prefix]}"/FAIL"
+    local _fail="${codes_dir[pyenv_prefix]}/FAIL"
     mkdir -p "$_fail"
     rpm_code_build_include_add "$_xyz"
     rscode-test

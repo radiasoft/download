@@ -16,56 +16,24 @@ sub main {
         ? join(' ', 'Requires:', @{$z->{depends}}) . "\n"
         : '';
     my($files) = {};
-    my($dirs) = [];
-    File::Find::find(
-        {
-            dangling_symlinks => 1,
-            follow => 0,
-            no_chdir => 1,
-            wanted => sub {
-                if (-l $File::Find::name || ! -d _) {
-                    $files->{$File::Find::name} = ! -l _ && -x _ ? '%attr(755,-,-)' : '';
-                }
-                else {
-                    push(@$dirs, $File::Find::name);
-                }
-                return;
-            },
-        },
-        @{$z->{include}},
-    );
+#    my($exclude) = {map(($_ => 1), @{$z->{exclude}})};
     my($exclude) = {};
-    foreach my $f (@{$z->{exclude}}) {
-        while ($f !~ m{^/*$}) {
-            if ($exclude->{$f}) {
-                last;
-            }
-            $exclude->{$f} = 1;
-            $f =~ s{/[^/]*$}{};
-        }
-    }
     my($spec_files) = '';
-    my($include) = {};
-    foreach my $f (sort(@$dirs)) {
-        while ($f !~ m{^/*$}) {
-            if ($exclude->{$f}) {
-                if (grep($_ eq $f, @{$z->{include}})) {
-                    $include->{$f} = 1;
-                }
-                last;
-            }
-            $include->{$f} = 1;
-            $f =~ s{/[^/]*$}{};
+    open(OUT, '>', "$guest_d/rsync.txt") || die("rsync.txt: $!\n");
+    foreach my $f (sort(@{$z->{include}})) {
+        if ($exclude->{$f}) {
+            next;
         }
-    }
-    foreach my $f (sort(keys(%$include))) {
-        $spec_files .= qq{\%dir "$f"\n};
-    }
-    foreach my $f (sort(keys(%$files))) {
-        if ($files->{$f}) {
-            $spec_files .= '%attr(755,-,-) ';
+        if (-l $f || ! -d _) {
+            if (! -l _ && -x _) {
+                $spec_files .= '%attr(755,-,-) ';
+            }
+        }
+        else {
+            $spec_files .= '%dir ';
         }
         $spec_files .= qq{"$f"\n};
+        print(OUT "$f\n");
     }
     $template =~ s/(\$spec_\w+)/$1/eeg;
     print($template);

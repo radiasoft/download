@@ -19,4 +19,5 @@ install_source_bashrc
 codes_download_module_file pyenv.txz
 (cd && tar xJpf -) < pyenv.txz
 rpm_code_build_include_add ~/.pyenv
+mkdir ~/.local/foo
 rpm_code_build_exclude_add "$HOME"/bin

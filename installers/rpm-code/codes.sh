@@ -202,9 +202,10 @@ codes_install_add_all() {
     fi
     codes_assert_easy_install
     # note: --newer doesn't work, because some installers preserve mtime
+    return
     find "$pp/" "${codes_dir[prefix]}" \
         ! -name pip-selfcheck.json ! -name '*.pyc' ! -name '*.pyo' \
-        \( -type f -o -type l \) -cnewer "$codes_install_sentinel" -print \
+        -cnewer "$codes_install_sentinel" -print \
         | rpm_code_build_include_add
 }
 
@@ -322,6 +323,7 @@ EOF
 }
 
 codes_touch_sentinel() {
+    return
     # Need a new ctime, see find above
     rm -f "$codes_install_sentinel"
     touch "$codes_install_sentinel"

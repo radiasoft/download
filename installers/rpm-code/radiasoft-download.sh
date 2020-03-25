@@ -18,13 +18,26 @@ rpm_code_build() {
     local rpm_code_build_include_f=$rpm_code_guest_d/include.txt
     local rpm_code_build_exclude_f=$rpm_code_guest_d/exclude.txt
     local rpm_code_build_depends_f=$rpm_code_guest_d/depends.txt
+    local rpm_code_build_rsync_f=$rpm_code_guest_d/rsync.txt
     # Avoid need for build_run_user_home_chmod_public
     # Make sure all files in RPMs are publicly executable
     # see radiasoft/download/installers/container-run
-    echo 'umask 022' >> "$HOME"/.post_bivio_bashrc
+    # The grep is only needed for dev-debug-build.sh
+#    if ! grep -s -q '^umask 022' "$HOME"/.post_bivio_bashrc; then
+#        echo 'umask 022' >> "$HOME"/.post_bivio_bashrc
+#    fi
     install_source_bashrc
     install_url radiasoft/download installers/rpm-code
     install_script_eval codes.sh
+    if [[ $code == test ]]; then
+        codes_dependencies common-test
+    fi
+    if rpm_code_is_common "$code"; then
+        echo "$HOME" > "$rpm_code_build_exclude_f"
+    else
+# "$(realpath "$(pyenv root)")" "${codes_dir[prefix]}"
+        find $HOME/.pyenv $HOME/.local | sort > "$rpm_code_build_exclude_f"
+    fi
     codes_main "$code"
     local i
     for i in "${rpm_code_build_depends[@]}"; do
@@ -32,34 +45,45 @@ rpm_code_build() {
     done > "$rpm_code_build_depends_f"
     rpm_code_build_exclude_add "$HOME"
     rm -rf "$HOME"/rpmbuild
-    mkdir "$HOME"/rpmbuild
+    mkdir -p "$HOME"/rpmbuild/{RPMS,BUILD,BUILDROOT,SPECS,tmp}
     cd "$HOME"/rpmbuild
-    mkdir {RPMS,BUILD,BUILDROOT,SPECS,tmp}
     cat <<EOF > "$HOME"/.rpmmacros
 %_topdir   $PWD
 %_tmppath  %{_topdir}/tmp
 EOF
     local r=$PWD/BUILDROOT
     local s=$PWD/SPECS/"$rpm_base".spec
-    rsync -aq --recursive --link-dest=/ --files-from="$rpm_code_build_include_f" / "$r"
+    install_msg "$(date +%M:%S) Generating $rpm_code_build_include_f"
+    find $HOME/.pyenv $HOME/.local \
+         ! -name pip-selfcheck.json ! -name '*.pyc' ! -name '*.pyo' \
+         -print \
+         | sort | grep -vxFf "$rpm_code_build_exclude_f" - > "$rpm_code_build_include_f"
+    install_msg "$(date +%M:%S) Running rpm-spec.PL"
     install_download rpm-spec.PL \
         | perl -w - "$rpm_code_guest_d" "$rpm_base" "$version" "$rpm_code_build_desc" > "$s"
+# --recursive
+    install_msg "$(date +%M:%S) Running rsync"
+    rsync -aq --link-dest=/ --files-from="$rpm_code_build_rsync_f" / "$r"
+    install_msg "$(date +%M:%S) Running rpmbuild"
     rpmbuild --buildroot "$r" -bb "$s"
     mv RPMS/x86_64/*.rpm "$rpm_code_guest_d"
 }
 
 rpm_code_build_include_add() {
     if [[ "$@" ]]; then
+        return
         local f
         for f in "$@"; do
             echo "$f"
         done >> "$rpm_code_build_include_f"
     else
-        cat >> "$rpm_code_build_include_f"
+        cat > /dev/null
+#        cat >> "$rpm_code_build_include_f"
     fi
 }
 
 rpm_code_build_exclude_add() {
+    return
     local d
     for d in "$@"; do
         if [[ ! $d =~ ^/ ]]; then
@@ -129,5 +153,3 @@ EOF
     rpm_code_install_rpm "$rpm_base"
     (umask 022; createrepo -q --update "$rpm_code_yum_dir")
 }
-
-rpm_code_main ${install_extra_args[@]+"${install_extra_args[@]}"}
