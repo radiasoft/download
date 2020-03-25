@@ -8,7 +8,7 @@ pymesh_python_install() {
 }
 
 pymesh_main() {
-    codes_yum_dependencies blas-devel mpfr-devel gmp-devel eigen3-devel
+    codes_yum_dependencies blas-devel mpfr-devel gmp-devel
     codes_dependencies common boost
     codes_download_nonrecursive=1 codes_download https://github.com/radiasoft/PyMesh.git
     # geogram is far back
