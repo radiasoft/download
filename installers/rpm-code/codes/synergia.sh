@@ -1,56 +1,23 @@
 #!/bin/bash
-codes_dependencies common
 
-codes_yum_dependencies boost-mpich-python3-devel
-git clone -b mac-native https://bitbucket.org/fnalacceleratormodeling/chef.git
-mkdir chef/build
-cd chef/build
-declare -A codes_dir
-codes_dir[pyenv_prefix]=$(realpath $(pyenv prefix))
-cmake -DCMAKE_BUILD_TYPE=Release \
-    -DFFTW3_LIBRARY_DIRS=/usr/lib64/mpich/lib \
-    -DUSE_PYTHON_3=1 \
-    -DCMAKE_INSTALL_PREFIX="${codes_dir[pyenv_prefix]}" ..
-make VERBOSE=1
-make install
-
-
-
-synergia_bootstrap() {
-    # "git clone --depth 1" doesn't work in some case
-    #     fatal: dumb http transport does not support --depth
-    # so if you don't pass a commit to codes_download, you'll see this error.
-    codes_download https://bitbucket.org/fnalacceleratormodeling/contract-synergia2.git origin/devel
-    ./bootstrap
+synergia_python_install() {
+    mkdir chef/build
+    cd chef/build
+    cmake -DCMAKE_BUILD_TYPE=Release \
+        -DFFTW3_LIBRARY_DIRS=/usr/lib64/mpich/lib \
+        -DUSE_PYTHON_3=1 \
+        -DCMAKE_INSTALL_PREFIX="${codes_dir[pyenv_prefix]}" ..
+    codes_make_install
 }
 
-synergia_contractor() {
-    local cores=$(codes_num_cores)
-    codes_msg "Using default_parallel=$cores"
-    local -a x=(
-        default_parallel=$cores
-        #TODO(robnagler) Need to figure out how to patch synergia2 itself
-        # before the build but after contractor downloads it.
-        synergia2/repo=https://bitbucket.org/robnagler/synergia2
-    )
-    local f
-    # chef_libs gets random make errors when running parallel
-    for f in chef-libs; do
-        x+=( "$f"/make_use_custom_parallel=1 "$f"/make_custom_parallel=1 )
-    done
-    for f in bison fftw3 libpng nlopt; do
-        x+=( "$f"_internal=1 )
-    done
-    ./contract.py --configure "${x[@]}"
-    ./contract.py
-}
 
 synergia_main() {
-    synergia_bootstrap
-    synergia_contractor
-    synergia_version
-    synergia_python_versions=2
+    codes_dependencies common boost
+    codes_download https://bitbucket.org/fnalacceleratormodeling/chef.git mac-native
+#    synergia_version
+    synergia_python_versions=3
 }
+
 
 synergia_python_install() {
     # mpi should be added automatically (/etc/ld.so.conf.d), but there's
