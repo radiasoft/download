@@ -54,9 +54,12 @@ EOF
     local r=$PWD/BUILDROOT
     local s=$PWD/SPECS/"$rpm_base".spec
     install_msg "$(date +%M:%S) Generating $rpm_code_build_include_f"
-    find $HOME/.pyenv $HOME/.local \
-         ! -name pip-selfcheck.json ! -name '*.pyc' ! -name '*.pyo' \
-         -print \
+    local -a a=( $HOME/.pyenv $HOME/.local )
+    if ! rpm_code_is_common "$code"; then
+        a+=( ! -name pip-selfcheck.json ! -name '*.pyc' ! -name '*.pyo' )
+
+    fi
+    find "${a[@]}" -print \
          | sort | grep -vxFf "$rpm_code_build_exclude_f" - > "$rpm_code_build_include_f"
     install_msg "$(date +%M:%S) Running rpm-spec.PL"
     install_download rpm-spec.PL \

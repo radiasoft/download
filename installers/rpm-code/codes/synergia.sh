@@ -16,10 +16,10 @@ synergia_python_install() {
         -DUSE_SIMPLE_TIMER=0 \
         ..
     codes_make_install VERBOSE=1 install
-    "$(codes_python_lib_dir)"
-    echo
-    mv synergia synergia_tools synergia_workflow
-    add synergia_tools/__init__.py
+#    "$(codes_python_lib_dir)"
+#    echo
+#    mv synergia synergia_tools synergia_workflow
+#    add synergia_tools/__init__.py
 }
 
 

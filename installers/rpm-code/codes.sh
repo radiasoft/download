@@ -193,6 +193,8 @@ codes_install_add_all() {
     if [[ ! $pp ]]; then
         install_err 'pyenv prefix not working'
     fi
+#TODO(robnagler) remove man in local too?
+    rm -rf "$pp"/man
     # Ensure pyenv paths are up to date
     # See https://github.com/biviosoftware/home-env/issues/8
     pyenv rehash

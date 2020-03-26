@@ -28,6 +28,7 @@ common_python() {
     # https://github.com/radiasoft/containers/issues/92
     install -d -m 755 "${codes_dir[pyenv_prefix]}"/include
     cd "$prev_d"
+    rm -f "${codes_dir[pyenv_prefix]}"/cache/*
 }
 
 common_main() {
