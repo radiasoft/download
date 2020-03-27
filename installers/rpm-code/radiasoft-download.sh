@@ -19,32 +19,27 @@ rpm_code_build() {
     local rpm_code_build_exclude_f=$rpm_code_guest_d/exclude.txt
     local rpm_code_build_depends_f=$rpm_code_guest_d/depends.txt
     local rpm_code_build_rsync_f=$rpm_code_guest_d/rsync.txt
-    # Avoid need for build_run_user_home_chmod_public
-    # Make sure all files in RPMs are publicly executable
-    # see radiasoft/download/installers/container-run
-    # The grep is only needed for dev-debug-build.sh
-#    if ! grep -s -q '^umask 022' "$HOME"/.post_bivio_bashrc; then
-#        echo 'umask 022' >> "$HOME"/.post_bivio_bashrc
-#    fi
     install_source_bashrc
     install_url radiasoft/download installers/rpm-code
     install_script_eval codes.sh
     if [[ $code == test ]]; then
-        codes_dependencies common-test
+        codes_dependencies common_test
     fi
+    local roots=( $HOME/.pyenv $HOME/.local )
     if rpm_code_is_common "$code"; then
-        echo "$HOME" > "$rpm_code_build_exclude_f"
+        touch "$rpm_code_build_exclude_f"
     else
-# "$(realpath "$(pyenv root)")" "${codes_dir[prefix]}"
-        find $HOME/.pyenv $HOME/.local | sort > "$rpm_code_build_exclude_f"
+        find "${roots[@]}" | sort > "$rpm_code_build_exclude_f"
     fi
     codes_main "$code"
     local i
     for i in "${rpm_code_build_depends[@]}"; do
         echo "$i"
     done > "$rpm_code_build_depends_f"
-    rpm_code_build_exclude_add "$HOME"
-    rm -rf "$HOME"/rpmbuild
+    if [[ ${rpm_code_debug:-} ]]; then
+        install_msg "Removing $HOME/rpmbuild"
+        rm -rf "$HOME"/rpmbuild
+    fi
     mkdir -p "$HOME"/rpmbuild/{RPMS,BUILD,BUILDROOT,SPECS,tmp}
     cd "$HOME"/rpmbuild
     cat <<EOF > "$HOME"/.rpmmacros
@@ -53,51 +48,25 @@ rpm_code_build() {
 EOF
     local r=$PWD/BUILDROOT
     local s=$PWD/SPECS/"$rpm_base".spec
-    install_msg "$(date +%M:%S) Generating $rpm_code_build_include_f"
-    local -a a=( $HOME/.pyenv $HOME/.local )
+    install_msg "$(date +%H:%M:%S) Generating $rpm_code_build_include_f"
+    local -a a=( "${roots[@]}" )
     if ! rpm_code_is_common "$code"; then
         a+=( ! -name pip-selfcheck.json ! -name '*.pyc' ! -name '*.pyo' )
-
     fi
-    find "${a[@]}" -print \
+    find "${a[@]}" \
          | sort | grep -vxFf "$rpm_code_build_exclude_f" - > "$rpm_code_build_include_f"
-    install_msg "$(date +%M:%S) Running rpm-spec.PL"
+    install_msg "$(date +%H:%M:%S) Run: rpm-spec.PL"
     install_download rpm-spec.PL \
         | perl -w - "$rpm_code_guest_d" "$rpm_base" "$version" "$rpm_code_build_desc" > "$s"
-# --recursive
-    install_msg "$(date +%M:%S) Running rsync"
+    install_msg "$(date +%H:%M:%S) Run: rsync"
     rsync -aq --link-dest=/ --files-from="$rpm_code_build_rsync_f" / "$r"
-    install_msg "$(date +%M:%S) Running rpmbuild"
+    install_msg "$(date +%H:%M:%S) Run: rpmbuild"
     rpmbuild --buildroot "$r" -bb "$s"
     mv RPMS/x86_64/*.rpm "$rpm_code_guest_d"
 }
 
-rpm_code_build_include_add() {
-    if [[ "$@" ]]; then
-        return
-        local f
-        for f in "$@"; do
-            echo "$f"
-        done >> "$rpm_code_build_include_f"
-    else
-        cat > /dev/null
-#        cat >> "$rpm_code_build_include_f"
-    fi
-}
-
-rpm_code_build_exclude_add() {
-    return
-    local d
-    for d in "$@"; do
-        if [[ ! $d =~ ^/ ]]; then
-            install_err "rpm_code_build_exclude_add $d must be absolute path"
-        fi
-        echo "$d"
-    done >> "$rpm_code_build_exclude_f"
-}
-
 rpm_code_is_common() {
-    [[ $1 =~ ^(common|common-test)$ ]]
+    [[ $1 =~ ^(common|common_test)$ ]]
 }
 
 rpm_code_install_rpm() {

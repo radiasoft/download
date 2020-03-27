@@ -1,4 +1,11 @@
 #!/bin/bash
-codes_dependencies common
-codes_download radiasoft/rslinac beamsim_build
-codes_python_install
+
+rslinac_main() {
+    codes_dependencies common
+    codes_download radiasoft/rslinac beamsim_build
+}
+
+rslinac_python_install() {
+    cd rslinac
+    codes_python_install
+}

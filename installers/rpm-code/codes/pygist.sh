@@ -1,15 +1,14 @@
 #!/bin/bash
+
 pygist_python_install() {
     cd pygist
     python setup.py config
     python setup.py build
     codes_python_install
-    rpm_code_build_include_add "${codes_dir[pyenv_prefix]}"/gist
 }
 
 pygist_main() {
     codes_dependencies common
-    pygist_python_versions='2 3'
     codes_download https://bitbucket.org/dpgrote/pygist.git
     patch src/play/unix/fputest.c <<'EOF'
 diff --git a/src/play/unix/fputest.c b/src/play/unix/fputest.c

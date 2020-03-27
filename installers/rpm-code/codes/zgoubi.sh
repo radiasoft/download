@@ -6,7 +6,7 @@ zgoubi_python_install() {
 }
 
 zgoubi_main() {
-    codes_dependencies common
+    codes_dependencies common pyzgoubi
     codes_download radiasoft/zgoubi
     zgoubi_python_versions=2
     # Lots of warnings so disable

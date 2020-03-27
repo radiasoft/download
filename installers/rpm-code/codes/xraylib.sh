@@ -1,8 +1,8 @@
 #!/bin/bash
+
 xraylib_main() {
     codes_yum_dependencies swig
     codes_dependencies common
-    xraylib_python_versions=3
 }
 
 xraylib_python_install() {
@@ -14,6 +14,6 @@ xraylib_python_install() {
         --disable-ruby \
         --disable-python-numpy \
         --disable-fortran2003
-    make
+    codes_make
     codes_make_install
 }

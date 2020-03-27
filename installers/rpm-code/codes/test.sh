@@ -20,9 +20,8 @@ codes_python_lib_dir() {
     echo /home/vagrant/.pyenv/versions/py2/lib/python2.7/site-packages
 }
 
-
 test_main() {
-    codes_dependencies common-test
+    codes_dependencies common_test
     install -m 555 /dev/stdin "${codes_dir[bin]}"/rscode-test <<EOF
 #!/bin/bash
 # POSIT: codes.sh sets locally-scoped version var
@@ -31,8 +30,7 @@ EOF
     install_source_bashrc
     local my_sh=${codes_dir[bashrc_d]}/my.sh
     echo echo PASS > "$my_sh"
-    rpm_code_build_include_add "$my_sh"
-    test_python_versions=2
+    test_python_version=2
 }
 
 test_python_install() {
@@ -42,8 +40,5 @@ test_python_install() {
     codes_python_lib_copy my.py
     # otherwise directories are owned by root
     echo PASS > "$_xyz/PASS"
-    local _fail="${codes_dir[pyenv_prefix]}/FAIL"
-    mkdir -p "$_fail"
-    rpm_code_build_include_add "$_xyz"
     rscode-test
 }

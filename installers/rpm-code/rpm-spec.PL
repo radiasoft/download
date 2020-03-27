@@ -9,21 +9,15 @@ sub main {
     my($spec_summary) = (split(/\n/, $spec_description))[0];
     my($template) = (sub {local($/); return <DATA>})->();
     my($z) = {};
-    foreach my $x (qw(include exclude depends)) {
+    foreach my $x (qw(include depends)) {
         $z->{$x} = _read_list($guest_d, $x);
     }
     my($spec_requires) = @{$z->{depends}}
         ? join(' ', 'Requires:', @{$z->{depends}}) . "\n"
         : '';
-    my($files) = {};
-#    my($exclude) = {map(($_ => 1), @{$z->{exclude}})};
-    my($exclude) = {};
     my($spec_files) = '';
     open(OUT, '>', "$guest_d/rsync.txt") || die("rsync.txt: $!\n");
     foreach my $f (sort(@{$z->{include}})) {
-        if ($exclude->{$f}) {
-            next;
-        }
         if (-l $f || ! -d _) {
             if (! -l _ && -x _) {
                 $spec_files .= '%attr(755,-,-) ';
@@ -46,20 +40,7 @@ sub _read_list {
     open(IN, '<', $f) || die("$f: $!\n");
     chomp(my @res = <IN>);
     close(IN);
-    return \@res
-        if $base eq 'depends';
-    return [map(
-        {
-            m{^/} or die("$_: $base file must begin with '/'\n");
-            s{//+}{/}g;
-            # so we ensure termination on /dir1/ and trailing slash
-            # means "whole directory" in %files
-            s{/$}{};
-            $_ or die("$_: $base file may not be '/'\n");
-            $_;
-        }
-        @res
-    )]
+    return \@res;
 }
 
 main(@ARGV);

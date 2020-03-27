@@ -7,7 +7,7 @@ epics_main() {
     mv base-7.0.2 "$HOME"/.local/epics
     cd "$HOME"/.local/epics
     local arch=linux-x86_64
-    make -j"$(codes_num_cores)" \
+    codes_make \
          EPICS_HOST_ARCH="$arch" \
          LINKER_USE_RPATH=YES \
          SHARED_LIBRARIES=YES

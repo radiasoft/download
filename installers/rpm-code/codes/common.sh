@@ -61,5 +61,4 @@ common_main() {
     common_python 3
     # codes install into "lib/cmake" which needs to be owned by common
     install -d -m 755 "${codes_dir[lib]}"/cmake
-    rpm_code_build_include_add "$(realpath "$(pyenv root)")" "${codes_dir[prefix]}"
 }

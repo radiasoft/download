@@ -85,7 +85,6 @@ elegant_main() {
         openmotif-devel \
         subversion \
         tcsh
-    elegant_python_versions='2 3'
     elegant_download
     elegant_build
     elegant_share
@@ -95,8 +94,7 @@ elegant_make() {
     local mode=$1
     shift
     local shared=(
-        make
-        -j$(codes_num_cores)
+        codes_make
         COMMANDLINE_LIBRARY=
         EPICS_HOST_ARCH=$_elegant_arch
         HOME=$HOME

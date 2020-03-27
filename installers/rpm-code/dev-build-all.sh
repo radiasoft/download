@@ -26,20 +26,19 @@ codes=(
 
     hypre
 
-    H5hut
+    h5hut
     parmetis
     metis
     trilinos
-# not in use
-#    pyOPALTools
+    pyopaltools
     opal
 
     pydicom
 
     pymesh
 
-    Forthon
-    openPMD
+    forthon
+    openpmd
     pygist
     warp
 
@@ -47,6 +46,7 @@ codes=(
     xraylib
     shadow3
 
+    pyzgoubi
     zgoubi
 )
 for c in "${codes[@]}"; do

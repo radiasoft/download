@@ -26,6 +26,37 @@ codes_dependencies() {
     codes_touch_sentinel
 }
 
+codes_dir_setup() {
+    local todo=()
+    local d n p
+    for n in prefix \
+        etc \
+        bashrc_d \
+        bin \
+        lib \
+        include \
+        share
+    do
+        case $n in
+            bashrc_d)
+                p=/etc/bashrc.d
+                ;;
+            prefix)
+                p=
+                ;;
+            *)
+                p=/$n
+                ;;
+        esac
+        d=$HOME/.local$p
+        todo+=( $d )
+        codes_dir[$n]=$d
+    done
+    if codes_is_common; then
+        install_msg 'creating directories'
+        mkdir -p "${todo[@]}"
+    fi
+}
 
 codes_download() {
     # If download is an rpm, also installs
@@ -160,55 +191,35 @@ codes_install() {
     install_source_bashrc
     install_script_eval "codes/$module.sh"
     local f=${module}_main
-    if codes_is_function "$f"; then
-        $f
+    if ! codes_is_function "$f"; then
+        install_error "function=$f not defined for code=$module"
     fi
+    $f
     cd "$prev"
     local p=${module}_python_install
     if codes_is_function "$p"; then
-        local v
-        local codes_download_reuse_git=
-        local vs=${module}_python_versions
-        local codes_python_version
-        # No quotes so splits
-        for v in ${!vs}; do
-            codes_msg "Building: py$v"
-            cd "$build_d"
-            codes_python_version=$v
-            install_not_strict_cmd pyenv activate py"$v"
-            codes_dir[pyenv_prefix]=$(realpath "$(pyenv prefix)")
-            "$p" "$v"
-            codes_install_add_all
-            codes_download_reuse_git=1
-        done
-    else
+        local vs=${module}_python_version
+        local v=${!vs:-3}
+        codes_msg "Building: py$v"
+        cd "$build_d"
+        install_not_strict_cmd pyenv activate py"$v"
         codes_dir[pyenv_prefix]=$(realpath "$(pyenv prefix)")
-        codes_install_add_all
+        "$p" "$v"
+        codes_install_pyenv_done
     fi
     cd "$prev"
 }
 
-codes_install_add_all() {
+codes_install_pyenv_done() {
     local pp=${codes_dir[pyenv_prefix]}
     if [[ ! $pp ]]; then
         install_err 'pyenv prefix not working'
     fi
-#TODO(robnagler) remove man in local too?
     rm -rf "$pp"/man
     # Ensure pyenv paths are up to date
     # See https://github.com/biviosoftware/home-env/issues/8
     pyenv rehash
-    # This excludes all the top level directories and python2.7/site-packages
-    if ! codes_is_common; then
-        rpm_code_build_exclude_add "$pp"/* "$(codes_python_lib_dir)"
-    fi
     codes_assert_easy_install
-    # note: --newer doesn't work, because some installers preserve mtime
-    return
-    find "$pp/" "${codes_dir[prefix]}" \
-        ! -name pip-selfcheck.json ! -name '*.pyc' ! -name '*.pyo' \
-        -cnewer "$codes_install_sentinel" -print \
-        | rpm_code_build_include_add
 }
 
 codes_is_common() {
@@ -219,53 +230,20 @@ codes_is_function() {
     [[ $(type -t "$1") == function ]]
 }
 
-codes_dir_setup() {
-    local a=rpm_code_build_exclude_add
-    if codes_is_common; then
-        a=rpm_code_build_include_add
-    fi
-    local d n p
-    # order matters
-    for n in prefix \
-        etc \
-        bashrc_d \
-        bin \
-        lib \
-        include \
-        share
-    do
-        case $n in
-            bashrc_d)
-                p=/etc/bashrc.d
-                ;;
-            prefix)
-                p=
-                ;;
-            *)
-                p=/$n
-                ;;
-        esac
-        d=$HOME/.local$p
-        # POSIT: codes are public;
-        # umask needed to make parent dirs
-        install -d "$d"
-        $a "$d"
-        codes_dir[$n]=$d
-    done
-}
-
 codes_main() {
     codes_install "$@"
 }
 
-codes_make_install() {
+codes_make() {
     local cmd=( make -j$(codes_num_cores) )
     if [[ $@ ]]; then
         cmd+=( "$@" )
-    else
-        cmd+=( install )
     fi
     "${cmd[@]}"
+}
+
+codes_make_install() {
+    codes_make "$@" install
 }
 
 codes_manifest_add_code() {

@@ -4,7 +4,6 @@ radia_main() {
     # needed for fftw and uti_*.py
     codes_dependencies srw
     codes_download ochubar/Radia
-    radia_python_versions=3
     # committed *.so files are not so good.
     find . -name \*.so -o -name \*.a -o -name \*.pyd -exec rm {} \;
     rm -rf ext_lib

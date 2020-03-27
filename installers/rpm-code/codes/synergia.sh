@@ -1,11 +1,10 @@
 #!/bin/bash
 
 synergia_python_install() {
-    mkdir synergia2/build
-    cd synergia2/build
+    cd synergia2
     # EXTRA_CXX_FLAGS, because synergia won't compile without them
     CHEF_INSTALL_DIR="${codes_dir[pyenv_prefix]}" \
-        cmake \
+        codes_cmake \
         -DBOOST_ROOT="${codes_dir[prefix]}" \
         -DBUILD_PYTHON_BINDINGS=1 \
         -DCMAKE_BUILD_TYPE=Release \
@@ -24,5 +23,4 @@ synergia_python_install() {
 synergia_main() {
     codes_dependencies fnal_chef
     codes_download https://bitbucket.org/fnalacceleratormodeling/synergia2.git mac-native
-    synergia_python_versions=3
 }
