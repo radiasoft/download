@@ -3,7 +3,7 @@
 synergia_python_install() {
     mkdir synergia2/build
     cd synergia2/build
-    # EXTRA_CXX_FLAGS are needed because -Wall in CMakeLists.txt
+    # EXTRA_CXX_FLAGS, because synergia won't compile without them
     CHEF_INSTALL_DIR="${codes_dir[pyenv_prefix]}" \
         cmake \
         -DBOOST_ROOT="${codes_dir[prefix]}" \
@@ -15,13 +15,11 @@ synergia_python_install() {
         -DUSE_PYTHON_3=1 \
         -DUSE_SIMPLE_TIMER=0 \
         ..
-    codes_make_install VERBOSE=1 install
-#    "$(codes_python_lib_dir)"
-#    echo
-#    mv synergia synergia_tools synergia_workflow
-#    add synergia_tools/__init__.py
+    codes_make_install
+    local l="$(codes_python_lib_dir)"
+    mv "${codes_dir[pyenv_prefix]}"/lib/{synergia,synergia_tools,synergia_workflow} "$l"
+    echo '#' > "$l"/synergia_tools/__init__.py
 }
-
 
 synergia_main() {
     codes_dependencies fnal_chef
