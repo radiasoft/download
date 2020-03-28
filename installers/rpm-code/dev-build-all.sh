@@ -30,7 +30,8 @@ codes=(
     parmetis
     metis
     trilinos
-    pyopaltools
+# see pyopaltools.sh
+#    pyopaltools
     opal
 
     pydicom
