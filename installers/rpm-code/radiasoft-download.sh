@@ -14,7 +14,6 @@ rpm_code_build() {
     # flag used by code.sh to know if inside this function
     local rpm_code_build=1
     local rpm_code_build_desc=
-    local -a rpm_code_build_depends=()
     local rpm_code_build_include_f=$rpm_code_guest_d/include.txt
     local rpm_code_build_exclude_f=$rpm_code_guest_d/exclude.txt
     local rpm_code_build_depends_f=$rpm_code_guest_d/depends.txt
@@ -22,20 +21,8 @@ rpm_code_build() {
     install_source_bashrc
     install_url radiasoft/download installers/rpm-code
     install_script_eval codes.sh
-    if [[ $code == test ]]; then
-        codes_dependencies common_test
-    fi
-    local roots=( $HOME/.pyenv $HOME/.local )
-    if rpm_code_is_common "$code"; then
-        touch "$rpm_code_build_exclude_f"
-    else
-        find "${roots[@]}" | sort > "$rpm_code_build_exclude_f"
-    fi
+    local rpm_code_root_dirs=( $HOME/.pyenv $HOME/.local )
     codes_main "$code"
-    local i
-    for i in "${rpm_code_build_depends[@]}"; do
-        echo "$i"
-    done > "$rpm_code_build_depends_f"
     if [[ ${rpm_code_debug:-} ]]; then
         install_msg "Removing $HOME/rpmbuild"
         rm -rf "$HOME"/rpmbuild
@@ -49,12 +36,17 @@ EOF
     local r=$PWD/BUILDROOT
     local s=$PWD/SPECS/"$rpm_base".spec
     install_msg "$(date +%H:%M:%S) Generating $rpm_code_build_include_f"
-    local -a a=( "${roots[@]}" )
-    if ! rpm_code_is_common "$code"; then
-        a+=( ! -name pip-selfcheck.json ! -name '*.pyc' ! -name '*.pyo' )
+    if rpm_code_is_common "$code"; then
+        if [[ -e $rpm_code_build_exclude_f ]]; then
+            install_err "excludes.txt should not exist"
+        fi
+        find "${rpm_code_root_dirs[@]}" | sort > "$rpm_code_build_include_f"
+        touch "$rpm_code_build_depends_f"
+    else
+        find "${rpm_code_root_dirs[@]}" \
+            ! -name pip-selfcheck.json ! -name '*.pyc' ! -name '*.pyo' \
+            | sort | grep -vxFf "$rpm_code_build_exclude_f" - > "$rpm_code_build_include_f"
     fi
-    find "${a[@]}" \
-         | sort | grep -vxFf "$rpm_code_build_exclude_f" - > "$rpm_code_build_include_f"
     install_msg "$(date +%H:%M:%S) Run: rpm-spec.PL"
     install_download rpm-spec.PL \
         | perl -w - "$rpm_code_guest_d" "$rpm_base" "$version" "$rpm_code_build_desc" > "$s"
@@ -62,7 +54,19 @@ EOF
     rsync -aq --link-dest=/ --files-from="$rpm_code_build_rsync_f" / "$r"
     install_msg "$(date +%H:%M:%S) Run: rpmbuild"
     rpmbuild --buildroot "$r" -bb "$s"
+    install_msg "$(date +%H:%M:%S) Done: rpmbuild"
     mv RPMS/x86_64/*.rpm "$rpm_code_guest_d"
+}
+
+rpm_code_dependencies_done() {
+    if [[ -e $rpm_code_build_exclude_f ]]; then
+        install_err "duplicate call to rpm_code_dependencies_done"
+    fi
+    local i
+    for i in "$@"; do
+        echo "$rpm_code_rpm_prefix-$i"
+    done > $rpm_code_build_depends_f
+    find "${rpm_code_root_dirs[@]}" | sort > "$rpm_code_build_exclude_f"
 }
 
 rpm_code_is_common() {

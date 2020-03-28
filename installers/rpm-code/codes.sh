@@ -18,12 +18,8 @@ codes_curl() {
 }
 
 codes_dependencies() {
-    local i
-    for i in "$@"; do
-        rpm_code_build_depends+=( "rscode-$i" )
-    done
     install_repo_eval code "$@"
-    codes_touch_sentinel
+    rpm_code_dependencies_done "$@"
 }
 
 codes_dir_setup() {
@@ -182,8 +178,6 @@ codes_install() {
     codes_msg "Directory: $build_d"
     cd "$build_d"
     rpm_code_build_src_dir=( "$build_d" )
-    codes_install_sentinel=$build_d/.codes_install
-    codes_touch_sentinel
     local codes_module=$module
     local -A codes_dir=()
     codes_dir_setup
@@ -300,13 +294,6 @@ import sys
 from distutils.sysconfig import get_python_lib as x
 sys.stdout.write(x())
 EOF
-}
-
-codes_touch_sentinel() {
-    return
-    # Need a new ctime, see find above
-    rm -f "$codes_install_sentinel"
-    touch "$codes_install_sentinel"
 }
 
 codes_yum_dependencies() {

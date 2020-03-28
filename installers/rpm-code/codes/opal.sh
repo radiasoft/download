@@ -1,7 +1,7 @@
 #!/bin/bash
 opal_main() {
     codes_yum_dependencies blas-devel
-    codes_dependencies trilinos h5hut boost pyopaltools
+    codes_dependencies trilinos h5hut boost
     codes_download https://gitlab.psi.ch/OPAL/src/-/archive/OPAL-2.2.0/src-OPAL-2.2.0.tar.gz
     # https://stackoverflow.com/a/20991533
     # boost is compiled multithreaded, because it doesn't mean "pthreads",
