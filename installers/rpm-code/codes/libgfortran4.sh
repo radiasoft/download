@@ -1,7 +1,7 @@
 #!/bin/bash
 libgfortran4_main() {
-    codes_dependencies common
     codes_yum_dependencies libmpc-devel
+    codes_dependencies common
     codes_download https://bigsearcher.com/mirrors/gcc/releases/gcc-7.5.0/gcc-7.5.0.tar.xz
     cd ..
     local p=$PWD/gcc-install

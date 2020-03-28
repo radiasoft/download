@@ -1,9 +1,8 @@
 #!/bin/bash
 
 fnal_chef_main() {
-    # pyparsing is required by matplotlib
-    codes_dependencies common boost pydot
     codes_yum_dependencies eigen3-devel gsl-devel
+    codes_dependencies common boost pydot
     codes_download https://bitbucket.org/fnalacceleratormodeling/chef.git mac-native
 }
 

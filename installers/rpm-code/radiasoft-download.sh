@@ -65,7 +65,7 @@ rpm_code_dependencies_done() {
     local i
     for i in "$@"; do
         echo "$rpm_code_rpm_prefix-$i"
-    done > $rpm_code_build_depends_f
+    done >> $rpm_code_build_depends_f
     find "${rpm_code_root_dirs[@]}" | sort > "$rpm_code_build_exclude_f"
 }
 
@@ -128,4 +128,15 @@ EOF2
 EOF
     rpm_code_install_rpm "$rpm_base"
     (umask 022; createrepo -q --update "$rpm_code_yum_dir")
+}
+
+rpm_code_yum_dependencies() {
+    if [[ -e $rpm_code_build_exclude_f ]]; then
+        install_err 'must call rpm_code_dependencies_done before rpm_code_yum_dependencies'
+    fi
+    install_yum_install "$@"
+    local i
+    for i in "$@"; do
+        echo "$i"
+    done >> $rpm_code_build_depends_f
 }

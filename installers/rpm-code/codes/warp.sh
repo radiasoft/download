@@ -14,8 +14,7 @@ warp_python_install() {
 }
 
 warp_main() {
-    codes_dependencies common
-    codes_dependencies forthon pygist openpmd
+    codes_dependencies common forthon pygist openpmd
     codes_download https://bitbucket.org/radiasoft/warp.git
     cd pywarp90
     if [[ ${codes_debug:-} ]]; then

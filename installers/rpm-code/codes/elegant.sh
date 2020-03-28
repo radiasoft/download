@@ -75,7 +75,6 @@ elegant_download() {
 }
 
 elegant_main() {
-    codes_dependencies common
     codes_yum_dependencies \
         lapack-devel \
         libXaw-devel \
@@ -85,6 +84,7 @@ elegant_main() {
         openmotif-devel \
         subversion \
         tcsh
+    codes_dependencies common
     elegant_download
     elegant_build
     elegant_share

@@ -41,6 +41,7 @@ common_main() {
         cmake
         fftw-$mpi-devel
         flex
+        gcc-gfortran
         glib2-devel
         hdf5-$mpi
         hdf5-$mpi-devel

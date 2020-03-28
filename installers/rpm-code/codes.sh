@@ -297,6 +297,5 @@ EOF
 }
 
 codes_yum_dependencies() {
-    rpm_code_build_depends+=( "$@" )
-    install_yum_install "$@"
+    rpm_code_yum_dependencies "$@"
 }
