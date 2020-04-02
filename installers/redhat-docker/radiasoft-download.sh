@@ -107,6 +107,7 @@ EOF2
     "tlsverify": true
 }
 EOF2
+    systemctl daemon-reload
     systemctl start docker
     systemctl enable docker
 EOF
