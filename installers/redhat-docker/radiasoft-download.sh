@@ -108,7 +108,7 @@ EOF2
 }
 EOF2
     systemctl daemon-reload
-    systemctl start docker
+    systemctl restart docker
     systemctl enable docker
 EOF
 }
