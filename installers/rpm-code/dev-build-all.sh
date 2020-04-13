@@ -8,9 +8,14 @@ codes=(
     genesis
     rsbeams
 
+    # libraries
+    pydot
+    boost
+
     # create a delay here so radiasoft.repo in radiasoft/rpm-code
     # is "old" by the time bnlcrl (or other fast build) happens
     # otherwise, the cache will be stale
+    fnal_chef
     synergia
 
     jspec
@@ -32,6 +37,8 @@ codes=(
 # see pyopaltools.sh
 #    pyopaltools
     opal
+
+    ml_for_py3
 
     pydicom
 
