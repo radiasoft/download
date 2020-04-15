@@ -17,6 +17,7 @@ beamsim_codes_main() {
         epics
         genesis
         jspec
+        hypre
         ml_for_py3
         opal
         pydicom
@@ -29,12 +30,11 @@ beamsim_codes_main() {
         synergia
         warp
         zgoubi
+
     )
-    if [[ ! ${sirepo_dev_codes_only:-} ]]; then
-        codes+=(
-            hypre
-        )
-    fi
+    # if [[ ! ${sirepo_dev_codes_only:-} ]]; then
+    #     codes+=()
+    # fi
     install_repo_eval code "${codes[@]}"
 }
 
