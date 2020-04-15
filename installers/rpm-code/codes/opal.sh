@@ -18,5 +18,6 @@ opal_main() {
         --prefix="${codes_dir[prefix]}" \
         -DCMAKE_INSTALL_PREFIX="${codes_dir[prefix]}" \
         -DENABLE_SAAMG_SOLVER=TRUE
-    codes_make_install
+    codes_make all
+    install -m 755 src/opal "${codes_dir[bin]}"/opal
 }
