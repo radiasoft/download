@@ -98,7 +98,7 @@ rpm_code_main() {
     fi
     # assert params and log
     install_info "rpm_code_yum_dir=$rpm_code_yum_dir"
-    umask 077
+    umask 022
     install_tmp_dir
     : ${rpm_base:=$rpm_code_rpm_prefix-$code}
     : ${build_args:="$rpm_base $code"}
