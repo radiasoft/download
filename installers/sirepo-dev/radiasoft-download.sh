@@ -18,6 +18,7 @@ sirepo_dev_main() {
     install_source_bashrc
     mkdir -p ~/src/radiasoft
     cd ~/src/radiasoft
+    pyenv global py3
     for p in pykern sirepo; do
         pip uninstall -y "$p" >& /dev/null || true
         if [[ -d $p ]]; then
@@ -27,11 +28,11 @@ sirepo_dev_main() {
             gcl "$p"
             cd "$p"
         fi
-        pyenv global py3
         if [[ -r requirements.txt ]]; then
             pip install -r requirements.txt >& /dev/null
         fi
         pip install -e .
+        cd ..
     done
     cd sirepo
     install_yum_install nodejs
