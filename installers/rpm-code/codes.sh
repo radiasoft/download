@@ -1,7 +1,7 @@
 #!/bin/bash
 
 codes_assert_easy_install() {
-    local easy=$(find $(pyenv prefix)/lib -name easy-install.pth)
+    local easy=$(find "${codes_dir[pyenv_prefix]}"/lib -name easy-install.pth)
     if [[ $easy ]]; then
         install_err "$easy: packages used python setup.py install instead of pip:
 $(cat "$easy")"
@@ -18,14 +18,41 @@ codes_curl() {
 }
 
 codes_dependencies() {
-    local i
-    for i in "$@"; do
-        rpm_code_build_depends+=( "rscode-$i" )
-    done
     install_repo_eval code "$@"
-    codes_touch_sentinel
+    rpm_code_dependencies_done "$@"
 }
 
+codes_dir_setup() {
+    local todo=()
+    local d n p
+    for n in prefix \
+        etc \
+        bashrc_d \
+        bin \
+        lib \
+        include \
+        share
+    do
+        case $n in
+            bashrc_d)
+                p=/etc/bashrc.d
+                ;;
+            prefix)
+                p=
+                ;;
+            *)
+                p=/$n
+                ;;
+        esac
+        d=$HOME/.local$p
+        todo+=( $d )
+        codes_dir[$n]=$d
+    done
+    if codes_is_common; then
+        install_msg 'creating directories'
+        mkdir -p "${todo[@]}"
+    fi
+}
 
 codes_download() {
     # If download is an rpm, also installs
@@ -65,12 +92,16 @@ codes_download() {
             local manifest=('' '')
             repo=
             ;;
-        *.tar.gz|*.tar.xz)
+        *.tar.gz|*.tar.xz|*.tar.bz2)
             local z s
             case $repo in
+                *bz2)
+                    s=bz2
+                    z=j
+                    ;;
                 *gz)
-                    z=z
                     s=gz
+                    z=z
                     ;;
                 *xz)
                     s=xz
@@ -87,13 +118,14 @@ codes_download() {
             tar xf"$z" "$t"
             rm -f "$t"
             cd "$d"
-            if [[ ! $b =~ ^(.+)-([[:digit:]].+)$ ]]; then
-                codes_err "$repo: basename does not match version regex"
+            if [[ ${version:-} ]]; then
+                local manifest=( "$package" "$version" )
+            else
+                if [[ ! $b =~ ^(.+)-([[:digit:]].+)$ ]]; then
+                    codes_err "$repo: basename=$b does not match version regex"
+                fi
+                local manifest=( "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}" )
             fi
-            local manifest=(
-                "${BASH_REMATCH[1]}"
-                "${BASH_REMATCH[2]}"
-            )
             ;;
         *.rpm)
             local b=$(basename "$repo")
@@ -110,7 +142,7 @@ codes_download() {
             )
             ;;
         *)
-            codes_err "$repo: unknown repository format; must end in .git, .rpm, .tar.gz, .tar.xz"
+            codes_err "$repo: unknown repository format; must end in .git, .rpm, .tar.gz, .tar.xz, .tar.bz2"
             ;;
     esac
     if [[ ! ${codes_download_reuse_git:-} ]]; then
@@ -146,8 +178,6 @@ codes_install() {
     codes_msg "Directory: $build_d"
     cd "$build_d"
     rpm_code_build_src_dir=( "$build_d" )
-    codes_install_sentinel=$build_d/.codes_install
-    codes_touch_sentinel
     local codes_module=$module
     local -A codes_dir=()
     codes_dir_setup
@@ -155,50 +185,35 @@ codes_install() {
     install_source_bashrc
     install_script_eval "codes/$module.sh"
     local f=${module}_main
-    if codes_is_function "$f"; then
-        $f
+    if ! codes_is_function "$f"; then
+        install_error "function=$f not defined for code=$module"
     fi
+    $f
     cd "$prev"
     local p=${module}_python_install
-    local codes_python_version=2
     if codes_is_function "$p"; then
-        local v
-        local codes_download_reuse_git=
-        local vs=${module}_python_versions
-        # No quotes so splits
-        for v in ${!vs}; do
-            codes_msg "Building: py$v"
-            cd "$build_d"
-            codes_python_version=$v
-            install_not_strict_cmd pyenv activate py"$v"
-            "$p" "$v"
-            codes_install_add_all
-            codes_download_reuse_git=1
-        done
-    else
-        codes_install_add_all
+        local vs=${module}_python_version
+        local v=${!vs:-3}
+        codes_msg "Building: py$v"
+        cd "$build_d"
+        install_not_strict_cmd pyenv activate py"$v"
+        codes_dir[pyenv_prefix]=$(realpath "$(pyenv prefix)")
+        "$p" "$v"
+        codes_install_pyenv_done
     fi
     cd "$prev"
 }
 
-codes_install_add_all() {
-    local pp=$(pyenv prefix)
+codes_install_pyenv_done() {
+    local pp=${codes_dir[pyenv_prefix]}
     if [[ ! $pp ]]; then
         install_err 'pyenv prefix not working'
     fi
+    rm -rf "$pp"/man
     # Ensure pyenv paths are up to date
     # See https://github.com/biviosoftware/home-env/issues/8
     pyenv rehash
-    # This excludes all the top level directories and python2.7/site-packages
-    if ! codes_is_common; then
-        rpm_code_build_exclude_add "$pp"/* "$(codes_python_lib_dir)"
-    fi
     codes_assert_easy_install
-    # note: --newer doesn't work, because some installers preserve mtime
-    find "$pp/" "${codes_dir[prefix]}" \
-        ! -name pip-selfcheck.json ! -name '*.pyc' ! -name '*.pyo' \
-        \( -type f -o -type l \) -cnewer "$codes_install_sentinel" -print0 \
-        | rpm_code_build_include_add
 }
 
 codes_is_common() {
@@ -209,53 +224,20 @@ codes_is_function() {
     [[ $(type -t "$1") == function ]]
 }
 
-codes_dir_setup() {
-    local a=rpm_code_build_exclude_add
-    if codes_is_common; then
-        a=rpm_code_build_include_add
-    fi
-    local d n p
-    # order matters
-    for n in prefix \
-        etc \
-        bashrc_d \
-        bin \
-        lib \
-        include \
-        share
-    do
-        case $n in
-            bashrc_d)
-                p=/etc/bashrc.d
-                ;;
-            prefix)
-                p=
-                ;;
-            *)
-                p=/$n
-                ;;
-        esac
-        d=$HOME/.local$p
-        # POSIT: codes are public;
-        # umask needed to make parent dirs
-        install -d "$d"
-        $a "$d"
-        codes_dir[$n]=$d
-    done
-}
-
 codes_main() {
     codes_install "$@"
 }
 
-codes_make_install() {
+codes_make() {
     local cmd=( make -j$(codes_num_cores) )
     if [[ $@ ]]; then
         cmd+=( "$@" )
-    else
-        cmd+=( install )
     fi
     "${cmd[@]}"
+}
+
+codes_make_install() {
+    codes_make "$@" install
 }
 
 codes_manifest_add_code() {
@@ -314,13 +296,6 @@ sys.stdout.write(x())
 EOF
 }
 
-codes_touch_sentinel() {
-    # Need a new ctime, see find above
-    rm -f "$codes_install_sentinel"
-    touch "$codes_install_sentinel"
-}
-
 codes_yum_dependencies() {
-    rpm_code_build_depends+=( "$@" )
-    install_yum_install "$@"
+    rpm_code_yum_dependencies "$@"
 }

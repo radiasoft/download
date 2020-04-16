@@ -1,14 +1,13 @@
 #!/bin/bash
+
 ml_for_py3_main() {
-    codes_dependencies common
     codes_yum_dependencies graphviz
-    ml_for_py3_python_versions=3
+    codes_dependencies common pydot
 }
 
 ml_for_py3_python_install() {
-    # pydot is needed for keras to access graphviz
     # sympy is needed for webcon
-    pip install pydot keras \
+    pip install keras \
         scikit-learn \
         sympy \
         tensorflow

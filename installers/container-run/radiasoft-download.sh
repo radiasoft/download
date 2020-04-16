@@ -57,13 +57,13 @@ container_run_radia_run() {
     if [[ $container_run_image == radiasoft/sirepo ]]; then
         db=/sirepo
         # Command needs to be absolute (see containers/bin/build-docker.sh)
-        cmd='exec /home/vagrant/.radia-run/tini -- /home/vagrant/.radia-run/start'
+        cmd='/home/vagrant/.radia-run/start'
         uri=/
         daemon=1
         container_run_port=8000
     elif [[ $container_run_image == radiasoft/beamsim-jupyter ]]; then
         # Command needs to be absolute (see containers/bin/build-docker.sh)
-        cmd='exec /home/vagrant/.radia-run/tini -- /home/vagrant/.radia-run/start'
+        cmd='/home/vagrant/.radia-run/start'
         local t
         if [[ -r /dev/urandom ]]; then
             t=$(dd if=/dev/urandom bs=64 count=1 2>/dev/null | LC_CTYPE=C tr -cd '[:alnum:]')
@@ -234,7 +234,7 @@ radia_run_main() {
         radia_run_msg "$res"
         radia_run_msg 'Update failed: Assuming network failure, continuing.'
     fi
-    local cmd=( docker run --name "$radia_run_container" -v "$PWD:$radia_run_guest_dir" )
+    local cmd=( docker run --init --name "$radia_run_container" -v "$PWD:$radia_run_guest_dir" )
     if [[ $radia_run_db_dir ]]; then
         cmd+=( -v "$PWD:$radia_run_db_dir" )
     fi

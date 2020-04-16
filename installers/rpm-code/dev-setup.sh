@@ -33,7 +33,11 @@ for d in containers container-rpm-code container-fedora; do
     fi
 done
 if [[ ! $(type -p docker) ]]; then
-    radia_run redhat-docker
+    install_server= radia_run redhat-docker
+fi
+if [[ ! $(groups) =~ docker ]]; then
+    echo 'you need to logout and log back in to get vagrant in the docker group'
+    exit 1
 fi
 if [[ ! $(docker images | grep radiasoft/fedora) ]]; then
     cd container-fedora

@@ -8,12 +8,16 @@ sirepo_dev_main() {
         install_err 'run as vagrant (or other ordinary user), not root'
     fi
     install_source_bashrc
+    local p
+    # remove old packages, if they exist
+    for p in Forthon H5hut openPMD; do
+        install_yum remove -y rscode-"$p" >& /dev/null || true
+    done
     sirepo_dev_codes_only=1 install_repo_eval beamsim-codes
     # rerun source, because beamsim-codes installs pyenv
     install_source_bashrc
     mkdir -p ~/src/radiasoft
     cd ~/src/radiasoft
-    local p
     for p in pykern sirepo; do
         pip uninstall -y "$p" >& /dev/null || true
         if [[ -d $p ]]; then

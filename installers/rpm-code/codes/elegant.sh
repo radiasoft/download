@@ -75,8 +75,8 @@ elegant_download() {
 }
 
 elegant_main() {
-    codes_dependencies common
     codes_yum_dependencies \
+        lapack-devel \
         libXaw-devel \
         libXp-devel \
         libXt-devel \
@@ -84,7 +84,7 @@ elegant_main() {
         openmotif-devel \
         subversion \
         tcsh
-    elegant_python_versions='2 3'
+    codes_dependencies common
     elegant_download
     elegant_build
     elegant_share
@@ -94,8 +94,7 @@ elegant_make() {
     local mode=$1
     shift
     local shared=(
-        make
-        -j$(codes_num_cores)
+        codes_make
         COMMANDLINE_LIBRARY=
         EPICS_HOST_ARCH=$_elegant_arch
         HOME=$HOME
@@ -131,10 +130,15 @@ elegant_python_install() {
     elegant_make clean
     # builds extensions/lib/linux-x86_64/sddsdatamodule.so
     local p3=
-    if (( v - 2 )); then
+    if (( v >= 3 )); then
         p3=PYTHON3=1
+        # PYTHON_PREFIX is incorrectly configured in the Makefile. Should
+        # use get_python_inc to get the directory. This fix is good enough.
+        # https://github.com/radiasoft/download/issues/83
+        local p=$(python3 -c 'import distutils.sysconfig as s; from os.path import dirname as d; print(d(d(s.get_python_inc())))')
+        perl -pi -e 's{^(PYTHON_PREFIX\s*=\s*).*python3.*}{$1 '"$p"'}' Makefile
     fi
-    # PYTHON3 is ifdef'd so no quotes
+    # PYTHON3 is ifdef'd so will be empty (no arg) when not py3
     elegant_make shared $p3
     # py3 builds sddsdata.so; py2 builds sddsdatamodule.so
     codes_python_lib_copy "$h"/epics/extensions/src/SDDS/python/sdds.py \

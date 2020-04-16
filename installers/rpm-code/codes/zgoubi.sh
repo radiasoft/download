@@ -1,14 +1,8 @@
 #!/bin/bash
 
-zgoubi_python_install() {
-    pip install pyzgoubi==0.7.0b1
-    perl -pi -e "s{(?<=^#\!).*}{$(pyenv which python)}" "$(pyenv which pyzgoubi)"
-}
-
 zgoubi_main() {
-    codes_dependencies common
+    codes_dependencies common pyzgoubi
     codes_download radiasoft/zgoubi
-    zgoubi_python_versions=2
     # Lots of warnings so disable
     perl -pi -e 's{-Wall}{-w}' CMakeLists.txt
     codes_cmake -DCMAKE_INSTALL_PREFIX:PATH="${codes_dir[prefix]}"
