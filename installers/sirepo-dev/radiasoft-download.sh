@@ -27,15 +27,11 @@ sirepo_dev_main() {
             gcl "$p"
             cd "$p"
         fi
-        for v in py3 py2; do
-            pyenv global "$v"
-            if [[ -r requirements.txt ]]; then
-                pip install -r requirements.txt >& /dev/null
-            fi
-            pip install -e .
-        done
-        # ends up with "py2" default
-        cd ..
+        pyenv global py3
+        if [[ -r requirements.txt ]]; then
+            pip install -r requirements.txt >& /dev/null
+        fi
+        pip install -e .
     done
     cd sirepo
     install_yum_install nodejs
