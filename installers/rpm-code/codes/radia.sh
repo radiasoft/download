@@ -12,7 +12,13 @@ radia_main() {
         s{/usr/lib/openmpi/lib}{/usr/lib64/mpich/lib}g;
         s{/usr/lib/openmpi/include}{/usr/include/mpich-x86_64}g;
 EOF
-    perl -pi -e 's/-lfftw/-lsfftw/; s/\bcc\b/gcc/; s/\bc\+\+/g++/' cpp/gcc/Makefile
+    perl -pi -e '
+        s/-lfftw/-lsfftw/;
+        s/\bcc\b/mpicc/;
+        s/\bc\+\+/mpicxx/;
+        # The MODE flag hardwires includes incorrectly
+        s/^(LIBCFLAGS\s*=)/$1 -D_WITH_MPI /;
+        ' cpp/gcc/Makefile
     cd cpp/gcc
     make "-j$(codes_num_cores)" lib
 }
