@@ -5,10 +5,20 @@
 set -euo pipefail
 
 redhat_docker_main() {
-    local data=/var/lib/docker
+    local data=/srv/docker
     if [[ -d $data ]]; then
         install_info "$data exists, so assuming docker installed"
         return
+    fi
+    if [[ -e /var/lib/docker ]]; then
+        # This will happen on dev systems only, but a good check
+        install_err '/var/lib/docker exists:
+systemctl stop docker
+sysetmctl disable docker
+rm -rf /var/lib/docker
+
+Then re-run this command
+'
     fi
     if selinuxenabled; then
         install_sudo perl -pi -e 's{(?<=^SELINUX=).*}{disabled}' /etc/selinux/config
@@ -90,21 +100,23 @@ EOF
 ExecStart=
 ExecStart=/usr/bin/dockerd
 EOF2
+    # POSIT: Same as rsconf/package_data/docker/daemon.json.jinja
     install -m 400 /dev/stdin /etc/docker/daemon.json <<'EOF2'
 {
-    "hosts": ["tcp://localhost.localdomain:2376", "unix://"],
+    "data-root": "$data",
+    "hosts": ["tcp://localhost.localdomain:2376", "tcp://$(hostname -f):2376", "unix://"],
     "iptables": true,
     "live-restore": true,
     "log-driver": "journald",
-    "storage-driver": "overlay2",
-    "storage-opts": [
-        "overlay2.override_kernel_check=true"
-    ],
     "tls": true,
     "tlscacert": "/etc/docker/tls/cert.pem",
     "tlscert": "/etc/docker/tls/cert.pem",
     "tlskey": "/etc/docker/tls/key.pem",
-    "tlsverify": true
+    "tlsverify": true,
+    "storage-driver": "overlay2",
+    "storage-opts": [
+        "overlay2.override_kernel_check=true"
+    ]
 }
 EOF2
     systemctl daemon-reload
