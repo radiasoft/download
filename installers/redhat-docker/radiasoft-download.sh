@@ -12,13 +12,15 @@ redhat_docker_main() {
     fi
     if [[ -e /var/lib/docker ]]; then
         # This will happen on dev systems only, but a good check
-        install_err '/var/lib/docker exists:
+        install_err '
+/var/lib/docker exists:
 systemctl stop docker
 systemctl disable docker
 rm -rf /var/lib/docker/*
 umount /var/lib/docker
-perl -pi -e 'm{^/var/lib/docker} && ($_ = "")' /etc/fstab
-lvremove -f /dev/mapper/docker-vps
+rmdir /var/lib/docker
+perl -pi -e "s{^/var/lib/docker.*}{}" /etc/fstab
+lvremove -f /dev/mapper/docker-*
 
 Then re-run this command
 '
@@ -27,28 +29,34 @@ Then re-run this command
         install_sudo perl -pi -e 's{(?<=^SELINUX=).*}{disabled}' /etc/selinux/config
         install_err 'Disabled selinux. You need to "vagrant reload", then re-run this installer'
     fi
+    # if vps created, remove it so is docker-docker (same as rsconf)
+    if [[ -e /dev/mapper/docker-vps ]]; then
+        install_sudo lvremove -f /dev/mapper/docker-vps
+    fi
     local vg=docker
-    # vps is supposed to be created by vagrant-persistent-storage
-    # but isn't on Fedora 27.
-    local lv=vps
+    local lv=docker
     local mdev=/dev/mapper/$vg-$lv
+    local bdev=/dev/sdb
     if [[ ! -e $mdev ]]; then
-        local bdev=/dev/sdb
+        # pv is supposed to be created by vagrant-persistent-storage,
+        # but not be
         if ! install_sudo fdisk -l "$bdev" >& /dev/null; then
             install_info "$mdev does not exist, cannot install docker"
             return
         fi
         if install_sudo fdisk -l "$bdev" | grep ^/dev >& /dev/null; then
-            install_info "$bdev contains mounted partisions, cannot install docker"
+            install_info "$bdev contains mounted partitions, cannot install docker"
             return
         fi
         install_sudo bash <<EOF
-        set -euo pipefail
-        pvcreate '$bdev'
-        vgcreate '$vg' '$bdev'
-        lvcreate -l 100%VG -n '$lv' '$vg'
+            pvcreate '$bdev'
+            vgcreate '$vg' '$bdev'
 EOF
     fi
+    if ! vgck "$vg"; then
+        install_err "volume group $vg does not exist"
+    fi
+    install_sudo lvcreate -l '100%VG' -n "$lv" "$vg"
     install_tmp_dir
     install_url radiasoft/download installers/rpm-code
     # rsconf.pkcli.tls is not available so have to run manually.
