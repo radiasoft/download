@@ -31,7 +31,7 @@ EOF
     sudo usermod -aG docker vagrant
 EOF
     bivio_vagrant_ssh <<'EOF'
-        bivio_pyenv_2
+        bivio_pyenv_3
         set -euo pipefail
         sudo yum install -y nginx
         mkdir -p ~/src/radiasoft
