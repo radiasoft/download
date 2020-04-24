@@ -14,8 +14,11 @@ redhat_docker_main() {
         # This will happen on dev systems only, but a good check
         install_err '/var/lib/docker exists:
 systemctl stop docker
-sysetmctl disable docker
-rm -rf /var/lib/docker
+systemctl disable docker
+rm -rf /var/lib/docker/*
+umount /var/lib/docker
+perl -pi -e 'm{^/var/lib/docker} && ($_ = "")' /etc/fstab
+lvremove -f /dev/mapper/docker-vps
 
 Then re-run this command
 '
