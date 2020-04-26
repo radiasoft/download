@@ -22,14 +22,22 @@ vagrant_rsconf_dev_main() {
 
 vagrant_rsconf_dev_master() {
     install_repo_eval vagrant-centos7
-    bivio_vagrant_ssh <<'EOF' || true
-    radia_run redhat-docker
-EOF
-    vagrant reload
-    bivio_vagrant_ssh <<'EOF'
-    radia_run redhat-docker
-    sudo usermod -aG docker vagrant
-EOF
+    echo '
+
+Not installing redhat-docker, rsconf should do this
+
+If you see an error with docker (just before reload below),
+then this needs to come back in
+
+'
+#    bivio_vagrant_ssh <<'EOF' || true
+#    radia_run redhat-docker
+#EOF
+#    vagrant reload
+#    bivio_vagrant_ssh <<'EOF'
+#    radia_run redhat-docker
+#    sudo usermod -aG docker vagrant
+#EOF
     bivio_vagrant_ssh <<'EOF'
         bivio_pyenv_3
         set -euo pipefail
