@@ -54,6 +54,7 @@ redhat_base_main() {
         hostname
         iproute
         iputils
+        jq
         libffi-devel
         libpng-devel
         lshw
