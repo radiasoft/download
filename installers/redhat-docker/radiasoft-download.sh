@@ -58,7 +58,6 @@ EOF
     fi
     install_sudo lvcreate -l '100%VG' -n "$lv" "$vg"
     install_tmp_dir
-    install_url radiasoft/download installers/rpm-code
     # rsconf.pkcli.tls is not available so have to run manually.
     # easier to include more in -config here so different syntax
     # see https://github.com/urllib3/urllib3/issues/497
