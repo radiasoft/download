@@ -100,7 +100,7 @@ subjectAltName = DNS:$(hostname -f), DNS:localhost.localdomain
 CN = $(hostname -f)
 EOF
     chmod 400 cert.pem key.pem
-    install -D -m 400 /dev/stdin /etc/systemd/system/docker.service.d/override.conf <<EOF2
+    install -D -m 444 /dev/stdin /etc/systemd/system/docker.service.d/override.conf <<EOF2
 # https://docs.docker.com/config/daemon/#troubleshoot-conflicts-between-the-daemonjson-and-startup-scripts
 [Service]
 ExecStart=
