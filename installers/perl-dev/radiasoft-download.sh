@@ -15,7 +15,7 @@ export BIVIO_WANT_PERL=1
 export BIVIO_HTTPD_PORT=8000
 EOF
     fi
-    if ! perl -MGMP::Mpf -e 1 2>&1; then
+    if ! perl -MGMP::Mpf -e 1 >& /dev/null; then
         install_repo_as_root biviosoftware/container-perl base
         (
             install_tmp_dir
@@ -37,10 +37,8 @@ EOF
     fi
     install_source_bashrc
     _bivio_home_env_update -f
-    cd ~/src/biviosoftware/perl-Bivio
-    git checkout robnagler
-    cd ..
     # Needed for bashrc_b_env_aliases to contain complete set
+    cd ~/src/biviosoftware/perl-Bivio
     gcl perl-Artisans
     ln -s ../biviosoftware/perl-Artisans ~/src/perl/Artisans
     cd
@@ -50,5 +48,3 @@ EOF
     # always recreate db
     ctd
 }
-
-perl_dev_main ${install_extra_args[@]+"${install_extra_args[@]}"}

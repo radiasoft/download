@@ -81,5 +81,3 @@ vagrant_rsconf_dev_worker() {
     vagrant reload
     vagrant_rsconf_dev_run
 }
-
-vagrant_rsconf_dev_main ${install_extra_args[@]+"${install_extra_args[@]}"}
