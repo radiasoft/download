@@ -38,7 +38,7 @@ EOF
     install_source_bashrc
     _bivio_home_env_update -f
     # Needed for bashrc_b_env_aliases to contain complete set
-    cd ~/src/biviosoftware/perl-Bivio
+    cd ~/src/biviosoftware
     gcl perl-Artisans
     ln -s ../biviosoftware/perl-Artisans ~/src/perl/Artisans
     cd
