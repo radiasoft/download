@@ -152,11 +152,12 @@ codes_download() {
 }
 
 codes_download_foss() {
-    local path=$1
-    shift
-    codes_download https://depot.radiasoft.org/foss/"$path" "$@"
+    codes_download $(install_foss_server)/"$1" "${@:2}"
 }
 
+codes_download_proprietary() {
+    codes_download $(install_proprietary_server)/"$1" "${@:2}"
+}
 
 codes_download_module_file() {
     local file=$1

@@ -22,22 +22,6 @@ vagrant_rsconf_dev_main() {
 
 vagrant_rsconf_dev_master() {
     install_repo_eval vagrant-centos7
-    echo '
-
-Not installing redhat-docker, rsconf should do this
-
-If you see an error with docker (just before reload below),
-then this needs to come back in
-
-'
-#    bivio_vagrant_ssh <<'EOF' || true
-#    radia_run redhat-docker
-#EOF
-#    vagrant reload
-#    bivio_vagrant_ssh <<'EOF'
-#    radia_run redhat-docker
-#    sudo usermod -aG docker vagrant
-#EOF
     bivio_vagrant_ssh <<'EOF'
         bivio_pyenv_3
         set -euo pipefail
@@ -55,8 +39,8 @@ then this needs to come back in
         pip install -e .
         mkdir -p rpm
         cd rpm
-        curl -S -s -L -O https://depot.radiasoft.org/foss/bivio-perl-dev.rpm
-        curl -S -s -L -O https://depot.radiasoft.org/foss/perl-Bivio-dev.rpm
+        curl -S -s -L -O $(install_foss_server)/bivio-perl-dev.rpm
+        curl -S -s -L -O $(install_foss_server)/perl-Bivio-dev.rpm
         cd ..
         rsconf build
 EOF
