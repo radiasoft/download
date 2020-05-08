@@ -19,7 +19,7 @@ EOF
         install_repo_as_root biviosoftware/container-perl base
         (
             install_tmp_dir
-            install_download "$(install_foss_server)"/bivio-perl-dev.rpm > bivio-perl-dev.rpm
+            install_download https://depot.radiasoft.org/foss/bivio-perl-dev.rpm > bivio-perl-dev.rpm
             install_yum_install bivio-perl-dev.rpm
         )
     fi
