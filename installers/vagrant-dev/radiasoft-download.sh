@@ -104,8 +104,8 @@ EOF
         local install_server=
     fi
     vagrant ssh <<EOF
-export install_server='$install_server' install_channel='$install_channel' install_debug='$install_debug'
-curl https://depot.radiasoft.org/index.sh | bash -s redhat-dev
+$(install_vars_export)
+curl $(install_depot_server)/index.sh | bash -s redhat-dev
 EOF
 }
 

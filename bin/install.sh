@@ -72,11 +72,12 @@ install_clean() {
 }
 
 install_depot_server() {
-    if [[ ${install_server:-github} != github ]]; then
+    local force=${1:-}
+    if [[ ! $force && ${install_server:-github} != github ]]; then
         echo -n "$install_server"
         return
     fi
-    echo -n https://depot.radiasoft.org
+    echo -n "$install_depot_server"
 }
 
 install_download() {
@@ -91,6 +92,21 @@ install_download() {
         url="$url?$(date +%s)"
     fi
     curl "${install_curl_flags[@]}" "$url"
+}
+
+install_foss_server() {
+    # foss is best served from depot_sever, because the sources
+    # are static and large. You can override this by setting
+    # $install_depot_server.
+    echo -n "$(install_depot_server force)"/foss
+}
+
+install_proprietary_server() {
+    # proprietary is best served from the $install_server, which
+    # will be the local server (dev). Having a copy of the code
+    # locally in dev is better than sharing the proprietary
+    # key in dev.
+    echo -n "$install_server/$install_proprietary_key"
 }
 
 install_err() {
@@ -143,7 +159,6 @@ install_log() {
 
 install_init_vars() {
     # For error messages
-    install_prog='curl https://depot.radiasoft.org | bash -s'
     install_log_file=$PWD/radia-run-install.log
     if ! dd if=/dev/null of="$install_log_file" 2>/dev/null; then
         install_log_file=/tmp/$(date +%Y%m%d%H%M%S)-$RANDOM-$(basename "$install_log_file")
@@ -161,6 +176,7 @@ install_init_vars() {
     : ${install_server:=github}
     : ${install_tmp_dir:=/var/tmp}
     : ${install_verbose:=}
+    : ${install_proprietary_key:=missing-proprietary-key}
     install_curl_flags=( -L -s -S )
     install_extra_args=()
     install_repo=
@@ -175,6 +191,8 @@ install_init_vars() {
     if [[ $install_server =~ ^file://(/.+) && ! -r ${BASH_REMATCH[1]}/radiasoft/download ]]; then
         install_server=github
     fi
+    : ${install_depot_server:=https://depot.radiasoft.org}
+    install_prog="curl $install_depot_server | bash -s"
 }
 
 install_main() {
@@ -369,7 +387,7 @@ usage: $install_prog [verbose|quiet] [<installer>|*/*] [extra args]"
 }
 
 install_vars_export() {
-    echo "export install_server='$install_server' install_channel='$install_channel' install_debug='$install_debug'"
+    echo "export install_server='$install_server' install_channel='$install_channel' install_debug='$install_debug' install_depot_server='$install_depot_server' install_proprietary_key='$install_proprietary_key'"
 }
 
 install_yum() {

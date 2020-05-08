@@ -7,7 +7,7 @@
 vagrant_perl_dev_main() {
     install_repo_eval vagrant-dev centos/7 "$@"
     vagrant ssh <<EOF
-export install_server='$install_server' install_channel='$install_channel' install_debug='$install_debug'
+$(install_vars_export)
 source ~/.bashrc
 radia_run perl-dev
 EOF
