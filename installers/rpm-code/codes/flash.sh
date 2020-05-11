@@ -2,9 +2,7 @@
 
 flash_main() {
     codes_dependencies hypre
-    # TODO(e-carlin):  is $install_server right? rn probably already has an abstraction for this
-    # TODO(e-carlin):  need to make this url secret with the secret coming from the env
-    codes_download "$install_server/flash-4.6.2.tar.gz" "FLASH4.6.2"
+    codes_download_proprietary "flash/FLASH-4.6.2.tar.gz" "FLASH4.6.2"
     local flash_src_root=$PWD
     patch_makefile
     for n in CapLaser RTFlame
@@ -44,8 +42,7 @@ EOF
 
 setup_CapLaser() {
     cd source/Simulation/SimulationMain/magnetoHD
-    # TODO(e-carlin):  is $install_server right? I would guess rn already has an abstraction for this
-    codes_download "$install_server/CapLaserBELLA-4.6.2.tar.gz" "CapLaserBELLA"
+    codes_download_proprietary "flash/CapLaserBELLA-4.6.2.tar.gz" "CapLaserBELLA"
     cd $flash_src_root
     ./setup -auto magnetoHD/CapLaser -2d -nxb=16 -nyb=16 +hdf5typeio \
             species=fill,wall +mtmmmt +usm3t +mgd mgd_meshgroups=6 \
