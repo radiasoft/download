@@ -15,9 +15,9 @@ flash_make_and_install_type() {
     "flash_setup_$n" "$n"
     cd "$1"
     codes_make
-    # POSIT: Sirepo assumes the exe is named flash4-flashType
+    # POSIT: sirepo.sim_data.flash.SimData.flash_exe_path assumes flash4-flashType
     install -m 755 flash4 "${codes_dir[bin]}"/flash4-"$1"
-    # POSIT: Sirepo assumes the setup_units file is named setup_units-flashType
+    # POSIT: sirepo.sim_data.flash.SimData.flash_setup_units_path assumes flash4/setup_units-flashType
     install -m 444 setup_units "${codes_dir[share]}"/flash4/setup_units-"$1"
     cd ..
 }
@@ -43,9 +43,8 @@ flash_setup_CapLaserBELLA() {
     cd ..
     ./setup "$1" -objdir="$1" -auto -2d -nxb=16 -nyb=16 +hdf5typeio \
             species=fill,wall +mtmmmt +usm3t +mgd mgd_meshgroups=6 \
-            -parfile=caplaser_basic.par +laser \ ed_maxPulses=1
+            -parfile=caplaser_basic.par +laser ed_maxPulses=1 \
             ed_maxPulseSections=4 ed_maxBeams=1
-
 }
 
 flash_setup_RTFlame() {
