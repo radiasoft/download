@@ -24,6 +24,27 @@ http://vagrantup.com'
     vagrant_dev_vdi_delete "$vdi"
 }
 
+vagrant_dev_ip() {
+    local host=$1
+    local i=$(dig +short "$host" 2>/dev/null || true)
+    if [[ $i ]]; then
+        echo -n "$i"
+        return
+    fi
+    case $host in
+        v.radia.run)
+            i=1
+            ;;
+        v[1-9].radia.run)
+            i=${host:1:1}
+            ;;
+        *)
+            install_err "$host: host not found and IP address not supplied"
+            ;;
+    esac
+    echo -n 10.10.10.$(( 10 * $i ))
+}
+
 vagrant_dev_init_nfs() {
     if [[ ${vagrant_dev_no_mounts:+1} ]]; then
         return
@@ -71,10 +92,7 @@ vagrant_dev_main() {
         vagrant_dev_no_nfs_src=1
     fi
     if [[ ! $ip ]]; then
-        ip=$(dig +short "$host")
-        if [[ ! $ip ]]; then
-            install_err "$host: host not found and IP address not supplied"
-        fi
+        ip=$(vagrant_dev_ip "$host")
     fi
     # Absolute path is necessary for comparison in vagrant_dev_delete_vdi
     vagrant_dev_init_nfs
