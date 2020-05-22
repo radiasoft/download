@@ -36,7 +36,7 @@ install_args() {
     done
     if [[ -n $install_debug ]]; then
         if [[ ${BASH_SOURCE:-} ]]; then
-            export PS4='+ [${BASH_SOURCE##*/}:${LINENO}] '
+            export PS4='+ [${BASH_SOURCE:+${BASH_SOURCE##*/}}:${LINENO}] '
         fi
         set -x
     fi
@@ -272,6 +272,7 @@ install_repo_as_user() {
         ) | install_server="$install_server" \
             install_channel="$install_channel" \
             install_debug="$install_debug" \
+            install_depot_server="$install_depot_server" \
             bash -l -s "$@"
         return
     fi
@@ -285,6 +286,7 @@ install_repo_as_user() {
             install_server="$install_server" \
             install_channel="$install_channel" \
             install_debug="$install_debug" \
+            install_depot_server="$install_depot_server" \
             bash -l -s "$@"
     )
 }
@@ -297,6 +299,7 @@ install_repo_eval() {
         install_repo= \
         install_script_dir="$install_script_dir" \
         install_server="$install_server" \
+        install_depot_server="$install_depot_server" \
         install_url= \
         install_repo "$@"
     cd "$prev_pwd"
