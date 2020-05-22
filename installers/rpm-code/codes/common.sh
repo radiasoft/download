@@ -48,7 +48,7 @@ common_main() {
         hdf5-$mpi-devel
         hdf5-$mpi-static
         hdf5-devel
-        labpack-devel
+        lapack-devel
         # https://bugs.python.org/issue31652
         libffi-devel
         libtool
