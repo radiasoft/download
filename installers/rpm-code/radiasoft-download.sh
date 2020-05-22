@@ -38,11 +38,14 @@ EOF
     install_msg "$(date +%H:%M:%S) Generating $rpm_code_build_include_f"
     if rpm_code_is_common "$code"; then
         if [[ -e $rpm_code_build_exclude_f ]]; then
-            install_err "excludes.txt should not exist"
+            install_err 'unexpected "codes_dependencies" in codes/common.sh'
         fi
         find "${rpm_code_root_dirs[@]}" | sort > "$rpm_code_build_include_f"
         touch "$rpm_code_build_depends_f"
     else
+        if [[ ! -e $rpm_code_build_exclude_f ]]; then
+            install_err 'missing "codes_dependencies", probably need: "codes_dependencies common"'
+        fi
         find "${rpm_code_root_dirs[@]}" \
             ! -name pip-selfcheck.json ! -name '*.pyc' ! -name '*.pyo' \
             | sort | grep -vxFf "$rpm_code_build_exclude_f" - > "$rpm_code_build_include_f"
@@ -132,7 +135,7 @@ EOF
 
 rpm_code_yum_dependencies() {
     if [[ -e $rpm_code_build_exclude_f ]]; then
-        install_err 'must call rpm_code_dependencies_done before rpm_code_yum_dependencies'
+        install_err 'must call codes_yum_dependencies before codes_dependencies'
     fi
     install_yum_install "$@"
     local i
