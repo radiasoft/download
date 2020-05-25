@@ -203,7 +203,8 @@ Vagrant.configure("2") do |config|
         # If you see network restart or performance issues, try this:
         # https://github.com/mitchellh/vagrant/issues/8373
         # v.customize ["modifyvm", :id, "--nictype1", "virtio"]
-        #
+        # https://github.com/radiasoft/download/issues/104
+        v.customize ["modifyvm", :id, "--ioapic", "on"]
         # 8192 needed for compiling some the larger codes
         v.memory = ${vagrant_dev_memory:-8192}
         v.cpus = ${vagrant_dev_cpus:-4}
