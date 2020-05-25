@@ -10,10 +10,6 @@ init_from_git_main() {
     install_tmp_dir
     init_from_git_tmpdir=$(pwd)
     cd
-    # Avoid false returns
-    set +e
-    . ~/.bashrc
-    set -e
     for repo in "${install_extra_args[@]}"; do
         init_from_git_one "$repo"
     done

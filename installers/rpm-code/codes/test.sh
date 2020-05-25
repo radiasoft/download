@@ -1,25 +1,44 @@
 #!/bin/bash
-install -m 555 /dev/stdin "$codes_bin_dir/rscode-test" <<EOF
-#!/bin/bash
-echo 'Run this:
-
-rpm -ql ~/src/yum/fedora/*/x86_64/dev/rscode-test-$version*rpm
-
-which should produce:
-
-/home/vagrant/.pyenv/versions/py2/bin/rscode-test
-/home/vagrant/.pyenv/versions/py2/share
-/home/vagrant/.pyenv/versions/py2/share/doc
-/home/vagrant/.pyenv/versions/py2/share/doc/PASS
-'
+cat >> ~/.post_bivio_bashrc <<'EOF'
+pyenv() {
+    case $1 in
+        prefix)
+            echo /home/vagrant/.pyenv/versions/2.7.16/envs/py2
+            ;;
+        activate|rehash)
+            ;;
+        *)
+            echo "unknown pyenv mock command=$1" 1>&2
+            exit 1
+            ;;
+    esac
+}
 EOF
-codes_yum_dependencies rootfiles
-pyenv rehash
-_share=$(pyenv prefix)/share
-mkdir -p "$_share/doc"
-# otherwise directories are owned by root
-echo PASS > "$_share/doc/PASS"
-_fail="$(pyenv prefix)/FAIL"
-mkdir -p "$_fail"
-rpm_code_build_include_add "$_share"
-rscode-test
+
+# mock
+codes_python_lib_dir() {
+    echo /home/vagrant/.pyenv/versions/py2/lib/python2.7/site-packages
+}
+
+test_main() {
+    codes_dependencies common_test
+    install -m 555 /dev/stdin "${codes_dir[bin]}"/rscode-test <<EOF
+#!/bin/bash
+# POSIT: codes.sh sets locally-scoped version var
+echo "RPM_CODE_TEST_VERSION=$version"
+EOF
+    install_source_bashrc
+    local my_sh=${codes_dir[bashrc_d]}/my.sh
+    echo echo PASS > "$my_sh"
+    test_python_version=2
+}
+
+test_python_install() {
+    local _xyz="${codes_dir[pyenv_prefix]}"/xyz
+    mkdir -p "$_xyz"
+    echo pass > my.py
+    codes_python_lib_copy my.py
+    # otherwise directories are owned by root
+    echo PASS > "$_xyz/PASS"
+    rscode-test
+}

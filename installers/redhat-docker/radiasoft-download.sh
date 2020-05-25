@@ -5,47 +5,60 @@
 set -euo pipefail
 
 redhat_docker_main() {
-    local data=/var/lib/docker
-    if [[ -f $data ]]; then
+    local data=/srv/docker
+    if (( $EUID != 0 )); then
+        echo 'must be run as root' 1>&2
+        return 1
+    fi
+    if [[ -d $data ]]; then
         install_info "$data exists, so assuming docker installed"
         return
     fi
+    if [[ -e /var/lib/docker ]]; then
+        # This will happen on dev systems only, but a good check
+        install_err '
+/var/lib/docker exists:
+systemctl stop docker
+systemctl disable docker
+rm -rf /var/lib/docker/*
+umount /var/lib/docker
+rmdir /var/lib/docker
+perl -pi -e "s{^/var/lib/docker.*}{}" /etc/fstab
+lvremove -f /dev/mapper/docker-*
+
+Then re-run this command
+'
+    fi
     if selinuxenabled; then
-        install_sudo perl -pi -e 's{(?<=^SELINUX=).*}{disabled}' /etc/selinux/config
-        install_err 'Disabled selinux. You need to "vagrant reload"'
+        perl -pi -e 's{(?<=^SELINUX=).*}{disabled}' /etc/selinux/config
+        install_err 'Disabled selinux. You need to "vagrant reload", then re-run this installer'
+    fi
+    # if vps created, remove it so is docker-docker (same as rsconf)
+    if [[ -e /dev/mapper/docker-vps ]]; then
+        lvremove -f /dev/mapper/docker-vps
     fi
     local vg=docker
-    # vps is supposed to be created by vagrant-persistent-storage
-    # but isn't on Fedora 27.
-    local lv=vps
+    local lv=docker
     local mdev=/dev/mapper/$vg-$lv
+    local bdev=/dev/sdb
     if [[ ! -e $mdev ]]; then
-        local bdev=/dev/sdb
-        if ! install_sudo fdisk -l "$bdev" >& /dev/null; then
+        # pv is supposed to be created by vagrant-persistent-storage,
+        # but not be
+        if ! fdisk -l "$bdev" >& /dev/null; then
             install_info "$mdev does not exist, cannot install docker"
             return
         fi
-        if install_sudo fdisk -l "$bdev" | grep ^/dev >& /dev/null; then
-            install_info "$bdev contains mounted partisions, cannot install docker"
+        if fdisk -l "$bdev" | grep ^/dev >& /dev/null; then
+            install_info "$bdev contains mounted partitions, cannot install docker"
             return
         fi
-        install_sudo bash <<EOF
-        set -euo pipefail
-        pvcreate '$bdev'
-        vgcreate '$vg' '$bdev'
-        lvcreate -l 100%VG -n '$lv' '$vg'
-EOF
+        pvcreate "$bdev"
+        vgcreate "$vg" "$bdev"
     fi
-    install_tmp_dir
-    install_url radiasoft/download installers/rpm-code
-    openssl req -nodes -newkey rsa -keyout key.pem \
-        -out cert.pem -x509 -days 9999 -set_serial "$(date +%s)" -subj /CN=localhost.localdomain
-    local tmp_d=$PWD
-    install_sudo bash <<EOF
-    set -euo pipefail
-    if [[ ${install_debug:-} ]]; then
-        set -x
+    if ! vgck "$vg"; then
+        install_err "volume group $vg does not exist"
     fi
+    lvcreate -l '100%VG' -n "$lv" "$vg"
     if type dnf >& /dev/null; then
         dnf -y -q install dnf-plugins-core
         dnf -q config-manager \
@@ -61,31 +74,58 @@ EOF
     fi
     usermod -aG docker vagrant
     install -d -m 700 /etc/docker
-    mkfs.xfs -f -n ftype=1 '$mdev'
-    mkdir '$data'
-    echo '$mdev $data xfs defaults 0 0' >> /etc/fstab
-    mount '$data'
+    mkfs.xfs -f -n ftype=1 "$mdev"
+    mkdir -p "$data"
+    echo "$mdev $data xfs defaults 0 0" >> /etc/fstab
+    mount "$data"
     install -d -m 700 /etc/docker/tls
-    install -m 400 "$tmp_d/cert.pem" "$tmp_d/key.pem" /etc/docker/tls
-    install -m 400 /dev/stdin /etc/docker/daemon.json <<'EOF2'
+    # rsconf.pkcli.tls is not available so have to run manually.
+    # easier to include more in -config here so different syntax
+    # see https://github.com/urllib3/urllib3/issues/497
+    # default_days doesn't work with -x509 so have to pass days
+    cd /etc/docker/tls
+    openssl req -x509 -days 9999 -newkey rsa -keyout key.pem -out cert.pem -config /dev/stdin <<EOF
+[req]
+default_md = sha256
+distinguished_name = subj
+encrypt_key = no
+prompt = no
+serial = $(date +%s)
+x509_extensions = v3_req
+
+[v3_req]
+subjectAltName = DNS:$(hostname -f), DNS:localhost.localdomain
+
+[subj]
+CN = $(hostname -f)
+EOF
+    chmod 400 cert.pem key.pem
+    install -D -m 444 /dev/stdin /etc/systemd/system/docker.service.d/override.conf <<EOF2
+# https://docs.docker.com/config/daemon/#troubleshoot-conflicts-between-the-daemonjson-and-startup-scripts
+[Service]
+ExecStart=
+ExecStart=/usr/bin/dockerd
+EOF2
+    # POSIT: Same as rsconf/package_data/docker/daemon.json.jinja
+    install -m 400 /dev/stdin /etc/docker/daemon.json <<EOF2
 {
-    "hosts": ["tcp://localhost.localdomain:2376", "unix:///run/docker.sock"],
+    "data-root": "$data",
+    "hosts": ["tcp://localhost.localdomain:2376", "tcp://$(hostname -f):2376", "unix://"],
     "iptables": true,
     "live-restore": true,
-    "storage-driver": "overlay2",
-    "storage-opts": [
-        "overlay2.override_kernel_check=true"
-    ],
+    "log-driver": "journald",
     "tls": true,
     "tlscacert": "/etc/docker/tls/cert.pem",
     "tlscert": "/etc/docker/tls/cert.pem",
     "tlskey": "/etc/docker/tls/key.pem",
-    "tlsverify": true
+    "tlsverify": true,
+    "storage-driver": "overlay2",
+    "storage-opts": [
+        "overlay2.override_kernel_check=true"
+    ]
 }
 EOF2
-    systemctl start docker
+    systemctl daemon-reload
+    systemctl restart docker
     systemctl enable docker
-EOF
 }
-
-redhat_docker_main "${install_extra_args[@]}"

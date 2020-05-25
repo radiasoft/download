@@ -9,13 +9,13 @@ vagrant_rsconf_dev_main() {
         v3)
             vagrant_rsconf_dev_master
             ;;
-        v4|v5)
+        v2|v4|v5)
             vagrant_dev_barebones=1 \
                 install_server=http://v3.radia.run:2916 \
                 vagrant_rsconf_dev_worker
             ;;
         *)
-            install_err 'Must be run from v3, v4, or v5 dirs'
+            install_err 'Must be run from v2, v3, v4, or v5 dirs'
             ;;
    esac
 }
@@ -23,7 +23,7 @@ vagrant_rsconf_dev_main() {
 vagrant_rsconf_dev_master() {
     install_repo_eval vagrant-centos7
     bivio_vagrant_ssh <<'EOF'
-        bivio_pyenv_2
+        bivio_pyenv_3
         set -euo pipefail
         sudo yum install -y nginx
         mkdir -p ~/src/radiasoft
@@ -39,8 +39,8 @@ vagrant_rsconf_dev_master() {
         pip install -e .
         mkdir -p rpm
         cd rpm
-        curl -S -s -L -O https://depot.radiasoft.org/foss/bivio-perl-dev.rpm
-        curl -S -s -L -O https://depot.radiasoft.org/foss/perl-Bivio-dev.rpm
+        curl -S -s -L -O $(install_foss_server)/bivio-perl-dev.rpm
+        curl -S -s -L -O $(install_foss_server)/perl-Bivio-dev.rpm
         cd ..
         rsconf build
 EOF
@@ -49,7 +49,6 @@ EOF
     vagrant reload
     install_server=$s vagrant_rsconf_dev_run
     # For building perl rpms (see build-perl-rpm.sh)
-    bivio_vagrant_ssh sudo usermod -aG docker vagrant
 }
 
 vagrant_rsconf_dev_run() {
@@ -66,5 +65,3 @@ vagrant_rsconf_dev_worker() {
     vagrant reload
     vagrant_rsconf_dev_run
 }
-
-vagrant_rsconf_dev_main ${install_extra_args[@]+"${install_extra_args[@]}"}

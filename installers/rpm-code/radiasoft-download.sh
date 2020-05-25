@@ -9,95 +9,71 @@ rpm_code_guest_d=/rpm-code
 
 rpm_code_build() {
     local rpm_base=$1
-    local rpm_base_build=$2
-    local code=$3
+    local code=$2
     local version=$(date -u +%Y%m%d.%H%M%S)
     # flag used by code.sh to know if inside this function
     local rpm_code_build=1
-    local -A rpm_code_build_exclude
-    local -a rpm_code_build_depends=()
-    local rpm_code_build_include_f=$rpm_code_guest_d/files.txt
+    local rpm_code_build_desc=
+    local rpm_code_build_include_f=$rpm_code_guest_d/include.txt
+    local rpm_code_build_exclude_f=$rpm_code_guest_d/exclude.txt
+    local rpm_code_build_depends_f=$rpm_code_guest_d/depends.txt
+    local rpm_code_build_rsync_f=$rpm_code_guest_d/rsync.txt
+    install_source_bashrc
     install_url radiasoft/download installers/rpm-code
     install_script_eval codes.sh
+    local rpm_code_root_dirs=( $HOME/.pyenv $HOME/.local )
     codes_main "$code"
-    rpm_code_build_exclude_add "$(dirname "$rpm_code_build_src_dir")"
-    local start=$(date +%s)
-    local deps=()
-    local i
-    for i in "${rpm_code_build_depends[@]}"; do
-        deps+=( --depends "$i" )
-    done
-    local -A include_dirs
-    local -A ok
-    local sorted=$rpm_code_build_include_f.sorted
-    sort -u "$rpm_code_build_include_f" > "$sorted"
-    local d
-    while IFS="" read -r i; do
-        d=$i
-        while true; do
-            d=$(dirname "$d")
-            if [[ ${include_dirs[$d]+1} ]]; then
-                break
-            fi
-            if [[ ${rpm_code_build_exclude[$d]+1} || $d == / ]]; then
-                # include takes precedence over exclude so if we hit exclude
-                # then it has to be included.
-                printf '%s\n' "$i"
-                break
-            fi
-        done
-        if [[ -d $i ]]; then
-            include_dirs[$i]=1
-        fi
-    done < "$sorted" > "$rpm_code_build_include_f"
-    rm -f "$sorted"
-    local exclude=()
-    for i in "${!rpm_code_build_exclude[@]}"; do
-        if [[ ! ${include_dirs[$i]+1} ]]; then
-            exclude+=( --rpm-auto-add-exclude-directories "$i" )
-        fi
-    done
-    install_info "fpm prep: $(( $(date +%s) - $start ))s"
-    cd "$rpm_code_guest_d"
-    fpm -t rpm -s dir -n "$rpm_base" -v "$version" \
-        --rpm-rpmbuild-define "_build_id_links none" \
-        --rpm-use-file-permissions --rpm-auto-add-directories \
-        "${exclude[@]}" \
-        "${deps[@]}" \
-        --inputs "$rpm_code_build_include_f"
-    fpm -t rpm -s dir -n "$rpm_base_build" -v "$version" \
-        --rpm-rpmbuild-define "_build_id_links none" \
-        --rpm-use-file-permissions --rpm-auto-add-directories \
-        "${exclude[@]}" \
-        "${deps[@]}" \
-        "$rpm_code_build_src_dir"
-}
-
-rpm_code_build_include_add() {
-    if [[ "$@" ]]; then
-        local f
-        for f in "$@"; do
-            echo "$f"
-        done >> "$rpm_code_build_include_f"
-    else
-        cat >> "$rpm_code_build_include_f"
+    if [[ ${rpm_code_debug:-} ]]; then
+        install_msg "Removing $HOME/rpmbuild"
+        rm -rf "$HOME"/rpmbuild
     fi
+    mkdir -p "$HOME"/rpmbuild/{RPMS,BUILD,BUILDROOT,SPECS,tmp}
+    cd "$HOME"/rpmbuild
+    cat <<EOF > "$HOME"/.rpmmacros
+%_topdir   $PWD
+%_tmppath  %{_topdir}/tmp
+EOF
+    local r=$PWD/BUILDROOT
+    local s=$PWD/SPECS/"$rpm_base".spec
+    install_msg "$(date +%H:%M:%S) Generating $rpm_code_build_include_f"
+    if rpm_code_is_common "$code"; then
+        if [[ -e $rpm_code_build_exclude_f ]]; then
+            install_err 'unexpected "codes_dependencies" in codes/common.sh'
+        fi
+        find "${rpm_code_root_dirs[@]}" | sort > "$rpm_code_build_include_f"
+        touch "$rpm_code_build_depends_f"
+    else
+        if [[ ! -e $rpm_code_build_exclude_f ]]; then
+            install_err 'missing "codes_dependencies", probably need: "codes_dependencies common"'
+        fi
+        find "${rpm_code_root_dirs[@]}" \
+            ! -name pip-selfcheck.json ! -name '*.pyc' ! -name '*.pyo' \
+            | sort | grep -vxFf "$rpm_code_build_exclude_f" - > "$rpm_code_build_include_f"
+    fi
+    install_msg "$(date +%H:%M:%S) Run: rpm-spec.PL"
+    install_download rpm-spec.PL \
+        | perl -w - "$rpm_code_guest_d" "$rpm_base" "$version" "$rpm_code_build_desc" > "$s"
+    install_msg "$(date +%H:%M:%S) Run: rsync"
+    rsync -aq --link-dest=/ --files-from="$rpm_code_build_rsync_f" / "$r"
+    install_msg "$(date +%H:%M:%S) Run: rpmbuild"
+    rpmbuild --buildroot "$r" -bb "$s"
+    install_msg "$(date +%H:%M:%S) Done: rpmbuild"
+    mv RPMS/x86_64/*.rpm "$rpm_code_guest_d"
 }
 
-rpm_code_build_exclude_add() {
-    local d
-    for d in "$@"; do
-        if [[ ! $d =~ ^/ ]]; then
-            install_err "$d: must begin with a /"
-        fi
-        while [[ $d != / ]]; do
-            if [[ ${rpm_code_build_exclude[$d]+1} ]]; then
-                break
-            fi
-            rpm_code_build_exclude[$d]=1
-            d=$(dirname "$d")
-        done
-    done
+rpm_code_dependencies_done() {
+    if [[ -e $rpm_code_build_exclude_f ]]; then
+        install_err "duplicate call to rpm_code_dependencies_done"
+    fi
+    local i
+    for i in "$@"; do
+        echo "$rpm_code_rpm_prefix-$i"
+    done >> $rpm_code_build_depends_f
+    find "${rpm_code_root_dirs[@]}" | sort > "$rpm_code_build_exclude_f"
+}
+
+rpm_code_is_common() {
+    [[ $1 =~ ^(common|common_test)$ ]]
 }
 
 rpm_code_install_rpm() {
@@ -106,7 +82,9 @@ rpm_code_install_rpm() {
     local f="$(ls -t "$base"-20[0-9][0-9]*rpm | head -1)"
     # signing doesn't work, because rpmsign always prompts for password. People
     # have worked around it with an expect script, but that's just messed up.
-    install -m 444 "$f" "$rpm_code_yum_dir/$f"
+    local dst=$rpm_code_yum_dir/$f
+    install -m 444 "$f" "$dst"
+    install_msg "$dst"
 }
 
 rpm_code_main() {
@@ -123,17 +101,21 @@ rpm_code_main() {
     fi
     # assert params and log
     install_info "rpm_code_yum_dir=$rpm_code_yum_dir"
-    umask 077
+    umask 022
     install_tmp_dir
     : ${rpm_base:=$rpm_code_rpm_prefix-$code}
-    : ${rpm_base_build:=$rpm_code_rpm_prefix-$code-build}
-    : ${build_args:="$rpm_base $rpm_base_build $code"}
+    : ${build_args:="$rpm_base $code"}
     : ${rpm_code_image:=radiasoft/rpm-code}
-    if [[ $code =~ ^(common|test)$ ]]; then
-        rpm_code_image=radiasoft/python2
+    if rpm_code_is_common "$code" || [[ $code == test ]]; then
+        rpm_code_image=radiasoft/fedora
     fi
     : ${rpm_code_user:=vagrant}
-    if [[ $UID == 0 ]]; then
+    if [[ ${rpm_code_debug:-} ]]; then
+        export rpm_code_guest_d=$PWD
+        rpm_code_build $build_args
+        return
+    fi
+    if [[ $EUID == 0 ]]; then
         # Needs to be owned by rpm_code_user
         chown "${rpm_code_user}:" "$PWD"
     fi
@@ -143,13 +125,21 @@ echo "$rpm_code_user ALL=(ALL) NOPASSWD: ALL" | install -m 440 /dev/stdin /etc/s
 su - "$rpm_code_user" <<EOF2
 set -euo pipefail
 cd '$rpm_code_guest_d'
-export install_server='$install_server' install_channel='$install_channel' install_debug='$install_debug'
+$(install_vars_export)
 radia_run rpm-code _build $build_args
 EOF2
 EOF
     rpm_code_install_rpm "$rpm_base"
-    rpm_code_install_rpm "$rpm_base_build"
     (umask 022; createrepo -q --update "$rpm_code_yum_dir")
 }
 
-rpm_code_main ${install_extra_args[@]+"${install_extra_args[@]}"}
+rpm_code_yum_dependencies() {
+    if [[ -e $rpm_code_build_exclude_f ]]; then
+        install_err 'must call codes_yum_dependencies before codes_dependencies'
+    fi
+    install_yum_install "$@"
+    local i
+    for i in "$@"; do
+        echo "$i"
+    done >> $rpm_code_build_depends_f
+}

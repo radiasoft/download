@@ -54,7 +54,7 @@ fedora_dev_cuda_rpms() {
     # dcmtk-devel required for rs4pi
     dnf install -y kmodtool dcmtk-devel kernel-devel
     local f=~/nvdia.run
-    curl -o "$f" https://depot.radiasoft.org/foss/NVIDIA-Linux-x86_64-340.102.run
+    install_foss_download NVIDIA-Linux-x86_64-340.102.run > "$f"
     bash "$f" --silent
     rm -f "$f"
     _fedora_dev_ask_reboot
@@ -133,24 +133,26 @@ fedora_dev_rpms() {
 }
 
 fedora_dev_setup_vagrant() {
-    sudo su - vagrant <<'EOF'
-    set -e -o pipefail
+    sudo su - vagrant <<EOF
+    set -euo pipefail
+    $(install_vars_export)
+    $(declare -f install_source_bashrc)
     cd
-    curl https://depot.radiasoft.org/index.sh | bash -s home
-    . ~/.bashrc
+    curl $(install_depot_server)/index.sh | bash -s home
+    install_source_bashrc
     touch requirements.txt
     bivio_path_insert ~/.pyenv/bin 1
-    . ~/.bashrc
+    install_source_bashrc
     bivio_pyenv_2
     rm requirements.txt
-    . ~/.bashrc
+    install_source_bashrc
     pip install --upgrade pip
     pip install --upgrade setuptools==32.1.3 tox
     if ! pyenv versions | grep -s -q py2; then
         pyenv virtualenv py2
     fi
     pyenv global py2
-    . ~/.bashrc
+    install_source_bashrc
     mkdir -p ~/src/radiasoft
     cd ~/src/radiasoft
     if [[ ! -d pykern ]]; then
@@ -180,7 +182,7 @@ EOF
 }
 
 _fedora_dev_main() {
-    if (( $UID != 0 )); then
+    if (( $EUID != 0 )); then
         echo 'must be run as root' 1>&2
         return 1
     fi

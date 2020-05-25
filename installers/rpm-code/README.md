@@ -10,8 +10,16 @@ bash dev-server.sh
 
 The server runs in ~/src so don't use this on a public network.
 
-## building backages
+## build rpm-code container
 
 ```sh
-dev-build.sh test
+bash dev-build.sh common
+```
+
+This creates the rpm-code container after it creates the common rpm.
+
+## building packages
+
+```sh
+bash dev-build.sh test
 ```

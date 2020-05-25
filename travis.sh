@@ -6,7 +6,14 @@
 set -e -o pipefail
 trap 'echo FAILED' ERR EXIT
 sentinel=test-$RANDOM-sentinel
-out=$(docker run --rm -i radiasoft/python2 su - vagrant 2>&1 <<EOF || true
+echo '
+
+This test is broken
+
+'
+exit 1
+need to figure out how to have "test" available.
+out=$(docker run --rm -i fedora:29 2>&1 <<EOF || true
 set -e -o pipefail
 curl https://depot.radiasoft.org/index.sh | bash -s debug code test
 echo "$sentinel"

@@ -1,5 +1,9 @@
 #!/bin/bash
-codes_dependencies common
-codes_download mrakitin/bnlcrl
-codes_patch_requirements_txt
-codes_python_install
+bnlcrl_main() {
+    codes_dependencies common
+}
+
+bnlcrl_python_install() {
+    codes_download mrakitin/bnlcrl
+    codes_python_install
+}

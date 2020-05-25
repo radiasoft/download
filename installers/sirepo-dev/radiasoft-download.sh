@@ -1,28 +1,24 @@
 #!/bin/bash
 
 sirepo_dev_main() {
-    if [[ ! -r /etc/redhat-release ]]; then
-        install_err 'only works on Red Hat flavored Linux'
+    if ! grep -i fedora  /etc/redhat-release >& /dev/null; then
+        install_err 'only works on Fedora Linux'
     fi
     if (( $EUID == 0 )); then
         install_err 'run as vagrant (or other ordinary user), not root'
     fi
-    set +e
-    . ~/.bashrc
-    set -e
-    if ! [[ $(type -t pyenv) && $(pyenv version-name) == py2 ]]; then
-        install_repo_as_root code-base
-        bivio_pyenv_2
-        set +e
-        . ~/.bashrc
-        set -e
-    fi
-    if ! type synergia >& /dev/null; then
-        install_repo_eval beamsim-codes
-    fi
+    install_source_bashrc
+    local p
+    # remove old packages, if they exist
+    for p in Forthon H5hut openPMD; do
+        install_yum remove -y rscode-"$p" >& /dev/null || true
+    done
+    sirepo_dev_codes_only=1 install_repo_eval beamsim-codes
+    # rerun source, because beamsim-codes installs pyenv
+    install_source_bashrc
     mkdir -p ~/src/radiasoft
     cd ~/src/radiasoft
-    local p
+    pyenv global py3
     for p in pykern sirepo; do
         pip uninstall -y "$p" >& /dev/null || true
         if [[ -d $p ]]; then
@@ -48,4 +44,4 @@ sirepo_dev_main() {
     cd ..
 }
 
-sirepo_dev_main "${install_extra_args[@]}"
+sirepo_dev_main ${install_extra_args[@]+"${install_extra_args[@]}"}

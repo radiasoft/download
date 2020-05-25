@@ -15,11 +15,11 @@ export BIVIO_WANT_PERL=1
 export BIVIO_HTTPD_PORT=8000
 EOF
     fi
-    if ! perl -MGMP::Mpf -e 1 2>&1; then
+    if ! perl -MGMP::Mpf -e 1 >& /dev/null; then
         install_repo_as_root biviosoftware/container-perl base
         (
             install_tmp_dir
-            install_download https://depot.radiasoft.org/foss/bivio-perl-dev.rpm > bivio-perl-dev.rpm
+            install_download "$(install_foss_server)"/bivio-perl-dev.rpm > bivio-perl-dev.rpm
             install_yum_install bivio-perl-dev.rpm
         )
     fi
@@ -35,21 +35,16 @@ systemctl start postgresql
 systemctl enable postgresql
 EOF
     fi
-    set +euo pipefail
-    . ~/.bashrc
+    install_source_bashrc
     _bivio_home_env_update -f
-    cd ~/src/biviosoftware/perl-Bivio
-    git checkout robnagler
-    cd ..
     # Needed for bashrc_b_env_aliases to contain complete set
+    cd ~/src/biviosoftware
     gcl perl-Artisans
     ln -s ../biviosoftware/perl-Artisans ~/src/perl/Artisans
     cd
-    . ~/.bashrc
+    install_source_bashrc
     b_pet
     bivio sql init_dbms || true
     # always recreate db
     ctd
 }
-
-perl_dev_main "${install_extra_args[@]}"

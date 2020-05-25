@@ -24,6 +24,27 @@ http://vagrantup.com'
     vagrant_dev_vdi_delete "$vdi"
 }
 
+vagrant_dev_ip() {
+    local host=$1
+    local i=$(dig +short "$host" 2>/dev/null || true)
+    if [[ $i ]]; then
+        echo -n "$i"
+        return
+    fi
+    case $host in
+        v.radia.run)
+            i=1
+            ;;
+        v[1-9].radia.run)
+            i=${host:1:1}
+            ;;
+        *)
+            install_err "$host: host not found and IP address not supplied"
+            ;;
+    esac
+    echo -n 10.10.10.$(( 10 * $i ))
+}
+
 vagrant_dev_init_nfs() {
     if [[ ${vagrant_dev_no_mounts:+1} ]]; then
         return
@@ -56,8 +77,6 @@ vagrant_dev_main() {
     fi
     if [[ ${vagrant_dev_barebones:+1} ]]; then
         # allow individual overrides
-        vagrant_dev_cpus=${vagrant_dev_cpus:-1}
-        vagrant_dev_memory=${vagrant_dev_memory:-2048}
         vagrant_dev_no_dev_env=${vagrant_dev_no_dev_env-1}
         vagrant_dev_no_docker_disk=${vagrant_dev_no_docker_disk-1}
         vagrant_dev_no_mounts=${vagrant_dev_no_mounts-1}
@@ -73,10 +92,7 @@ vagrant_dev_main() {
         vagrant_dev_no_nfs_src=1
     fi
     if [[ ! $ip ]]; then
-        ip=$(dig +short "$host")
-        if [[ ! $ip ]]; then
-            install_err "$host: host not found and IP address not supplied"
-        fi
+        ip=$(vagrant_dev_ip "$host")
     fi
     # Absolute path is necessary for comparison in vagrant_dev_delete_vdi
     vagrant_dev_init_nfs
@@ -98,7 +114,7 @@ EOF
     local f
     for f in ~/.gitconfig ~/.netrc; do
         if [[ -r $f ]]; then
-            vagrant ssh -c "dd of=$(basename $f)" < "$f" >& /dev/null
+            vagrant ssh -c "install -m 600 /dev/stdin $(basename $f)" < "$f" >& /dev/null
         fi
     done
     # file:// urls don't work inside the VM
@@ -106,8 +122,8 @@ EOF
         local install_server=
     fi
     vagrant ssh <<EOF
-export install_server='$install_server' install_channel='$install_channel' install_debug='$install_debug'
-curl https://depot.radiasoft.org/index.sh | bash -s redhat-dev
+$(install_vars_export)
+curl $(install_depot_server)/index.sh | bash -s redhat-dev
 EOF
 }
 
@@ -121,6 +137,7 @@ vagrant_dev_mounts() {
         'config.vm.synced_folder ".", "/vagrant", type: "nfs", mount_options: ["rw", "vers=3", "tcp", "nolock", "fsc", "actimeo=2"]'
     )
     if [[ ! ${vagrant_dev_no_nfs_src:+1} ]]; then
+        mkdir -p "$HOME/src"
         res+=( 'config.vm.synced_folder "'"$HOME/src"'", "/home/vagrant/src", type: "nfs", mount_options: ["rw", "vers=3", "tcp", "nolock", "fsc", "actimeo=2"]' )
     fi
     local IFS='
@@ -153,16 +170,31 @@ vagrant_dev_plugins() {
 vagrant_dev_vagrantfile() {
     local os=$1 host=$2 ip=$3 vdi=$4 first=$5
     local vbguest='' timesync=''
-    if [[ $first || ${vagrant_dev_no_vbguest:+1} ]]; then
-        vbguest='config.vbguest.auto_update = false'
-    else
-        # https://medium.com/carwow-product-engineering/time-sync-problems-with-vagrant-and-virtualbox-383ab77b6231
-        timesync='v.customize ["guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-set-threshold", 5000]'
+    if [[ ! ${vagrant_dev_no_vbguest:+1} ]]; then
+        if [[ $first ]]; then
+            vbguest='config.vbguest.auto_update = false'
+        else
+            # https://medium.com/carwow-product-engineering/time-sync-problems-with-vagrant-and-virtualbox-383ab77b6231
+            timesync='v.customize ["guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-set-threshold", 5000]'
+        fi
+    fi
+    local macos_fixes=
+    if [[ $(uname) == Darwin ]]; then
+        macos_fixes='v.customize [
+            "modifyvm", :id,
+                # Fix Mac thunderbolt issue
+                "--audio", "none",
+                # https://www.dbarj.com.br/en/2017/11/fixing-virtualbox-crashing-macos-on-high-load-kernel-panic/
+                # https://stackoverflow.com/a/31425419
+                "--paravirtprovider", "none",
+        ]'
     fi
     local box=$os
-    if [[ $os =~ fedora ]]; then
+    if [[ ${vagrant_dev_box:-} ]]; then
+        box=$vagrant_dev_box
+    elif [[ $os =~ fedora ]]; then
         if [[ $box == fedora ]]; then
-            box=fedora/27-cloud-base
+            box=fedora/29-cloud-base
         fi
     elif [[ $box == centos ]]; then
         box=centos/7
@@ -196,8 +228,7 @@ Vagrant.configure("2") do |config|
     config.vm.network "private_network", ip: "$ip"
     config.vm.provider "virtualbox" do |v|
         ${timesync}
-        # Fix Mac thunderbolt issue
-        v.customize ["modifyvm", :id, "--audio", "none"]
+        ${macos_fixes}
         # https://stackoverflow.com/a/36959857/3075806
         v.customize ["setextradata", :id, "VBoxInternal/Devices/VMMDev/0/Config/GetHostTimeDisabled", "0"]
         # If you see network restart or performance issues, try this:
