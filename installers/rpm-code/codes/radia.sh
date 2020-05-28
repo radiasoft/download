@@ -8,6 +8,7 @@ radia_main() {
     find . -name \*.so -o -name \*.a -o -name \*.pyd -exec rm {} \;
     rm -rf ext_lib
     perl -pi - cpp/py/setup.py <<'EOF'
+        s/\bfftw/sfftw/;
         s/mpi_cxx/mpicxx/;
         s{/usr/lib/openmpi/lib}{/usr/lib64/mpich/lib}g;
         s{/usr/lib/openmpi/include}{/usr/include/mpich-x86_64}g;
