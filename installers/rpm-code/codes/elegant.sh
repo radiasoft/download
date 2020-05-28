@@ -76,7 +76,6 @@ elegant_download() {
 
 elegant_main() {
     codes_yum_dependencies \
-        lapack-devel \
         libXaw-devel \
         libXp-devel \
         libXt-devel \

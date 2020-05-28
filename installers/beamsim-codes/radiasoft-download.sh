@@ -18,6 +18,7 @@ beamsim_codes_main() {
         genesis
         jspec
         hypre
+        madx
         ml_for_py3
         opal
         pydicom
