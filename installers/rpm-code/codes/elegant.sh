@@ -41,6 +41,14 @@ elegant_build() {
     cd ../../../../../oag/apps/src/elegant
     elegant_make clean
     elegant_make mpi "$with_path" Pelegant
+    cd "$h"/oag/apps/src/tcltkinterp/extensions
+    elegant_make shared TCL_INC=/usr/include/tcl TCL_LIB=/usr/lib64
+    cd "$h"/oag/apps/src/tcltklib
+    elegant_make shared
+
+need to install tclsh as oagtclsh
+TCLDIR installs
+
     # Not installing things like:
     # ./oag/apps/src/physics/spectraCLITemplates
     # ./oag/apps/src/elegant/ringAnalysisTemplates
@@ -65,7 +73,7 @@ elegant_download() {
         svn --non-recursive -q checkout https://svn.aps.anl.gov/AOP/oag/trunk"$f" oag"$f"
     done
     local u=https://ops.aps.anl.gov/downloads/
-    for f in elegant.2019.3.0 SDDS.4.1 epics.base.configure epics.extensions.configure; do
+    for f in elegant.2019.3.0 SDDS.4.1 oag.1.25 epics.base.configure epics.extensions.configure; do
         u=https://ops.aps.anl.gov/downloads/$f.tar.gz
         if [[ $f =~ ^(.+[[:alpha:]])\.([[:digit:]].+)$ ]]; then
             codes_manifest_add_code "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}" "$u"
