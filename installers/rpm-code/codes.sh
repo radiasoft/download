@@ -199,7 +199,7 @@ codes_install() {
         local vs=${module}_python_version
         local v=${!vs:-3}
         codes_msg "Building: py$v"
-        cd "$build_d"
+        cd "$d"
         install_not_strict_cmd pyenv activate py"$v"
         codes_dir[pyenv_prefix]=$(realpath "$(pyenv prefix)")
         "$p" "$v"
