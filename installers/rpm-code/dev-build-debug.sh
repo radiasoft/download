@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Build without outside of a Docker container for debugging a code.
+# Build outside of a Docker container for debugging a code.
 # Will not install the RPM, and will also muck up your VM by installing
 # in ~/.local and ~/.pyenv
 #
