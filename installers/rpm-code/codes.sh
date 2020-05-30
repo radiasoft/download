@@ -176,13 +176,12 @@ codes_err() {
 codes_install() {
     local module=$1
     local prev=$(pwd)
-    local build_d=$HOME/src/radiasoft/codes/$module-$(date -u +%Y%m%d.%H%M%S)
-    rm -rf "$build_d"
-    mkdir -p "$build_d"
+    local d=$HOME/src/radiasoft/codes/$module-$(date -u +%Y%m%d.%H%M%S)
+    rm -rf "$d"
+    mkdir -p "$d"
     codes_msg "Build: $module"
-    codes_msg "Directory: $build_d"
-    cd "$build_d"
-    rpm_code_build_src_dir=( "$build_d" )
+    codes_msg "Directory: $d"
+    cd "$d"
     local codes_module=$module
     local -A codes_dir=()
     codes_dir_setup
