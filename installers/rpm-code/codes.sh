@@ -1,6 +1,10 @@
 #!/bin/bash
 
 codes_assert_easy_install() {
+    if [[ ${rpm_code_debug:-} ]]; then
+        # local environment may have easy-install.pth
+        return
+    fi
     local easy=$(find "${codes_dir[pyenv_prefix]}"/lib -name easy-install.pth)
     if [[ $easy ]]; then
         install_err "$easy: packages used python setup.py install instead of pip:
