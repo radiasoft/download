@@ -7,7 +7,7 @@ elegant_build() {
     local with_path="PATH=$h/epics/extensions/bin/$_elegant_arch:$PATH"
     cd epics/base
     local base=$PWD
-    elegant_make shared
+    elegant_make static
     cd "$h"/epics/extensions/configure
     elegant_make shared
     cd "$h"/oag/apps/configure
@@ -18,6 +18,10 @@ elegant_build() {
     # builds ./epics/extensions/bin/linux-x86_64/bin/*
     # epics/extensions/lib/linux-x86_64/libSDDS1.a (plus other *.a)
     elegant_make x11
+    cd "$h"/oag/apps/src/tcltkinterp/extensions
+    elegant_make shared TCL_INC=/usr/include/tcl TCL_LIB=/usr/lib64
+    cd "$h"/oag/apps/src/tcltklib
+    elegant_make shared
     cd "$h"/oag/apps/src/utils/tools
     elegant_make x11
     # Do not install any of the tools (token, mecho, minpath, etc.)
@@ -41,14 +45,6 @@ elegant_build() {
     cd ../../../../../oag/apps/src/elegant
     elegant_make clean
     elegant_make mpi "$with_path" Pelegant
-    cd "$h"/oag/apps/src/tcltkinterp/extensions
-    elegant_make shared TCL_INC=/usr/include/tcl TCL_LIB=/usr/lib64
-    cd "$h"/oag/apps/src/tcltklib
-    elegant_make shared
-
-need to install tclsh as oagtclsh
-TCLDIR installs
-
     # Not installing things like:
     # ./oag/apps/src/physics/spectraCLITemplates
     # ./oag/apps/src/elegant/ringAnalysisTemplates
@@ -59,7 +55,54 @@ TCLDIR installs
     cd "$h"
     local f b
     local dst=${codes_dir[bin]}
-    for f in {oag/apps,epics/extensions}/bin/linux-x86_64/*; do
+    for f in {oag/apps,epics/extensions}/bin/$_elegant_arch/*; do
+        b=$(basename "$f")
+        if [[ ! " ${to_exclude[*]} " =~ " $b " ]]; then
+            install -m 555 "$f" "$dst"
+        fi
+    done
+    # Tcl setup
+    local p=${codes_dir[prefix]}/oag
+    local d=$p/apps/configData/elegant
+    mkdir -p "$d"
+    # needed by computeGeneralizedGradients
+    # set OAGGlobal(OAGAppConfigDataDirectory) $env(OAG_TOP_DIR)/oag/apps/configData
+    install -m 444 "$h"/oag/apps/src/elegant/elegantTools/alpha.rpn "$d"
+    # all scripts have this so we'll put everthing there
+    d=$p/tcl/oagtcltk
+    mkdir -p "$d"
+    f="$p"/apps/lib
+    mkdir -p "$f"
+    # set auto_path [linsert $auto_path 0  $env(OAG_TOP_DIR)/oag/apps/lib/$env(HOST_ARCH)]
+    ln -s --relative "$d" "$f/$_elegant_arch"
+    local s="$h"/oag/apps/src/tcltkinterp/extensions
+    for f in "$h"/oag/apps/lib/$_elegant_arch/{*.{tcl,au},tclIndex}; do
+        install -m 444 "$f" "$d"
+    done
+    d=$(dirname "$d")
+    for f in "$h"/oag/apps/src/tcltkinterp/extensions/*/O.$_elegant_arch/*.so; do
+        d=$d/$(basename $(dirname $(dirname "$f")))
+        mkdir -p "$d"
+    done
+    for x in
+        /home/vagrant/src/radiasoft/codes/elegant-20200529.222834/
+
+		   $oagsoftware/oag/apps/lib/$env(EPICS_HOST_ARCH)/*.tcl \
+		   $oagsoftware/oag/apps/lib/$env(EPICS_HOST_ARCH)/*.au \
+		   $oagsoftware/oag/apps/lib/$env(EPICS_HOST_ARCH)/tclIndex \
+		   $oagsoftware/oag/apps/lib/$env(EPICS_HOST_ARCH)/libtclCa.so \
+		   $oagsoftware/oag/apps/lib/$env(EPICS_HOST_ARCH)/libtclOS.so \
+		   $oagsoftware/oag/apps/lib/$env(EPICS_HOST_ARCH)/libtclSDDS.so \
+		   $oagsoftware/oag/apps/lib/$env(EPICS_HOST_ARCH)/libtclRPN.so \
+		   $oagsoftware/oag/apps/src/tcltkinterp/extensions/ca/pkgIndex.tcl \
+		   $oagsoftware/oag/apps/src/tcltkinterp/extensions/os/pkgIndex.tcl.os \
+		   $oagsoftware/oag/apps/src/tcltkinterp/extensions/sdds/pkgIndex.tcl.sdds \
+		   $oagsoftware/oag/apps/src/tcltkinterp/extensions/rpn/pkgIndex.tcl.rpn]
+
+
+    oag/apps/src/tcltkinterp/extensions/
+need to install pkgTcl for ca, etc.
+    for f in oag/apps/lib/$_elegant_arch/*.tcl; do
         b=$(basename "$f")
         if [[ ! " ${to_exclude[*]} " =~ " $b " ]]; then
             install -m 555 "$f" "$dst"
@@ -68,12 +111,17 @@ TCLDIR installs
 }
 
 elegant_download() {
-    local f
+    local f u
+    mkdir -p epics
+    cd epics
+    codes_curl https://epics.anl.gov/epics/download/base/base-3.15.5.tar.gz | tar xzf -
+    mv base-3.15.5 base
+    cd ..
     for f in '' /apps /apps/configure /apps/configure/os /apps/config /apps/src/utils/tools; do
         svn --non-recursive -q checkout https://svn.aps.anl.gov/AOP/oag/trunk"$f" oag"$f"
     done
-    local u=https://ops.aps.anl.gov/downloads/
-    for f in elegant.2019.3.0 SDDS.4.1 oag.1.25 epics.base.configure epics.extensions.configure; do
+    u=https://ops.aps.anl.gov/downloads/
+    for f in elegant.2019.3.0 SDDS.4.1 oag.1.25  epics.extensions.configure; do
         u=https://ops.aps.anl.gov/downloads/$f.tar.gz
         if [[ $f =~ ^(.+[[:alpha:]])\.([[:digit:]].+)$ ]]; then
             codes_manifest_add_code "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}" "$u"
@@ -94,7 +142,7 @@ elegant_main() {
     codes_dependencies common
     elegant_download
     elegant_build
-    elegant_share
+    elegant_share_and_misc
 }
 
 elegant_make() {
@@ -135,7 +183,7 @@ elegant_python_install() {
     local h=$PWD
     cd epics/extensions/src/SDDS/python
     elegant_make clean
-    # builds extensions/lib/linux-x86_64/sddsdatamodule.so
+    # builds extensions/lib/$_elegant_arch/sddsdatamodule.so
     local p3=
     if (( v >= 3 )); then
         p3=PYTHON3=1
@@ -149,12 +197,12 @@ elegant_python_install() {
     elegant_make shared $p3
     # py3 builds sddsdata.so; py2 builds sddsdatamodule.so
     codes_python_lib_copy "$h"/epics/extensions/src/SDDS/python/sdds.py \
-        "$h"/epics/extensions/lib/linux-x86_64/sddsdata*.so
+        "$h"/epics/extensions/lib/$_elegant_arch/sddsdata*.so
     # remove just for in case sddsdata gets renamed
-    rm -f "$h"/epics/extensions/lib/linux-x86_64/sddsdata*.so
+    rm -f "$h"/epics/extensions/lib/$_elegant_arch/sddsdata*.so
 }
 
-elegant_share() {
+elegant_share_and_misc() {
     local share_d=${codes_dir[share]}/elegant
     install -d -m 755 "$share_d"
     local f d
@@ -163,9 +211,13 @@ elegant_share() {
         d=$share_d/$f
         install -m 444 "$f" "$d"
     done
-    f=${codes_dir[bashrc_d]}/rscode-elegant.sh
-    cat > "$f" <<EOF
+    cat > "${codes_dir[bashrc_d]}/rscode-elegant.sh" <<EOF
 #!/bin/bash
 export RPN_DEFNS=$share_d/defns.rpn
+EOF
+    cat > "${codes_dir[bin]}/oagtclsh" <<EOF
+export OAG_TOP_DIR='${codes_dir[prefix]}'
+export HOST_ARCH=$_elegant_arch
+exec tclsh "$@"
 EOF
 }
