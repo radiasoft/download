@@ -31,7 +31,7 @@ if ! radia_run rpm-code "$@"; then
 bash $PWD/dev-server.sh
 "
     exit 1
-elif [[ $1 == common ]]; then
+if [[ $1 == common ]]; then
     cd ~/src/radiasoft/container-rpm-code
     radia_run container-build
 fi
