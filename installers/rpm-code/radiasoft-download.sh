@@ -82,9 +82,23 @@ rpm_code_install_rpm() {
     local f="$(ls -t "$base"-20[0-9][0-9]*rpm | head -1)"
     # signing doesn't work, because rpmsign always prompts for password. People
     # have worked around it with an expect script, but that's just messed up.
-    local dst=$rpm_code_yum_dir/$f
+    local dst=$rpm_code_install_dir/$f
     install -m 444 "$f" "$dst"
     install_msg "$dst"
+    rpm_code_install_rpm=$dst
+}
+
+rpm_code_install_proprietary() {
+    local rpm_base=$1
+    local rpm_code_install_rpm
+    rpm_code_install_rpm "$rpm_base"
+    # Y2100
+    local c l
+    for c in dev alpha; do
+        l="$rpm_code_install_dir/$rpm_base-$c.rpm"
+        rm -f "$l"
+        ln -s --relative "$rpm_code_install_rpm" "$l"
+    done
 }
 
 rpm_code_main() {
@@ -100,7 +114,7 @@ rpm_code_main() {
         return
     fi
     # assert params and log
-    install_info "rpm_code_yum_dir=$rpm_code_yum_dir"
+    install_info "rpm_code_install_dir=$rpm_code_install_dir"
     umask 022
     install_tmp_dir
     : ${rpm_base:=$rpm_code_rpm_prefix-$code}
@@ -129,8 +143,12 @@ $(install_vars_export)
 radia_run rpm-code _build $build_args
 EOF2
 EOF
-    rpm_code_install_rpm "$rpm_base"
-    (umask 022; createrepo -q --update "$rpm_code_yum_dir")
+    if [[ ${rpm_code_is_proprietary:-} ]]; then
+        rpm_code_install_proprietary "$rpm_base"
+    else
+        rpm_code_install_rpm "$rpm_base"
+        (umask 022; createrepo -q --update "$rpm_code_install_dir")
+    fi
 }
 
 rpm_code_yum_dependencies() {

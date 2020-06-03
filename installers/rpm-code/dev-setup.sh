@@ -6,9 +6,9 @@ source ./dev-env.sh
 if [[ ! $(rpm -qa | grep createrepo) ]]; then
     sudo yum install -y createrepo
 fi
-if [[ ! -d $rpm_code_yum_dir ]]; then
-    mkdir -p "$rpm_code_yum_dir"
-    createrepo "$rpm_code_yum_dir"
+if [[ ! -d $rpm_code_install_dir ]]; then
+    mkdir -p "$rpm_code_install_dir"
+    createrepo "$rpm_code_install_dir"
 fi
 cat > ~/src/yum/fedora/radiasoft.repo <<EOF
 [radiasoft-dev]

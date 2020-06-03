@@ -4,8 +4,9 @@ source ~/.bashrc
 set -euo pipefail
 source ./dev-env.sh
 if [[ $1 == flash ]]; then
-    export rpm_code_yum_dir=$HOME/src/radiasoft/rsconf/rpm
-    if [[ ! -d $rpm_code_yum_dir ]]; then
+    export rpm_code_install_dir=$HOME/src/radiasoft/rsconf/rpm
+    export rpm_code_is_proprietary=1
+    if [[ ! -d $rpm_code_install_dir ]]; then
         echo 'you need to setup rsconf:
 
 cd ~/src/radiasoft
