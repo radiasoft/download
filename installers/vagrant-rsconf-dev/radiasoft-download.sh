@@ -37,11 +37,6 @@ vagrant_rsconf_dev_master() {
         gcl rsconf
         cd rsconf
         pip install -e .
-        mkdir -p rpm
-        cd rpm
-        curl -S -s -L -O $(install_foss_server)/bivio-perl-dev.rpm
-        curl -S -s -L -O $(install_foss_server)/perl-Bivio-dev.rpm
-        cd ..
         rsconf build
 EOF
     local s=file:///home/vagrant/src/radiasoft/rsconf/run/srv

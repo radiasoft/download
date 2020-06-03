@@ -5,20 +5,21 @@ flash_main() {
     codes_download_proprietary "flash/FLASH-4.6.2.tar.gz" "FLASH4.6.2"
     flash_patch_makefile
     install -d 755 "${codes_dir[share]}"/flash4
-    for n in CapLaserBELLA RTFlame
-    do
-        flash_make_and_install_type $n
+    local n
+    for n in CapLaserBELLA RTFlame; do
+        flash_make_and_install_type "$n"
     done
 }
 
 flash_make_and_install_type() {
-    "flash_setup_$n" "$n"
-    cd "$1"
+    local type=$1
+    "flash_setup_$type" "$type"
+    cd "$type"
     codes_make
     # POSIT: sirepo.sim_data.flash.SimData.flash_exe_path assumes flash4-flashType
-    install -m 755 flash4 "${codes_dir[bin]}"/flash4-"$1"
+    install -m 755 flash4 "${codes_dir[bin]}"/flash4-"$type"
     # POSIT: sirepo.sim_data.flash.SimData.flash_setup_units_path assumes flash4/setup_units-flashType
-    install -m 444 setup_units "${codes_dir[share]}"/flash4/setup_units-"$1"
+    install -m 444 setup_units "${codes_dir[share]}"/flash4/setup_units-"$type"
     cd ..
 }
 
@@ -39,14 +40,16 @@ EOF
 }
 
 flash_setup_CapLaserBELLA() {
-    codes_download_proprietary "flash/$1-4.6.2.tar.gz" "source"
+    local type=$1
+    codes_download_proprietary "flash/$type-4.6.2.tar.gz" "source"
     cd ..
-    ./setup "$1" -objdir="$1" -auto -2d -nxb=16 -nyb=16 +hdf5typeio \
+    ./setup "$type" -objdir="$type" -auto -2d -nxb=16 -nyb=16 +hdf5typeio \
             species=fill,wall +mtmmmt +usm3t +mgd mgd_meshgroups=6 \
             -parfile=caplaser_basic.par +laser ed_maxPulses=1 \
             ed_maxPulseSections=4 ed_maxBeams=1
 }
 
 flash_setup_RTFlame() {
-    ./setup "$1" -objdir="$1" -2d -auto -nxb=16 -nyb=16
+    local type=$1
+    ./setup "$type" -objdir="$type" -2d -auto -nxb=16 -nyb=16
 }

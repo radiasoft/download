@@ -106,7 +106,7 @@ install_proprietary_server() {
     # will be the local server (dev). Having a copy of the code
     # locally in dev is better than sharing the proprietary
     # key in dev.
-    echo -n "$install_server/$install_proprietary_key"
+    echo -n "$(install_depot_server)/$install_proprietary_key"
 }
 
 install_err() {
