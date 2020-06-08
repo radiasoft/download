@@ -3,7 +3,7 @@
 _rsbeam_codes=( rsbeams rssynergia rsoopic rswarp )
 
 rsbeams_main() {
-    codes_dependencies common
+    codes_dependencies common ml
     local r
     for r in "${_rsbeam_codes[@]}"; do
         codes_download radiasoft/"$r"

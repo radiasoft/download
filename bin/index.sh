@@ -5,11 +5,11 @@
 set -e -o pipefail
 
 index_main() {
-    local u=https://raw.githubusercontent.com/radiasoft/download/master
     if [[ -n $install_server && $install_server != github ]]; then
-        u=$install_server/radiasoft/download
+        curl -s -S -L "$install_server/radiasoft/download/bin/install.sh?$(date +%s)" | bash -s ${install_debug:+-x} "$@"
+    else
+        curl -s -S -H 'Accept: application/vnd.github.raw' "https://api.github.com/repos/radiasoft/download/contents/bin/install.sh" | bash -s ${install_debug:+-x} "$@"
     fi
-    curl -s -S -L "$u/bin/install.sh?$(date +%s)" | bash -s ${install_debug:+-x} "$@"
 }
 
 index_main "$@"

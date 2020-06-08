@@ -6,7 +6,7 @@ ml_main() {
 }
 
 ml_python_install() {
-    # sympy is needed for webcon
+    # sympy is needed for webcon and rsbeams
     # scikit-image is need for srw
     # installs "PIL", needed by srw and scikit-image so explicit here
     pip install keras \

@@ -86,12 +86,12 @@ install_download() {
     if [[ ! $url =~ ^[[:lower:]]+: ]]; then
         url=$install_url/$url
     fi
-    install_info curl "${install_curl_flags[@]}" "$url"
-    if [[ $url =~ raw.github ]]; then
-        # work around github's raw cache
-        url="$url?$(date +%s)"
+    local x=( "${install_curl_flags[@]}" )
+    install_info curl ${x[@]+"${x[@]}"} "$url"
+    if [[ $url =~ https://api.github.com ]]; then
+        x+=( -H 'Accept: application/vnd.github.raw' )
     fi
-    curl "${install_curl_flags[@]}" "$url"
+    curl ${x[@]+"${x[@]}"} "$url"
 }
 
 install_foss_server() {
@@ -366,7 +366,7 @@ install_url() {
     local rest=${2:-}
     case $install_server in
         github)
-            install_url=https://raw.githubusercontent.com/$repo/master
+            install_url=https://api.github.com/repos/$repo/contents
             ;;
         /*)
             install_server=file://$install_server
