@@ -27,9 +27,7 @@ init_from_git_one() {
         fi
         if SSH_ASKPASS=true git clone -q "$repo"; then
             cd "$(basename "$repo" .git)"
-            . ./radia-run.sh
+            source ./radia-run.sh
         fi
     ) || true
 }
-
-init_from_git_main
