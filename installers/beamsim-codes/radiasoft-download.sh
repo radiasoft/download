@@ -1,8 +1,6 @@
 #!/bin/bash
 
 beamsim_codes_main() {
-    # remove obsolete packages
-    install_yum remove -y rscode-ml_for_py3 >& /dev/null
     # Ensure everything is up to date first
     # If there are codes already installed, they'll update common,
     # etc. first, which may be required for later codes.
