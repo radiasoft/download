@@ -19,7 +19,11 @@ common_python() {
     pip install Cython
     # Force MPI mode (not auto-detected)
     CC=$mpicc HDF5_MPI=ON pip install --no-binary=h5py h5py
-    pip install tables
+    # Needed by
+    pip install \
+        pandas \
+        python-dateutil \
+        tables
     # Lots of dependencies so we install here to avoid rpm collisions.
     # Slows down builds of pykern, but doesn't affect development.
     codes_download pykern

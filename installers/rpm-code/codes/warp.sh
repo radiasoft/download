@@ -2,7 +2,6 @@
 
 warp_python_install() {
     # May only be needed for diags in warp init warp_script.py
-    pip install python-dateutil
     cd warp/pywarp90
     codes_make_install clean install
     codes_make_install FCOMP="-F gfortran --fcompexec mpifort" pclean pinstall
