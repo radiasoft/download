@@ -8,8 +8,8 @@ ml_main() {
 ml_python_install() {
     # sympy is needed for webcon
     # scikit-image is need for srw
+    # installs "PIL", needed by srw and scikit-image so explicit here
     pip install keras \
-        # installs "PIL", needed by srw and scikit-image so explicit here
         Pillow \
         scikit-image \
         scikit-learn \
