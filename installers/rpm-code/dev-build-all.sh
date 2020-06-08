@@ -11,6 +11,7 @@ codes=(
     # libraries
     pydot
     boost
+    ml
 
     # create a delay here so radiasoft.repo in radiasoft/rpm-code
     # is "old" by the time bnlcrl (or other fast build) happens
@@ -21,6 +22,7 @@ codes=(
     jspec
 
     bnlcrl
+    # depends on ml
     srw
     radia
 
@@ -37,8 +39,6 @@ codes=(
 # see pyopaltools.sh
 #    pyopaltools
     opal
-
-    ml_for_py3
 
     pydicom
 

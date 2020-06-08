@@ -19,7 +19,7 @@ beamsim_codes_main() {
         jspec
         hypre
         madx
-        ml_for_py3
+        ml
         opal
         pydicom
         pymesh

@@ -2,7 +2,7 @@
 
 srw_main() {
     codes_yum_dependencies fftw2-devel
-    codes_dependencies bnlcrl
+    codes_dependencies bnlcrl ml
     codes_download ochubar/SRW
     # committed *.so files are not so good.
     find . -name \*.so -o -name \*.a -o -name \*.pyd -exec rm {} \;
@@ -16,8 +16,6 @@ srw_python_install() {
     cd SRW/cpp/py
     make python
     cd ../..
-    # Installs PIL
-    pip install Pillow
     codes_python_lib_copy env/work/srw_python/{{srwl,uti}*.py,srwlpy*.so}
     find . -name srwlpy\*.so -exec rm {} \;
 }
