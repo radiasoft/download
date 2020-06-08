@@ -5,7 +5,7 @@ beamsim_codes_main() {
     # If there are codes already installed, they'll update common,
     # etc. first, which may be required for later codes.
     install_yum update
-    install_not_strict_cmd install_yum remove -y rscode-ml_for_py3 >& /dev/null
+    install_yum remove -y rscode-ml_for_py3
     local codes=(
         # include common here even though a dependency so
         # that the latest gets installed without bloating
