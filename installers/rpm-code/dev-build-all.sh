@@ -4,14 +4,15 @@ start_at=${1:-}
 codes=(
     common
 
-    # some simple ones first
+    # a simple one first
     genesis
-    rsbeams
 
     # libraries
     pydot
     boost
     ml
+
+    rsbeams
 
     # create a delay here so radiasoft.repo in radiasoft/rpm-code
     # is "old" by the time bnlcrl (or other fast build) happens
