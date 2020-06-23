@@ -43,10 +43,11 @@ flash_setup_CapLaserBELLA() {
     local type=$1
     codes_download_proprietary "flash/$type-4.6.2.tar.gz" "source"
     cd ..
-    ./setup "$type" -objdir="$type" -auto -2d -nxb=16 -nyb=16 +hdf5typeio \
+    ./setup "$type" -objdir="$type" -auto -2d -nxb=8 -nyb=8 +hdf5typeio \
             species=fill,wall +mtmmmt +usm3t +mgd mgd_meshgroups=6 \
-            -parfile=caplaser_basic.par +laser ed_maxPulses=1 \
-            ed_maxPulseSections=4 ed_maxBeams=1
+            -parfile=bella.par +laser ed_maxPulses=1 ed_maxPulseSections=4 \
+            ed_maxBeams=1 \
+            -with-unit=physics/sourceTerms/Heatexchange/HeatexchangeMain/LeeMore
 }
 
 flash_setup_RTFlame() {
