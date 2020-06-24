@@ -6,9 +6,14 @@ flash_main() {
     flash_patch_makefile
     install -d 755 "${codes_dir[share]}"/flash4
     local n
-    for n in CapLaserBELLA RTFlame; do
+    for n in CapLaser3D CapLaserBELLA RTFlame; do
         flash_make_and_install_type "$n"
     done
+}
+
+flash_download_simulation_source() {
+    codes_download_proprietary "flash/$1-4.6.2.tar.gz" "source"
+    cd ..
 }
 
 flash_make_and_install_type() {
@@ -39,10 +44,18 @@ flash_patch_makefile() {
 EOF
 }
 
+flash_setup_CapLaser3D() {
+    local type=$1
+    flash_download_simulation_source "$type"
+    ./setup "$type" -objdir="$type" -auto -3d +cartesian +hdf5typeio \
+            species=fil1,fil2,wall +mtmmmt +usm3t +mgd mgd_meshgroups=6 \
+            -parfile=bella_3dSetup.par +laser ed_maxPulses=1 ed_maxPulseSections=4 \
+            ed_maxBeams=1
+}
+
 flash_setup_CapLaserBELLA() {
     local type=$1
-    codes_download_proprietary "flash/$type-4.6.2.tar.gz" "source"
-    cd ..
+    flash_download_simulation_source "$type"
     ./setup "$type" -objdir="$type" -auto -2d -nxb=8 -nyb=8 +hdf5typeio \
             species=fill,wall +mtmmmt +usm3t +mgd mgd_meshgroups=6 \
             -parfile=bella.par +laser ed_maxPulses=1 ed_maxPulseSections=4 \
