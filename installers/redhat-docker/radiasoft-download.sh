@@ -45,20 +45,18 @@ Then re-run this command
         # pv is supposed to be created by vagrant-persistent-storage,
         # but not be
         if ! fdisk -l "$bdev" >& /dev/null; then
-            install_info "$mdev does not exist, cannot install docker"
-            return
+            install_err "$mdev does not exist, cannot install docker"
         fi
         if fdisk -l "$bdev" | grep ^/dev >& /dev/null; then
-            install_info "$bdev contains mounted partitions, cannot install docker"
-            return
+            install_err "$bdev contains mounted partitions, cannot install docker"
+        fi
+        if pvck "$bdev"; then
+            install_err "physical volume $bdev already initialized, cannot install docker"
         fi
         pvcreate "$bdev"
         vgcreate "$vg" "$bdev"
+        lvcreate -l '100%VG' -n "$lv" "$vg"
     fi
-    if ! vgck "$vg"; then
-        install_err "volume group $vg does not exist"
-    fi
-    lvcreate -l '100%VG' -n "$lv" "$vg"
     if type dnf >& /dev/null; then
         dnf -y -q install dnf-plugins-core
         dnf -q config-manager \
