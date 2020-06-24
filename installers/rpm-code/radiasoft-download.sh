@@ -93,12 +93,9 @@ rpm_code_install_proprietary() {
     local rpm_code_install_rpm
     rpm_code_install_rpm "$rpm_base"
     # Y2100
-    local c l
-    for c in dev alpha; do
-        l="$rpm_code_install_dir/$rpm_base-$c.rpm"
-        rm -f "$l"
-        ln -s --relative "$rpm_code_install_rpm" "$l"
-    done
+    local l="$rpm_code_install_dir/$rpm_base-dev.rpm"
+    rm -f "$l"
+    ln -s --relative "$rpm_code_install_rpm" "$l"
 }
 
 rpm_code_main() {
