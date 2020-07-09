@@ -48,7 +48,7 @@ flash_setup_CapLaser3D() {
     local type=$1
     flash_download_simulation_source "$type"
     ./setup "$type" -objdir="$type" -auto -3d +cartesian +hdf5typeio \
-            species=fil1,fil2,wall +mtmmmt +usm3t +mgd mgd_meshgroups=6 \
+            species=fill,wall +mtmmmt +usm3t +mgd mgd_meshgroups=6 \
             -parfile=bella_3dSetup.par +laser ed_maxPulses=1 ed_maxPulseSections=4 \
             ed_maxBeams=1
 }
