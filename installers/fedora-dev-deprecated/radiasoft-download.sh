@@ -105,7 +105,6 @@ fedora_dev_rpms() {
         lsof
         lzma-devel
         make
-        nginx
         openssl-devel
         patch
         pciutils

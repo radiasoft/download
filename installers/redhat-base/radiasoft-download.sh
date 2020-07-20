@@ -60,6 +60,7 @@ redhat_base_main() {
         lshw
         lsof
         make
+        nginx
         openssl-devel
         patch
         pciutils
