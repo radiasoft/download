@@ -25,7 +25,6 @@ vagrant_rsconf_dev_master() {
     bivio_vagrant_ssh <<'EOF'
         bivio_pyenv_3
         set -euo pipefail
-        sudo yum install -y nginx
         mkdir -p ~/src/radiasoft
         cd ~/src/radiasoft
         gcl download
