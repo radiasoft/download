@@ -37,9 +37,7 @@ sirepo_dev_main() {
     cd sirepo
     install_yum_install nodejs
     npm install
-    install_tmp_dir
-    install_download https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm > chrome.rpm
-    install_yum_install chrome.rpm
+    install_yum_install https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
     cd -
     cd ..
 }
