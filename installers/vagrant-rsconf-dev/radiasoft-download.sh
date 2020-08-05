@@ -10,7 +10,7 @@ vagrant_rsconf_dev_main() {
             vagrant_rsconf_dev_master
             ;;
         v2|v4|v5)
-            vagrant_dev_barebones=1 \
+            vagrant_dev_no_docker_disk= vagrant_dev_barebones=1 \
                 install_server=http://v3.radia.run:2916 \
                 vagrant_rsconf_dev_worker
             ;;
