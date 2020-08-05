@@ -36,11 +36,11 @@ sirepo_dev_main() {
     done
     cd sirepo
     install_yum_install nodejs
-    for p in jshint karma karma-jasmine karma-phantomjs-launcher jasmine-core; do
-        if ! npm list "$p" >& /dev/null; then
-           npm install "$p" >& /dev/null
-        fi
-    done
+    npm install
+    install_tmp_dir
+    install_download https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm > chrome.rpm
+    install_yum_install chrome.rpm
+    cd -
     cd ..
 }
 
