@@ -52,6 +52,7 @@ common_main() {
         hdf5-$mpi-devel
         hdf5-$mpi-static
         hdf5-devel
+        https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
         lapack-devel
         # https://bugs.python.org/issue31652
         libffi-devel
