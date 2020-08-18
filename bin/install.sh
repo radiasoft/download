@@ -408,10 +408,15 @@ install_yum() {
 }
 
 install_yum_install() {
-    local x todo=()
+    local x y todo=()
     for x in "$@"; do
+        y=$x
+        if [[ $x =~ ^https?:// ]]; then
+            x=$(rpm -q "$y" 2>/dev/null || true)
+        fi
+        # even if $x is empty (above) then will append to todo
         if ! rpm -q "$x" >& /dev/null; then
-            todo+=( "$x" )
+            todo+=( "$y" )
         fi
     done
     if (( ${#todo[@]} <= 0 )); then

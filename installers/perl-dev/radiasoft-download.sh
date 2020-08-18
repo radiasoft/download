@@ -17,11 +17,7 @@ EOF
     fi
     if ! perl -MGMP::Mpf -e 1 >& /dev/null; then
         install_repo_as_root biviosoftware/container-perl base
-        (
-            install_tmp_dir
-            install_download "$(install_foss_server)"/bivio-perl-dev.rpm > bivio-perl-dev.rpm
-            install_yum_install bivio-perl-dev.rpm
-        )
+        install_yum_install "$(install_foss_server)"/bivio-perl-dev.rpm
     fi
     if [[ $(psql 2>&1) =~ could.not.connect ]]; then
         sudo su - <<'EOF'
