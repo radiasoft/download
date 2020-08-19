@@ -19,11 +19,13 @@ common_python() {
     pip install Cython
     # Force MPI mode (not auto-detected)
     CC=$mpicc HDF5_MPI=ON pip install --no-binary=h5py h5py
-    # Needed by
+    # install Pillow (PIL), needed by srw and scikit-image and
+    # something else below
     pip install \
         pandas \
         python-dateutil \
-        tables
+        tables \
+        Pillow
     # Lots of dependencies so we install here to avoid rpm collisions.
     # Slows down builds of pykern, but doesn't affect development.
     codes_download pykern
