@@ -59,6 +59,7 @@ common_main() {
         libffi-devel
         libtool
         llvm-libs
+        nodejs
         valgrind-devel
     )
     codes_yum_dependencies "${rpms[@]}"
