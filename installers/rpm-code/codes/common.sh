@@ -50,7 +50,6 @@ common_main() {
         flex
         gcc-gfortran
         glib2-devel
-        google-chrome-stable
         hdf5-$mpi
         hdf5-$mpi-devel
         hdf5-$mpi-static
