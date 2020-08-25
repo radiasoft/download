@@ -14,6 +14,9 @@ sirepo_dev_main() {
         install_yum remove -y rscode-"$p" >& /dev/null || true
     done
     sirepo_dev_codes_only=1 install_repo_eval beamsim-codes
+    install_yum install fedora-workstation-repositories
+    install_yum config-manager --set-enabled google-chrome
+    install_yum install google-chrome-stable
     # rerun source, because beamsim-codes installs pyenv
     install_source_bashrc
     mkdir -p ~/src/radiasoft
@@ -35,8 +38,6 @@ sirepo_dev_main() {
         cd ..
     done
     cd sirepo
-    install_yum_install \
-        https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
     npm install
     cd ..
 }
