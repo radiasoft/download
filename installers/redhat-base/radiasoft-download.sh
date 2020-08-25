@@ -74,6 +74,7 @@ redhat_base_main() {
         screen
         sqlite-devel
         smartmontools
+        strace
         tar
         tk-devel
         unzip
@@ -86,7 +87,6 @@ redhat_base_main() {
     if [[ ! -e /.dockerenv ]]; then
         x+=(
             lvm2
-            strace
             # for ssh x11 forwarding
             xorg-x11-xauth
         )

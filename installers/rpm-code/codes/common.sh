@@ -50,6 +50,7 @@ common_main() {
         flex
         gcc-gfortran
         glib2-devel
+        google-chrome-stable
         hdf5-$mpi
         hdf5-$mpi-devel
         hdf5-$mpi-static
@@ -64,10 +65,6 @@ common_main() {
     )
     codes_yum_dependencies "${rpms[@]}"
     install_source_bashrc
-    # after rpm installs, required for builds
-    # py3 is last, because bivio_pyenv_[23] sets global version
-    common_python 2
-    local codes_download_reuse_git=1
     common_python 3
     # codes install into "lib/cmake" which needs to be owned by common
     install -d -m 755 "${codes_dir[lib]}"/cmake
