@@ -127,3 +127,4 @@ EOF2
     systemctl restart docker
     systemctl enable docker
 }
+su vagrant
