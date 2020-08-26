@@ -126,5 +126,5 @@ EOF2
     systemctl daemon-reload
     systemctl restart docker
     systemctl enable docker
-    su vagrant
+    install_msg 'You will need to logout completely, and log back in.'
 }
