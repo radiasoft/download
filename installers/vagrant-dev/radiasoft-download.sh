@@ -94,7 +94,7 @@ vagrant_dev_main() {
     if [[ ! $ip ]]; then
         ip=$(vagrant_dev_ip "$host")
     fi
-    # Absolute path is necessary for comparison in vagrant_dev_delete_vdi
+    # Absolute path is necessary for comparison in vagrant_dev_vdi_delete
     vagrant_dev_init_nfs
     local vdi=$PWD/$base-docker.vdi
     vagrant_dev_check "$vdi"
