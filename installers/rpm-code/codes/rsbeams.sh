@@ -9,11 +9,10 @@ rsbeams_main() {
         codes_download radiasoft/"$r"
         cd ..
     done
-    codes_download Libensemble/libensemble develop
 }
 
 rsbeams_python_install() {
-    pip install nlopt DFO-LS
+    pip install nlopt DFO-LS Libensemble
     cd libensemble
     codes_python_install
     cd ..
