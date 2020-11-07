@@ -11,6 +11,5 @@ ml_python_install() {
     pip install keras \
         scikit-image \
         scikit-learn \
-        sympy \
         tensorflow
 }

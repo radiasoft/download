@@ -116,20 +116,29 @@ codes_download() {
                     ;;
             esac
             local b=$(basename "$repo" .tar."$s")
-            local d=${qualifier:-$b}
-            local t=tarball-$RANDOM
-            codes_curl -o "$t" "$repo"
-            tar xf"$z" "$t"
-            rm -f "$t"
-            cd "$d"
             if [[ ${version:-} ]]; then
                 local manifest=( "$package" "$version" )
             else
-                if [[ ! $b =~ ^(.+)-([[:digit:]].+)$ ]]; then
+                # github tarball
+                if [[ $repo =~ ([^/]+)/archive/v([^/]+).tar.$s$ ]]; then
+                    if [[ ! $qualifier ]]; then
+                        qualifier=${BASH_REMATCH[1]}-${BASH_REMATCH[2]}
+                    fi
+                # gitlab tarball
+                elif [[ $repo =~ /-/archive/v[^/]+/([^/]+)-v([^/]+).tar.$s$ ]]; then
+                    : pass
+                elif [[ ! $b =~ ^(.+)-([[:digit:]].+)$ ]]; then
                     codes_err "$repo: basename=$b does not match version regex"
                 fi
                 local manifest=( "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}" )
             fi
+            local d=${qualifier:-$b}
+            local t=tarball-$RANDOM
+
+            codes_curl -o "$t" "$repo"
+            tar xf"$z" "$t"
+            rm -f "$t"
+            cd "$d"
             ;;
         *.rpm)
             local b=$(basename "$repo")

@@ -20,10 +20,12 @@ common_python() {
     # Force MPI mode (not auto-detected)
     CC=$mpicc HDF5_MPI=ON pip install --no-binary=h5py h5py
     # install Pillow (PIL), needed by srw and scikit-image and
-    # something else below
+    # something else below.
+    # ml and fenics use sympy.
     pip install \
         pandas \
         python-dateutil \
+        sympy \
         tables \
         Pillow
     # Lots of dependencies so we install here to avoid rpm collisions.

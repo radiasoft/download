@@ -4,7 +4,7 @@
 # Will not install the RPM, and will also muck up your VM by installing
 # in ~/.local and ~/.pyenv
 #
-cd "$(dirname "$0")"
+source ./dev-env.sh
 export install_tmp_dir=$PWD/tmp
 rm -rf "$install_tmp_dir"
 mkdir -p "$install_tmp_dir"
