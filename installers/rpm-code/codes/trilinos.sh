@@ -29,6 +29,7 @@ trilinos_main() {
         -DTrilinos_ENABLE_Ifpack:BOOL=ON \
         -DTrilinos_ENABLE_Isorropia:BOOL=ON \
         -DTrilinos_ENABLE_ML:BOOL=ON \
+        -DTrilinos_ENABLE_MueLu:BOOL=ON \
         -DTrilinos_ENABLE_NOX:BOOL=ON \
         -DTrilinos_ENABLE_Optika:BOOL=OFF \
         -DTrilinos_ENABLE_Teuchos:BOOL=ON \
