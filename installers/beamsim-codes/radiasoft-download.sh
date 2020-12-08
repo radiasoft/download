@@ -15,6 +15,7 @@ beamsim_codes_main() {
 
         elegant
         epics
+        fenics
         genesis
         jspec
         hypre
