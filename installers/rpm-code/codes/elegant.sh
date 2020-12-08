@@ -58,13 +58,13 @@ elegant_download() {
     local f u
     mkdir -p epics
     cd epics
-    codes_curl https://epics.anl.gov/epics/download/base/base-3.15.5.tar.gz | tar xzf -
-    mv base-3.15.5 base
+    codes_curl https://epics.anl.gov/epics/download/base/base-7.0.4.1.tar.gz | tar xzf -
+    mv base-R7.0.4.1 base
     cd ..
     for f in '' /apps /apps/configure /apps/configure/os /apps/config /apps/src/utils/tools; do
         svn --non-recursive -q checkout https://svn.aps.anl.gov/AOP/oag/trunk"$f" oag"$f"
     done
-    for f in elegant.2019.3.0 SDDS.4.1 oag.1.25  epics.extensions.configure; do
+    for f in elegant.2020.4.0 SDDS.5.0 oag.1.26 epics.extensions.configure; do
         u=https://ops.aps.anl.gov/downloads/$f.tar.gz
         if [[ $f =~ ^(.+[[:alpha:]])\.([[:digit:]].+)$ ]]; then
             codes_manifest_add_code "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}" "$u"
