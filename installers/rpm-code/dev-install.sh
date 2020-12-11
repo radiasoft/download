@@ -2,8 +2,9 @@
 . ~/.bashrc
 set -euo pipefail
 source ./dev-env.sh
-if ! cmp -s ~/src/yum/fedora/radiasoft.repo /etc/yum.repos.d/radiasoft.repo; then
-    echo installing /etc/yum.repos.d/radiasoft.repo
-    sudo install -m 644 ~/src/yum/fedora/radiasoft.repo /etc/yum.repos.d/radiasoft.repo
+x=/etc/yum.repos.d/radiasoft.repo
+if ! cmp -s $radiasoft_repo_file "$x"; then
+    echo installing "$x"
+    sudo install -m 644 "$radiasoft_repo_file" "$x"
 fi
 radia_run code "$@"

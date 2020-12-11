@@ -7,7 +7,7 @@ redhat_base_main() {
         echo 'must be run as root' 1>&2
         return 1
     fi
-    if [[ ! -e /etc/fedora-release && ! -e /etc/yum.repos.d/epel.repo ]]; then
+    if [[ $install_os_release_id != fedora && ! -e /etc/yum.repos.d/epel.repo ]]; then
         yum --color=never --enablerepo=extras install -y -q epel-release
     fi
     # mandb takes a really long time on some installs

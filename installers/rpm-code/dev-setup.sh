@@ -2,7 +2,7 @@
 source ~/.bashrc
 set -euo pipefail
 source ./dev-env.sh
-# F29 has createrepo_c, but createrepo installs it
+# Fedora has createrepo_c, but createrepo installs it
 if [[ ! $(rpm -qa | grep createrepo) ]]; then
     sudo yum install -y createrepo
 fi
@@ -10,9 +10,9 @@ if [[ ! -d $rpm_code_install_dir ]]; then
     mkdir -p "$rpm_code_install_dir"
     createrepo "$rpm_code_install_dir"
 fi
-cat > ~/src/yum/fedora/radiasoft.repo <<EOF
+cat > "$radiasoft_repo_file" <<EOF
 [radiasoft-dev]
-name=RadiaSoft fedora/29/x86_64 dev
+name=RadiaSoft $repo_rel_dir
 baseurl=${install_server}/yum/fedora/\$releasever/\$basearch/dev
 enabled=1
 gpgcheck=0

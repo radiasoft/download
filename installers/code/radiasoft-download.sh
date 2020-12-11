@@ -8,7 +8,7 @@ code_main() {
         if ! rpm -q dnf-plugins-core >& /dev/null; then
             "${dnf[@]}" dnf-plugins-core
         fi
-        install_sudo "${dnf[@]}" config-manager --add-repo "$(install_depot_server)/yum/fedora/radiasoft.repo"
+        install_sudo "${dnf[@]}" config-manager --add-repo "$(install_depot_server)/yum/$install_os_release_id/$install_os_release_version_id/radiasoft.repo"
     fi
     if [[ ! ${install_extra_args:+1} ]]; then
         echo 'List of available codes:'

@@ -45,25 +45,6 @@ install_args() {
     fi
 }
 
-install_bivio_mpi_lib() {
-    if [[ ${BIVIO_MPI_LIB:-} ]]; then
-        return
-    fi
-    # we do not build with Shifter so this isn't included
-    # see biviosoftware/home-env/bashrc.d/zz-10-base.sh
-    # /opt/udiImage/modules/mpich/lib64
-    for f in \
-        /usr/local/lib \
-        /usr/lib64/mpich/lib \
-        /usr/lib64/openmpi/lib
-    do
-        if [[ ! ${BIVIO_MPI_LIB:-} && -d $f && $(shopt -s nullglob && echo $f/libmpi.so*) ]]; then
-            export BIVIO_MPI_LIB=$f
-            break
-        fi
-    done
-}
-
 install_clean() {
     local f
     for f in "${install_clean_cmds[@]}"; do
@@ -169,8 +150,7 @@ install_init_vars() {
         install_channel=prod
         install_channel_is_default=1
     fi
-    # TODO(robnagler) remove once home-env updated everywhere
-    install_bivio_mpi_lib
+    install_os_release_vars
     : ${install_debug:=}
     : ${install_default_repo:=container-run}
     : ${install_server:=github}
@@ -218,6 +198,27 @@ install_not_strict_cmd() {
     set +euo pipefail
     "$@"
     set -euo pipefail
+}
+
+install_os_release_vars() {
+    local x=/etc/os-release
+    if [[ ${install_os_release_id:-} ]]; then
+        return
+    fi
+    if [[ -r /etc/os-release ]]; then
+        export install_os_release_id=$(source "$x"; echo "$ID")
+        export install_os_release_version_id=$(source "$x"; echo "$VERSION_ID")
+    fi
+    export install_os_release_id=$(uname | tr A-Z a-z)
+    if [[ $install_os_release_id eq darwin ]]; then
+        # Probably not important, but do something legit by deleting patch version
+        export install_os_release_version_id=$(
+            sw_vers -productVersion | perl -p -e 's{\.\d+$}{}'
+        )
+    else
+        # Have something legal; unlikely to get here
+        export install_os_release_version_id=0
+    fi
 }
 
 install_repo() {
