@@ -10,19 +10,19 @@ common_python() {
     MAKE_OPTS=-j$(codes_num_cores) bivio_pyenv_"$v"
     # Need to set here
     codes_dir[pyenv_prefix]=$(realpath "$(pyenv prefix)")
-    pip install mpi4py
-    pip install numpy
-    pip install matplotlib
-    pip install scipy
+    install_pip_install mpi4py
+    install_pip_install numpy
+    install_pip_install matplotlib
+    install_pip_install scipy
     # used by synergia and has man/man1 duplicate problem so just include here
-    pip install nose
-    pip install Cython
+    install_pip_install nose
+    install_pip_install Cython
     # Force MPI mode (not auto-detected)
-    CC=$mpicc HDF5_MPI=ON pip install --no-binary=h5py h5py
+    CC=$mpicc HDF5_MPI=ON install_pip_install --no-binary=h5py h5py
     # install Pillow (PIL), needed by srw and scikit-image and
     # something else below.
     # ml and fenics use sympy.
-    pip install \
+    install_pip_install \
         pandas \
         python-dateutil \
         sympy \

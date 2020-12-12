@@ -292,7 +292,7 @@ codes_num_cores() {
 
 codes_python_install() {
     # normal python install
-    pip install .
+    install_pip_install .
     codes_assert_easy_install
 }
 

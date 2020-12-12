@@ -1,7 +1,7 @@
 #!/bin/bash
 
 forthon_python_install() {
-    pip install Forthon
+    install_pip_install Forthon
 }
 
 forthon_main() {

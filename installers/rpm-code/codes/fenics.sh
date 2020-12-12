@@ -6,12 +6,12 @@ fenics_python_install() {
     export SLEPC_DIR=${codes_dir[prefix]}
     local pybind11_version=2.2.4 #2.4.3
     # not setting, but was in dockerfile OPENBLAS_NUM_THREADS=1 OPENBLAS_VERBOSE=0
-    pip install pybind11=="$pybind11_version"
+    install_pip_install pybind11=="$pybind11_version"
     codes_download https://github.com/pybind/pybind11/archive/v"$pybind11_version".tar.gz
     codes_cmake -DCMAKE_INSTALL_PREFIX="${codes_dir[pyenv_prefix]}" -DPYBIND11_TEST=False
     codes_make install
     cd ../..
-    pip install 'fenics>=2019.1.0,<2019.2.0'
+    install_pip_install 'fenics>=2019.1.0,<2019.2.0'
     codes_download https://bitbucket.org/fenics-project/dolfin.git 2019.1.0.post0
     # otherwise uses ~/.local/lib64
     # Error is "Could not find DOLFIN pkg-config file"

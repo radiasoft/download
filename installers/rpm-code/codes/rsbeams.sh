@@ -12,7 +12,7 @@ rsbeams_main() {
 }
 
 rsbeams_python_install() {
-    pip install nlopt DFO-LS Libensemble
+    install_pip_install nlopt DFO-LS Libensemble
     local r
     for r in "${_rsbeam_codes[@]}"; do
         cd "$r"

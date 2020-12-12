@@ -23,7 +23,7 @@ sirepo_dev_main() {
     cd ~/src/radiasoft
     pyenv global py3
     for p in pykern sirepo; do
-        pip uninstall -y "$p" >& /dev/null || true
+        install_pip_uninstall "$p"
         if [[ -d $p ]]; then
             cd "$p"
             git pull
@@ -32,14 +32,12 @@ sirepo_dev_main() {
             cd "$p"
         fi
         if [[ -r requirements.txt ]]; then
-            pip install -r requirements.txt >& /dev/null
+            install_pip_install -r requirements.txt >& /dev/null
         fi
-        pip install -e .
+        install_pip_install -e .
         cd ..
     done
     cd sirepo
     npm install
     cd ..
 }
-
-sirepo_dev_main ${install_extra_args[@]+"${install_extra_args[@]}"}

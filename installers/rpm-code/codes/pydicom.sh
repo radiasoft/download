@@ -1,7 +1,7 @@
 #!/bin/bash
 
 pydicom_python_install() {
-    pip install dicompyler-core pydicom
+    install_pip_install dicompyler-core pydicom
 }
 
 pydicom_main() {

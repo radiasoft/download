@@ -12,7 +12,7 @@ if [[ $1 == flash ]]; then
 cd ~/src/radiasoft
 gcl rsconf
 cd rsconf
-pip install -e .
+pip install -e . | cat
 rsconf build
 '
         exit 1

@@ -82,6 +82,18 @@ install_foss_server() {
     echo -n "$(install_depot_server force)"/foss
 }
 
+install_pip_install() {
+    # --no-color does not work always
+    # --progress-bar=off seems to work
+    # but this seems to work always
+    pip install "$@" | cat
+}
+
+install_pip_uninstall() {
+    # we don't care if unnstalls work
+    pip uninstal -y "$@" >& /dev/null || true
+}
+
 install_proprietary_server() {
     # proprietary is best served from the $install_server, which
     # will be the local server (dev). Having a copy of the code
@@ -202,15 +214,14 @@ install_not_strict_cmd() {
 
 install_os_release_vars() {
     local x=/etc/os-release
-    if [[ ${install_os_release_id:-} ]]; then
-        return
-    fi
+    # always update
     if [[ -r /etc/os-release ]]; then
         export install_os_release_id=$(source "$x"; echo "$ID")
         export install_os_release_version_id=$(source "$x"; echo "$VERSION_ID")
+        return
     fi
     export install_os_release_id=$(uname | tr A-Z a-z)
-    if [[ $install_os_release_id eq darwin ]]; then
+    if [[ $install_os_release_id == darwin ]]; then
         # Probably not important, but do something legit by deleting patch version
         export install_os_release_version_id=$(
             sw_vers -productVersion | perl -p -e 's{\.\d+$}{}'

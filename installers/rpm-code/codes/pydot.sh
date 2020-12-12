@@ -1,7 +1,7 @@
 #!/bin/bash
 
 pydot_python_install() {
-    pip install pydot
+    install_pip_install pydot
 }
 
 pydot_main() {

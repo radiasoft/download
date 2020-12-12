@@ -49,7 +49,7 @@ radia_run slurm-dev
             pyenv global $p
             for f in pykern sirepo; do
                 cd ~/src/radiasoft/"$f"
-                pip install -e .
+                install_pip_install -e .
             done
         done
     fi

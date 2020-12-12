@@ -31,11 +31,11 @@ vagrant_rsconf_dev_master() {
         gcl containers
         gcl pykern
         cd pykern
-        pip install -e .
+        pip install -e . | cat
         cd ..
         gcl rsconf
         cd rsconf
-        pip install -e .
+        pip install -e . | cat
         rsconf build
 EOF
     local s=file:///home/vagrant/src/radiasoft/rsconf/run/srv

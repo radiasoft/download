@@ -37,8 +37,8 @@ nersc_sirepo_update_main() {
             install_err "missing git-commit for $p: output=$x"
         fi
         git checkout "${BASH_REMATCH[1]}"
-        pip uninstall -y . >& /dev/null || true
-        pip install .
+        install_pip_uninstall .
+        install_pip_install .
         cd ..
     done
     chmod 711 ~

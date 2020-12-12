@@ -5,5 +5,5 @@ openpmd_main() {
 }
 
 openpmd_python_install() {
-    pip install openPMD-viewer
+    install_pip_install openPMD-viewer
 }
