@@ -121,9 +121,14 @@ EOF
     # EXTRA_CXX_FLAGS, because synergia won't compile without them
     CHEF_INSTALL_DIR="${codes_dir[pyenv_prefix]}" \
         codes_cmake \
+        -DBoost_FILESYSTEM_LIBRARY="${codes_dir[lib]}/libboost_filesystem.so" \
         -DBoost_INCLUDE_DIRS="${codes_dir[include]}" \
         -DBoost_LIBRARIES="${codes_dir[lib]}/libboost_regex.so;${codes_dir[lib]}/libboost_unit_test_framework.so;${codes_dir[lib]}/libboost_serialization.so;${codes_dir[lib]}/libboost_system.so;${codes_dir[lib]}/libboost_filesystem.so" \
         -DBoost_LIBRARY_DIRS="${codes_dir[lib]}" \
+        -DBoost_REGEX_LIBRARY="${codes_dir[lib]}/libboost_regex.so" \
+        -DBoost_SERIALIZATION_LIBRARY="${codes_dir[lib]}/libboost_serialization.so" \
+        -DBoost_SYSTEM_LIBRARY="${codes_dir[lib]}/libboost_system.so" \
+        -DBoost_UNIT_TEST_FRAMEWORK_LIBRARY="${codes_dir[lib]}/libboost_unit_test_framework.so" \
         -DCMAKE_BUILD_TYPE=Release \
         -DEXTRA_CXX_FLAGS='-Wno-deprecated-declarations -Wno-sign-compare -Wno-maybe-uninitialized' \
         -DFFTW3_LIBRARY_DIRS=/usr/lib64/mpich/lib \
@@ -133,7 +138,7 @@ EOF
         -DNUMPY_INCLUDE_DIR="$numpy_include" \
         -DMPI4PY_INCLUDE_DIR="$mpi4py_include" \
         -DUSE_SIMPLE_TIMER=0 \
-        -DCMAKE_INSTALL_PREFIX="${codes_dir[pyenv_prefix]}" ..
+        -DCMAKE_INSTALL_PREFIX="${codes_dir[pyenv_prefix]}"
     codes_make_install
     local l="$(codes_python_lib_dir)"
     mv "${codes_dir[pyenv_prefix]}"/lib/{synergia,synergia_tools,synergia_workflow} "$l"

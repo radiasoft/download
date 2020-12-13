@@ -143,6 +143,6 @@ EOF
         -DMY_PYTHON_LIBRARY="$py_ldlib" \
         -DNUMPY_INCLUDE_DIR="$numpy_include" \
         -DMY_PYTHON_INSTALL_DIR="$py_install" \
-        -DCMAKE_INSTALL_PREFIX="${codes_dir[pyenv_prefix]}" ..
+        -DCMAKE_INSTALL_PREFIX="${codes_dir[pyenv_prefix]}"
     codes_make_install
 }
