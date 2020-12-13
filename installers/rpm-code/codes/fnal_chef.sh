@@ -8,12 +8,12 @@ fnal_chef_main() {
 
 fnal_chef_python_install() {
     cd chef
-python <<'EOF' | patch CMakeLists.txt
+patch CMakeLists.txt <<'EOF'
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 574164a9..eca5f2c9 100644
+index 574164a9..be4f99e9 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -58,90 +58,28 @@ endif()
+@@ -58,86 +58,14 @@ endif()
  # Find necessary packages
  ##
 
@@ -58,11 +58,6 @@ index 574164a9..eca5f2c9 100644
 -  set(MY_PYTHON_VERSION_MAJOR ${PYTHON_VERSION_MAJOR})
 -  set(MY_PYTHON_VERSION_MINOR ${PYTHON_VERSION_MINOR})
 -endif()
-+set(MY_PYTHON_LIBRARY "/home/vagrant/.pyenv/versions/3.7.2/lib/libpython3.7m.so")
-+set(MY_PYTHON_EXECUTABLE "/home/vagrant/.pyenv/py3/bin/python")
-+set(MY_PYTHON_INCLUDE_DIRECTORY "/home/vagrant/.pyenv/versions/3.7.2/include/python3.7m")
-+set(MY_PYTHON_VERSION_MAJOR 3)
-+set(MY_PYTHON_VERSION_MINOR 7)
  include_directories(${MY_PYTHON_INCLUDE_DIR})
 
 -message(STATUS "Done looking for Python")
@@ -102,41 +97,58 @@ index 574164a9..eca5f2c9 100644
 -endforeach()
 -set(Boost_LIBRARIES ${first_boost_libraries} ${Boost_LIBRARIES})
 -set(Boost_LIBRARY_DIRS ${first_boost_library_dirs} ${Boost_LIBRARY_DIRS})
-+set(Boost_INCLUDE_DIRS "/home/vagrant/.local/include")
-+set(MY_BOOST_PYTHON_LIBRARY "/home/vagrant/.local/lib/libboost_python37.so")
-+set(Boost_LIBRARIES "/home/vagrant/.local/lib/libboost_regex.so;/home/vagrant/.local/lib/libboost_unit_test_framework.so;/home/vagrant/.local/lib/libboost_serialization.so;/home/vagrant/.local/lib/libboost_system.so")
-+set(Boost_LIBRARY_DIRS "/home/vagrant/.local/lib")
 
  include_directories(${Boost_INCLUDE_DIRS})
  link_directories(${Boost_LIBRARY_DIRS})
-
-+
- message(STATUS "Boost_INCLUDE_DIRS = ${Boost_INCLUDE_DIRS}")
- message(STATUS "Boost_LIBRARY_DIRS = ${Boost_LIBRARY_DIRS}")
- message(STATUS "Boost_LIBRARIES    = ${Boost_LIBRARIES}")
-@@ -170,13 +108,11 @@ endif()
+@@ -170,12 +98,10 @@ endif()
  ### reasonable location.
  set(INCLUDE_INSTALL_DIR include/ CACHE PATH "include install directory")
  set(LIB_INSTALL_DIR lib/ CACHE PATH "library install directory")
 -set(PYTHON_INSTALL_DIR "lib/python${MY_PYTHON_VERSION_MAJOR}.${MY_PYTHON_VERSION_MINOR}/site-packages"
-+set(PYTHON_INSTALL_DIR "lib/python3.7/site-packages"
++set(PYTHON_INSTALL_DIR ${MY_PYTHON_INSTALLDIR}
      CACHE PATH "python install directory")
  include_directories(BEFORE "${CHEF_BINARY_DIR}/${INCLUDE_INSTALL_DIR}")
 
 -# numpy
 -find_package(NUMPY REQUIRED)
--include_directories(${NUMPY_INCLUDE_DIR})
-+include_directories("/home/vagrant/.pyenv/versions/py3/lib/python3.7/site-packages/numpy/core/include")
+ include_directories(${NUMPY_INCLUDE_DIR})
 
  ##
- # create links for include subdirectories
 EOF
-
+    $(python <<'EOF'
+import numpy
+import platform
+import sys
+import sysconfig
+s = sysconfig.get_config_vars()
+v = platform.python_version_tuple()
+l = sysconfig.get_path("purelib")[len(s["base"])+1:]
+print(f"""
+local numpy_include="{numpy.get_include()}";
+local py_code={v[0]}{v[1]};
+local py_exe={sys.executable};
+local py_include="{s["CONFINCLUDEPY"]}";
+local py_ldlib="{s["LIBDIR"]}/{s["LDLIBRARY"]}";
+local py_major={v[0]};
+local py_minor={v[1]};
+local py_install="{l}"
+""")
+EOF
+)
     codes_cmake \
-        -DBOOST_ROOT="${codes_dir[prefix]}" \
+        -DBoost_INCLUDE_DIRS="${codes_dir[include]}" \
+        -DBoost_LIBRARIES="${codes_dir[lib]}/libboost_regex.so;${codes_dir[lib]}/libboost_unit_test_framework.so;${codes_dir[lib]}/libboost_serialization.so;${codes_dir[lib]}/libboost_system.so" \
+        -DBoost_LIBRARY_DIRS="${codes_dir[lib]}" \
         -DCMAKE_BUILD_TYPE=Release \
         -DFFTW3_LIBRARY_DIRS=/usr/lib64/mpich/lib \
-        -DUSE_PYTHON_3=1 \
+        -DMY_BOOST_PYTHON_LIBRARY="$(find ${codes_dir[lib]} -name libboost_python$py_code.so)"
+        -DMY_PYTHON_EXECUTABLE="$py_exe" \
+        -DMY_PYTHON_INCLUDE_DIRECTORY="$py_include" \
+        -DMY_PYTHON_LIBRARY="$py_ldlib" \
+        -DMY_PYTHON_VERSION_MAJOR="$py_major" \
+        -DMY_PYTHON_VERSION_MINOR="$py_minor" \
+        -DNUMPY_INCLUDE_DIR="$numpy_include" \
+        -DMY_PYTHON_INSTALL_DIR="$py_install" \
         -DCMAKE_INSTALL_PREFIX="${codes_dir[pyenv_prefix]}" ..
     codes_make_install
 }
