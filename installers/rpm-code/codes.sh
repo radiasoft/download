@@ -302,11 +302,7 @@ codes_python_lib_copy() {
 }
 
 codes_python_lib_dir() {
-    python <<'EOF'
-import sys
-from distutils.sysconfig import get_python_lib as x
-sys.stdout.write(x())
-EOF
+    python -c 'import sysconfig; print(sysconfig.get_path("purelib"))'
 }
 
 codes_yum_dependencies() {
