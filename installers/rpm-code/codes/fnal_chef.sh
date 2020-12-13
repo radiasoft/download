@@ -105,7 +105,7 @@ index 574164a9..be4f99e9 100644
  set(INCLUDE_INSTALL_DIR include/ CACHE PATH "include install directory")
  set(LIB_INSTALL_DIR lib/ CACHE PATH "library install directory")
 -set(PYTHON_INSTALL_DIR "lib/python${MY_PYTHON_VERSION_MAJOR}.${MY_PYTHON_VERSION_MINOR}/site-packages"
-+set(PYTHON_INSTALL_DIR ${MY_PYTHON_INSTALLDIR}
++set(PYTHON_INSTALL_DIR ${MY_PYTHON_INSTALL_DIR}
      CACHE PATH "python install directory")
  include_directories(BEFORE "${CHEF_BINARY_DIR}/${INCLUDE_INSTALL_DIR}")
 
@@ -115,23 +115,20 @@ index 574164a9..be4f99e9 100644
 
  ##
 EOF
+    # do not use quotes in local print, because no eval, just vars
     $(python <<'EOF'
 import numpy
 import platform
-import sys
 import sysconfig
 s = sysconfig.get_config_vars()
 v = platform.python_version_tuple()
 l = sysconfig.get_path("purelib")[len(s["base"])+1:]
 print(f"""
-local numpy_include="{numpy.get_include()}";
-local py_code={v[0]}{v[1]};
-local py_exe={sys.executable};
-local py_include="{s["CONFINCLUDEPY"]}";
-local py_ldlib="{s["LIBDIR"]}/{s["LDLIBRARY"]}";
-local py_major={v[0]};
-local py_minor={v[1]};
-local py_install="{l}"
+local numpy_include={numpy.get_include()}
+local py_code={v[0]}{v[1]}
+local py_include={s["CONFINCLUDEPY"]}
+local py_ldlib={s["LIBDIR"]}/{s["LDLIBRARY"]}
+local py_install={l}
 """)
 EOF
 )
@@ -141,12 +138,9 @@ EOF
         -DBoost_LIBRARY_DIRS="${codes_dir[lib]}" \
         -DCMAKE_BUILD_TYPE=Release \
         -DFFTW3_LIBRARY_DIRS=/usr/lib64/mpich/lib \
-        -DMY_BOOST_PYTHON_LIBRARY="$(find ${codes_dir[lib]} -name libboost_python$py_code.so)"
-        -DMY_PYTHON_EXECUTABLE="$py_exe" \
-        -DMY_PYTHON_INCLUDE_DIRECTORY="$py_include" \
+        -DMY_BOOST_PYTHON_LIBRARY="$(find ${codes_dir[lib]} -name libboost_python$py_code.so)" \
+        -DMY_PYTHON_INCLUDE_DIR="$py_include" \
         -DMY_PYTHON_LIBRARY="$py_ldlib" \
-        -DMY_PYTHON_VERSION_MAJOR="$py_major" \
-        -DMY_PYTHON_VERSION_MINOR="$py_minor" \
         -DNUMPY_INCLUDE_DIR="$numpy_include" \
         -DMY_PYTHON_INSTALL_DIR="$py_install" \
         -DCMAKE_INSTALL_PREFIX="${codes_dir[pyenv_prefix]}" ..
