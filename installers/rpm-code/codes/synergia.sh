@@ -11,6 +11,13 @@ synergia_python_install() {
         -DUSE_PYTHON_3=1 \
         -DUSE_SIMPLE_TIMER=0
     codes_make_install
+    # synergia has this in multiple CMakeLists.txt
+    #   install(FILES
+    #    __init__.py
+    #    "${CMAKE_CURRENT_BINARY_DIR}/version.py"
+    #    DESTINATION lib/synergia)
+    # easier to just move it to the right place at the end.
+    mv "${codes_dir[pyenv_prefix]}/lib/synergia" $(codes_python_lib_dir)
     cd ..
     cp src/synergia/bunch/tests/test_bunch.py ..
     cd ..
@@ -19,7 +26,7 @@ synergia_python_install() {
 s{(?<=from )(?=foundation|bunch|utils)}{synergia.};
 s{(?=import convertors)}{from synergia };
 EOF
-#    nosetests test_bunch.py
+    nosetests test_bunch.py
 }
 
 synergia_main() {
