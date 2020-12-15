@@ -29,12 +29,6 @@ fi
 if [[ ! -d $install_proprietary_key ]]; then
     mkdir -p "$install_proprietary_key"
 fi
-for f in CapLaserBELLA-4.6.2.tar.gz FLASH-4.6.2.tar.gz; do
-    f=$install_proprietary_key/flash/$f
-    if [[ ! -r $f ]]; then
-        echo "For FLASH, install: $PWD/$f"
-    fi
-done
 cd radiasoft
 for d in containers container-rpm-code container-fedora; do
     if [[ ! -d $d ]]; then
