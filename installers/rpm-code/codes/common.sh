@@ -65,6 +65,7 @@ common_main() {
         valgrind-devel
     )
     codes_yum_dependencies "${rpms[@]}"
+    install_repo_eval fedora-patches
     install_source_bashrc
     common_python 3
     # codes install into "lib/cmake" which needs to be owned by common

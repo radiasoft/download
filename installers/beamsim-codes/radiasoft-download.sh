@@ -38,6 +38,5 @@ beamsim_codes_main() {
     #     codes+=()
     # fi
     install_repo_eval code "${codes[@]}"
+    install_repo_eval fedora-patches
 }
-
-beamsim_codes_main ${install_extra_args[@]+"${install_extra_args[@]}"}
