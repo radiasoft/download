@@ -36,6 +36,6 @@ trilinos_main() {
         -DTrilinos_ENABLE_NOX:BOOL=ON \
         -DTrilinos_ENABLE_Teuchos:BOOL=ON \
         -DTrilinos_ENABLE_Tpetra:BOOL=ON \
-        -DTrilinos_ENABLE_TESTS:BOOL=OFF\
+        -DTrilinos_ENABLE_TESTS:BOOL=OFF
     codes_make_install
 }
