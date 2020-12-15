@@ -42,6 +42,6 @@ trilinos_main() {
         -DTrilinos_ENABLE_Zoltan2:BOOL=ON
     )
     codes_cmake "${x[@]}"
-    # no extra cores
-    make -j1 install
+    # may need to use "make -j1 install" in dev
+    codes_make_install
 }
