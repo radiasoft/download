@@ -279,6 +279,12 @@ codes_msg() {
 }
 
 codes_num_cores() {
+    if [[ $codes_module =~ opal|trilinos|test && $install_virt_virtualbox ]]; then
+        # certain codes hang in parallel make inside docker and virtualbox
+        install_msg 'codes_num_cores: restricting to one core'
+        echo 1
+        return
+    fi
     local res=$(grep -c '^core id[[:space:]]*:' /proc/cpuinfo)
     # Use half the cores (likely hyperthreads) except if on TRAVIS
     if [[ ${TRAVIS:-} != true ]]; then

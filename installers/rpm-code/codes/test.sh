@@ -21,6 +21,7 @@ codes_python_lib_dir() {
 }
 
 test_main() {
+    echo "num_cores=$(codes_num_cores)"
     codes_dependencies common_test
     install -m 555 /dev/stdin "${codes_dir[bin]}"/rscode-test <<EOF
 #!/bin/bash

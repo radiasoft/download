@@ -163,6 +163,7 @@ install_init_vars() {
         install_channel_is_default=1
     fi
     install_os_release_vars
+    install_virt_vars
     : ${install_debug:=}
     : ${install_default_repo:=container-run}
     : ${install_server:=github}
@@ -403,6 +404,22 @@ usage: $install_prog [verbose|quiet] [<installer>|*/*] [extra args]"
 
 install_vars_export() {
     echo "export install_server='$install_server' install_channel='$install_channel' install_debug='$install_debug' install_depot_server='$install_depot_server' install_proprietary_key='$install_proprietary_key'"
+}
+
+install_virt_vars() {
+    export install_virt_docker=
+    export install_virt_virtualbox=
+    # https://stackoverflow.com/a/46436970
+    local f=/proc/1/cgroup
+    if [[ -r $f ]] && grep -s -q /docker "$f" || [[ -e /.dockerenv ]]; then
+        export install_virt_docker=1
+    fi
+
+    f=/dev/disk/by-id
+    # disk works outside docker, but inside docker systemd-detect-virt works
+    if [[ -r $f && $(ls "$f") =~ VBOX ]] || [[ $(systemd-detect-virt --vm 2>/dev/null || true) == oracle ]]; then
+        export install_virt_virtualbox=1
+    fi
 }
 
 install_yum() {
