@@ -17,8 +17,9 @@ warp_main() {
     codes_download https://bitbucket.org/radiasoft/warp.git
     cd pywarp90
     if [[ ${codes_debug:-} ]]; then
-        perl -pi -e 's{^FARGS.*}{FARGS=--farg -fcheck=all}' Makefile.Forthon
-        perl -pi -e 's{(?=-DMPI)}{-fcheck=all }' Makefile.Forthon.pympi
+        perl -pi -e 's{^FARGS.*}{FARGS=--farg -fcheck=all}' Makefile.Forthon3 Makefile.Forthon3.pympi
+    else
+        perl -pi -e 's{^FARGS.*}{FARGS=--farg -fallow-argument-mismatch}' Makefile.Forthon3 Makefile.Forthon3.pympi
     fi
     cat > setup.local.py <<'EOF'
 if parallel:
