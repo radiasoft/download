@@ -279,8 +279,9 @@ codes_msg() {
 }
 
 codes_num_cores() {
-    if [[ $codes_module =~ opal|trilinos|test && $install_virt_virtualbox ]]; then
+    if [[ $codes_module =~ opal|test && $install_virt_virtualbox ]]; then
         # certain codes hang in parallel make inside docker and virtualbox
+        # because they run out of memory.
         install_msg 'codes_num_cores: restricting to one core'
         echo 1
         return

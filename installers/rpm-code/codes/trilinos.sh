@@ -2,7 +2,8 @@
 
 trilinos_main() {
     codes_dependencies metis
-    codes_download https://github.com/trilinos/Trilinos/archive/trilinos-release-13-0-1.tar.gz Trilinos-trilinos-release-13-0-1 trilinos 13.0.1
+    # codes_download https://github.com/trilinos/Trilinos/archive/trilinos-release-13-0-1.tar.gz Trilinos-trilinos-release-13-0-1 trilinos 13.0.1
+    codes_download https://github.com/trilinos/Trilinos/archive/trilinos-release-12-10-1.tar.gz Trilinos-trilinos-release-12-10-1 trilinos 12.10.1
     local x=(
         -DCMAKE_BUILD_TYPE:STRING=Release
         -DCMAKE_CXX_FLAGS:STRING="-DMPICH_IGNORE_CXX_SEEK -fPIC"

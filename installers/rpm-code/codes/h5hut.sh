@@ -2,10 +2,7 @@
 
 h5hut_main() {
     codes_dependencies common
-    # original source has bad ssl cert:
-    # http://amas.web.psi.ch/Downloads/H5hut/H5hut-2.0.0rc3.tar.gz
-    # Doc: https://gitlab.psi.ch/H5hut/src/wikis/home
-    codes_download_foss H5hut-2.0.0rc3.tar.gz
+    codes_download https://gitlab.psi.ch/H5hut/src/-/archive/H5hut-2.0.0rc6/src-H5hut-2.0.0rc6.tar.bz2
     perl -pi -e 's{\`which}{\`type -p}' autogen.sh
     ./autogen.sh
     perl -pi -e 's{\`which}{\`type -p}' configure

@@ -11,6 +11,8 @@ opal_main() {
         # otherwise fails with -lmpi_mpifh not found, because
         # that is part of openmpi, not mpich
         s{.*mpi_mpifh.*}{};
+        s{-fPIE}{};
+        s{add_link_options.*-pie.*}{};
     ' CMakeLists.txt
     CMAKE_PREFIX_PATH="${codes_dir[prefix]}" \
         H5HUT_PREFIX="${codes_dir[prefix]}" \
