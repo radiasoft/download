@@ -20,8 +20,9 @@ opal_main() {
         CC=mpicc CXX=mpicxx \
         codes_cmake \
         --prefix="${codes_dir[prefix]}" \
-        -DCMAKE_INSTALL_PREFIX="${codes_dir[prefix]}" \
-        -DENABLE_SAAMG_SOLVER=TRUE
+        -D CMAKE_INSTALL_PREFIX="${codes_dir[prefix]}" \
+        -D ENABLE_SAAMG_SOLVER=TRUE \
+        -D CMAKE_POSITION_INDEPENDENT_CODE=FALSE
     codes_make all
     install -m 755 src/opal "${codes_dir[bin]}"/opal
 }
