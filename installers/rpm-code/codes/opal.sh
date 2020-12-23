@@ -24,7 +24,8 @@ opal_main() {
         --prefix="${codes_dir[prefix]}" \
         -D CMAKE_INSTALL_PREFIX="${codes_dir[prefix]}" \
         -D ENABLE_SAAMG_SOLVER=TRUE \
-        -D CMAKE_POSITION_INDEPENDENT_CODE=FALSE
+        -D CMAKE_POSITION_INDEPENDENT_CODE=FALSE \
+        -D USE_STATIC_LIBRARIES=FALSE
     codes_make all
     install -m 755 src/opal "${codes_dir[bin]}"/opal
 }
