@@ -10,9 +10,9 @@ fnal_chef_python_install() {
     cd chef
     perl -pi -e 's{(?<=find_package.Python3)}{ 3.7.2 EXACT REQUIRED}' CMakeLists.txt
     codes_cmake \
-        -DBOOST_ROOT=$HOME/.local \
-        -DCMAKE_INSTALL_PREFIX="${codes_dir[pyenv_prefix]}" \
-        -DFFTW3_LIBRARY_DIRS=/usr/lib64/mpich/lib \
-        -DUSE_PYTHON_3=1
+        -D BOOST_ROOT=$HOME/.local \
+        -D CMAKE_INSTALL_PREFIX="${codes_dir[pyenv_prefix]}" \
+        -D FFTW3_LIBRARY_DIRS=/usr/lib64/mpich/lib \
+        -D USE_PYTHON_3=1
     codes_make_install
 }

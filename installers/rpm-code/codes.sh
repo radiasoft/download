@@ -14,7 +14,11 @@ $(cat "$easy")"
 codes_cmake() {
     mkdir build
     cd build
-    cmake -DCMAKE_RULE_MESSAGES:BOOL=OFF "$@" ..
+    local t=Release
+    if [[ ${CODES_DEBUG_FLAG:-} ]]; then
+        t=Debug
+    fi
+    cmake -D CMAKE_RULE_MESSAGES:BOOL=OFF -D CMAKE_BUILD_TYPE:STRING="$t" "$@" ..
 }
 
 codes_curl() {

@@ -8,7 +8,7 @@ boost_python_install() {
     # libboost_numpy37.so* and libboost_python37.so* are installed in ~/.local/lib
     # not in ~/.pyenv. This is fine, because these are C++ libraries, and they have
     # the python version in the name
-    ./b2 --without-mpi install
+    ./b2 "${CODES_DEBUG_FLAG:+debug}" --without-mpi install
 }
 
 boost_main() {
