@@ -19,15 +19,11 @@ common_python() {
     install_pip_install Cython
     # Force MPI mode (not auto-detected)
     CC=$mpicc HDF5_MPI=ON install_pip_install --no-binary=h5py h5py
-    # install Pillow (PIL), needed by srw and scikit-image and
-    # something else below.
-    # ml and fenics use sympy.
+    # pillow and python-dateutil installed by matplotlib
     install_pip_install \
         pandas \
-        python-dateutil \
         sympy \
-        tables \
-        Pillow
+        tables
     # Lots of dependencies so we install here to avoid rpm collisions.
     # Slows down builds of pykern, but doesn't affect development.
     codes_download pykern
@@ -41,9 +37,6 @@ common_python() {
 
 common_main() {
     local mpi=mpich
-    if [[ $mpi =~ local ]]; then
-        install_err 'need to install mpi versions of hdf5 and fftw'
-    fi
     local rpms=(
         $mpi-devel
         blas-devel
