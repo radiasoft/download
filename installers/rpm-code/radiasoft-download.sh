@@ -48,7 +48,7 @@ EOF
         fi
         find "${rpm_code_root_dirs[@]}" \
             ! -name pip-selfcheck.json ! -name '*.pyc' ! -name '*.pyo' \
-            | sort | grep -vxFf "$rpm_code_build_exclude_f" - > "$rpm_code_build_include_f"
+            | sort | grep -vxFf "$rpm_code_build_exclude_f" - > "$rpm_code_build_include_f" || true
     fi
     install_msg "$(date +%H:%M:%S) Run: rpm-spec.PL"
     install_download rpm-spec.PL \

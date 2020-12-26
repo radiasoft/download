@@ -3,8 +3,8 @@
 # To run: curl radia.run | bash -s redhat-dev
 #
 redhat_dev_main() {
-    if [[ $install_os_release_id =~ fedora|centos|rhel ]]; then
-        install_err 'only works on Red Hat flavored Linux'
+    if [[ ! $install_os_release_id =~ fedora|centos|rhel ]]; then
+        install_err "only works on Red Hat flavored Linux (os=$install_os_release_id)"
     fi
     if (( $EUID == 0 )); then
         install_err 'run as vagrant (or other ordinary user), not root'
