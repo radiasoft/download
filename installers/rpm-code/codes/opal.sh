@@ -27,5 +27,7 @@ opal_main() {
         -D CMAKE_POSITION_INDEPENDENT_CODE=FALSE \
         -D USE_STATIC_LIBRARIES=FALSE
     codes_make all
-    install -m 755 src/opal "${codes_dir[bin]}"/opal
+    # We need to strip because the binary is very large
+    # https://github.com/radiasoft/download/issues/140
+    install -m 755 --strip src/opal "${codes_dir[bin]}"/opal
 }

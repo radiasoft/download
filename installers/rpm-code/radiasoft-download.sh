@@ -67,7 +67,13 @@ rpm_code_dependencies_done() {
     fi
     local i
     for i in "$@"; do
-        echo "$rpm_code_rpm_prefix-$i"
+        # trilinos is huge (4GB) so don't add as a dependency
+        # only needed to compile opal.
+        # https://github.com/radiasoft/download/issues/140
+        if [[ ! $i =~ trilinos ]]; then
+            install_msg ignoring trilinos dependency
+            echo "$rpm_code_rpm_prefix-$i"
+        fi
     done >> $rpm_code_build_depends_f
     find "${rpm_code_root_dirs[@]}" | sort > "$rpm_code_build_exclude_f"
 }
