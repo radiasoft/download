@@ -14,14 +14,14 @@ opal_main() {
         s{-fPIE}{};
         s{add_link_options.*-pie.*}{};
     ' CMakeLists.txt
-    CMAKE_PREFIX_PATH="${codes_dir[prefix]}" \
-        H5HUT_PREFIX="${codes_dir[prefix]}" \
+    # need to specify CC and CXX otherwise build uses wrong
+    # compiler.
+    H5HUT_PREFIX="${codes_dir[prefix]}" \
         BOOST_DIR="${codes_dir[prefix]}" \
         HDF5_INCLUDE_DIR=/usr/include \
         HDF5_LIBRARY_DIR="$BIVIO_MPI_LIB" \
         CC=mpicc CXX=mpicxx \
         codes_cmake \
-        --prefix="${codes_dir[prefix]}" \
         -D CMAKE_INSTALL_PREFIX="${codes_dir[prefix]}" \
         -D ENABLE_SAAMG_SOLVER=TRUE \
         -D CMAKE_POSITION_INDEPENDENT_CODE=FALSE \
