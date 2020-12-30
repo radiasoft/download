@@ -36,11 +36,9 @@ ml_python_install() {
     )
     install_pip_install "${tensorflow_2_3_1_deps[@]}"
     install_pip_install --no-deps tensorflow==2.3.1
-    pip list|cat
     install_pip_install keras==2.4.3 \
         scikit-image \
         scikit-learn
-    pip list|cat
 }
 
 
