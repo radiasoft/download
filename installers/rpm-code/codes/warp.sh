@@ -14,7 +14,8 @@ warp_python_install() {
 
 warp_main() {
     codes_dependencies common forthon pygist openpmd
-    codes_download https://bitbucket.org/radiasoft/warp.git
+    # https://github.com/radiasoft/download/issues/141
+    codes_download https://bitbucket.org/radiasoft/warp.git 4ebb54f21373d41b8b1abe2f7a6011896324907f
     cd pywarp90
     if [[ ${codes_debug:-} ]]; then
         perl -pi -e 's{^FARGS.*}{FARGS=--farg -fcheck=all}' Makefile.Forthon3 Makefile.Forthon3.pympi
