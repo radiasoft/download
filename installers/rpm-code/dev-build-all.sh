@@ -41,6 +41,13 @@ codes=(
 #    pyopaltools
     opal
 
+    # needs hypre and metis
+    petsc
+    slepc
+    petsc4py
+    slepc4py
+    fenics
+
     pydicom
 
     pymesh
