@@ -4,7 +4,7 @@ genesis_main() {
     codes_download https://github.com/slaclab/Genesis-1.3-Version2.git
     codes_cmake -D USE_MPI=OFF
     codes_make all
-    install -m 555 genesis2 "${codes_dir[bin]}"/genesis.sh
+    install -m 555 genesis2 "${codes_dir[bin]}"/genesis
     cd ..
     rm -rf build
     codes_cmake -D USE_MPI=ON
