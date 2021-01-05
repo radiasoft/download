@@ -70,8 +70,9 @@ rpm_code_dependencies_done() {
         # trilinos is huge (4GB) so don't add as a dependency
         # only needed to compile opal.
         # https://github.com/radiasoft/download/issues/140
-        if [[ ! $i =~ trilinos ]]; then
+        if [[ $i =~ trilinos ]]; then
             install_msg ignoring trilinos dependency
+        else
             echo "$rpm_code_rpm_prefix-$i"
         fi
     done >> $rpm_code_build_depends_f
