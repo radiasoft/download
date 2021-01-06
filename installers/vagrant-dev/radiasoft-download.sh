@@ -224,24 +224,26 @@ $(install_vars_export)
 EOF1
 source ~/.bashrc
 set -euo pipefail
-e=
-cd src/radiasoft
-for f in */.git; do
-    f=$(dirname "$f")
-    cd "$f"
-    s=$(git status --short)
-    if [[ $s != '' ]]; then
-        e+="
-$PWD
-$s"
-    fi
-    cd ..
-done
-cd ../..
-if [[ $e ]]; then
-    echo "git directories in ~/src/radiasoft have non-empty status:$e
+if [[ -d src/radiasoft ]]; then
+    e=
+    cd src/radiasoft
+    for f in */.git; do
+        f=$(dirname "$f")
+        cd "$f"
+        s=$(git status --short)
+        if [[ $s != '' ]]; then
+            e+="
+    $PWD
+    $s"
+        fi
+        cd ..
+    done
+    cd ../..
+    if [[ $e ]]; then
+        echo "git directories in ~/src/radiasoft have non-empty status:$e
 "
-    exit 1
+        exit 1
+    fi
 fi
 EOF2
 tar czf $_vagrant_dev_update_tgz_path --ignore-failed-read .netrc .gitconfig .bash_history .{post,pre}_bivio_bashrc .emacs.d/lisp/{post,pre}-bivio-init.el .ssh/{id_*,config} >& /dev/null
