@@ -178,7 +178,8 @@ EOF
     if [[ ! $vagrant_dev_is_update ]]; then
         return
     fi
-    vagrant ssh <<EOF
+    # if this fails, we still want to remove the tar file
+    vagrant ssh <<EOF || true
 $(install_vars_export)
 source ~/.bashrc
 tar xpzf $_vagrant_dev_update_tgz_path
