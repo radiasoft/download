@@ -14,11 +14,11 @@ redhat_dev_main() {
         # Fixed in yum update, but need to restart and reset failed
         # https://bugzilla.redhat.com/show_bug.cgi?id=1158846
         if [[ $(systemctl is-failed nfs-idmapd) == failsed ]]; then
-            systemctl reset-failed
-            systemctl restart nfs-idmapd
+            install_sudo systemctl reset-failed
+            install_sudo systemctl restart nfs-idmapd
         fi
         # this is a very an annoying feature, because it happens in every interactive shell
-        rm -f /etc/profile.d/console-login-helper-messages-profile.sh
+        install_sudo rm -f /etc/profile.d/console-login-helper-messages-profile.sh
     fi
     install_repo_as_root redhat-base
     install_repo_as_root home

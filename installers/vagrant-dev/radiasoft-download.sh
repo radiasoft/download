@@ -6,23 +6,8 @@
 #
 set -euo pipefail
 
-vagrant_dev_check() {
-    local vdi=$1
-    if [[ ! $(type -t vagrant) ]]; then
-        install_err 'vagrant not installed. Please visit to install:
-
-http://vagrantup.com'
-    fi
-    if [[ -d .vagrant ]]; then
-        local s=$(vagrant status 2>&1)
-        local re=' not created |machine is required to run'
-        if [[ ! $s =~ $re ]]; then
-            install_err 'vagrant machine exists. Please run: vagrant destroy -f'
-        fi
-    fi
-    vagrant_dev_plugins
-    vagrant_dev_vdi_delete "$vdi"
-}
+_vagrant_dev_update_tgz_base=vagrant-dev-update.tgz
+_vagrant_dev_update_tgz_path=/vagrant/$_vagrant_dev_update_tgz_base
 
 vagrant_dev_ip() {
     local host=$1
@@ -61,7 +46,26 @@ vagrant_dev_init_nfs() {
 }
 
 vagrant_dev_main() {
-    local os=${1:-} host=${2:-} ip=${3:-}
+    local f os= host= ip= vagrant_dev_is_update=
+    for a in "$@"; do
+        case $a in
+            fedora*|centos*)
+                os=$a
+                ;;
+            [1-9]*)
+                ip=$a
+                ;;
+            update)
+                vagrant_dev_is_update=1
+                ;;
+            v|v[1-9]|*.radia.run)
+                host=$a
+                ;;
+            *)
+                install_err "invalid arg=$a
+expects: fedora|centos[/<version>], <ip address>, update, v[1-9].radia.run"
+        esac
+    done
     if [[ ! $host ]]; then
         if [[ ! $PWD =~ /(v[2-9]?)$ ]]; then
             install_err 'either specify a host or run from directory named v, v2, v3, ..., v9'
@@ -71,9 +75,6 @@ vagrant_dev_main() {
     local base=${host%%.*}
     if [[ $base == $host ]]; then
         host=$host.radia.run
-    fi
-    if [[ ! $os =~ ^(fedora|centos) ]]; then
-        install_err "$os: invalid OS: only fedora or centos are supported"
     fi
     if [[ ${vagrant_dev_barebones:+1} ]]; then
         # allow individual overrides
@@ -97,7 +98,7 @@ vagrant_dev_main() {
     # Absolute path is necessary for comparison in vagrant_dev_vdi_delete
     vagrant_dev_init_nfs
     local vdi=$PWD/$base-docker.vdi
-    vagrant_dev_check "$vdi"
+    vagrant_dev_prepare "$vdi"
     if [[ ! ${vagrant_dev_no_vbguest:+1} ]]; then
         vagrant_dev_vagrantfile "$os" "$host" "$ip" "$vdi" '1'
         vagrant up
@@ -125,6 +126,7 @@ EOF
 $(install_vars_export)
 curl $(install_depot_server)/index.sh | bash -s redhat-dev
 EOF
+    vagrant_dev_post_install
 }
 
 vagrant_dev_mounts() {
@@ -133,12 +135,11 @@ vagrant_dev_mounts() {
         return
     fi
     # Have to use vers=3 b/c vagrant will insert it (incorrectly) otherwise. Not sure why.
-    local res=(
-        'config.vm.synced_folder ".", "/vagrant", type: "nfs", mount_options: ["rw", "vers=3", "tcp", "nolock", "fsc", "actimeo=2"]'
-    )
+    local f=' type: "nfs", mount_options: ["nolock", "fsc", "actimeo=2"], nfs_version: 3, nfs_udp: false'
+    local res=( 'config.vm.synced_folder ".", "/vagrant",'"$f" )
     if [[ ! ${vagrant_dev_no_nfs_src:+1} ]]; then
         mkdir -p "$HOME/src"
-        res+=( 'config.vm.synced_folder "'"$HOME/src"'", "/home/vagrant/src", type: "nfs", mount_options: ["rw", "vers=3", "tcp", "nolock", "fsc", "actimeo=2"]' )
+        res+=( 'config.vm.synced_folder "'"$HOME/src"'", "/home/vagrant/src",'"$f" )
     fi
     local IFS='
     '
@@ -165,6 +166,91 @@ vagrant_dev_plugins() {
         fi
         vagrant plugin "$op" "$p"
     done
+}
+
+vagrant_dev_post_install() {
+    if [[ ${vagrant_dev_post_install_repo:-} ]]; then
+        vagrant ssh <<EOF
+$(install_vars_export)
+curl $(install_depot_server)/index.sh | bash -s $vagrant_dev_post_install_repo
+EOF
+    fi
+    if [[ ! $vagrant_dev_is_update ]]; then
+        return
+    fi
+    vagrant ssh <<EOF
+$(install_vars_export)
+source ~/.bashrc
+tar xpzf $_vagrant_dev_update_tgz_path
+if [[ -f /vagrant/radia-run.sh ]]; then
+    source /vagrant/radia-run.sh
+fi
+EOF
+    rm -f "$_vagrant_dev_update_tgz_base"
+}
+
+vagrant_dev_prepare() {
+    local vdi=$1
+    if [[ ! $(type -t vagrant) ]]; then
+        install_err 'vagrant not installed. Please visit to install:
+
+http://vagrantup.com'
+    fi
+    vagrant_dev_pre_install
+    if [[ -d .vagrant ]]; then
+        local s=$(vagrant status 2>&1 || true)
+        local re=' not created |machine is required to run'
+        if [[ ! $s =~ $re ]]; then
+            install_err 'vagrant machine exists. Please run: vagrant destroy -f'
+        fi
+    fi
+    vagrant_dev_plugins
+    vagrant_dev_vdi_delete "$vdi"
+}
+
+vagrant_dev_pre_install() {
+    if [[ ! $vagrant_dev_is_update ]]; then
+        return
+    fi
+    # if the file is there, then assume aborted update
+    if [[ ! -r $_vagrant_dev_update_tgz_base ]]; then
+        local s=$(vagrant status --machine-readable 2>&1 || true)
+        if [[ ! $s =~ state,running ]]; then
+            install_err 'For updates, VM must be running; boot and try again'
+        fi
+        (cat <<EOF1; cat <<'EOF2'; cat <<EOF3) | vagrant ssh
+$(install_vars_export)
+EOF1
+source ~/.bashrc
+set -euo pipefail
+e=
+cd src/radiasoft
+for f in */.git; do
+    f=$(dirname "$f")
+    cd "$f"
+    s=$(git status --short)
+    if [[ $s != '' ]]; then
+        e+="
+$PWD
+$s"
+    fi
+    cd ..
+done
+cd ../..
+if [[ $e ]]; then
+    echo "git directories in ~/src/radiasoft have non-empty status:$e
+"
+    exit 1
+fi
+EOF2
+tar czf $_vagrant_dev_update_tgz_path --ignore-failed-read .netrc .gitconfig .bash_history .{post,pre}_bivio_bashrc .emacs.d/lisp/{post,pre}-bivio-init.el .ssh/{id_*,config} >& /dev/null
+EOF3
+        if [[ ! -r $_vagrant_dev_update_tgz_base ]]; then
+            install_err "failed to create $_vagrant_dev_update_tgz_base; no NFS setup or git status?"
+        fi
+    fi
+    vagrant destroy -f
+    vagrant box update
 }
 
 vagrant_dev_vagrantfile() {
@@ -285,5 +371,3 @@ vagrant_dev_vdi_find() {
         esac
     done
 }
-
-vagrant_dev_main ${install_extra_args[@]+"${install_extra_args[@]}"}
