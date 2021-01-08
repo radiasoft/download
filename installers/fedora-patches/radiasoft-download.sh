@@ -10,7 +10,6 @@ fedora_patches_mpich() {
     # readelf -p .GCC.command.line a.out
 
     install_sudo perl -pi -w -e '
-    s{-Wall}{}g;
     s{-Wp,-D_FORTIFY_SOURCE=2}{}g;
     s{-Wp,-D_GLIBCXX_ASSERTIONS}{}g;
     s{-fplugin=annobin}{}g;
