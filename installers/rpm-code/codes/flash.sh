@@ -41,6 +41,10 @@ flash_patch_makefile() {
 ---
 > HDF5_PATH  = $d/
 > HYPRE_PATH = ${codes_dir[prefix]}
+70c70
+< F90FLAGS =
+---
+> F90FLAGS = -fallow-argument-mismatch
 EOF
 }
 
