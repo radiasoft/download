@@ -1,9 +1,9 @@
 #!/bin/bash
 
 flash_main() {
-    local f="FLASH4.6.2"
+    local f="FLASH-4.6.2"
     codes_dependencies hypre
-    codes_download_proprietary "flash/FLASH-4.6.2.tar.gz" "$f"
+    codes_download_proprietary "flash/$f.tar.gz" "$f"
     flash_patch_makefile
     local n
     for n in CapLaser3D CapLaserBELLA; do
@@ -14,7 +14,7 @@ flash_main() {
     local a="flash.tar.gz"
     tar --create  --gzip --file "$a" flash
     install -d 755 "${codes_dir[share]}"/flash
-    install -m 444 "$a" "${codes_dir[share]}"/flash/
+    install -m 444 "$a" "${codes_dir[share]}"/flash
 }
 
 flash_download_simulation_source() {
