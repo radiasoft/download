@@ -4,16 +4,16 @@
 #
 set -euo pipefail
 
-flash_main() {
-    local d="$PWD"
-    if [[ ! -f "$d/FLASH-4.6.2.tar.gz" ]]; then
-        install_err "$d/FLASH-4.6.2.tar.gz must exist"
+flash_tarball_main() {
+    if [[ ! -f "FLASH-4.6.2.tar.gz" ]]; then
+        install_err "FLASH-4.6.2.tar.gz must exist"
     fi
-    cd ~/src/radiasoft/rsflash
-    git checkout --quiet master
-    git clean --quiet --force -d
-    git pull --quiet
+    local p="$PWD"
     local r=()
+    install_url radiasoft/download installers
+    install_script_eval rpm-code/codes.sh
+    codes_download rsflash
+    git fetch --unshallow
     for x in \
         "CapLaser3D 47a641aa467ff48c1337a69e6c3a6778e5b854ae" \
         "CapLaserBELLA master" \
@@ -23,31 +23,17 @@ flash_main() {
         cd "config/${x[0]}"
         # POSIT: Matches sirepo.sim_data._flash_problem_files_archive_basename
         n="problemFiles-archive.${x[0]}.zip"
-        zip --quiet "$d/$n" {*F90,Config,Makefile}
+        zip --quiet "$p/$n" {*F90,Config,Makefile}
         r+=($n)
         cd ../..
     done
-    cd "$d"
-    r+=("$(flash_patch_makefile)")
-    tar czf flash.tar.gz "${r[@]}"
-    rm -rf "${r[@]}"
-    # TODO(e-carlin):  what about outside of dev do we put it in $p?
-    local p="$HOME/src/radiasoft/rsconf/proprietary/"
-    if [[ ! -d $p ]]; then
-        echo 'you need to setup rsconf:
-
-cd ~/src/radiasoft
-gcl rsconf
-cd rsconf
-pip install -e . | cat
-rsconf build
-'
-        exit 1
-    fi
-    mv flash.tar.gz "$p/flash-$install_channel.tar.gz"
+    cd "$p"
+    r+=("$(flash_tarball_patch_makefile)")
+    tar czf flash-dev.tar.gz "${r[@]}"
+    rm -rf "${r[@]}" rsflash
 }
 
-flash_patch_makefile() {
+flash_tarball_patch_makefile() {
     local b='FLASH-4.6.2'
     tar xzf "$b.tar.gz"
     cd "$b"
@@ -76,5 +62,3 @@ EOF
     rm -rf "flash"
     echo "$r"
 }
-
-flash_main
