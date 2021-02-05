@@ -3,7 +3,7 @@
 # For testing installer
 #
 unit_test_main() {
-    local arg=$1
+    local arg=${1:-** call with arg1 **}
     if [[ $arg != arg1 ]]; then
         install_err "$arg: install_extra_args failed"
     fi
@@ -26,4 +26,8 @@ unit_test_main() {
         install_err "$sentinel: install_verbose=1 install_info failed"
     fi
     echo PASSED
+    install_url radiasoft/download installers
+    install_tmp_dir
+    install_script_eval rpm-code/codes.sh
+    codes_download container-test
 }
