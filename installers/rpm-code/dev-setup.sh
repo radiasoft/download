@@ -42,14 +42,12 @@ for d in containers container-rpm-code container-fedora; do
     fi
 done
 if [[ ! $(type -p docker) ]]; then
-    sudo su - -c 'radia_run redhat-docker'
+    if ! sudo su - -c 'radia_run redhat-docker'; then
+        echo 'And rerun: bash dev-setup.sh' 1>&2
+        exit 1
+    fi
 fi
 if [[ ! $(groups) =~ docker ]]; then
-    echo 'you need to logout and log back in to get vagrant in the docker group'
+    echo 'you need to logout and log back in to get vagrant in the docker group' 1>&2
     exit 1
-fi
-if [[ ! $(docker images | grep radiasoft/fedora) ]]; then
-    cd container-fedora
-    # in case set by dev-env.sh, because server isn't running yet
-    install_server= radia_run container-build
 fi
