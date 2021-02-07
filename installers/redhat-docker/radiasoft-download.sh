@@ -50,12 +50,19 @@ Then re-run this command
         if fdisk -l "$bdev" | grep ^/dev >& /dev/null; then
             install_err "$bdev contains mounted partitions, cannot install docker"
         fi
-        if pvck "$bdev"; then
-            install_err "physical volume $bdev already initialized, cannot install docker"
+        if pvck "$bdev" >& /dev/null; then
+            if [[ ! $(pvs "$bdev") =~ $bdev ]]; then
+                install_err "physical volume $bdev already initialized, cannot install docker"
+            fi
+        else
+            pvcreate "$bdev"
         fi
-        pvcreate "$bdev"
-        vgcreate "$vg" "$bdev"
-        lvcreate -l '100%VG' -n "$lv" "$vg"
+        if ! vgck "$vg" >& /dev/null; then
+            vgcreate "$vg" "$bdev"
+        fi
+        if [[ ! $(lvs "$lv" 2>/dev/null) =~ docker ]]; then
+            lvcreate -l '100%VG' -n "$lv" "$vg"
+        fi
     fi
     if type dnf >& /dev/null; then
         dnf -y -q install dnf-plugins-core
