@@ -1,9 +1,11 @@
 #!/bin/bash
 set -euo pipefail
 
+_flash_tarball_version=4.6.2
+
 flash_tarball_main() {
     local d=$PWD/proprietary
-    local t=$d/FLASH-4.6.2.tar.gz
+    local t=$d/FLASH-$_flash_tarball_version.tar.gz
     if [[ ! -f $t ]]; then
             install_err "$t must exist"
     fi
@@ -38,10 +40,12 @@ flash_tarball_main() {
 
 flash_tarball_patch_and_update_tgz() {
     local src_tgz=$1
-    local b="$(basename "$src_tgz" .tar.gz)"
+    # missing the dash
+    local b=FLASH$_flash_tarball_version
     tar xzf "$src_tgz"
     cd "$b"
-    local d=$(dirname "$BIVIO_MPI_LIB")
+    # POSIT: Fedora using mpich
+    local d=/usr/lib64/mpich
     patch --quiet sites/Prototypes/Linux/Makefile.h <<EOF
 6c6
 < MPI_PATH   = /usr/local/mpich2/
