@@ -61,7 +61,7 @@ EOF
     cd ..
     mv "$b" "flash"
     # POSIT: Matches sirepo.sim_data.flash._flash_src_tarball_basename
-    local r=source.tar.gz
+    local r=flash.tar.gz
     tar czf "$r" flash
     echo "$r"
 }
