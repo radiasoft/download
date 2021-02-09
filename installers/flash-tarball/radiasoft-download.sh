@@ -1,41 +1,45 @@
 #!/bin/bash
-#
-# To run: curl radia.run | bash -s flash-tarball
-#
 set -euo pipefail
 
 flash_tarball_main() {
-    if [[ ! -f "FLASH-4.6.2.tar.gz" ]]; then
-        install_err "FLASH-4.6.2.tar.gz must exist"
+    local d=$PWD/proprietary
+    local t=$d/FLASH-4.6.2.tar.gz
+    if [[ ! -f $t ]]; then
+            install_err "$t must exist"
     fi
-    local p="$PWD"
+    install_tmp_dir
+    local p=$PWD
     local r=()
     install_url radiasoft/download installers
     install_script_eval rpm-code/codes.sh
     codes_download rsflash
     git fetch --unshallow
+    local x
     for x in \
-        "CapLaser3D 47a641aa467ff48c1337a69e6c3a6778e5b854ae" \
-        "CapLaserBELLA master" \
+        'CapLaser3D 47a641aa467ff48c1337a69e6c3a6778e5b854ae' \
+        'CapLaserBELLA master' \
     ; do
-        local x=( $x )
+        x=( $x )
         git checkout --quiet "${x[1]}"
         cd "config/${x[0]}"
         # POSIT: Matches sirepo.sim_data._flash_problem_files_archive_basename
-        n="problemFiles-archive.${x[0]}.zip"
-        zip --quiet "$p/$n" {*F90,Config,Makefile}
+        n=problemFiles-archive.${x[0]}.zip
+        zip --quiet "$p/$n" *F90 Config Makefile
         r+=($n)
         cd ../..
     done
-    cd "$p"
-    r+=("$(flash_tarball_patch_makefile)")
-    tar czf flash-dev.tar.gz "${r[@]}"
-    rm -rf "${r[@]}" rsflash
+    cd ..
+    r+=( "$(flash_tarball_patch_and_update_tgz "$t")" )
+    x=$d/flash-$(date -u +%Y%m%d.%H%M%S).tar.gz
+    rm -f "$x"
+    tar czf "$x" "${r[@]}"
+    ln -s --force "$(basename "$x")" $d/flash-dev.tar.gz
 }
 
-flash_tarball_patch_makefile() {
-    local b='FLASH-4.6.2'
-    tar xzf "$b.tar.gz"
+flash_tarball_patch_and_update_tgz() {
+    local src_tgz=$1
+    local b="$(basename "$src_tgz" .tar.gz)"
+    tar xzf "$src_tgz"
     cd "$b"
     local d=$(dirname "$BIVIO_MPI_LIB")
     patch --quiet sites/Prototypes/Linux/Makefile.h <<EOF
@@ -57,8 +61,7 @@ EOF
     cd ..
     mv "$b" "flash"
     # POSIT: Matches sirepo.sim_data.flash._flash_src_tarball_basename
-    local r='source.tar.gz'
-    tar czf "$r" "flash"
-    rm -rf "flash"
+    local r=source.tar.gz
+    tar czf "$r" flash
     echo "$r"
 }
