@@ -55,8 +55,8 @@ flash_tarball_patch_and_update_tgz() {
 < HDF5_PATH  = /usr/local/hdf5
 < HYPRE_PATH = /usr/local/hypre
 ---
-> HDF5_PATH  = $d/
-> HYPRE_PATH = $HOME/.local
+> HDF5_PATH  = $d
+> HYPRE_PATH = /home/vagrant/.local
 70c70
 < F90FLAGS =
 ---
