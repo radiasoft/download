@@ -20,7 +20,7 @@ EOF
         install_yum_install "$(install_foss_server)"/bivio-perl-dev.rpm
     fi
     if [[ $(psql 2>&1) =~ could.not.connect ]]; then
-        sudo su - <<'EOF'
+        install_sudo su - <<'EOF'
 set -e
 rpm -q postgresql-server >&/dev/null || yum install -y -q postgresql-server
 PGSETUP_INITDB_OPTIONS="--encoding=SQL_ASCII" postgresql-setup initdb
@@ -31,6 +31,7 @@ systemctl start postgresql
 systemctl enable postgresql
 EOF
     fi
+    install_yum_install php php-dom
     install_source_bashrc
     _bivio_home_env_update -f
     # Needed for bashrc_b_env_aliases to contain complete set
