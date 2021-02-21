@@ -31,7 +31,6 @@ systemctl start postgresql
 systemctl enable postgresql
 EOF
     fi
-    install_yum_install php php-dom
     install_source_bashrc
     _bivio_home_env_update -f
     # Needed for bashrc_b_env_aliases to contain complete set
