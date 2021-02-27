@@ -27,14 +27,6 @@ rpm_code_build() {
         install_msg "Removing $HOME/rpmbuild"
         rm -rf "$HOME"/rpmbuild
     fi
-    mkdir -p "$HOME"/rpmbuild/{RPMS,BUILD,BUILDROOT,SPECS,tmp}
-    cd "$HOME"/rpmbuild
-    cat <<EOF > "$HOME"/.rpmmacros
-%_topdir   $PWD
-%_tmppath  %{_topdir}/tmp
-EOF
-    local r=$PWD/BUILDROOT
-    local s=$PWD/SPECS/"$rpm_base".spec
     install_msg "$(date +%H:%M:%S) Generating $rpm_code_build_include_f"
     if rpm_code_is_common "$code"; then
         if [[ -e $rpm_code_build_exclude_f ]]; then
@@ -50,6 +42,14 @@ EOF
             ! -name pip-selfcheck.json ! -name '*.pyc' ! -name '*.pyo' \
             | sort | grep -vxFf "$rpm_code_build_exclude_f" - > "$rpm_code_build_include_f" || true
     fi
+    mkdir -p "$HOME"/rpmbuild/{RPMS,BUILD,BUILDROOT,SPECS,tmp}
+    cd "$HOME"/rpmbuild
+    cat <<EOF > "$HOME"/.rpmmacros
+%_topdir   $PWD
+%_tmppath  %{_topdir}/tmp
+EOF
+    local r=$PWD/BUILDROOT
+    local s=$PWD/SPECS/"$rpm_base".spec
     install_msg "$(date +%H:%M:%S) Run: rpm-spec.PL"
     install_download rpm-spec.PL \
         | perl -w - "$rpm_code_guest_d" "$rpm_base" "$version" "$rpm_code_build_desc" > "$s"
@@ -137,9 +137,20 @@ rpm_code_main() {
         # Needs to be owned by rpm_code_user
         chown "${rpm_code_user}:" "$PWD"
     fi
+
+    pass image
+    base
+    extra_args
+    installer name _build trick handled here?
+    pwd is the same
+    the mount directory is the same pass that in
+
     docker run -u root -i --network=host --rm -v "$PWD:$rpm_code_guest_d" "$rpm_code_image" <<EOF
 set -euo pipefail
+# SECURITY: not building a container so ok to add sudo
+# POSIT: Same code in containers/bin/build.sh
 echo "$rpm_code_user ALL=(ALL) NOPASSWD: ALL" | install -m 440 /dev/stdin /etc/sudoers.d/"$rpm_code_user"
+chmod 4111 /usr/bin/sudo
 su - "$rpm_code_user" <<EOF2
 set -euo pipefail
 cd '$rpm_code_guest_d'
