@@ -7,7 +7,7 @@ rpm_build_do() {
     local op=$2
     local args=${@:3}
     # save the version here so closer to commit times, but unused by $op
-    local v=$(date -u +%Y%m%d.%H%M%S)
+    export rpm_build_version=$(date -u +%Y%m%d.%H%M%S)
     export rpm_build_include_f=$rpm_build_guest_d/include.txt
     export rpm_build_depends_f=$rpm_build_guest_d/depends.txt
     local rpm_build_desc
@@ -25,7 +25,6 @@ EOF
     install_msg "$(date +%H:%M:%S) Run: rpm-spec.PL"
     export rpm_build_desc
     export rpm_build_rsync_f=$rpm_build_guest_d/rsync.txt
-    export rpm_build_version=$v
     install_download rpm-spec.PL | perl > "$s"
     install_msg "$(date +%H:%M:%S) Run: rsync"
     rsync -aq --link-dest=/ --files-from="$rpm_build_rsync_f" / "$r"
