@@ -47,9 +47,9 @@ install_args() {
 
 install_clean() {
     local f
-    for f in "${install_clean_cmds[@]}"; do
-        eval $f
-    done >& /dev/null
+    for f in ${install_clean_cmds[@]+"${install_clean_cmds[@]}"}; do
+        eval "$f" || true
+    done
 }
 
 install_depot_server() {
@@ -90,8 +90,8 @@ install_pip_install() {
 }
 
 install_pip_uninstall() {
-    # we don't care if unnstalls work
-    pip uninstal -y "$@" >& /dev/null || true
+    # we don't care if uninstall work
+    pip uninstall -y "$@" >& /dev/null || true
 }
 
 install_proprietary_server() {
@@ -370,7 +370,7 @@ install_sudo() {
 install_tmp_dir() {
     export TMPDIR="$install_tmp_dir/radia-run-$$-$RANDOM"
     mkdir -p "$TMPDIR"
-    install_clean_cmds+=( "cd '$PWD'; rm -rf '$TMPDIR'" )
+    install_clean_cmds+=( "if [[ -e '$TMPDIR' && -e '$PWD' ]]; then cd '$PWD' && rm -rf '$TMPDIR'; fi" )
     cd "$TMPDIR"
 }
 
