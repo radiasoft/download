@@ -1,7 +1,4 @@
 #!/bin/bash
-# Copied from biviosoftware/rpm-perl. It's different, but rpm_code_install_rpm is the
-# same
-set -euo pipefail
 
 rpm_code_rpm_prefix=rscode
 
@@ -110,58 +107,29 @@ rpm_code_main() {
         install_err 'must supply code name, e.g. synergia'
     fi
     local code=$1
-    local f
-    local rpm_base build_args
-    if [[ $1 == _build ]]; then
-        shift
-        rpm_code_build "$@"
-        return
-    fi
     # assert params and log
     install_info "rpm_code_install_dir=$rpm_code_install_dir"
-    umask 022
-    install_tmp_dir
-    : ${rpm_base:=$rpm_code_rpm_prefix-$code}
-    : ${build_args:="$rpm_base $code"}
-    : ${rpm_code_image:=radiasoft/rpm-code}
+    local base=$rpm_code_rpm_prefix-$code
+    # these need to be space separated b/c substitution below
+    local args="$base $code"
+    local image=radiasoft/rpm-code
     if rpm_code_is_common "$code" || [[ $code == test ]]; then
-        rpm_code_image=radiasoft/fedora
+        image=radiasoft/fedora
     fi
-    : ${rpm_code_user:=vagrant}
     if [[ ${rpm_code_debug:-} ]]; then
-        export rpm_code_guest_d=$PWD
-        rpm_code_build $build_args
+        export rpm_build_guest_d=$PWD
+        rpm_code_build $args
         return
     fi
     if [[ $EUID == 0 ]]; then
         # Needs to be owned by rpm_code_user
         chown "${rpm_code_user}:" "$PWD"
     fi
-
-    pass image
-    base
-    extra_args
-    installer name _build trick handled here?
-    pwd is the same
-    the mount directory is the same pass that in
-
-    docker run -u root -i --network=host --rm -v "$PWD:$rpm_code_guest_d" "$rpm_code_image" <<EOF
-set -euo pipefail
-# SECURITY: not building a container so ok to add sudo
-# POSIT: Same code in containers/bin/build.sh
-echo "$rpm_code_user ALL=(ALL) NOPASSWD: ALL" | install -m 440 /dev/stdin /etc/sudoers.d/"$rpm_code_user"
-chmod 4111 /usr/bin/sudo
-su - "$rpm_code_user" <<EOF2
-set -euo pipefail
-cd '$rpm_code_guest_d'
-$(install_vars_export)
-radia_run rpm-code _build $build_args
-EOF2
-EOF
+    install_repo_eval "$base" "$image" _rpm_code $args
     if [[ ${rpm_code_is_proprietary:-} ]]; then
-        rpm_code_install_proprietary "$rpm_base"
+        rpm_code_install_proprietary "$base"
     else
-        rpm_code_install_rpm "$rpm_base"
+        rpm_code_install_rpm "$base"
         (umask 022; createrepo -q --update "$rpm_code_install_dir")
     fi
 }
