@@ -68,6 +68,7 @@ __DATA__
 %define __spec_clean_post true
 %define __spec_clean_pre true
 
+%define __provides_exclude_from .
 
 # Allow building noarch packages that contain binaries
 %define _binaries_in_noarch_packages_terminate_build 0

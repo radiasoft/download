@@ -31,7 +31,7 @@ EOF
     install_msg "$(date +%H:%M:%S) Run: rpmbuild"
     rpmbuild --buildroot "$r" -bb "$s"
     install_msg "$(date +%H:%M:%S) Done: rpmbuild"
-    mv RPMS/x86_64/*.rpm "$rpm_build_guest_d"
+    install -m 444 RPMS/x86_64/*.rpm "$rpm_build_guest_d"
 }
 
 rpm_build_main() {
@@ -44,7 +44,7 @@ rpm_build_main() {
     fi
     local base=$1 image=$2 repo=$3 op=$4 args=( "${@:5}" )
     : ${rpm_build_user:=vagrant}
-    if [[ $EUID == 0 ]]; then
+    if [[ $EUID == 0 && $rpm_build_user != root ]]; then
         # Needs to be owned by rpm_build_user
         chown "${rpm_build_user}:" "$PWD"
     fi
