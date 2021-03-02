@@ -272,7 +272,7 @@ codes_manifest_add_code() {
     if [[ ! $repo ]]; then
         repo=$(git config --get remote.origin.url)
     fi
-    rpm_code_build_desc+="version: $version
+    rpm_build_desc+="version: $version
 source: $repo
 build: $pwd
 "

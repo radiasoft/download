@@ -1,11 +1,11 @@
 #!/bin/bash
-cat >> ~/.post_bivio_bashrc <<'EOF'
+cat >> ~/.pre_bivio_bashrc <<'EOF'
 pyenv() {
     case $1 in
         prefix)
             echo /home/vagrant/.pyenv/versions/2.7.16/envs/py2
             ;;
-        activate|rehash)
+        activate|rehash|virtualenv-init|init)
             ;;
         *)
             echo "unknown pyenv mock command=$1" 1>&2
@@ -25,8 +25,7 @@ test_main() {
     codes_dependencies common_test
     install -m 555 /dev/stdin "${codes_dir[bin]}"/rscode-test <<EOF
 #!/bin/bash
-# POSIT: codes.sh sets locally-scoped version var
-echo "RPM_CODE_TEST_VERSION=$version"
+echo "RPM_CODE_TEST_VERSION=$rpm_build_version"
 EOF
     install_source_bashrc
     local my_sh=${codes_dir[bashrc_d]}/my.sh

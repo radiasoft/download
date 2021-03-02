@@ -4,19 +4,20 @@ use strict;
 use File::Find ();
 
 sub main {
-    my($guest_d, $spec_name, $spec_version, $spec_description) = @_;
-    $spec_description ||= $spec_name;
+    my($spec_name) ||= $ENV{rpm_build_base} || die;
+    my($spec_description) ||= $spec_name;
+    my($spec_version) = $ENV{rpm_build_version} || die;
     my($spec_summary) = (split(/\n/, $spec_description))[0];
     my($template) = (sub {local($/); return <DATA>})->();
     my($z) = {};
-    foreach my $x (qw(include depends)) {
-        $z->{$x} = _read_list($guest_d, $x);
+    foreach my $x (qw(depends include)) {
+        $z->{$x} = _read_list($ENV{"rpm_build_${x}_f"} || die);
     }
     my($spec_requires) = @{$z->{depends}}
         ? join(' ', 'Requires:', @{$z->{depends}}) . "\n"
         : '';
     my($spec_files) = '';
-    open(OUT, '>', "$guest_d/rsync.txt") || die("rsync.txt: $!\n");
+    open(OUT, '>', $ENV{rpm_build_rsync_f}) || die("rsync.txt: $!\n");
     foreach my $f (sort(@{$z->{include}})) {
         if (-l $f || ! -d _) {
             if (! -l _ && -x _) {
@@ -34,10 +35,9 @@ sub main {
 }
 
 sub _read_list {
-    my($guest_d, $base) = @_;
+    my($file) = @_;
     my($r) = Cwd::getcwd();
-    my($f) = "$guest_d/$base.txt";
-    open(IN, '<', $f) || die("$f: $!\n");
+    open(IN, '<', $file) || die("$file: $!\n");
     chomp(my @res = <IN>);
     close(IN);
     return \@res;
@@ -68,6 +68,7 @@ __DATA__
 %define __spec_clean_post true
 %define __spec_clean_pre true
 
+%define __provides_exclude_from .
 
 # Allow building noarch packages that contain binaries
 %define _binaries_in_noarch_packages_terminate_build 0
