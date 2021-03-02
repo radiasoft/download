@@ -42,7 +42,7 @@ rpm_build_main() {
         rpm_build_do "${@:2}"
         return
     fi
-    local base=$1 image=$2 repo=$3 op=$4 args=( "${@:5}" )
+    local base=$1 image=$2 repo=$3 op=$4 args="${*:5}"
     : ${rpm_build_user:=vagrant}
     if [[ $EUID == 0 && $rpm_build_user != root ]]; then
         # Needs to be owned by rpm_build_user
