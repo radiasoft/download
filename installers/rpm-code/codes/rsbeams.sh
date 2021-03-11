@@ -1,6 +1,6 @@
 #!/bin/bash
 
-_rsbeam_codes=( rsbeams rssynergia rsoopic rswarp )
+_rsbeam_codes=( rsbeams rssynergia rsflash rsoopic rswarp )
 
 rsbeams_main() {
     codes_dependencies common ml
