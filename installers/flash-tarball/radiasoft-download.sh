@@ -14,36 +14,38 @@ flash_tarball_main() {
     local r=()
     install_url radiasoft/download installers
     install_script_eval rpm-code/codes.sh
-    codes_download rsflash
-    git fetch --unshallow
-    local x
-    for x in \
-        'CapLaser3D 47a641aa467ff48c1337a69e6c3a6778e5b854ae' \
-        'CapLaserBELLA master' \
-    ; do
-        x=( $x )
-        git checkout --quiet "${x[1]}"
-        cd "config/${x[0]}"
-        # POSIT: Matches sirepo.sim_data._flash_problem_files_archive_basename
-        n=problemFiles-archive.${x[0]}.zip
-        zip --quiet "$p/$n" *F90 Config Makefile
-        r+=($n)
-        cd ../..
-    done
-    cd ..
-    r+=( "$(flash_tarball_patch_and_update_tgz "$t")" )
+    r="$(flash_untar $t)"
+    flash_patch "$r"
+    flash_add_examples "$r"
+    o=flash.tar.gz
+    tar czf "$o" "$r"
     x=$d/flash-$(date -u +%Y%m%d.%H%M%S).tar.gz
     rm -f "$x"
-    tar czf "$x" "${r[@]}"
+    tar czf "$x" "$o"
     ln -s --force "$(basename "$x")" $d/flash-dev.tar.gz
 }
 
-flash_tarball_patch_and_update_tgz() {
-    local src_tgz=$1
-    # missing the dash
-    local b=FLASH$_flash_tarball_version
-    tar xzf "$src_tgz"
-    cd "$b"
+flash_add_examples() {
+    local flash_dir="$1"
+    codes_download flashcap
+    git fetch --unshallow
+    local x
+    for x in \
+        'CapLaser3D bella_3dSetup.par' \
+        'CapLaserBELLA bella.par' \
+    ; do
+        x=( $x )
+        local i="config/${x[0]}"
+        # POSIT: sirepo.sim_data.flash.FLASH_PAR_FILE
+        cp "$i/${x[1]}" "$i/flash.par"
+        cp -R "$i"  "../$flash_dir/source/Simulation/SimulationMain/"
+    done
+    cd ..
+
+}
+
+flash_patch() {
+    cd "$1"
     # POSIT: Fedora using mpich
     local d=/usr/lib64/mpich
     patch --quiet sites/Prototypes/Linux/Makefile.h <<EOF
@@ -63,9 +65,15 @@ flash_tarball_patch_and_update_tgz() {
 > F90FLAGS = -fallow-argument-mismatch
 EOF
     cd ..
-    mv "$b" "flash"
+}
+
+flash_untar() {
+    local src_tgz=$1
+    # missing the dash
+    local b=FLASH$_flash_tarball_version
+    tar xzf "$src_tgz"
     # POSIT: Matches sirepo.sim_data.flash._flash_src_tarball_basename
-    local r=flash.tar.gz
-    tar czf "$r" flash
+    local r='flash'
+    mv "$b" "$r"
     echo "$r"
 }
