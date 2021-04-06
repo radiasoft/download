@@ -37,8 +37,6 @@ redhat_base_main() {
             )
         fi
     fi
-    # https://unix.stackexchange.com/questions/553679/set-clock-to-24-hour-format-for-all-users#comment1108480_553759
-    localectl set-locale C.UTF-8
     local x=(
         bind-utils
         biosdevname
