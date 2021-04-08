@@ -12,7 +12,7 @@ common_python() {
     codes_dir[pyenv_prefix]=$(realpath "$(pyenv prefix)")
     install_pip_install mpi4py
     install_pip_install numpy
-    install_pip_install matplotlib
+    install_pip_install matplotlib==3.3.3
     install_pip_install scipy
     # used by synergia and has man/man1 duplicate problem so just include here
     install_pip_install nose
