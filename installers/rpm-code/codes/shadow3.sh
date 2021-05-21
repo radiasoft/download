@@ -5,7 +5,7 @@ shadow3_main() {
 }
 
 shadow3_python_install() {
-    install_pip_install srxraylib shadow3
+    install_pip_install srxraylib shadow3 libgfortran4
     install_pip_install --no-deps OASYS1-ShadowOui SYNED
     local p=$(codes_python_lib_dir)/orangecontrib/shadow/util
     echo '# removed by RadiaSoft' > "$p"/__init__.py
