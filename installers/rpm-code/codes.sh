@@ -11,6 +11,7 @@ codes_assert_easy_install() {
 $(cat "$easy")"
     fi
 }
+
 codes_cmake() {
     mkdir build
     cd build
@@ -19,6 +20,14 @@ codes_cmake() {
         t=Debug
     fi
     cmake -D CMAKE_RULE_MESSAGES:BOOL=OFF -D CMAKE_BUILD_TYPE:STRING="$t" "$@" ..
+}
+
+codes_cmake_fix_lib_dir() {
+    # otherwise uses ~/.local/lib64
+    perl -pi -e '/include\(GNUInstallDirs/ && ($_ .= q{
+set(CMAKE_INSTALL_LIBDIR "lib" CACHE PATH "Library installation directory." FORCE)
+GNUInstallDirs_get_absolute_install_dir(CMAKE_INSTALL_FULL_LIBDIR CMAKE_INSTALL_LIBDIR)
+})' CMakeLists.txt
 }
 
 codes_curl() {
@@ -217,6 +226,10 @@ codes_install() {
         codes_dir[pyenv_prefix]=$(realpath "$(pyenv prefix)")
         "$p" "$v"
         codes_install_pyenv_done
+    fi
+    local d=${codes_dir[pyenv_prefix]}/lib64
+    if [[ -d $d ]]; then
+        install_err "$d created, and shouldn't be; see codes_cmake_fix_lib_dir"
     fi
     cd "$prev"
 }

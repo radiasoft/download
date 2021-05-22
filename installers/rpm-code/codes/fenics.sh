@@ -13,12 +13,8 @@ fenics_python_install() {
     cd ../..
     install_pip_install 'fenics>=2019.1.0,<2019.2.0'
     codes_download https://bitbucket.org/fenics-project/dolfin.git 2019.1.0.post0
-    # otherwise uses ~/.local/lib64
     # Error is "Could not find DOLFIN pkg-config file"
-    perl -pi -e '/GNUInstallDirs/ && ($_ .= q{
-set(CMAKE_INSTALL_LIBDIR "lib" CACHE PATH "Library installation directory." FORCE)
-GNUInstallDirs_get_absolute_install_dir(CMAKE_INSTALL_FULL_LIBDIR CMAKE_INSTALL_LIBDIR)
-})' CMakeLists.txt
+    codes_cmake_fix_lib_dir
     codes_cmake -DCMAKE_INSTALL_PREFIX="${codes_dir[prefix]}"
     codes_make install
     cd ../python
