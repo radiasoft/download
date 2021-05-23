@@ -13,5 +13,5 @@ boost_python_install() {
 
 boost_main() {
     codes_dependencies common
-    codes_download https://dl.bintray.com/boostorg/release/1.72.0/source/boost_1_72_0.tar.bz2 '' boost 1.72.0
+    codes_download https://boostorg.jfrog.io/artifactory/main/release/1.72.0/source/boost_1_72_0.tar.bz2 '' boost 1.72.0
 }
