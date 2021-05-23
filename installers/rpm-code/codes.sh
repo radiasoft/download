@@ -227,7 +227,7 @@ codes_install() {
         "$p" "$v"
         codes_install_pyenv_done
     fi
-    local d=${codes_dir[pyenv_prefix]}/lib64
+    local d=${codes_dir[prefix]}/lib64
     if [[ -d $d ]]; then
         install_err "$d created, and shouldn't be; see codes_cmake_fix_lib_dir"
     fi
