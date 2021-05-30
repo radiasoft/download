@@ -8,6 +8,8 @@ rpm_code_build() {
     local rpm_code_build=1
     local rpm_code_exclude_f=$PWD/exclude.txt
     install_source_bashrc
+    _bivio_home_env_update -f
+    install_source_bashrc
     install_url radiasoft/download installers/rpm-code
     install_script_eval codes.sh
     local rpm_code_root_dirs=( $HOME/.pyenv $HOME/.local )

@@ -8,6 +8,7 @@ common_python() {
         install_err mpicc not found
     fi
     MAKE_OPTS=-j$(codes_num_cores) bivio_pyenv_"$v"
+    install_source_bashrc
     # Need to set here
     codes_dir[pyenv_prefix]=$(realpath "$(pyenv prefix)")
     install_pip_install mpi4py
@@ -20,7 +21,9 @@ common_python() {
     # Force MPI mode (not auto-detected)
     CC=$mpicc HDF5_MPI=ON install_pip_install --no-binary=h5py h5py
     # pillow and python-dateutil installed by matplotlib
+    # pipdeptree is useful for debugging
     install_pip_install \
+        pipdeptree \
         pandas \
         sympy \
         tables

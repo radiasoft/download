@@ -19,6 +19,10 @@ rsbeams_main() {
 }
 
 rsbeams_python_install() {
+    # https://github.com/jupyter/notebook/issues/2435
+    # yt installs jedi, which needs to be forced to 0.17.2
+    # keep consistent with container-conf build.sh
+    install_pip_install jedi==0.17.2
     install_pip_install nlopt DFO-LS Libensemble yt
     local r
     for r in "${_rsbeam_codes[@]}"; do

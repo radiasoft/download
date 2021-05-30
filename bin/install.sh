@@ -45,6 +45,17 @@ install_args() {
     fi
 }
 
+install_assert_pip_version() {
+    local package=$1
+    local version=$2
+    local note=$3
+    local e=$package==$version
+    local a=$(pip list --format=freeze 2>/dev/null | grep "$package"==)
+    if [[ $a != $e ]]; then
+        install_err "$e required and $a installed; $note; use pipdeptree to diagnose"
+    fi
+}
+
 install_clean() {
     local f
     for f in ${install_clean_cmds[@]+"${install_clean_cmds[@]}"}; do
