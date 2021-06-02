@@ -27,6 +27,8 @@ common_python() {
         pandas \
         sympy \
         tables
+    # Conflict between rscode-pyzgoubi and rscode-ml so just include here
+    install_pip_install PyYAML
     # Lots of dependencies so we install here to avoid rpm collisions.
     # Slows down builds of pykern, but doesn't affect development.
     codes_download pykern

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 zgoubi_main() {
-    codes_dependencies common pyzgoubi
+    codes_dependencies common
     codes_download radiasoft/zgoubi
     # Lots of warnings so disable
     perl -pi -e 's{-Wall}{-w}' CMakeLists.txt
