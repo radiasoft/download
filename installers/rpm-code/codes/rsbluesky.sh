@@ -2,12 +2,22 @@
 set -euo pipefail
 
 rsbluesky_main() {
+    codes_yum_dependencies lz4-devel
     codes_dependencies common
     # https://github.com/radiasoft/container-beamsim-jupyter/issues/42#issuecomment-864152624
     # install from src because sirepo-bluesky on pypi is out of date (no ShadowFileHandler)
     install_pip_install git+https://github.com/NSLS-II/sirepo-bluesky.git \
                         scikit-beam
+    rsbluesky_hdf5
     rsbluesky_mongo
+}
+
+rsbluesky_hdf5() {
+    codes_download nexusformat/HDF5-External-Filter-Plugins
+    codes_cmake -DENABLE_LZ4_PLUGIN=yes -DCMAKE_INSTALL_PREFIX=$PWD
+    codes_make_install
+    local f=libh5lz4.so
+    install -m 555 ./plugins/$f "${codes_dir[lib]}"/$f
 }
 
 rsbluesky_mongo() {
