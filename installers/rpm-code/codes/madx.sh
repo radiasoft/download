@@ -2,7 +2,8 @@
 
 madx_main() {
     codes_dependencies common
-    codes_download https://github.com/MethodicalAcceleratorDesign/MAD-X/archive/5.05.01.tar.gz MAD-X-5.05.01 madx 5.05.01
+    local v=5.07.00
+    codes_download https://github.com/MethodicalAcceleratorDesign/MAD-X/archive/$v.tar.gz MAD-X-$v madx $v
     perl -pi -e '
         s{.3-9...0-9...0-9.}{[0-9]+\\\\.[0-9]+\\\\.+[0-9]};
         s{(?=\-funroll-loops)}{-fallow-invalid-boz };
