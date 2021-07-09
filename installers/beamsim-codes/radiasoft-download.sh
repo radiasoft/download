@@ -13,6 +13,7 @@ beamsim_codes_main() {
         # gets installed.
         common
 
+        bluesky
         elegant
         epics
         fenics

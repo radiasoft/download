@@ -27,6 +27,8 @@ codes=(
     srw
     radia
 
+    bluesky
+
     elegant
 
     epics
@@ -64,7 +66,6 @@ codes=(
     pyzgoubi
     zgoubi
 
-    rsbluesky
 )
 for c in "${codes[@]}"; do
     if [[ $start_at ]]; then

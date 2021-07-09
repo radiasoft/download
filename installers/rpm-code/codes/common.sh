@@ -55,17 +55,6 @@ common_python() {
 }
 
 common_main() {
-    # Use RHEL8 rpm because mongodb uses SSPL which fedora doesn't support
-    install_sudo bash -c "cat > /etc/yum.repos.d/mongodb-org-4.4.repo <<EOF
-[mongodb-org-4.4]
-name=MongoDB Repository
-baseurl=https://repo.mongodb.org/yum/redhat/8/mongodb-org/4.4/x86_64/
-gpgcheck=1
-enabled=1
-gpgkey=https://www.mongodb.org/static/pgp/server-4.4.asc
-includepkgs=mongodb-org-server
-EOF"
-
     local mpi=mpich
     local rpms=(
         $mpi-devel
@@ -84,9 +73,6 @@ EOF"
         libffi-devel
         libtool
         llvm-libs
-        # https://github.com/radiasoft/devops/issues/225
-        # TODO(e-carlin):  add back in
-        # mongodb-org-server
         nodejs
         valgrind-devel
     )
