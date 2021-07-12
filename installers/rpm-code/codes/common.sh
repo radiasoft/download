@@ -29,15 +29,15 @@ common_python() {
         tables
     # Conflict between rscode-pyzgoubi and rscode-ml so just include here
     install_pip_install PyYAML
-    # Conflicts between rscode-rsbluesky and rscode-ml
+    # Needed by rscode-bluesky and rscode-ml
     install_pip_install \
         cachetools \
         scikit-image \
         tifffile
-    # Conflicts between rscode-rsbluesky and rscode-rsbeams
+    # Needed by rscode-bluesky and rscode-rsbeams
     # https://github.com/jupyter/notebook/issues/2435
     # yt (in rscode-rsbeams) installs jedi, which needs to be forced to 0.17.2
-    # keep consistent with container-conf build.sh
+    # keep consistent with container-beamsim-jupyter
     install_pip_install \
         ipython \
         jedi==0.17.2 \
