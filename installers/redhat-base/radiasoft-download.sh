@@ -8,7 +8,6 @@ redhat_base_main() {
         return 1
     fi
     local x
-set -x
     if [[ $install_os_release_id == fedora ]]; then
         x=/etc/yum.repos.d/mongodb-org-4.4.repo
         if [[ ! -e $x ]]; then
@@ -26,7 +25,6 @@ EOF
     elif [[ ! -e /etc/yum.repos.d/epel.repo ]]; then
         yum --color=never --enablerepo=extras install -y -q epel-release
     fi
-set +x
     # mandb takes a really long time on some installs
     x=/usr/bin/mandb
     if [[ ! -L $x && $(readlink "$x") != true ]]; then
