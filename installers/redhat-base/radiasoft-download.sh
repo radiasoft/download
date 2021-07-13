@@ -7,13 +7,30 @@ redhat_base_main() {
         echo 'must be run as root' 1>&2
         return 1
     fi
-    if [[ $install_os_release_id != fedora && ! -e /etc/yum.repos.d/epel.repo ]]; then
+    local x
+set -x
+    if [[ $install_os_release_id == fedora ]]; then
+        x=/etc/yum.repos.d/mongodb-org-4.4.repo
+        if [[ ! -e $x ]]; then
+            # Use RHEL8 rpm because mongodb uses SSPL which fedora doesn't support
+            install -m 644 /dev/stdin "$x" <<'EOF'
+[mongodb-org-4.4]
+name=MongoDB Repository
+baseurl=https://repo.mongodb.org/yum/redhat/8/mongodb-org/4.4/x86_64/
+gpgcheck=1
+enabled=1
+gpgkey=https://www.mongodb.org/static/pgp/server-4.4.asc
+includepkgs=mongodb-org-server
+EOF
+        fi
+    elif [[ ! -e /etc/yum.repos.d/epel.repo ]]; then
         yum --color=never --enablerepo=extras install -y -q epel-release
     fi
+set +x
     # mandb takes a really long time on some installs
-    local x=/usr/bin/mandb
-    if [[ ! -L $x && $(readlink -f $x) != /usr/bin/true ]]; then
-        ln -s -f true /usr/bin/mandb
+    x=/usr/bin/mandb
+    if [[ ! -L $x && $(readlink "$x") != true ]]; then
+        ln -s -f true "$x"
     fi
     local t=xterm-256color-screen
     if [[ ! -r /usr/share/terminfo/${t::1}/$t ]]; then
