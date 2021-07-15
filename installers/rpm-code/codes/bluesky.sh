@@ -20,7 +20,7 @@ bluesky_main() {
 }
 
 bluesky_mongo() {
-    local d=${codes_dir[lib]}/intake
+    local d=${codes_dir[share]}/intake
     local c=rsbluesky
     local r=/var/tmp/mongodb-rsbluesky
     local s=$r/mongod.sock
