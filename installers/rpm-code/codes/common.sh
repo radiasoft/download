@@ -34,6 +34,10 @@ common_python() {
         cachetools \
         scikit-image \
         tifffile
+
+    # Needed by rscode-bluesky and rscode-raydata
+    # pychx (in rscode-raydata) depends on historydict but doesn't list it in install_requires
+    install_pip_install historydict PyQt5 scikit-beam
     # Needed by rscode-bluesky and rscode-rsbeams
     # https://github.com/jupyter/notebook/issues/2435
     # yt (in rscode-rsbeams) installs jedi, which needs to be forced to 0.17.2

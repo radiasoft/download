@@ -29,6 +29,8 @@ codes=(
 
     bluesky
 
+    raydata
+
     elegant
 
     epics

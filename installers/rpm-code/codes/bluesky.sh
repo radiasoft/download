@@ -1,22 +1,12 @@
 #!/bin/bash
 
-bluesky_hdf5() {
-    codes_download nexusformat/HDF5-External-Filter-Plugins
-    codes_cmake -DENABLE_LZ4_PLUGIN=yes
-    codes_make
-    install -m 555 plugins/libh5lz4.so "${codes_dir[lib]}"
-}
-
 bluesky_main() {
-    codes_yum_dependencies lz4-devel mongodb-org-server
+    codes_yum_dependencies mongodb-org-server
     codes_dependencies common
     bluesky_mongo
     # https://github.com/radiasoft/container-beamsim-jupyter/issues/42#issuecomment-864152624
     # install from src because sirepo-bluesky on pypi is out of date (no ShadowFileHandler)
-    install_pip_install \
-        git+https://github.com/NSLS-II/sirepo-bluesky.git \
-        scikit-beam
-    bluesky_hdf5
+    install_pip_install  git+https://github.com/NSLS-II/sirepo-bluesky.git
 }
 
 bluesky_mongo() {
