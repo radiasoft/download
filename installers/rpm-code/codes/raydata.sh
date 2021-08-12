@@ -17,9 +17,10 @@ raydata_main() {
 
 raydata_patch() {
     local p=$(python -c 'import sysconfig; print(sysconfig.get_paths()["purelib"])')
+    local i
     for i in 'eiger_io fs_handler' 'modest_image modest_image' 'pyCHX chx_crosscor' 'xray_vision  __init__'; do
         set -- $i
-        raydata_patch_$1 | patch --quiet "$p/$1/$2.py"
+        raydata_patch_$1 | patch --quiet "$(codes_python_lib_dir)/$1/$2.py"
     done
 }
 
