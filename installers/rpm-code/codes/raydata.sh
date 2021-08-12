@@ -24,6 +24,7 @@ raydata_patch() {
 }
 
 raydata_patch_eiger_io() {
+    # Replace `f[v].value` with `f[v][()]`
     cat <<'EOF'
 @@ -0,0 +1,2 @@
 +#Modified to replace `f[v].value` with `f[v][()]`
@@ -89,6 +90,9 @@ EOF
 }
 
 raydata_patch_modest_image() {
+    # Matplotlib > 3 doesn't have _hold.
+    # Can be removed when this is merged
+    # https://github.com/ChrisBeaumont/mpl-modest-image/pull/12
     cat <<'EOF'
 @@ -213,2 +212,0 @@
 -    if not axes._hold:
@@ -97,6 +101,7 @@ EOF
 }
 
 raydata_patch_pyCHX() {
+    # Fixes scipy version conflicts
     cat <<'EOF'
 @@ -0,0 +1 @@
 +#Further modified to remove scipy conflicts with Py3
@@ -114,11 +119,14 @@ EOF
 }
 
 raydata_patch_xray_vision() {
+    # sip is now included in PyQt5
+    # https://www.riverbankcomputing.com/static/Docs/PyQt5/incompatibilities.html#pyqt-v5-11
     cat <<'EOF'
-@@ -36,2 +36,2 @@
--
+@@ -35,0 +36 @@
++# #Modified to replace import sip with PyQt5 sip version
+@@ -37 +37,0 @@
 -import sip
-+#import sip
+@@ -42,0 +43 @@
 +from PyQt5 import sip
 EOF
 }
