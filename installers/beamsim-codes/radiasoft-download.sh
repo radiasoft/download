@@ -25,6 +25,7 @@ beamsim_codes_main() {
         opal
         pydicom
         pymesh
+        raydata
         rsbeams
         shadow3
         srw
