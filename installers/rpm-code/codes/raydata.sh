@@ -8,6 +8,7 @@ raydata_main() {
         databroker-pack \
         git+https://github.com/NSLS-II/eiger-io.git \
         hdf5plugin \
+        papermill \
         pyOlog \
         pychx \
         xray-vision
@@ -16,7 +17,6 @@ raydata_main() {
 }
 
 raydata_patch() {
-    local p=$(python -c 'import sysconfig; print(sysconfig.get_paths()["purelib"])')
     local i
     for i in 'eiger_io fs_handler' 'modest_image modest_image' 'pyCHX chx_crosscor' 'xray_vision  __init__'; do
         set -- $i

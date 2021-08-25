@@ -18,6 +18,7 @@ beamsim_codes_main() {
         epics
         fenics
         genesis
+        ipykernel
         jspec
         hypre
         madx

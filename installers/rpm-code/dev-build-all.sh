@@ -27,6 +27,7 @@ codes=(
     srw
     radia
 
+    ipykernel
     bluesky
     raydata
 
