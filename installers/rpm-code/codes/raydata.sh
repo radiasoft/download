@@ -1,7 +1,7 @@
 #!/bin/bash
 
 raydata_main() {
-    codes_dependencies common
+    codes_dependencies common ipykernel
     install_pip_install \
         ModestImage \
         area_detector_handlers \
