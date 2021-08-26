@@ -5,7 +5,6 @@ ipykernel_main() {
     install_pip_install ipykernel
     local i=3
     local v=py$i
-    # TODO(e-carlin):  how to make this assignment of where one line?
     local where=( $(python -m ipykernel install --display-name "Python $i" --name "$v" --user) )
     where=${where[-1]}
     if [[ ! $where  =~ ${codes_dir[share]} ]]; then
