@@ -246,7 +246,7 @@ if [[ -d src/radiasoft ]]; then
     fi
 fi
 EOF2
-tar czf $_vagrant_dev_update_tgz_path --ignore-failed-read .netrc .gitconfig .bash_history .{post,pre}_bivio_bashrc .emacs.d/lisp/{post,pre}-bivio-init.el .ssh/{id_*,config} >& /dev/null
+tar czf $_vagrant_dev_update_tgz_path --ignore-failed-read .netrc .gitconfig .bash_history .{post,pre}_bivio_bashrc .emacs.d/lisp/{post,pre}-bivio-init.el .ssh/{id_*,config} bconf.d >& /dev/null
 EOF3
         if [[ ! -r $_vagrant_dev_update_tgz_base ]]; then
             install_err "failed to create $_vagrant_dev_update_tgz_base; no NFS setup or git status?"

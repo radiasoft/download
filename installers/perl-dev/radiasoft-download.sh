@@ -31,6 +31,35 @@ systemctl start postgresql
 systemctl enable postgresql
 EOF
     fi
+    if [[ ! -e ~/bconf.d/defaults.bconf ]]; then
+        mkdir -p ~/bconf.d
+cat > ~/bconf.d/defaults.bconf <<'EOF'
+{
+    'Bivio::Die' => {
+#       stack_trace_error => 1,
+#       stack_trace => 1,
+    },
+    'Bivio::IO::Alert' => {
+#       stack_trace_warn => 1,
+#       stack_trace_warn_deprecated => 1,
+        max_arg_length => 1000000,
+        max_element_count => 100,
+        max_arg_depth => 5,
+    },
+    'Bivio::Biz::Action::AssertClient' => {
+#       hosts => [qw()],
+    },
+    'Bivio::Test::Language::HTTP' => {
+        mail_tries => 5,
+    },
+    'Bivio::IO::Trace' => {
+#       command_line_arg => '/sql|ec/i',
+#       package_filter => '/Agent|Task|Model/',
+#       call_filter => '!grep(/Can.t locate/, @$msg)',
+    },
+};
+EOF
+    fi
     install_source_bashrc
     _bivio_home_env_update -f
     # Needed for bashrc_b_env_aliases to contain complete set
