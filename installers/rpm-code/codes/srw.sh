@@ -13,6 +13,7 @@ srw_main() {
 }
 
 srw_python_install() {
+    install_pip_install primme
     cd SRW/cpp/py
     make python
     cd ../..
