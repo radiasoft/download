@@ -90,6 +90,7 @@ EOF
         sqlite-devel
         smartmontools
         strace
+        sysstat
         tar
         tk-devel
         unzip
