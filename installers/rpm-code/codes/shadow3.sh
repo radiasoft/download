@@ -12,7 +12,9 @@ shadow3_python_install() {
     echo '# removed by RadiaSoft' > "$u"/__init__.py
     perl -pi -e '/SourceUndulatorFactory(Srw|Pysru)\s*$/ && ($_ = "")' \
          "$u"/undulator/source_undulator.py
-    perl -pi -e '/from oasys.*$/ && ($_ = "")' \
+    # some of the calls are "try/except", because they are probably having the
+    # same issues we are.
+    perl -pi -e '/from (?:oasys|PyQt5|matplotlib).*$/ && ($_ = "pass # $_")' \
          "$u"/shadow_util.py \
          "$p"/shadow_advanced_tools/util/fresnel_zone_plates/fresnel_zone_plate_simulator.py
 }
