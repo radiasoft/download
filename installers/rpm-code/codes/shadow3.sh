@@ -14,7 +14,7 @@ shadow3_python_install() {
          "$u"/undulator/source_undulator.py
     # some of the calls are "try/except", because they are probably having the
     # same issues we are.
-    perl -pi -e 's/(from (?:oasys|PyQt5|matplotlib).*)$/pass # $1/' \
+    perl -pi -e 's/(from (?:oasys|PyQt5|matplotlib|silx).*)$/pass # $1/' \
          "$u"/shadow_util.py \
          "$p"/shadow_advanced_tools/util/fresnel_zone_plates/fresnel_zone_plate_simulator.py
 }
