@@ -197,6 +197,7 @@ codes_err() {
 
 codes_install() {
     local module=$1
+    shift
     local prev=$(pwd)
     local d=$HOME/src/radiasoft/codes/$module-$(date -u +%Y%m%d.%H%M%S)
     rm -rf "$d"
@@ -214,7 +215,7 @@ codes_install() {
     if ! codes_is_function "$f"; then
         install_error "function=$f not defined for code=$module"
     fi
-    $f
+    $f "$@"
     cd "$prev"
     local p=${module}_python_install
     if codes_is_function "$p"; then

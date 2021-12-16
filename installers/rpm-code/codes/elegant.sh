@@ -37,6 +37,10 @@ elegant_build() {
     cd ../xraylib
     elegant_make static
     cd ../elegant
+    if [[ ${1:-} ]]; then
+	elegant_make gpu "$with_path"
+    fi
+    elegant_make clean
     elegant_make static "$with_path"
     cd elegantTools
     elegant_make static "$with_path"
@@ -157,7 +161,7 @@ elegant_main() {
         tcsh
     codes_dependencies common
     elegant_download
-    elegant_build
+    elegant_build ${1:-}
     elegant_install_bin
     elegant_install_share
     elegant_install_tcl
@@ -178,6 +182,9 @@ elegant_make() {
         clean)
             "${shared[@]}" clean
             ;;
+        gpu)
+	    elegant_make_gpu "${static[@]}" "$@"
+            ;;
         mpi)
             "${static[@]}" MPI=1 MPI_PATH=$(dirname $(type -p mpicc))/ "$@"
             ;;
@@ -191,9 +198,24 @@ elegant_make() {
             "${static[@]}" MOTIF_LIB=/usr/lib64 X11_LIB=/usr/lib64 "$@"
             ;;
         *)
-            codes_err "unknown mode=$mode; must be clean, mpi, shared, static, x11"
+            codes_err "unknown mode=$mode; must be clean, gpu, mpi, shared, static, x11"
             ;;
     esac
+}
+
+elegant_make_gpu() {
+    local cmd=$1
+    local with_path=$2
+    cd gpuElegant
+    "$cmd"
+    cd ../
+    "$cmd" "$with_path" LDLIBS="-lcudart -lcurand" LDFLAGS="-L/usr/local/cuda/lib64" GPU=1
+
+    # Make creates an executable for gpu based elegant named
+    # elegant. This name conflicts with the executable for running
+    # elegant on a single core. So, rename to gpu-elegant.
+    local b="../../bin/$_elegant_arch"
+    mv "$b/elegant" "$b/gpu-elegant"
 }
 
 elegant_python_install() {
