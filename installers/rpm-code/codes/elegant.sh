@@ -9,6 +9,10 @@ _elegant_arch=linux-x86_64
 declare -a _elegant_to_exclude
 
 elegant_build() {
+    local gpu_only
+    if [[ ${1:-}  == 'gpu-only' ]]; then
+	gpu_only=1
+    fi
     local h=$PWD
     local with_path="PATH=$h/epics/extensions/bin/$_elegant_arch:$PATH"
     cd epics/base
@@ -37,8 +41,12 @@ elegant_build() {
     cd ../xraylib
     elegant_make static
     cd ../elegant
-    if [[ ${1:-} ]]; then
+    if [[ ${gpu_only:-} ]]; then
 	elegant_make gpu "$with_path"
+	# Only used in jupyter-nvidia. The other pieces of elegant
+	# will also be present in the image through
+	# rscode-elegant.rpm.
+	return
     fi
     elegant_make clean
     elegant_make static "$with_path"
@@ -87,6 +95,15 @@ elegant_install_bin() {
     # but we install them anyway (e.g. sdds2stl, col2sdds) since they don't collide
     local f b
     local dst=${codes_dir[bin]}
+
+    if [[ ${1:-}  == 'gpu-only' ]]; then
+	# Make creates an executable for gpu based elegant named
+	# elegant. This name conflicts with the executable for running
+	# elegant on a single core. So, rename to gpu-elegant.
+	install -m 555 "oag/apps/bin/$_elegant_arch/elegant" "$dst/gpu-elegant"
+	return
+    fi
+
     for f in {oag/apps,epics/extensions}/bin/$_elegant_arch/*; do
         b=$(basename "$f")
         if [[ ! " ${_elegant_to_exclude[*]} " =~ " $b " ]]; then
@@ -161,8 +178,8 @@ elegant_main() {
         tcsh
     codes_dependencies common
     elegant_download
-    elegant_build ${1:-}
-    elegant_install_bin
+    elegant_build "$@"
+    elegant_install_bin "$@"
     elegant_install_share
     elegant_install_tcl
 }
@@ -209,13 +226,8 @@ elegant_make_gpu() {
     cd gpuElegant
     "$cmd"
     cd ../
+    # POSIT: nvida-jupyter
     "$cmd" "$with_path" LDLIBS="-lcudart -lcurand" LDFLAGS="-L/usr/local/cuda/lib64" GPU=1
-
-    # Make creates an executable for gpu based elegant named
-    # elegant. This name conflicts with the executable for running
-    # elegant on a single core. So, rename to gpu-elegant.
-    local b="../../bin/$_elegant_arch"
-    mv "$b/elegant" "$b/gpu-elegant"
 }
 
 elegant_python_install() {
