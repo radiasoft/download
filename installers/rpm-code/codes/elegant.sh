@@ -46,6 +46,7 @@ elegant_build() {
 	# Only used in jupyter-nvidia. The other pieces of elegant
 	# will also be present in the image through
 	# rscode-elegant.rpm.
+	cd $h
 	return
     fi
     elegant_make clean
