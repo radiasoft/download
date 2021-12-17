@@ -4,6 +4,7 @@ rpm_code_rpm_prefix=rscode
 
 rpm_code_build() {
     local code=$1
+    local args=( "$@" )
     # flag used by code.sh to know if inside this function
     local rpm_code_build=1
     local rpm_code_exclude_f=$PWD/exclude.txt
@@ -13,7 +14,7 @@ rpm_code_build() {
     install_url radiasoft/download installers/rpm-code
     install_script_eval codes.sh
     local rpm_code_root_dirs=( $HOME/.pyenv $HOME/.local )
-    codes_main "$code"
+    codes_main "${args[@]}"
     if [[ ${rpm_code_debug:-} ]]; then
         install_msg "Removing $HOME/rpmbuild"
         rm -rf "$HOME"/rpmbuild
@@ -89,11 +90,11 @@ rpm_code_main() {
     fi
     install_tmp_dir
     local code=$1
+    local args=( "$@" )
     # assert params and log
     install_info "rpm_code_install_dir=$rpm_code_install_dir"
     local base=$rpm_code_rpm_prefix-$code
     # these need to be space separated b/c substitution below
-    local args="$code"
     local image=radiasoft/rpm-code
     if rpm_code_is_common "$code" || [[ $code == test ]]; then
         image=radiasoft/fedora
@@ -103,10 +104,10 @@ rpm_code_main() {
         local rpm_build_guest_d=$PWD
         local rpm_build_include_f=$rpm_build_guest_d/include.txt
         local rpm_build_depends_f=$rpm_build_guest_d/depends.txt
-        rpm_code_build $args
+        rpm_code_build "${args[@]}"
         return
     fi
-    install_repo_eval rpm-build "$base" "$image" rpm-code rpm_code_build $args
+    install_repo_eval rpm-build "$base" "$image" rpm-code rpm_code_build "${args[@]}"
     if [[ ${rpm_code_is_proprietary:-} ]]; then
         rpm_code_install_proprietary "$base"
     else
