@@ -1,7 +1,7 @@
 #!/bin/bash
 opal_main() {
     codes_dependencies trilinos h5hut boost
-    codes_download https://gitlab.psi.ch/OPAL/src/-/archive/OPAL-2.4.0/src-OPAL-2.4.0.tar.bz2
+    codes_download https://gitlab.psi.ch/OPAL/src/-/archive/OPAL-2021.1.0/src-OPAL-2021.1.0.tar.bz2
     perl -pi -e '
         # https://stackoverflow.com/a/20991533
         # boost is compiled multithreaded, because it does not mean "pthreads",
