@@ -38,7 +38,8 @@ opal_main() {
 
 opal_mithra() {
     codes_download https://github.com/aryafallahi/mithra/archive/2.0.tar.gz mithra-2.0 mithra 2.0
-    CFLAGS='-fPIC' codes_make_install
+    # makefile handwritten without appropriate dependencies
+    CFLAGS='-fPIC' make install
     mkdir "${codes_dir[include]}/mithra"
     install -m 644 ./include/mithra/* "${codes_dir[include]}/mithra"
     install -m 644 './lib/libmithra.a' "${codes_dir[lib]}"
