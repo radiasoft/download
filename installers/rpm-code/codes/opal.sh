@@ -92,7 +92,7 @@ opal_mithra_patch() {
   	if ( ip == rank_ ) recvCV = sendCV;
 
   	/* Now broadcast the data from i'th processor to all other processors.				*/
-! 	MPI_Bcast(&recvCV, sizeSend, MPI_DOUBLE, ip, MPI_COMM_WORLD);
+! 	MPI_Bcast(recvCV.data(), sizeSend, MPI_DOUBLE, ip, MPI_COMM_WORLD);
 
   	/* And now place all the charges in the charge vector of the corresponding processor.  		*/
   	unsigned int i = 0;
@@ -121,19 +121,19 @@ opal_mithra_patch() {
         }
 
       /* Now communicate the charges which propagate throughout the borders to other processors.		*/
-!     MPI_Send(&ubp.qSB,ubp.qSB.size(),MPI_DOUBLE,rankB_,msgtag1,MPI_COMM_WORLD);
+!     MPI_Send(ubp.qSB.data(),ubp.qSB.size(),MPI_DOUBLE,rankB_,msgtag1,MPI_COMM_WORLD);
 
       MPI_Probe(rankF_,msgtag1,MPI_COMM_WORLD,&status);
       MPI_Get_count(&status,MPI_DOUBLE,&ub_.nL);
       ubp.qRF.resize(ub_.nL);
-!     MPI_Recv(&ubp.qRF,ub_.nL,MPI_DOUBLE,rankF_,msgtag1,MPI_COMM_WORLD,&status);
+!     MPI_Recv(ubp.qRF.data(),ub_.nL,MPI_DOUBLE,rankF_,msgtag1,MPI_COMM_WORLD,&status);
 
-!     MPI_Send(&ubp.qSF,ubp.qSF.size(),MPI_DOUBLE,rankF_,msgtag2,MPI_COMM_WORLD);
+!     MPI_Send(ubp.qSF.data(),ubp.qSF.size(),MPI_DOUBLE,rankF_,msgtag2,MPI_COMM_WORLD);
 
       MPI_Probe(rankB_,msgtag2,MPI_COMM_WORLD,&status);
       MPI_Get_count(&status,MPI_DOUBLE,&ub_.nL);
       ubp.qRB.resize(ub_.nL);
-!     MPI_Recv(&ubp.qRB,ub_.nL,MPI_DOUBLE,rankB_,msgtag2,MPI_COMM_WORLD,&status);
+!     MPI_Recv(ubp.qRB.data(),ub_.nL,MPI_DOUBLE,rankB_,msgtag2,MPI_COMM_WORLD,&status);
 
       /* Now insert the newly incoming particles in this processor to the list of particles.            */
       unsigned i = 0;
