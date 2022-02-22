@@ -29,7 +29,6 @@ codes=(
 
     ipykernel
     bluesky
-    raydata
 
     elegant
 
