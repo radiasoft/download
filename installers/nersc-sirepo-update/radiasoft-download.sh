@@ -32,7 +32,7 @@ nersc_sirepo_update_main() {
             git checkout master
             git pull
         fi
-        x=$(shifter --image="$i" /bin/bash -c "grep git-commit /home/vagrant/.pyenv/versions/py3/lib/python3*/site-packages/$p-20*.dist-info/METADATA")
+        x=$(shifter --image="$i" /bin/bash -c "grep git-commit /home/vagrant/.pyenv/versions/py3/lib/python3*/site-packages/$p-20*-info/* 2>/dev/null")
         if [[ ! $x =~ git-commit=(.*) ]]; then
             install_err "missing git-commit for $p: output=$x"
         fi
