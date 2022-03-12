@@ -4,18 +4,15 @@ hypre_main() {
     codes_dependencies common
     codes_download https://github.com/hypre-space/hypre/archive/v2.24.0.tar.gz
     cd src
-    local a=''
+    local -a a=()
     if [[ ${1:-} == 'gpu-only' ]]; then
         #POSIT: container-jupyter-nvidia (cuda-11.1)
         # and running on Tesla V100 (arch 70)
         a=(
-            --with-mpi
             --enable-unified-memory
-            --prefix="${codes_dir[prefix]}"
-            --with-MPI
             --with-cuda
-            --with-cuda-home='/usr/local/cuda-11.1'
-            --with-gpu-arch='70'
+            --with-cuda-home=/usr/local/cuda-11.1
+            --with-gpu-arch=70
         )
     fi
     ./configure \
