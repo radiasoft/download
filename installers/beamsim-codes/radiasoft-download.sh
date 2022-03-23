@@ -24,6 +24,7 @@ beamsim_codes_main() {
         madx
         ml
         opal
+        openmc
         pydicom
         pymesh
         raydata
