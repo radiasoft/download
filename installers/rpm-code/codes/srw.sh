@@ -1,4 +1,23 @@
 #!/bin/bash
+: to_install_at_nersc <<EOF
+# Hinsts for installing SRW at NERSC
+
+## Install python
+curl radia.run | bash -s nersc-pyenv
+
+## Load fftw with:
+`module load  cray-fftw`
+
+## Install mpi4py
+https://docs.nersc.gov/development/languages/python/parallel-python/#mpi4py-in-your-custom-conda-environment
+
+## Install numpy with correct mkl
+https://docs.nersc.gov/development/libraries/mkl/
+MPICC="cc -mkl" pip install --force --no-cache-dir --no-binary=numpy numpy==
+
+## Need to explicityly pass fftw lib dir when making srw python
+LDFLAGS="-L$FFTW_ROOT/lib" make python
+EOF
 
 srw_main() {
     codes_yum_dependencies fftw2-devel
