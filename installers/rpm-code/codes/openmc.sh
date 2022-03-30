@@ -1,7 +1,7 @@
 #!/bin/bash
 
 openmc_dagmc() {
-    codes_download svalinn/DAGMC develop
+    codes_download svalinn/DAGMC "$version"
     codes_cmake \
         -D BUILD_STATIC_LIBS=OFF \
         -D BUILD_TALLY=ON \
@@ -15,6 +15,7 @@ openmc_main() {
     codes_yum_dependencies eigen3-devel
     codes_dependencies common
     openmc_moab
+    version=develop
     openmc_dagmc
     openmc_openmc
 }
@@ -32,7 +33,7 @@ openmc_moab() {
 }
 
 openmc_openmc() {
-    codes_download openmc-dev/openmc develop
+    codes_download openmc-dev/openmc "$version"
     codes_cmake_fix_lib_dir
     CXX=mpicxx codes_cmake \
         -D CMAKE_INSTALL_PREFIX="${codes_dir[prefix]}" \
@@ -44,5 +45,5 @@ openmc_openmc() {
 }
 
 openmc_python_install() {
-    install_pip_install git+https://github.com/openmc-dev/openmc.git@develop
+    install_pip_install git+https://github.com/openmc-dev/openmc.git@"$version"
 }

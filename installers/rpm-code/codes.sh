@@ -24,10 +24,10 @@ codes_cmake() {
 
 codes_cmake_fix_lib_dir() {
     # otherwise uses ~/.local/lib64
-    perl -pi -e '/include\(GNUInstallDirs/ && ($_ .= q{
+    find . -name CMakeLists.txt -print0 | xargs -0 perl -pi -e '/include\(GNUInstallDirs/ && ($_ .= q{
 set(CMAKE_INSTALL_LIBDIR "lib" CACHE PATH "Library installation directory." FORCE)
 GNUInstallDirs_get_absolute_install_dir(CMAKE_INSTALL_FULL_LIBDIR CMAKE_INSTALL_LIBDIR)
-})' $(find . -name CMakeLists.txt)
+})'
 }
 
 codes_curl() {
