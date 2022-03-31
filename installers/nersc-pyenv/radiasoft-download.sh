@@ -5,7 +5,7 @@
 nersc_dev_main() {
     local r=~/.pyenv
     if [[ ! -d $r ]]; then
-        git clone https://github.com/pyenv/pyenv.git "$r"
+        curl -s -S -L https://pyenv.run | bash
     fi
     PATH="$r/bin:$PATH"
     eval "$(pyenv init --path)"
