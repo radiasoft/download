@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# To run: curl radia.run | bash -s nersc-dev
+# To run: curl radia.run | bash -s nersc-pyenv
 #
 nersc_dev_main() {
     local r=~/.pyenv
