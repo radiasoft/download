@@ -6,7 +6,7 @@
 curl radia.run | bash -s nersc-pyenv
 
 ## Load fftw with:
-`module load  cray-fftw`
+module load  cray-fftw
 
 ## Install mpi4py
 https://docs.nersc.gov/development/languages/python/parallel-python/#mpi4py-in-your-custom-conda-environment
@@ -15,7 +15,7 @@ https://docs.nersc.gov/development/languages/python/parallel-python/#mpi4py-in-y
 https://docs.nersc.gov/development/libraries/mkl/
 MPICC="cc -mkl" pip install --force --no-cache-dir --no-binary=numpy numpy==
 
-## Need to explicityly pass fftw lib dir when making srw python
+## Need to explicitly pass fftw lib dir when making srw python
 LDFLAGS="-L$FFTW_ROOT/lib" make python
 EOF
 
