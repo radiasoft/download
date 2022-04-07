@@ -43,6 +43,7 @@ codes=(
 # see pyopaltools.sh
 #    pyopaltools
     opal
+    openmc
 
     # needs hypre and metis
     petsc

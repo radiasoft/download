@@ -24,10 +24,10 @@ codes_cmake() {
 
 codes_cmake_fix_lib_dir() {
     # otherwise uses ~/.local/lib64
-    perl -pi -e '/include\(GNUInstallDirs/ && ($_ .= q{
+    find . -name CMakeLists.txt -print0 | xargs -0 perl -pi -e '/include\(GNUInstallDirs/ && ($_ .= q{
 set(CMAKE_INSTALL_LIBDIR "lib" CACHE PATH "Library installation directory." FORCE)
 GNUInstallDirs_get_absolute_install_dir(CMAKE_INSTALL_FULL_LIBDIR CMAKE_INSTALL_LIBDIR)
-})' CMakeLists.txt
+})'
 }
 
 codes_curl() {
@@ -102,6 +102,7 @@ codes_download() {
                 git clone $r -q "$repo"
                 cd "$d"
                 git checkout "$qualifier"
+                git submodule update --init --recursive
             else
                 git clone $r --depth 1 "$repo"
                 cd "$d"
