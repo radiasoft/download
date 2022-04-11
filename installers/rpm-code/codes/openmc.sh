@@ -39,7 +39,8 @@ openmc_openmc() {
         -D CMAKE_INSTALL_PREFIX="${codes_dir[prefix]}" \
         -D HDF5_INCLUDE_DIRS="${codes_dir[prefix]}" \
         -D HDF5_PREFER_PARALLEL=on \
-        -D OPENMC_USE_DAGMC=on
+        -D OPENMC_USE_DAGMC=on \
+        -D OPENMC_USE_MPI=on
     codes_make
     codes_make_install
 }
