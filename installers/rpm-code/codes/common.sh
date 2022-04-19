@@ -43,6 +43,8 @@ common_python() {
         jedi==0.17.2 \
         parso \
         prompt_toolkit
+    # fortran namelist parser, usable by many codes
+    install_pip_install f90nml
     # Lots of dependencies so we install here to avoid rpm collisions.
     # Slows down builds of pykern, but doesn't affect development.
     codes_download pykern
