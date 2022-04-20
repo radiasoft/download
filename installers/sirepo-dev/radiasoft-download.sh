@@ -10,7 +10,7 @@ sirepo_dev_main() {
     install_source_bashrc
     local p
     # remove old packages, if they exist
-    for p in Forthon H5hut openPMD ml_for_py3; do
+    for p in Forthon H5hut openPMD ml_for_py3 raydata; do
         install_yum remove -y rscode-"$p" >& /dev/null || true
     done
     sirepo_dev_codes_only=1 install_repo_eval beamsim-codes
