@@ -11,7 +11,6 @@ ml_python_install() {
 
     local tensorflow_2_3_1_deps=(
         'absl-py>=0.7.0'
-        'astunparse==1.6.3'
         'gast==0.3.3'
         'google-pasta>=0.1.8'
         'grpcio>=1.8.6'

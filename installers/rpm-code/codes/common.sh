@@ -47,6 +47,7 @@ common_python() {
     install_pip_install f90nml
     # Conflict between rscode-bluesky and rscode-openpmd
     install_pip_install tqdm
+    install_pip_install astunparse==1.6.3
     # Lots of dependencies so we install here to avoid rpm collisions.
     # Slows down builds of pykern, but doesn't affect development.
     codes_download pykern
