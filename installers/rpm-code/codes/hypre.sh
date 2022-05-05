@@ -6,12 +6,12 @@ hypre_main() {
     cd src
     local -a a=()
     if [[ ${1:-} == 'gpu-only' ]]; then
-        #POSIT: container-jupyter-nvidia (cuda-11.1)
+        #POSIT: container-jupyter-nvidia (cuda-11.2)
         # and running on Tesla V100 (arch 70)
         a=(
             --enable-unified-memory
             --with-cuda
-            --with-cuda-home=/usr/local/cuda-11.1
+            --with-cuda-home=/usr/local/cuda-11.2
             --with-gpu-arch=70
         )
     fi
