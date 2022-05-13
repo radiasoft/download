@@ -35,11 +35,7 @@ beamsim_codes_main() {
         synergia
         warp
         zgoubi
-
     )
-    # if [[ ! ${sirepo_dev_codes_only:-} ]]; then
-    #     codes+=()
-    # fi
     install_repo_eval code "${codes[@]}"
     install_repo_eval fedora-patches
 }
