@@ -2,7 +2,7 @@
 #
 # To run: curl radia.run | bash -s nersc-pyenv
 #
-nersc_dev_main() {
+nersc_pyenv_main() {
     local r=~/.pyenv
     if [[ ! -d $r ]]; then
         curl -s -S -L https://pyenv.run | bash
