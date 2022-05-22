@@ -28,7 +28,7 @@ ci_pull_request_main() {
             ;;
     esac
     local d=$PWD
-    docker run -i -u root --rm "$i:alpha" bash <<EOF | cat
+    docker run -v "$d:$d" -i -u root --rm "$i:alpha" bash <<EOF | cat
         set -eou pipefail
         set -x
         cd '$d'
