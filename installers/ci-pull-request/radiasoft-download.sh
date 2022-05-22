@@ -28,6 +28,7 @@ ci_pull_request_main() {
             ;;
     esac
     local d=$PWD
+    set -x
     docker run -v "$d:$d" -i -u root --rm "$i:alpha" bash <<EOF | cat
         set -eou pipefail
         set -x
@@ -36,6 +37,7 @@ ci_pull_request_main() {
         su - vagrant <<EOF2
             set -eou pipefail
             set -x
+            cd '$d'
             if (( $p )); then
                 pip uninstall -y pykern >& /dev/null || true
                 pip install git+https://github.com/radiasoft/pykern.git
@@ -45,4 +47,5 @@ ci_pull_request_main() {
             pykern test
 EOF2
 EOF
+    set +x
 }
