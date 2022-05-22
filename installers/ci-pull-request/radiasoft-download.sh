@@ -28,6 +28,8 @@ ci_pull_request_main() {
             ;;
     esac
     local d=$PWD
+    local u=$(stat -c %U .)
+    local g=$(stat -c %G .)
     set -x
     docker run -v "$d:$d" -i -u root --rm "$i:alpha" bash <<EOF | cat
         set -eou pipefail
@@ -46,6 +48,7 @@ ci_pull_request_main() {
             pip install -e .
             pykern test
 EOF2
+        chown -R '$u:$g' .
 EOF
     set +x
 }
