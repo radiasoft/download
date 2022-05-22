@@ -209,7 +209,7 @@ install_main() {
     install_repo
     install_clean
     if [[ -z $install_verbose ]]; then
-        rm -f "$install_log_file"
+        rm -f "$install_log_file" >& /dev/null || true
     fi
     trap - EXIT
 }
