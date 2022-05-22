@@ -30,10 +30,12 @@ ci_pull_request_main() {
     local d=$PWD
     docker run -i -u root --rm "$i:alpha" bash <<EOF | cat
         set -eou pipefail
-        chown -R vagrant: .
+        set -x
         cd '$d'
+        chown -R vagrant: .
         su - vagrant <<EOF2
             set -eou pipefail
+            set -x
             if (( $p )); then
                 pip uninstall -y pykern >& /dev/null || true
                 pip install git+https://github.com/radiasoft/pykern.git
