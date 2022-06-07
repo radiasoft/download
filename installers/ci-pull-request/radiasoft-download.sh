@@ -44,7 +44,11 @@ ci_pull_request_main() {
             fi
             pip uninstall -y '$r' >& /dev/null || true
             pip install -e .
-            [ -f test.sh ] && bash test.sh || pykern test
+            if [[ -f test.sh ]]; then
+                bash test.sh
+            else
+                pykern test
+            fi
 EOF2
 EOF
     set +x
