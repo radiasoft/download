@@ -17,7 +17,7 @@ ci_pull_request_main() {
             i=radiasoft/python3
             ;;
         sirepo)
-            i=radiasoft/beamsim
+            i=radiasoft/sirepo-ci
             p=1
             ;;
         MISSING)
