@@ -42,12 +42,12 @@ elegant_build() {
     elegant_make static
     cd ../elegant
     if [[ ${gpu_only:-} ]]; then
-	elegant_make gpu "$with_path"
-	# Only used in jupyter-nvidia. The other pieces of elegant
-	# will also be present in the image through
-	# rscode-elegant.rpm.
-	cd $h
-	return
+        elegant_make gpu "$with_path"
+        # Only used in jupyter-nvidia. The other pieces of elegant
+        # will also be present in the image through
+        # rscode-elegant.rpm.
+        cd $h
+        return
     fi
     elegant_make clean
     elegant_make static "$with_path"
@@ -64,6 +64,8 @@ elegant_build() {
     cd ../../../../../oag/apps/src/elegant
     elegant_make clean
     elegant_make mpi "$with_path" Pelegant
+    cd ../spiffe
+    elegant_make static
     cd "$h"
 }
 
@@ -77,7 +79,7 @@ elegant_download() {
     for f in '' /apps /apps/configure /apps/configure/os /apps/config /apps/src/utils/tools; do
         svn --non-recursive -q checkout https://svn.aps.anl.gov/AOP/oag/trunk"$f" oag"$f"
     done
-    for f in elegant.2021.1.0 SDDS.5.0 oag.1.26 epics.extensions.configure; do
+    for f in elegant.2021.1.0 SDDS.5.0 oag.1.26 epics.extensions.configure spiffe.4.8.1; do
         u=https://ops.aps.anl.gov/downloads/$f.tar.gz
         if [[ $f =~ ^(.+[[:alpha:]])\.([[:digit:]].+)$ ]]; then
             codes_manifest_add_code "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}" "$u"
