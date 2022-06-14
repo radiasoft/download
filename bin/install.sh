@@ -199,7 +199,7 @@ install_init_vars() {
     install_prog="curl $install_depot_server | bash -s"
     : ${RADIA_CI_VERSION_FEDORA:=32}
     : ${RADIA_CI_VERSION_PYTHON:=3.10.5}
-    $(install_vars_export)
+    eval "$(install_vars_export)"
 }
 
 install_main() {
@@ -418,8 +418,8 @@ usage: $install_prog [verbose|quiet] [<installer>|*/*] [extra args]"
 
 install_vars_export() {
     for f in install_server install_channel install_debug install_depot_server install_proprietary_key $(compgen -A variable RADIA_CI_); do
-        declare -p "$f"
-        echo export "$f"
+        export "$f"
+        echo "$(declare -p $f);"
     done
 }
 
