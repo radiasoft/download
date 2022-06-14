@@ -15,7 +15,7 @@ fnal_chef_python_install() {
       |                              ^~~~~~~~~~~~~~~
 -Werror=deprecated-declarations
 
-    perl -pi -e "s{(?<=find_package.Python3)}{ $RADIA_CI_VERSION_PYTHON EXACT REQUIRED}" CMakeLists.txt
+    perl -pi -e "s{(?<=find_package.Python3)}{ $RADIA_RUN_VERSION_PYTHON EXACT REQUIRED}" CMakeLists.txt
     codes_cmake \
         -D BOOST_ROOT="${codes_dir[prefix]}" \
         -D CMAKE_INSTALL_PREFIX="${codes_dir[pyenv_prefix]}" \
