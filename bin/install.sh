@@ -197,7 +197,7 @@ install_init_vars() {
     fi
     : ${install_depot_server:=https://depot.radiasoft.org}
     install_prog="curl $install_depot_server | bash -s"
-    : ${RADIA_CI_VERSION_FEDORA:=32}
+    : ${RADIA_CI_VERSION_FEDORA:=36}
     : ${RADIA_CI_VERSION_PYTHON:=3.10.5}
     eval "$(install_vars_export)"
 }
