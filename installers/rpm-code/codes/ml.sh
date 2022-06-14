@@ -9,9 +9,9 @@ ml_python_install() {
     # sympy is needed for webcon and rsbeams
     # scikit-image is need for srw
 
-    local tensorflow_2_3_1_deps=(
+    local x=(
         'absl-py>=0.7.0'
-        'gast==0.3.3'
+        'gast>=0.3.3'
         'google-pasta>=0.1.8'
         'grpcio>=1.8.6'
         'keras-preprocessing<1.2,>=1.1.1'
@@ -33,10 +33,9 @@ ml_python_install() {
         'werkzeug>=0.11.15'
         'wrapt>=1.11.1'
     )
-    install_pip_install "${tensorflow_2_3_1_deps[@]}"
-    install_pip_install --no-deps tensorflow==2.3.1
-    install_pip_install keras==2.4.3 \
-        scikit-learn
+    install_pip_install "${x[@]}"
+    install_pip_install --no-deps tensorflow==2.9.1
+    install_pip_install scikit-learn
 }
 
 
