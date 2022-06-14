@@ -59,7 +59,8 @@ common_python() {
 
     # Lots of dependencies so we install here to avoid rpm collisions.
     # Slows down builds of pykern, but doesn't affect development.
-    codes_download pykern
+    # no quotes, because RADIA_CI_BRANCH_PYKERN may be empty (no qualifier)
+    codes_download pykern ${RADIA_CI_BRANCH_PYKERN:-}
     codes_python_install
     # xraylib puts files in include; needs to be in common
     # https://github.com/radiasoft/containers/issues/92

@@ -8,7 +8,7 @@ fnal_chef_main() {
 
 fnal_chef_python_install() {
     cd chef
-    perl -pi -e 's{(?<=find_package.Python3)}{ 3.7.2 EXACT REQUIRED}' CMakeLists.txt
+    perl -pi -e "s{(?<=find_package.Python3)}{ $RADIA_CI_VERSION_PYTHON EXACT REQUIRED}" CMakeLists.txt
     codes_cmake \
         -D BOOST_ROOT="${codes_dir[prefix]}" \
         -D CMAKE_INSTALL_PREFIX="${codes_dir[pyenv_prefix]}" \

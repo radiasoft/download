@@ -197,6 +197,8 @@ install_init_vars() {
     fi
     : ${install_depot_server:=https://depot.radiasoft.org}
     install_prog="curl $install_depot_server | bash -s"
+    : ${RADIA_CI_VERSION_PYTHON:=3.10.5}
+    $(install_vars_export)
 }
 
 install_main() {
@@ -414,7 +416,10 @@ usage: $install_prog [verbose|quiet] [<installer>|*/*] [extra args]"
 }
 
 install_vars_export() {
-    echo "export install_server='$install_server' install_channel='$install_channel' install_debug='$install_debug' install_depot_server='$install_depot_server' install_proprietary_key='$install_proprietary_key'"
+    for f in install_server install_channel install_debug install_depot_server install_proprietary_key $(compgen -A variable RADIA_CI_); do
+        declare -p "$f"
+        echo export "$f"
+    done
 }
 
 install_virt_vars() {

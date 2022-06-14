@@ -13,7 +13,7 @@ nersc_pyenv_main() {
         git clone https://github.com/pyenv/pyenv-virtualenv.git "$r"/plugins/pyenv-virtualenv
     fi
     eval "$(pyenv virtualenv-init -)"
-    local v='3.7.2'
+    local v=$RADIA_CI_VERSION_PYTHON
     if [[ ! -e $r/versions/$v ]]; then
         PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install "$v"
     fi
