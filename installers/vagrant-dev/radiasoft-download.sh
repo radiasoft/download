@@ -283,7 +283,7 @@ vagrant_dev_vagrantfile() {
         box=$vagrant_dev_box
     elif [[ $os =~ fedora ]]; then
         if [[ $box == fedora ]]; then
-            box=fedora/32-cloud-base
+            box=fedora/36-cloud-base
         fi
     elif [[ $box == centos ]]; then
         box=centos/7
