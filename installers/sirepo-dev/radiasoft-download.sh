@@ -38,12 +38,11 @@ sirepo_dev_main() {
         cd ..
     done
     cd sirepo
-    npm install
-    sirepo_dev_npm
+    sirepo_dev_npm_global
     cd ..
 }
 
-sirepo_dev_npm() {
+sirepo_dev_npm_global() {
     if ! [[ $(type -p karma) && $(type -p jshint) ]]; then
        npm install -g \
            $(jq -r '.devDependencies | to_entries | map("\(.key)@\(.value)") | .[]' package.json)
