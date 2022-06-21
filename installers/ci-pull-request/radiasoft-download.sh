@@ -28,12 +28,12 @@ ci_pull_request_main() {
             ;;
     esac
     local d=$PWD
+    local o=$(stat --format='%u:%g' "$d")
     set -x
     docker run -v "$d:$d" -i -u root --rm "$i:alpha" bash <<EOF | cat
         set -eou pipefail
         set -x
         cd '$d'
-        declare x=$(stat --format='%u:%g' .)
         chown -R vagrant: .
         su - vagrant <<EOF2
             set -eou pipefail
@@ -51,7 +51,7 @@ ci_pull_request_main() {
                 pykern test
             fi
 EOF2
-        chown -R "$x" .
+        chown -R '$o' .
 EOF
     set +x
 }
