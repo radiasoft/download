@@ -39,5 +39,13 @@ sirepo_dev_main() {
     done
     cd sirepo
     npm install
+    sirepo_dev_npm
     cd ..
+}
+
+sirepo_dev_npm() {
+    if ! [[ $(type -p karma) && $(type -p jshint) ]]; then
+       npm install -g \
+           $(jq -r '.devDependencies | to_entries | map("\(.key)@\(.value)") | .[]' package.json)
+    fi
 }
