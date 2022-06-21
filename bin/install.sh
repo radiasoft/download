@@ -80,7 +80,7 @@ install_download() {
     fi
     local x=( "${install_curl_flags[@]}" )
     install_info curl ${x[@]+"${x[@]}"} "$url"
-    if [[ $url =~ https://api.github.com ]]; then
+    if [[ $url =~ https://api\.github\.com ]]; then
         x+=( -H 'Accept: application/vnd.github.raw' )
     fi
     curl ${x[@]+"${x[@]}"} "$url"
