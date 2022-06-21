@@ -34,7 +34,9 @@ ci_pull_request_main() {
         set -eou pipefail
         set -x
         cd '$d'
-        chown -R vagrant: .
+        chown -R vagrant: '$d'
+        # POSIT: no interpolated vars in names
+        trap 'chown -R "$o" "$d"' EXIT
         su - vagrant <<EOF2
             set -eou pipefail
             set -x
@@ -51,7 +53,6 @@ ci_pull_request_main() {
                 pykern test
             fi
 EOF2
-        chown -R '$o' .
 EOF
     set +x
 }
