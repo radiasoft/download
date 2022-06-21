@@ -33,6 +33,7 @@ ci_pull_request_main() {
         set -eou pipefail
         set -x
         cd '$d'
+        declare x=$(stat --format='%u:%g' .)
         chown -R vagrant: .
         su - vagrant <<EOF2
             set -eou pipefail
@@ -50,6 +51,7 @@ ci_pull_request_main() {
                 pykern test
             fi
 EOF2
+        chown -R "$x" .
 EOF
     set +x
 }
