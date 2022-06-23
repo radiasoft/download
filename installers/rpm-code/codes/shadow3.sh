@@ -1,7 +1,7 @@
 #!/bin/bash
 
 shadow3_main() {
-    codes_dependencies xraylib libgfortran4
+    codes_dependencies xraylib
 }
 
 shadow3_python_install() {
