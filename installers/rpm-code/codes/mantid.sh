@@ -29,20 +29,21 @@ mantid_install() {
         -DENABLE_WORKBENCH=OFF \
         -DMANTID_FRAMEWORK_LIB=BUILD \
         -DMANTID_QT_LIB=OFF \
-        -DNEXUS_CPP_LIBRARIES="${codes_dir[lib]}/libNeXusCPP.so" \
-        -DNEXUS_C_LIBRARIES="${codes_dir[lib]}/libNeXus.so" \
-        -DNEXUS_INCLUDE_DIR="${codes_dir[include]}/nexus/" \
+        -DNEXUS_CPP_LIBRARIES="${codes_dir[lib]}"/libNeXusCPP.so \
+        -DNEXUS_C_LIBRARIES="${codes_dir[lib]}"/libNeXus.so \
+        -DNEXUS_INCLUDE_DIR="${codes_dir[include]}"/nexus/ \
         -G'Unix Makefiles'
     codes_cmake_build
     codes_make_install
 }
 
 mantid_install_rsmantid() {
+    local install_d="$1"
     local s=rsmantid
     codes_download_module_file "$s.sh"
-    local l="$1/bin/mantidpython"
+    local l="$install_d/bin/mantidpython"
     MANTID_PYTHON_SCRIPT_INSTALL_LOCATION="$l" \
-    perl -p -e 's/\$\{(\w+)\}/$ENV{$1} || die("$1: not found")/eg' "$s.sh" \
+        perl -p -e 's/\$\{(\w+)\}/$ENV{$1} || die("$1: not found")/eg' "$s.sh" \
         | install -m 555 /dev/stdin "${codes_dir[bin]}"/"$s"
     echo "$l"
 }
@@ -62,7 +63,8 @@ EOF
     local -a e=( $(bash "$p"))
     e=( "${e[@]::${#e[@]}-5}" )
     local -a r=()
-    for v in "${e[@]}"; do
+    local v
+    for v in  ${e[@]::${#e[@]}-5}; do
         IFS='=' read -ra x <<< "$v"
         r+=" --env ${x[0]} ${x[1]}"
     done
