@@ -231,11 +231,12 @@ codes_install() {
     if codes_is_function "$p"; then
         local vs=${module}_python_version
         local v=${!vs:-3}
-        codes_msg "Building: py$v"
+        local n="py$v"
+        codes_msg "Building: $n"
         cd "$d"
-        install_not_strict_cmd pyenv activate py"$v"
+        install_not_strict_cmd pyenv activate "$n"
         codes_dir[pyenv_prefix]=$(realpath "$(pyenv prefix)")
-        "$p" "$v"
+        "$p" "$v" "$n"
         codes_install_pyenv_done
     fi
     local d=${codes_dir[prefix]}/lib64
