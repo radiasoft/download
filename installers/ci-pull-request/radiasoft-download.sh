@@ -50,7 +50,7 @@ ci_pull_request_main() {
             if [[ -f test.sh ]]; then
                 bash test.sh
             else
-                pykern test
+                pykern ci run
             fi
 EOF2
 EOF
