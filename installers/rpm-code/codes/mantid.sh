@@ -60,11 +60,10 @@ mantid_ipykernel() {
      PYTHONPATH=${LOCAL_PYTHONPATH} \
      QT_API=${LOCAL_QT_API} \
 EOF
-    local -a e=( $(bash "$p"))
-    e=( "${e[@]::${#e[@]}-5}" )
+    local -a e=( $(bash "$p") )
     local -a r=()
     local v
-    for v in  ${e[@]::${#e[@]}-5}; do
+    for v in "${e[@]::${#e[@]}-5}"; do
         IFS='=' read -ra x <<< "$v"
         r+=" --env ${x[0]} ${x[1]}"
     done
