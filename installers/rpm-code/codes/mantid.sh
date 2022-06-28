@@ -16,11 +16,11 @@ mantid_main() {
     # doesn't interfere with other libs.
     local p="${codes_dir[lib]}/mantid"
     mantid_install "$p"
-    mantid_ipykernel $(mantid_install_rsmantid "$p")
+    mantid_ipykernel "$p" "$(mantid_install_rsmantid "$p")"
 }
 
 mantid_install() {
-    local install_prefix="$1"
+    local install_prefix=$1
     codes_download mantidproject/mantid
     mantid_patch_eigen_cmake
     codes_cmake \
@@ -32,49 +32,41 @@ mantid_install() {
         -DNEXUS_CPP_LIBRARIES="${codes_dir[lib]}"/libNeXusCPP.so \
         -DNEXUS_C_LIBRARIES="${codes_dir[lib]}"/libNeXus.so \
         -DNEXUS_INCLUDE_DIR="${codes_dir[include]}"/nexus/ \
-        -G'Unix Makefiles'
+        '-GUnix Makefiles'
     codes_cmake_build
     codes_make_install
 }
 
 mantid_install_rsmantid() {
-    local install_d="$1"
+    local install_d=$1
     local s=rsmantid
     codes_download_module_file "$s.sh"
-    local l="$install_d/bin/mantidpython"
-    MANTID_PYTHON_SCRIPT_INSTALL_LOCATION="$l" \
-        perl -p -e 's/\$\{(\w+)\}/$ENV{$1} || die("$1: not found")/eg' "$s.sh" \
-        | install -m 555 /dev/stdin "${codes_dir[bin]}"/"$s"
+    local l=$install_d/bin/mantidpython
+    install -m 555 - "${codes_dir[bin]}/$s" <<EOF
+#!/bin/bash
+set -euo pipefail
+exec '$l' --classic
+EOF
     echo "$l"
 }
 
 mantid_ipykernel() {
-    # Needs to be in same dir as $1 because script uses relative paths
-    local p="$1-$RANDOM"
-    patch --quiet --output="$p" "$1" <<'EOF'
-@@ -54,5 +54,5 @@
- fi
-
--LD_PRELOAD=${LOCAL_PRELOAD} \
-+echo LD_PRELOAD=${LOCAL_PRELOAD} \
-     PYTHONPATH=${LOCAL_PYTHONPATH} \
-     QT_API=${LOCAL_QT_API} \
-EOF
-    local -a e=( $(bash "$p") )
-    local -a r=()
-    local v
-    for v in "${e[@]::${#e[@]}-5}"; do
-        IFS='=' read -ra x <<< "$v"
-        r+=" --env ${x[0]} ${x[1]}"
-    done
-
-    python -m ipykernel install \
-        --display-name "Mantid Python" \
-        --name "pymantid" \
+    local INSTALLDIR=$1
+    local mantidpython=$2
+    local LOCAL_PRELOAD LOCAL_PYTHONPATH LOCAL_LDPATH
+    eval "$(grep -P '^LOCAL_\w+=' "$mantidpython")"
+    echo python -m ipykernel install \
+        --display-name 'Mantid Python' \
+        --name pymantid \
         --user \
         --env PYENV_VERSION py3 \
-        ${r[@]}
-    rm "$p"
+        --env PYTHONPATH "$LOCAL_PYTHONPATH" \
+        --env LD_PRELOAD "$LOCAL_PRELOAD"
+    # LOCAL_LDPATH is empty in the current install so we don't include it.
+    # To be correct, we would need to know the value at runtime (not buildtime)
+    # of LD_LIBRARY_PATH in order to prefix LOCAL_LDPATH. This is problematic,
+    # and ipykernel doesn't allow us do this dynamically (it doesn't know).
+    # The same is true of the other vars, but we know they are empty by default.
 }
 
 mantid_nexus_install() {
