@@ -42,10 +42,10 @@ mantid_install_rsmantid() {
     local s=rsmantid
     codes_download_module_file "$s.sh"
     local l=$install_d/bin/mantidpython
-    install -m 555 - "${codes_dir[bin]}/$s" <<EOF
+    install -m 555 /dev/stdin "${codes_dir[bin]}/$s" <<EOF
 #!/bin/bash
 set -euo pipefail
-exec '$l' --classic
+exec '$l' --classic "\$@"
 EOF
     echo "$l"
 }
