@@ -55,7 +55,7 @@ mantid_ipykernel() {
     local mantidpython=$2
     local LOCAL_PRELOAD LOCAL_PYTHONPATH LOCAL_LDPATH
     eval "$(grep -P '^LOCAL_\w+=' "$mantidpython")"
-    echo python -m ipykernel install \
+    python -m ipykernel install \
         --display-name 'Mantid Python' \
         --name pymantid \
         --user \
