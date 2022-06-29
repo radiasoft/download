@@ -3,7 +3,7 @@
 boost_python_install() {
     cd boost_1_72_0
     ./bootstrap.sh --prefix="${codes_dir[prefix]}"
-    local p=$(python -c 'import distutils.sysconfig as s; print(s.get_python_inc())')
+    local p="$(codes_python_include_dir)"
     perl -pi -e "/using python/ && s{;}{: $p ;}" project-config.jam
     # libboost_numpy37.so* and libboost_python37.so* are installed in ~/.local/lib
     # not in ~/.pyenv. This is fine, because these are C++ libraries, and they have
