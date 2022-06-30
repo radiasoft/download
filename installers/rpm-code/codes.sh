@@ -328,6 +328,10 @@ codes_python_lib_copy() {
     install -m 644 "$@" $(codes_python_lib_dir)
 }
 
+codes_python_include_dir() {
+   python -c 'import distutils.sysconfig as s; print(s.get_python_inc())'
+}
+
 codes_python_lib_dir() {
     python -c 'import sysconfig; print(sysconfig.get_path("purelib"))'
 }
