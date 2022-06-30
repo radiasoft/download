@@ -3,6 +3,8 @@ set -euo pipefail
 
 _flash_tarball_version=4.6.2
 
+set -x
+
 flash_tarball_main() {
     local d=$PWD/proprietary
     local t=$d/FLASH-$_flash_tarball_version.tar.gz
@@ -11,22 +13,21 @@ flash_tarball_main() {
     fi
     install_tmp_dir
     local p=$PWD
-    local r=()
     install_url radiasoft/download installers
     install_script_eval rpm-code/codes.sh
-    r="$(flash_untar $t)"
+    local r=$(flash_untar $t)
     flash_patch "$r"
     flash_add_examples "$r"
-    o=flash.tar.gz
+    local o=flash.tar.gz
     tar czf "$o" "$r"
-    x=$d/flash-$(date -u +%Y%m%d.%H%M%S).tar.gz
+    local x=$d/flash-$(date -u +%Y%m%d.%H%M%S).tar.gz
     rm -f "$x"
     tar czf "$x" "$o"
-    ln -s --force "$(basename "$x")" $d/flash-dev.tar.gz
+    ln -s --force "$(basename "$x")" "$d"/flash-dev.tar.gz
 }
 
 flash_add_examples() {
-    local flash_dir="$1"
+    local flash_dir=$1
     codes_download flashcap
     git fetch --unshallow
     local x
@@ -35,16 +36,19 @@ flash_add_examples() {
         'CapLaserBELLA bella.par' \
     ; do
         x=( $x )
-        local i="config/${x[0]}"
+        local i=config/${x[0]}
+        # Same permissions as existing similar files in $flash_dir
         # POSIT: sirepo.sim_data.flash.FLASH_PAR_FILE
-        cp "$i/${x[1]}" "$i/flash.par"
-        cp -R "$i"  "../$flash_dir/source/Simulation/SimulationMain/"
+        install -m 640 "$i/${x[1]}" "$i/flash.par"
+        local o="../$flash_dir/source/Simulation/SimulationMain/$(basename $i)"
+        install -d -m 750 "$o"
+        install -m 640 "$i/"* "$o"
     done
     cd ..
-
 }
 
 flash_patch() {
+    local p=$PWD
     cd "$1"
     # POSIT: Fedora using mpich
     local d=/usr/lib64/mpich
@@ -64,7 +68,7 @@ flash_patch() {
 ---
 > F90FLAGS = -fallow-argument-mismatch
 EOF
-    cd ..
+    cd "$p"
 }
 
 flash_untar() {
