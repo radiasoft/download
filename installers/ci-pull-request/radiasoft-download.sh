@@ -28,12 +28,15 @@ ci_pull_request_main() {
             ;;
     esac
     local d=$PWD
+    local o=$(stat --format='%u:%g' "$d")
     set -x
     docker run -v "$d:$d" -i -u root --rm "$i:alpha" bash <<EOF | cat
         set -eou pipefail
         set -x
         cd '$d'
-        chown -R vagrant: .
+        chown -R vagrant: '$d'
+        # POSIT: no interpolated vars in names
+        trap 'chown -R "$o" "$d"' EXIT
         su - vagrant <<EOF2
             set -eou pipefail
             set -x
@@ -47,7 +50,7 @@ ci_pull_request_main() {
             if [[ -f test.sh ]]; then
                 bash test.sh
             else
-                pykern test
+                pykern ci run
             fi
 EOF2
 EOF

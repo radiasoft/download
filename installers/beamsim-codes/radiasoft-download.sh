@@ -75,7 +75,7 @@ declare -a _beamsim_codes_all=(
 # Some of these are deps and others are just build deps.
 # If something is missed from this list, it will get installed,
 # which is probably no harm done. trilinos is the big one to not install.
-declare _beamsim_codes_intall_skip=(
+declare -a _beamsim_codes_install_skip=(
     pydot
     boost
     fnl_chef
@@ -122,7 +122,7 @@ beamsim_codes_install() {
 
 beamsim_codes_install_list() {
     local IFS='|'
-    local r='^('"${_beamsim_codes_intall_skip[*]}"')$'
+    local r='^('"${_beamsim_codes_install_skip[*]}"')$'
     local c
     for c in "${_beamsim_codes_all[@]}"; do
         if [[ ! $c =~ $r ]]; then
