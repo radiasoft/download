@@ -11,7 +11,7 @@ _vagrant_dev_update_tgz_path=/vagrant/$_vagrant_dev_update_tgz_base
 
 vagrant_dev_box_add() {
     # Returns: $box
-    local box=$1
+    box=$1
     if [[ ${vagrant_dev_box:-} ]]; then
         box=$vagrant_dev_box
     elif [[ $box =~ fedora ]]; then
