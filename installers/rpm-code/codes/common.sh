@@ -11,43 +11,52 @@ common_python() {
     install_source_bashrc
     # Need to set here
     codes_dir[pyenv_prefix]=$(realpath "$(pyenv prefix)")
-    install_pip_install mpi4py
-    install_pip_install numpy
-    install_pip_install matplotlib==3.3.3
-    install_pip_install scipy
-    # used by synergia and has man/man1 duplicate problem so just include here
-    install_pip_install nose
-    install_pip_install Cython
+    local -a d=(
+        mpi4py
+        numpy
+        matplotlib==3.3.3
+        scipy
+        # used by synergia and has man/man1 duplicate problem so just include here
+        nose
+        Cython
+    )
+    install_pip_install "${d[@]}"
     # Force MPI mode (not auto-detected)
     CC=$mpicc HDF5_MPI=ON install_pip_install --no-binary=h5py h5py
-    # pillow and python-dateutil installed by matplotlib
-    # pipdeptree is useful for debugging
-    install_pip_install \
-        pipdeptree \
-        pandas \
-        sympy \
+    d=(
+        # pillow and python-dateutil installed by matplotlib
+        # pipdeptree is useful for debugging
+        pipdeptree
+        pandas
+        sympy
         tables
-    # Conflict between rscode-pyzgoubi and rscode-ml so just include here
-    install_pip_install PyYAML
-    # Needed by rscode-bluesky and rscode-ml
-    install_pip_install \
-        cachetools \
-        scikit-image==0.18.3 \
+
+        # Conflict between rscode-pyzgoubi and rscode-ml so just include here
+        PyYAML
+
+        # Needed by rscode-bluesky and rscode-ml
+        cachetools
+        scikit-image==0.18.3
         tifffile
-    # Needed by rscode-bluesky and rscode-rsbeams
-    # https://github.com/jupyter/notebook/issues/2435
-    # yt (in rscode-rsbeams) installs jedi, which needs to be forced to 0.17.2
-    # keep consistent with container-beamsim-jupyter
-    install_pip_install \
-        ipython \
-        jedi==0.17.2 \
-        parso \
+
+        # Needed by rscode-bluesky and rscode-rsbeams
+        # https://github.com/jupyter/notebook/issues/2435
+        # yt (in rscode-rsbeams) installs jedi, which needs to be forced to 0.17.2
+        # keep consistent with container-beamsim-jupyter
+        dill
+        ipython
+        jedi==0.17.2
+        parso
         prompt_toolkit
-    # fortran namelist parser, usable by many codes
-    install_pip_install f90nml
-    # Conflict between rscode-bluesky and rscode-openpmd
-    install_pip_install tqdm
-    install_pip_install astunparse==1.6.3
+
+        # fortran namelist parser, usable by many codes
+        f90nml
+        # Conflict between rscode-bluesky and rscode-openpmd
+        tqdm
+        astunparse==1.6.3
+    )
+    install_pip_install "${d[@]}"
+
     # Lots of dependencies so we install here to avoid rpm collisions.
     # Slows down builds of pykern, but doesn't affect development.
     codes_download pykern

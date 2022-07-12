@@ -5,6 +5,7 @@ _rsbeam_codes=(
     rsflash
     rslaser
     rsoopic
+    rsopt
     rssynergia
     rswarp
 )

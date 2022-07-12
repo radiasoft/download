@@ -17,7 +17,7 @@ ci_pull_request_main() {
             i=radiasoft/python3
             ;;
         sirepo)
-            i=radiasoft/beamsim
+            i=radiasoft/sirepo-ci
             p=1
             ;;
         MISSING)
@@ -28,12 +28,15 @@ ci_pull_request_main() {
             ;;
     esac
     local d=$PWD
+    local o=$(stat --format='%u:%g' "$d")
     set -x
     docker run -v "$d:$d" -i -u root --rm "$i:alpha" bash <<EOF | cat
         set -eou pipefail
         set -x
         cd '$d'
-        chown -R vagrant: .
+        chown -R vagrant: '$d'
+        # POSIT: no interpolated vars in names
+        trap 'chown -R "$o" "$d"' EXIT
         su - vagrant <<EOF2
             set -eou pipefail
             set -x
@@ -44,7 +47,11 @@ ci_pull_request_main() {
             fi
             pip uninstall -y '$r' >& /dev/null || true
             pip install -e .
-            pykern test
+            if [[ -f test.sh ]]; then
+                bash test.sh
+            else
+                pykern ci run
+            fi
 EOF2
 EOF
     set +x
