@@ -12,7 +12,7 @@ slurm_dev_main() {
             install_err 'You need to run:
 
 radia_run vagrant-dev fedora
-vssh
+vagrant ssh
 radia_run slurm-dev
 '
         fi

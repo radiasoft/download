@@ -9,6 +9,11 @@ set -euo pipefail
 _vagrant_dev_update_tgz_base=vagrant-dev-update.tgz
 _vagrant_dev_update_tgz_path=/vagrant/$_vagrant_dev_update_tgz_base
 
+_vagrant_dev_host_os=$(uname)
+if [[ $_vagrant_dev_host_os == Linux ]]; then
+    _vagrant_dev_host_os=$(source /etc/os-release && echo "$ID")
+fi
+
 vagrant_dev_box_add() {
     # Returns: $box
     local box=$1
@@ -106,12 +111,23 @@ expects: fedora|centos[/<version>], <ip address>, update, v[1-9].radia.run"
         vagrant_dev_no_vbguest=${vagrant_dev_no_vbguest-1}
     fi
     # Mounts only really work on Darwin for now
-    if [[ ! ${vagrant_dev_no_mounts+1} && $(uname) != Darwin ]]; then
+    if [[ ! ${vagrant_dev_no_mounts+1} && $_vagrant_dev_host_os != Darwin ]]; then
         vagrant_dev_no_mounts=1
         vagrant_dev_no_vbguest=${vagrant_dev_no_vbguest-1}
     fi
     if [[ ! ${vagrant_dev_no_nfs_src+1} && $os =~ centos ]]; then
         vagrant_dev_no_nfs_src=1
+    fi
+    if [[ $_vagrant_dev_host_os == ubuntu ]]; then
+        # libvirt has no vbguest.
+        # Need to modify redhat-docker to not create a disk if
+        # there's no persistent-storage. persistent-storage prints
+        # messages always when logging in
+        vagrant_dev_no_docker_disk=1
+        vagrant_dev_no_mounts=1
+        vagrant_dev_no_nfs_src=1
+        vagrant_dev_no_vbguest=1
+        return
     fi
     if [[ ! $ip ]]; then
         ip=$(vagrant_dev_ip "$host")
@@ -288,7 +304,7 @@ vagrant_dev_vagrantfile() {
         fi
     fi
     local macos_fixes=
-    if [[ $(uname) == Darwin ]]; then
+    if [[ $_vagrant_dev_host_os == Darwin ]]; then
         macos_fixes='v.customize [
             "modifyvm", :id,
                 # Fix Mac thunderbolt issue
@@ -322,13 +338,13 @@ vagrant_dev_vagrantfile() {
     config.persistent_storage.volgroupname = "docker"
 EOF
     fi
-    cat > Vagrantfile <<EOF
-# -*-ruby-*-
-Vagrant.configure("2") do |config|
-    config.vm.box = "$box"
-    config.vm.hostname = "$host"
-    config.vm.network "private_network", ip: "$ip"
-    config.vm.provider "virtualbox" do |v|
+    if [[ $_vagrant_dev_host_os == ubuntu ]]; then
+        local provider=<<'EOF'
+    config.vm.provider :libvirt do |v|
+EOF
+    else
+        local provider=<<EOF
+    config.vm.provider :virtualbox do |v|
         ${timesync}
         ${macos_fixes}
         # https://stackoverflow.com/a/36959857/3075806
@@ -338,6 +354,15 @@ Vagrant.configure("2") do |config|
         # v.customize ["modifyvm", :id, "--nictype1", "virtio"]
         # https://github.com/radiasoft/download/issues/104
         v.customize ["modifyvm", :id, "--ioapic", "on"]
+EOF
+    fi
+    cat > Vagrantfile <<EOF
+# -*-ruby-*-
+Vagrant.configure("2") do |config|
+    config.vm.box = "$box"
+    config.vm.hostname = "$host"
+    config.vm.network "private_network", ip: "$ip"
+${provider}
         # 8192 needed for compiling some the larger codes
         v.memory = ${vagrant_dev_memory:-8192}
         v.cpus = ${vagrant_dev_cpus:-4}
