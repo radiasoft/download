@@ -21,10 +21,18 @@ vagrant_dev_box_add() {
         box=$vagrant_dev_box
     elif [[ $box =~ fedora ]]; then
         if [[ $box == fedora ]]; then
-            box=fedora/32-cloud-base
+            if [[ $_vagrant_dev_host_os == ubuntu ]]; then
+                box=generic/fedora32
+            else
+                box=fedora/32-cloud-base
+            fi
         fi
     elif [[ $box == centos ]]; then
-        box=centos/7
+        if [[ $_vagrant_dev_host_os == ubuntu ]]; then
+            box=generic/centos7
+        else
+            box=centos/7
+        fi
     fi
     if vagrant box list | grep "$box" >& /dev/null; then
         vagrant box update --box "$box"
