@@ -19,7 +19,7 @@ sirepo_ci_build_main() {
         set -euo pipefail
         $(install_vars_export)
         cd ~/src/radiasoft/container-sirepo-ci
-        build_push=\$build_push sirepo_ci_base=\$base build_docker_post_hook=$y radia_run container-build
+        sirepo_ci_base=\$base build_docker_post_hook=$y radia_run container-build
 EOF
     cat > "$y" <<EOF
 #!/bin/bash
@@ -50,5 +50,5 @@ EOF
     gcl container-beamsim
     gcl container-sirepo-ci
     cd container-beamsim
-    build_push=${1:-} build_docker_post_hook=$x install_repo container-build
+    build_docker_post_hook=$x install_repo container-build
 }
