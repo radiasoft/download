@@ -16,7 +16,7 @@ fi
 
 vagrant_dev_box_add() {
     # Returns: $box
-    local box=$1
+    box=$1
     if [[ ${vagrant_dev_box:-} ]]; then
         box=$vagrant_dev_box
     elif [[ $box =~ fedora ]]; then
