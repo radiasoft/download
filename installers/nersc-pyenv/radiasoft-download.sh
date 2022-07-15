@@ -34,14 +34,6 @@ nersc_pyenv_main() {
     if [[ ! -d $r/plugins/pyenv-virtualenv ]]; then
         git clone https://github.com/pyenv/pyenv-virtualenv.git "$r"/plugins/pyenv-virtualenv
     fi
-    local p='
-if ! [[ $PATH =~ pyenv/bin ]]; then
-    export PYENV_ROOT='"$r"'
-    export PATH="$PYENV_ROOT/bin:$PATH"
-    eval "$(pyenv init --path)"
-    eval "$(pyenv virtualenv-init -)"
-fi
-'
     if [[ -e ~/.bashrc.ext ]]; then
         nersc_pyenv_bashrc '/exiting .bashrc.ext/ && ($_ = $ENV{_nersc_pyenv_bashrc} . $_)' ~/.bashrc.ext
     else
