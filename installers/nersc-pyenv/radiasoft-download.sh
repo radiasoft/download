@@ -5,14 +5,23 @@
 nersc_pyenv_main() {
     local r=~/.pyenv
     if [[ ! -d $r ]]; then
-        curl -s -S -L https://pyenv.run | bash
+        # the path here avoids an error message
+        curl -s -S -L https://pyenv.run | PATH="$r/bin:$PATH" bash
     fi
-    PATH="$r/bin:$PATH"
-    eval "$(pyenv init --path)"
     if [[ ! -d $r/plugins/pyenv-virtualenv ]]; then
         git clone https://github.com/pyenv/pyenv-virtualenv.git "$r"/plugins/pyenv-virtualenv
     fi
+    if ! grep 'pyenv init' ~/.bashrc.ext; then
+        perl -pi -e '/exiting .bashrc.ext/ && ($_ = q{
+if ! [[ $PATH =~ pyenv/bin ]]; then
+    export PYENV_ROOT='"$r"'
+    export PATH="$PYENV_ROOT/bin:$PATH"
+    eval "$(pyenv init --path)"
     eval "$(pyenv virtualenv-init -)"
+fi
+} . $_)' ~/.bashrc.ext
+    fi
+    install_source_bashrc
     local v='3.7.2'
     if [[ ! -e $r/versions/$v ]]; then
         PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install "$v"
@@ -22,13 +31,4 @@ nersc_pyenv_main() {
         pyenv virtualenv "$v" "$a"
     fi
     pyenv global "$a"
-    if ! grep 'pyenv init' ~/.bashrc.ext; then
-        perl -pi -e '/exiting .bashrc.ext/ && ($_ = q{
-if ! [[ $PATH =~ pyenv/bin ]]; then
-    export PATH="~/.pyenv/bin:$PATH"
-    eval "$(pyenv init --path)"
-    eval "$(pyenv virtualenv-init -)"
-fi
-} . $_)' ~/.bashrc.ext
-    fi
 }
