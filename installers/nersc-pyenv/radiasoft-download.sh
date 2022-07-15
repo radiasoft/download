@@ -14,10 +14,12 @@ fi
 '
 
 nersc_pyenv_bashrc() {
-    local perl=$1
-    local file=$2
-    if ! grep 'pyenv init' "$file" >& /dev/null; then
-        _nersc_pyenv_bashrc=$_nersc_pyenv_bashrc perl -pi.bak -e "$perl" "$file"
+    local f=~/.bashrc.ext
+    if [[ ! -e $f ]] || ! grep -i /.bashrc.ext ~/.bashrc; then
+        f=~/.bashrc
+    fi
+    if ! grep 'pyenv init' "$f" >& /dev/null; then
+        echo -n "$_nersc_pyenv_bashrc" >> "$f"
     fi
     install_source_bashrc
 }
@@ -34,20 +36,7 @@ nersc_pyenv_main() {
     if [[ ! -d $r/plugins/pyenv-virtualenv ]]; then
         git clone https://github.com/pyenv/pyenv-virtualenv.git "$r"/plugins/pyenv-virtualenv
     fi
-    local p='
-if ! [[ $PATH =~ pyenv/bin ]]; then
-    export PYENV_ROOT='"$r"'
-    export PATH="$PYENV_ROOT/bin:$PATH"
-    eval "$(pyenv init --path)"
-    eval "$(pyenv virtualenv-init -)"
-fi
-'
-    if [[ -e ~/.bashrc.ext ]]; then
-        nersc_pyenv_bashrc '/exiting .bashrc.ext/ && ($_ = $ENV{_nersc_pyenv_bashrc} . $_)' ~/.bashrc.ext
-    else
-        touch ~/.bashrc
-        nersc_pyenv_bashrc 'END {print($ENV{_nersc_pyenv_bashrc})}' ~/.bashrc
-    fi
+    nersc_pyenv_bashrc  ~/.bashrc.ext
     local v='3.7.2'
     if [[ ! -e $r/versions/$v ]]; then
         PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install "$v"
