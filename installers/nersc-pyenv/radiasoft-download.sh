@@ -36,7 +36,7 @@ nersc_pyenv_main() {
     if [[ ! -d $r/plugins/pyenv-virtualenv ]]; then
         git clone https://github.com/pyenv/pyenv-virtualenv.git "$r"/plugins/pyenv-virtualenv
     fi
-    nersc_pyenv_bashrc  ~/.bashrc.ext
+    nersc_pyenv_bashrc
     local v='3.7.2'
     if [[ ! -e $r/versions/$v ]]; then
         PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install "$v"
