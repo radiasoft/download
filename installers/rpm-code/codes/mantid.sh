@@ -59,7 +59,6 @@ mantid_ipykernel() {
         --display-name 'Mantid Python' \
         --name pymantid \
         --user \
-        --env PYENV_VERSION py3 \
         --env PYTHONPATH "$LOCAL_PYTHONPATH" \
         --env LD_PRELOAD "$LOCAL_PRELOAD"
     # LOCAL_LDPATH is empty in the current install so we don't include it.
