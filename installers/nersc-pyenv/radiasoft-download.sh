@@ -2,17 +2,41 @@
 #
 # To run: curl radia.run | bash -s nersc-pyenv
 #
-nersc_pyenv_main() {
-    local r=~/.pyenv
-    if [[ ! -d $r ]]; then
-        curl -s -S -L https://pyenv.run | bash
-    fi
-    PATH="$r/bin:$PATH"
+_nersc_pyenv_root=~/.pyenv
+
+_nersc_pyenv_bashrc='
+if ! [[ $PATH =~ pyenv/bin ]]; then
+    export PYENV_ROOT='"$_nersc_pyenv_root"'
+    export PATH="$PYENV_ROOT/bin:$PATH"
     eval "$(pyenv init --path)"
+    eval "$(pyenv virtualenv-init -)"
+fi
+'
+
+nersc_pyenv_bashrc() {
+    local f=~/.bashrc.ext
+    if [[ ! -e $f ]] || ! grep -i /.bashrc.ext ~/.bashrc; then
+        f=~/.bashrc
+    fi
+    if ! grep 'pyenv init' "$f" >& /dev/null; then
+        echo -n "$_nersc_pyenv_bashrc" >> "$f"
+    fi
+    install_source_bashrc
+}
+
+nersc_pyenv_main() {
+    if [[ $SHELL != /bin/bash ]]; then
+        install_err "Currently only supports bash shells; SHELL=$SHELL"
+    fi
+    local r=$_nersc_pyenv_root
+    if [[ ! -d $r ]]; then
+        # the path here avoids an error message
+        curl -s -S -L https://pyenv.run | PATH="$r/bin:$PATH" bash
+    fi
     if [[ ! -d $r/plugins/pyenv-virtualenv ]]; then
         git clone https://github.com/pyenv/pyenv-virtualenv.git "$r"/plugins/pyenv-virtualenv
     fi
-    eval "$(pyenv virtualenv-init -)"
+    nersc_pyenv_bashrc
     local v='3.7.2'
     if [[ ! -e $r/versions/$v ]]; then
         PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install "$v"
@@ -22,13 +46,4 @@ nersc_pyenv_main() {
         pyenv virtualenv "$v" "$a"
     fi
     pyenv global "$a"
-    if ! grep 'pyenv init' ~/.bashrc.ext; then
-        perl -pi -e '/exiting .bashrc.ext/ && ($_ = q{
-if ! [[ $PATH =~ pyenv/bin ]]; then
-    export PATH="~/.pyenv/bin:$PATH"
-    eval "$(pyenv init --path)"
-    eval "$(pyenv virtualenv-init -)"
-fi
-} . $_)' ~/.bashrc.ext
-    fi
 }

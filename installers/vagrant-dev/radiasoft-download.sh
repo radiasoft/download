@@ -9,6 +9,27 @@ set -euo pipefail
 _vagrant_dev_update_tgz_base=vagrant-dev-update.tgz
 _vagrant_dev_update_tgz_path=/vagrant/$_vagrant_dev_update_tgz_base
 
+vagrant_dev_box_add() {
+    # Returns: $box
+    box=$1
+    if [[ ${vagrant_dev_box:-} ]]; then
+        box=$vagrant_dev_box
+    elif [[ $box =~ fedora ]]; then
+        if [[ $box == fedora ]]; then
+            box=fedora/32-cloud-base
+        fi
+    elif [[ $box == centos ]]; then
+        box=centos/7
+    fi
+    if vagrant box list | grep "$box" >& /dev/null; then
+        vagrant box update --box "$box"
+    elif [[ $box == fedora/32-cloud-base ]]; then
+        vagrant box add https://depot.radiasoft.org/foss/fedora32-box.json
+    else
+        vagrant box add --provider virtualbox "$box"
+    fi
+}
+
 vagrant_dev_ip() {
     local host=$1
     local i=$(dig +short "$host" 2>/dev/null || true)
@@ -253,7 +274,6 @@ EOF3
         fi
     fi
     vagrant destroy -f
-    vagrant box update
 }
 
 vagrant_dev_vagrantfile() {
@@ -278,16 +298,9 @@ vagrant_dev_vagrantfile() {
                 "--paravirtprovider", "none",
         ]'
     fi
-    local box=$os
-    if [[ ${vagrant_dev_box:-} ]]; then
-        box=$vagrant_dev_box
-    elif [[ $os =~ fedora ]]; then
-        if [[ $box == fedora ]]; then
-            box=fedora/32-cloud-base
-        fi
-    elif [[ $box == centos ]]; then
-        box=centos/7
-    fi
+    # vagrant_dev_box_add returns in box
+    local box
+    vagrant_dev_box_add "$os"
     local mounts="$(vagrant_dev_mounts)"
     local persistent_storage=
     if [[ ! ${vagrant_dev_no_docker_disk:+1} ]]; then
