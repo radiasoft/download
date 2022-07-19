@@ -22,6 +22,14 @@ codes_cmake() {
     cmake -D CMAKE_RULE_MESSAGES:BOOL=OFF -D CMAKE_BUILD_TYPE:STRING="$t" "$@" ..
 }
 
+codes_cmake_build() {
+    local cmd=( cmake --build . -j$(codes_num_cores) )
+    if [[ ${CODES_DEBUG_FLAG:-} ]]; then
+        cmd+=( --verbose )
+    fi
+    "${cmd[@]}"
+}
+
 codes_cmake_fix_lib_dir() {
     # otherwise uses ~/.local/lib64
     find . -name CMakeLists.txt -print0 | xargs -0 perl -pi -e '/include\(GNUInstallDirs/ && ($_ .= q{
@@ -223,11 +231,12 @@ codes_install() {
     if codes_is_function "$p"; then
         local vs=${module}_python_version
         local v=${!vs:-3}
-        codes_msg "Building: py$v"
+        local n="py$v"
+        codes_msg "Building: $n"
         cd "$d"
-        install_not_strict_cmd pyenv activate py"$v"
+        install_not_strict_cmd pyenv activate "$n"
         codes_dir[pyenv_prefix]=$(realpath "$(pyenv prefix)")
-        "$p" "$v"
+        "$p" "$v" "$n"
         codes_install_pyenv_done
     fi
     local d=${codes_dir[prefix]}/lib64

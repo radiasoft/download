@@ -31,7 +31,6 @@ ml_python_install() {
         'tensorflow-estimator<2.4.0,>=2.3.0'
         'termcolor>=1.1.0'
         'werkzeug>=0.11.15'
-        'wrapt>=1.11.1'
     )
     install_pip_install "${tensorflow_2_3_1_deps[@]}"
     install_pip_install --no-deps tensorflow==2.3.1

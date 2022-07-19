@@ -44,6 +44,7 @@ declare -a _beamsim_codes_all=(
     opal
 
     madx
+    mantid
     mgis
     openmc
 
