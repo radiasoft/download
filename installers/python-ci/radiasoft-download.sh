@@ -2,10 +2,7 @@
 #
 # Assumes running in GITHUB
 #
-ci_pull_request_main() {
-    if [[ ${GITHUB_EVENT_NAME:-} != pull_request ]]; then
-        install_err "GITHUB_EVENT_NAME=${GITHUB_EVENT_NAME:-} not pull_request"
-    fi
+python_ci_main() {
     if [[ ! -r setup.py ]]; then
         install_err 'no setup.py'
     fi
