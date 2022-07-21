@@ -347,11 +347,11 @@ vagrant_dev_vagrantfile() {
 EOF
     fi
     if [[ $_vagrant_dev_host_os == ubuntu ]]; then
-        local provider=<<'EOF'
+        local provider=$(cat <<'EOF')
     config.vm.provider :libvirt do |v|
 EOF
     else
-        local provider=<<EOF
+        local provider=$(cat <<EOF)
     config.vm.provider :virtualbox do |v|
         ${timesync}
         ${macos_fixes}
