@@ -12,7 +12,7 @@ if [[ ! -d $rpm_code_install_dir ]]; then
 fi
 cat > "$radiasoft_repo_file" <<EOF
 [radiasoft-dev]
-name=RadiaSoft $repo_rel_dir
+name=RadiaSoft $rpm_code_install_dir
 baseurl=${install_server}/yum/fedora/\$releasever/\$basearch/dev
 enabled=1
 gpgcheck=0
