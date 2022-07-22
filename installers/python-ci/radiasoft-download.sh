@@ -13,6 +13,10 @@ python_ci_main() {
         pykern)
             i=radiasoft/python3
             ;;
+        rsconf)
+            i=radiasoft/python3
+            p=1
+            ;;
         sirepo)
             i=radiasoft/sirepo-ci
             p=1
