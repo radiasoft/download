@@ -13,7 +13,7 @@ python_ci_main() {
         pykern)
             i=radiasoft/python3
             ;;
-        rsconf)
+        rsaccounting|rsconf)
             i=radiasoft/python3
             p=1
             ;;
