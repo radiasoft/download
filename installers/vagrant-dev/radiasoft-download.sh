@@ -135,7 +135,6 @@ expects: fedora|centos[/<version>], <ip address>, update, v[1-9].radia.run"
         vagrant_dev_no_mounts=1
         vagrant_dev_no_nfs_src=1
         vagrant_dev_no_vbguest=1
-        return
     fi
     if [[ ! $ip ]]; then
         ip=$(vagrant_dev_ip "$host")
