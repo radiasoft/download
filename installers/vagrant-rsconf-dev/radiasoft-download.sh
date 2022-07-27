@@ -21,7 +21,7 @@ vagrant_rsconf_dev_main() {
 }
 
 vagrant_rsconf_dev_master() {
-    install_repo_eval vagrant-centos7
+    install_repo_eval vagrant-dev centos
     vagrant ssh <<'EOF'
         bivio_pyenv_3
         set -euo pipefail
