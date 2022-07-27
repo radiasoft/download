@@ -54,7 +54,7 @@ EOF
 }
 
 vagrant_rsconf_dev_worker() {
-    install_repo_eval vagrant-centos7
+    install_repo_eval vagrant-dev centos
     vagrant_rsconf_dev_run || true
     vagrant reload
     vagrant_rsconf_dev_run
