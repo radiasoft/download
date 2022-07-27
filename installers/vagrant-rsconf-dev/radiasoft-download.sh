@@ -22,7 +22,7 @@ vagrant_rsconf_dev_main() {
 
 vagrant_rsconf_dev_master() {
     install_repo_eval vagrant-centos7
-    bivio_vagrant_ssh <<'EOF'
+    vagrant ssh <<'EOF'
         bivio_pyenv_3
         set -euo pipefail
         mkdir -p ~/src/radiasoft
@@ -46,7 +46,7 @@ EOF
 }
 
 vagrant_rsconf_dev_run() {
-    install_server=$install_server bivio_vagrant_ssh sudo su - <<EOF
+    install_server=$install_server vagrant ssh sudo su - <<EOF
         set -euo pipefail
         export install_channel=dev install_server=$install_server
         curl "$install_server/index.html" | bash -s rsconf.sh "\$(hostname -f)" setup_dev
