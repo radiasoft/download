@@ -117,7 +117,6 @@ expects: fedora|centos[/<version>], <ip address>, update, v[1-9].radia.run"
     if [[ ${vagrant_dev_barebones:+1} ]]; then
         # allow individual overrides
         vagrant_dev_no_dev_env=${vagrant_dev_no_dev_env-1}
-        vagrant_dev_no_docker_disk=${vagrant_dev_no_docker_disk-1}
         vagrant_dev_no_mounts=${vagrant_dev_no_mounts-1}
         vagrant_dev_no_nfs_src=${vagrant_dev_no_nfs_src-1}
         vagrant_dev_no_vbguest=${vagrant_dev_no_vbguest-1}
@@ -132,10 +131,6 @@ expects: fedora|centos[/<version>], <ip address>, update, v[1-9].radia.run"
     fi
     if [[ $_vagrant_dev_host_os == ubuntu ]]; then
         # libvirt has no vbguest.
-        # Need to modify redhat-docker to not create a disk if
-        # there's no persistent-storage. persistent-storage prints
-        # messages always when logging in
-        vagrant_dev_no_docker_disk=1
         vagrant_dev_no_mounts=1
         vagrant_dev_no_nfs_src=1
         vagrant_dev_no_vbguest=1
@@ -143,19 +138,17 @@ expects: fedora|centos[/<version>], <ip address>, update, v[1-9].radia.run"
     if [[ ! $ip ]]; then
         ip=$(vagrant_dev_ip "$host")
     fi
-    # Absolute path is necessary for comparison in vagrant_dev_vdi_delete
     vagrant_dev_init_nfs
-    declare vdi=$PWD/$base-docker.vdi
-    vagrant_dev_prepare "$vdi"
+    vagrant_dev_prepare
     if [[ ! ${vagrant_dev_no_vbguest:+1} ]]; then
-        vagrant_dev_vagrantfile "$os" "$host" "$ip" "$vdi" '1'
+        vagrant_dev_vagrantfile "$os" "$host" "$ip" '1'
         vagrant up
         vagrant ssh <<'EOF'
 sudo yum install -q -y kernel kernel-devel kernel-headers kernel-tools perl
 EOF
         vagrant halt
     fi
-    vagrant_dev_vagrantfile "$os" "$host" "$ip" "$vdi" ''
+    vagrant_dev_vagrantfile "$os" "$host" "$ip" ''
     vagrant up
     if [[ ${vagrant_dev_no_dev_env:+1} ]]; then
         return
@@ -199,9 +192,6 @@ vagrant_dev_plugins() {
     if [[ ! ${vagrant_dev_no_vbguest:+1} ]]; then
         x+=( vagrant-vbguest )
     fi
-    if [[ ! ${vagrant_dev_no_docker_disk:+1} ]]; then
-        x+=( vagrant-persistent-storage )
-    fi
     if [[ ! ${x[@]+1} ]]; then
         return
     fi
@@ -239,7 +229,6 @@ EOF
 }
 
 vagrant_dev_prepare() {
-    declare vdi=$1
     if [[ ! $(type -t vagrant) ]]; then
         install_err 'vagrant not installed. Please visit to install:
 
@@ -254,7 +243,6 @@ http://vagrantup.com'
         fi
     fi
     vagrant_dev_plugins
-    vagrant_dev_vdi_delete "$vdi"
 }
 
 vagrant_dev_pre_install() {
@@ -304,7 +292,7 @@ EOF3
 }
 
 vagrant_dev_vagrantfile() {
-    declare os=$1 host=$2 ip=$3 vdi=$4 first=$5
+    declare os=$1 host=$2 ip=$3 first=$5
     declare vbguest='' timesync=''
     if [[ ! ${vagrant_dev_no_vbguest:+1} ]]; then
         if [[ $first ]]; then
@@ -329,26 +317,6 @@ vagrant_dev_vagrantfile() {
     declare box
     vagrant_dev_box_add "$os"
     declare mounts="$(vagrant_dev_mounts)"
-    declare persistent_storage=
-    if [[ ! ${vagrant_dev_no_docker_disk:+1} ]]; then
-        # read returns false
-        IFS= read -r -d '' persistent_storage <<EOF || true
-    # Create a disk for docker
-    config.persistent_storage.enabled = true
-    # so doesn't write signature
-    config.persistent_storage.format = false
-    # Clearer to add host name to file so that it can be distinguished
-    # in VirtualBox Media Manager, which only shows file name, not full path.
-    config.persistent_storage.location = "$vdi"
-    # so doesn't modify /etc/fstab
-    config.persistent_storage.mount = false
-    # use whole disk
-    config.persistent_storage.partition = false
-    config.persistent_storage.size = 102400
-    config.persistent_storage.use_lvm = true
-    config.persistent_storage.volgroupname = "docker"
-EOF
-    fi
     if [[ $_vagrant_dev_host_os == ubuntu ]]; then
         declare provider=$(cat <<'EOF'
     config.vm.provider :libvirt do |v|
@@ -380,7 +348,6 @@ ${provider}
         v.memory = ${vagrant_dev_memory:-8192}
         v.cpus = ${vagrant_dev_cpus:-4}
     end
-${persistent_storage}
     config.ssh.forward_x11 = false
     ${vbguest}
     # https://stackoverflow.com/a/33137719/3075806
@@ -390,38 +357,4 @@ ${persistent_storage}
     ${mounts}
 end
 EOF
-}
-
-vagrant_dev_vdi_delete() {
-    # vdi might be leftover from previous vagrant up. VirtualBox doesn't
-    # destroy automatically.
-    declare vdi=$1
-    if [[ ! -e $vdi ]]; then
-        return
-    fi
-    declare uuid=$(vagrant_dev_vdi_find "$vdi")
-    if [[ $uuid ]]; then
-        install_info "Deleting HDD $vdi ($uuid)"
-        VBoxManage closemedium disk "$uuid" --delete
-    fi
-}
-
-vagrant_dev_vdi_find() {
-    declare vdi=$1
-    VBoxManage list hdds | while read l; do
-        if [[ ! $l =~ ^([^:]+):[[:space:]]*(.+) ]]; then
-            continue
-        fi
-        case ${BASH_REMATCH[1]} in
-            Location)
-                if [[ $vdi == ${BASH_REMATCH[2]} ]]; then
-                    echo "$u"
-                    exit
-                fi
-                ;;
-            UUID)
-                u=${BASH_REMATCH[2]}
-                ;;
-        esac
-    done
 }
