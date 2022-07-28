@@ -31,13 +31,11 @@ openmc_moab() {
     # So, just use native cmake find_package(PythonLibs) which
     # does the same thing
     echo 'find_package(PythonLibs REQUIRED)' > pymoab/cmake/FindPythonDev.cmake
-    codes_cmake \
+    CXX=mpicxx codes_cmake \
         -D BUILD_SHARED_LIBS=ON \
         -D CMAKE_INSTALL_PREFIX="${codes_dir[prefix]}" \
         -D ENABLE_HDF5=ON \
         -D ENABLE_PYMOAB=ON \
-        -D HDF5_INCLUDE_DIR="${codes_dir[prefix]}" \
-        -D HDF5_ROOT="$BIVIO_MPI_LIB" \
         -D PYTHON_INCLUDE_DIR="$(codes_python_include_dir)"\
         -D PYTHON_LIBRARY="$(codes_python_lib_dir)"
     codes_make
@@ -51,7 +49,6 @@ openmc_openmc() {
     CXX=mpicxx codes_cmake \
         -D CMAKE_INSTALL_PREFIX="${codes_dir[prefix]}" \
         -D ENABLE_PYMOAB=ON \
-        -D HDF5_INCLUDE_DIRS="${codes_dir[prefix]}" \
         -D HDF5_PREFER_PARALLEL=on \
         -D OPENMC_USE_DAGMC=on \
         -D OPENMC_USE_MPI=on
