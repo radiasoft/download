@@ -46,7 +46,8 @@ EOF
 }
 
 vagrant_rsconf_dev_run() {
-    install_server=$install_server vagrant ssh sudo su - <<EOF
+    install_server=$install_server vagrant ssh <<EOF
+        sudo su -
         set -euo pipefail
         export install_channel=dev install_server=$install_server
         curl "$install_server/index.html" | bash -s rsconf.sh "\$(hostname -f)" setup_dev
