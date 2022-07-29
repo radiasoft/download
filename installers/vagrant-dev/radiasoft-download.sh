@@ -114,6 +114,8 @@ expects: fedora|centos[/<version>], <ip address>, update, v[1-9].radia.run"
     if [[ $base == $host ]]; then
         host=$host.radia.run
     fi
+    # vbguest is pretty broken so we are defaulting to off for now
+    vagrant_dev_no_vbguest=${vagrant_dev_no_vbguest-1}
     if [[ ${vagrant_dev_barebones:+1} ]]; then
         # allow individual overrides
         vagrant_dev_no_dev_env=${vagrant_dev_no_dev_env-1}
@@ -292,9 +294,17 @@ EOF3
 }
 
 vagrant_dev_vagrantfile() {
-    declare os=$1 host=$2 ip=$3 first=$5
+    declare os=$1 host=$2 ip=$3 first=$4
     declare vbguest='' timesync=''
-    if [[ ! ${vagrant_dev_no_vbguest:+1} ]]; then
+    if [[ ${vagrant_dev_no_vbguest:+1} ]]; then
+        vbguest='if Vagrant.has_plugin? "vagrant-vbguest"
+      config.vbguest.no_install  = true
+      config.vbguest.auto_update = false
+      config.vbguest.no_remote   = true
+      # avoids a warning even though we may have nfs later on
+      config.vm.synced_folder ".", "/vagrant", type: "virtualbox", disabled: true
+    end'
+    else
         if [[ $first ]]; then
             vbguest='config.vbguest.auto_update = false'
         else
@@ -351,9 +361,9 @@ ${provider}
     config.ssh.forward_x11 = false
     ${vbguest}
     # https://stackoverflow.com/a/33137719/3075806
-    # Undo mapping of hostname to 127.0.0.1
+    # Undo mapping of hostname to 127.0.?.1
     config.vm.provision "shell",
-        inline: "sed -i '/127.0.0.1.*$host/d' /etc/hosts"
+        inline: "sed -i '/127.0.*$host/d' /etc/hosts"
     ${mounts}
 end
 EOF
