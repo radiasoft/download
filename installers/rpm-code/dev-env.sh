@@ -17,8 +17,8 @@ _root() {
 export dev_port=2916
 export install_server=http://$(hostname -f):$dev_port
 export fedora_version=36
-export repo_fedora_dir=$(_root)/yum/fedora
-export rpm_code_install_dir=$repo_fedora_dir/$fedora_version/$(arch)/dev
+export repo_fedora_dir=$(_root)/yum/fedora/$fedora_version
+export rpm_code_install_dir=$repo_fedora_dir/$(arch)/dev
 export radiasoft_repo_file=$repo_fedora_dir/radiasoft.repo
 export install_proprietary_key=proprietary_code
 # for convenience to test rpm-perl, not used here
