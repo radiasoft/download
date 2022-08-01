@@ -54,6 +54,13 @@ common_python() {
         # Conflict between rscode-bluesky and rscode-openpmd
         tqdm
         astunparse==1.6.3
+
+        #conflict between rscode-mantid and rscode-ml
+        # version needs to be tensorflow_2_3_1_deps (see ml.sh)
+        'wrapt>=1.11.1'
+
+        # conflict between rscode-bluesky and rscode-openmc
+        uncertainties
     )
     install_pip_install "${d[@]}"
 

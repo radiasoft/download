@@ -9,30 +9,47 @@ set -euo pipefail
 _vagrant_dev_update_tgz_base=vagrant-dev-update.tgz
 _vagrant_dev_update_tgz_path=/vagrant/$_vagrant_dev_update_tgz_base
 
+_vagrant_dev_host_os=$(uname)
+if [[ $_vagrant_dev_host_os == Linux ]]; then
+    _vagrant_dev_host_os=$(source /etc/os-release && echo "$ID")
+fi
+
 vagrant_dev_box_add() {
     # Returns: $box
     box=$1
+    declare provider=virtualbox
+    if [[ $_vagrant_dev_host_os == ubuntu ]]; then
+        provider=libvirt
+    fi
     if [[ ${vagrant_dev_box:-} ]]; then
         box=$vagrant_dev_box
     elif [[ $box =~ fedora ]]; then
         if [[ $box == fedora ]]; then
-            box=fedora/$RADIA_RUN_VERSION_FEDORA-cloud-base
+            if [[ $_vagrant_dev_host_os == ubuntu ]]; then
+                box=generic/fedora$RADIA_RUN_VERSION_FEDORA
+            else
+                box=fedora/$RADIA_RUN_VERSION_FEDORA-cloud-base
+            fi
         fi
     elif [[ $box == centos ]]; then
-        box=centos/7
+        if [[ $_vagrant_dev_host_os == ubuntu ]]; then
+            box=generic/centos7
+        else
+            box=centos/7
+        fi
     fi
     if vagrant box list | grep "$box" >& /dev/null; then
         vagrant box update --box "$box"
     elif [[ $box == fedora/32-cloud-base ]]; then
         vagrant box add https://depot.radiasoft.org/foss/fedora32-box.json
     else
-        vagrant box add --provider virtualbox "$box"
+        vagrant box add --provider $provider "$box"
     fi
 }
 
 vagrant_dev_ip() {
-    local host=$1
-    local i=$(dig +short "$host" 2>/dev/null || true)
+    declare host=$1
+    declare i=$(dig +short "$host" 2>/dev/null || true)
     if [[ $i ]]; then
         echo -n "$i"
         return
@@ -67,7 +84,7 @@ vagrant_dev_init_nfs() {
 }
 
 vagrant_dev_main() {
-    local f os= host= ip= vagrant_dev_is_update=
+    declare f os= host= ip= vagrant_dev_is_update=
     for a in "$@"; do
         case $a in
             fedora*|centos*)
@@ -93,7 +110,7 @@ expects: fedora|centos[/<version>], <ip address>, update, v[1-9].radia.run"
         fi
         host=${BASH_REMATCH[1]}
     fi
-    local base=${host%%.*}
+    declare base=${host%%.*}
     if [[ $base == $host ]]; then
         host=$host.radia.run
     fi
@@ -106,19 +123,29 @@ expects: fedora|centos[/<version>], <ip address>, update, v[1-9].radia.run"
         vagrant_dev_no_vbguest=${vagrant_dev_no_vbguest-1}
     fi
     # Mounts only really work on Darwin for now
-    if [[ ! ${vagrant_dev_no_mounts+1} && $(uname) != Darwin ]]; then
+    if [[ ! ${vagrant_dev_no_mounts+1} && $_vagrant_dev_host_os != Darwin ]]; then
         vagrant_dev_no_mounts=1
         vagrant_dev_no_vbguest=${vagrant_dev_no_vbguest-1}
     fi
     if [[ ! ${vagrant_dev_no_nfs_src+1} && $os =~ centos ]]; then
         vagrant_dev_no_nfs_src=1
     fi
+    if [[ $_vagrant_dev_host_os == ubuntu ]]; then
+        # libvirt has no vbguest.
+        # Need to modify redhat-docker to not create a disk if
+        # there's no persistent-storage. persistent-storage prints
+        # messages always when logging in
+        vagrant_dev_no_docker_disk=1
+        vagrant_dev_no_mounts=1
+        vagrant_dev_no_nfs_src=1
+        vagrant_dev_no_vbguest=1
+    fi
     if [[ ! $ip ]]; then
         ip=$(vagrant_dev_ip "$host")
     fi
     # Absolute path is necessary for comparison in vagrant_dev_vdi_delete
     vagrant_dev_init_nfs
-    local vdi=$PWD/$base-docker.vdi
+    declare vdi=$PWD/$base-docker.vdi
     vagrant_dev_prepare "$vdi"
     if [[ ! ${vagrant_dev_no_vbguest:+1} ]]; then
         vagrant_dev_vagrantfile "$os" "$host" "$ip" "$vdi" '1'
@@ -133,7 +160,7 @@ EOF
     if [[ ${vagrant_dev_no_dev_env:+1} ]]; then
         return
     fi
-    local f
+    declare f
     for f in ~/.gitconfig ~/.netrc; do
         if [[ -r $f ]]; then
             vagrant ssh -c "install -m 600 /dev/stdin $(basename $f)" < "$f" >& /dev/null
@@ -141,7 +168,7 @@ EOF
     done
     # file:// urls don't work inside the VM
     if [[ $install_server =~ ^file: ]]; then
-        local install_server=
+        declare install_server=
     fi
     vagrant ssh <<EOF
 $(install_vars_export)
@@ -156,19 +183,19 @@ vagrant_dev_mounts() {
         return
     fi
     # Have to use vers=3 b/c vagrant will insert it (incorrectly) otherwise. Not sure why.
-    local f=' type: "nfs", mount_options: ["nolock", "fsc", "actimeo=2"], nfs_version: 3, nfs_udp: false'
-    local res=( 'config.vm.synced_folder ".", "/vagrant",'"$f" )
+    declare f=' type: "nfs", mount_options: ["nolock", "fsc", "actimeo=2"], nfs_version: 3, nfs_udp: false'
+    declare res=( 'config.vm.synced_folder ".", "/vagrant",'"$f" )
     if [[ ! ${vagrant_dev_no_nfs_src:+1} ]]; then
         mkdir -p "$HOME/src"
         res+=( 'config.vm.synced_folder "'"$HOME/src"'", "/home/vagrant/src",'"$f" )
     fi
-    local IFS='
+    declare IFS='
     '
     echo "${res[*]}"
 }
 
 vagrant_dev_plugins() {
-    local x=()
+    declare x=()
     if [[ ! ${vagrant_dev_no_vbguest:+1} ]]; then
         x+=( vagrant-vbguest )
     fi
@@ -178,8 +205,8 @@ vagrant_dev_plugins() {
     if [[ ! ${x[@]+1} ]]; then
         return
     fi
-    local plugins=$(vagrant plugin list)
-    local p op
+    declare plugins=$(vagrant plugin list)
+    declare p op
     for p in "${x[@]}"; do
         op=install
         if [[ $plugins =~ $p ]]; then
@@ -212,7 +239,7 @@ EOF
 }
 
 vagrant_dev_prepare() {
-    local vdi=$1
+    declare vdi=$1
     if [[ ! $(type -t vagrant) ]]; then
         install_err 'vagrant not installed. Please visit to install:
 
@@ -220,8 +247,8 @@ http://vagrantup.com'
     fi
     vagrant_dev_pre_install
     if [[ -d .vagrant ]]; then
-        local s=$(vagrant status 2>&1 || true)
-        local re=' not created |machine is required to run'
+        declare s=$(vagrant status 2>&1 || true)
+        declare re=' not created |machine is required to run'
         if [[ ! $s =~ $re ]]; then
             install_err 'vagrant machine exists. Please run: vagrant destroy -f'
         fi
@@ -236,7 +263,7 @@ vagrant_dev_pre_install() {
     fi
     # if the file is there, then assume aborted update
     if [[ ! -r $_vagrant_dev_update_tgz_base ]]; then
-        local s=$(vagrant status --machine-readable 2>&1 || true)
+        declare s=$(vagrant status --machine-readable 2>&1 || true)
         if [[ ! $s =~ state,running ]]; then
             install_err 'For updates, VM must be running; boot and try again'
         fi
@@ -277,8 +304,8 @@ EOF3
 }
 
 vagrant_dev_vagrantfile() {
-    local os=$1 host=$2 ip=$3 vdi=$4 first=$5
-    local vbguest='' timesync=''
+    declare os=$1 host=$2 ip=$3 vdi=$4 first=$5
+    declare vbguest='' timesync=''
     if [[ ! ${vagrant_dev_no_vbguest:+1} ]]; then
         if [[ $first ]]; then
             vbguest='config.vbguest.auto_update = false'
@@ -287,8 +314,8 @@ vagrant_dev_vagrantfile() {
             timesync='v.customize ["guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-set-threshold", 5000]'
         fi
     fi
-    local macos_fixes=
-    if [[ $(uname) == Darwin ]]; then
+    declare macos_fixes=
+    if [[ $_vagrant_dev_host_os == Darwin ]]; then
         macos_fixes='v.customize [
             "modifyvm", :id,
                 # Fix Mac thunderbolt issue
@@ -299,10 +326,10 @@ vagrant_dev_vagrantfile() {
         ]'
     fi
     # vagrant_dev_box_add returns in box
-    local box
+    declare box
     vagrant_dev_box_add "$os"
-    local mounts="$(vagrant_dev_mounts)"
-    local persistent_storage=
+    declare mounts="$(vagrant_dev_mounts)"
+    declare persistent_storage=
     if [[ ! ${vagrant_dev_no_docker_disk:+1} ]]; then
         # read returns false
         IFS= read -r -d '' persistent_storage <<EOF || true
@@ -322,13 +349,14 @@ vagrant_dev_vagrantfile() {
     config.persistent_storage.volgroupname = "docker"
 EOF
     fi
-    cat > Vagrantfile <<EOF
-# -*-ruby-*-
-Vagrant.configure("2") do |config|
-    config.vm.box = "$box"
-    config.vm.hostname = "$host"
-    config.vm.network "private_network", ip: "$ip"
-    config.vm.provider "virtualbox" do |v|
+    if [[ $_vagrant_dev_host_os == ubuntu ]]; then
+        declare provider=$(cat <<'EOF'
+    config.vm.provider :libvirt do |v|
+EOF
+)
+    else
+        declare provider=$(cat <<EOF
+    config.vm.provider :virtualbox do |v|
         ${timesync}
         ${macos_fixes}
         # https://stackoverflow.com/a/36959857/3075806
@@ -338,6 +366,16 @@ Vagrant.configure("2") do |config|
         # v.customize ["modifyvm", :id, "--nictype1", "virtio"]
         # https://github.com/radiasoft/download/issues/104
         v.customize ["modifyvm", :id, "--ioapic", "on"]
+EOF
+)
+    fi
+    cat > Vagrantfile <<EOF
+# -*-ruby-*-
+Vagrant.configure("2") do |config|
+    config.vm.box = "$box"
+    config.vm.hostname = "$host"
+    config.vm.network "private_network", ip: "$ip"
+${provider}
         # 8192 needed for compiling some the larger codes
         v.memory = ${vagrant_dev_memory:-8192}
         v.cpus = ${vagrant_dev_cpus:-4}
@@ -357,11 +395,11 @@ EOF
 vagrant_dev_vdi_delete() {
     # vdi might be leftover from previous vagrant up. VirtualBox doesn't
     # destroy automatically.
-    local vdi=$1
+    declare vdi=$1
     if [[ ! -e $vdi ]]; then
         return
     fi
-    local uuid=$(vagrant_dev_vdi_find "$vdi")
+    declare uuid=$(vagrant_dev_vdi_find "$vdi")
     if [[ $uuid ]]; then
         install_info "Deleting HDD $vdi ($uuid)"
         VBoxManage closemedium disk "$uuid" --delete
@@ -369,7 +407,7 @@ vagrant_dev_vdi_delete() {
 }
 
 vagrant_dev_vdi_find() {
-    local vdi=$1
+    declare vdi=$1
     VBoxManage list hdds | while read l; do
         if [[ ! $l =~ ^([^:]+):[[:space:]]*(.+) ]]; then
             continue
