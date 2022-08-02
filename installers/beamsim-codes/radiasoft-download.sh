@@ -64,7 +64,6 @@ declare -a _beamsim_codes_all=(
     pygist
     warp
 
-    libgfortran4
     xraylib
     shadow3
 
@@ -91,7 +90,6 @@ declare -a _beamsim_codes_install_skip=(
     forthon
     openpmd
     pygist
-    libgfortran4
     xraylib
     pyzgoubi
 )
