@@ -61,4 +61,6 @@ openmc_python_install() {
     codes_python_install
     cd ../moab/build/pymoab
     codes_python_install
+    install_pip_install openmc-data-downloader
+    install_pip_install vtk
 }
