@@ -1,5 +1,5 @@
 #!/bin/bash
-: to_install_at_nersc <<EOF
+: to_install_at_nersc <<'EOF'
 # Hinsts for installing SRW at NERSC
 
 ## Install python
