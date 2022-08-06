@@ -108,4 +108,7 @@ EOF
         )
     fi
     install_yum_install "${x[@]}"
+    # See: git.radiasoft.org/download/issues/231
+    # Remove when we upgrade to F36 (has a newer node)
+    install_sudo yum module enable -y nodejs:16/default
 }
