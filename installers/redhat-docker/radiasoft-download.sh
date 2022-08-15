@@ -24,7 +24,6 @@ rm -rf /var/lib/docker/*
 umount /var/lib/docker
 rmdir /var/lib/docker
 perl -pi -e "s{^/var/lib/docker.*}{}" /etc/fstab
-lvremove -f /dev/mapper/docker-*
 
 Then re-run this command
 '
@@ -32,37 +31,6 @@ Then re-run this command
     if selinuxenabled; then
         perl -pi -e 's{(?<=^SELINUX=).*}{disabled}' /etc/selinux/config
         install_err 'Disabled selinux. You need to "vagrant reload", then re-run this installer'
-    fi
-    # if vps created, remove it so is docker-docker (same as rsconf)
-    if [[ -e /dev/mapper/docker-vps ]]; then
-        lvremove -f /dev/mapper/docker-vps
-    fi
-    local vg=docker
-    local lv=docker
-    local mdev=/dev/mapper/$vg-$lv
-    local bdev=/dev/sdb
-    if [[ ! -e $mdev ]]; then
-        # pv is supposed to be created by vagrant-persistent-storage,
-        # but not be
-        if ! fdisk -l "$bdev" >& /dev/null; then
-            install_err "$mdev does not exist, cannot install docker"
-        fi
-        if fdisk -l "$bdev" | grep ^/dev >& /dev/null; then
-            install_err "$bdev contains mounted partitions, cannot install docker"
-        fi
-        if pvck "$bdev" >& /dev/null; then
-            if [[ ! $(pvs "$bdev") =~ $bdev ]]; then
-                install_err "physical volume $bdev already initialized, cannot install docker"
-            fi
-        else
-            pvcreate "$bdev"
-        fi
-        if ! vgck "$vg" >& /dev/null; then
-            vgcreate "$vg" "$bdev"
-        fi
-        if [[ ! $(lvs "$lv" 2>/dev/null) =~ docker ]]; then
-            lvcreate -l '100%VG' -n "$lv" "$vg"
-        fi
     fi
     if type dnf >& /dev/null; then
         dnf -y -q install dnf-plugins-core
@@ -79,10 +47,7 @@ Then re-run this command
     fi
     usermod -aG docker vagrant
     install -d -m 700 /etc/docker
-    mkfs.xfs -f -n ftype=1 "$mdev"
     mkdir -p "$data"
-    echo "$mdev $data xfs defaults 0 0" >> /etc/fstab
-    mount "$data"
     install -d -m 700 /etc/docker/tls
     # rsconf.pkcli.tls is not available so have to run manually.
     # easier to include more in -config here so different syntax

@@ -108,4 +108,8 @@ EOF
         )
     fi
     install_yum_install "${x[@]}"
+    # See: git.radiasoft.org/download/issues/231
+    if [[ $install_os_release_id == fedora && $install_os_release_version_id == 32 ]]; then
+        install_sudo dnf module enable -y nodejs:16/default
+    fi
 }
