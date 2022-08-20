@@ -21,7 +21,7 @@ sirepo_dev_main() {
     install_source_bashrc
     mkdir -p ~/src/radiasoft
     cd ~/src/radiasoft
-    pyenv global py3
+    pyenv global "$install_version_python_venv"
     for p in pykern sirepo; do
         install_pip_uninstall "$p"
         if [[ -d $p ]]; then

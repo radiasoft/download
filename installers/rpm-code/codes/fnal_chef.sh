@@ -10,7 +10,7 @@ fnal_chef_python_install() {
     cd chef
     perl -pi -e "
         s{-Werror}{};
-        s{(?<=find_package.Python3)}{ $RADIA_RUN_VERSION_PYTHON EXACT REQUIRED};
+        s{(?<=find_package.Python3)}{ $ EXACT REQUIRED};
     " CMakeLists.txt
     codes_cmake \
         -D BOOST_ROOT="${codes_dir[prefix]}" \

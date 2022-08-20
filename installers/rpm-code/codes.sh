@@ -230,7 +230,7 @@ codes_install() {
     local p=${module}_python_install
     if codes_is_function "$p"; then
         local vs=${module}_python_version
-        local v=${!vs:-3}
+        local v=${!vs:-${install_virt_python_venv:(-1)}}
         local n="py$v"
         codes_msg "Building: $n"
         cd "$d"

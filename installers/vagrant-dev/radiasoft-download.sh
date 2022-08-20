@@ -26,16 +26,16 @@ vagrant_dev_box_add() {
     elif [[ $box =~ fedora ]]; then
         if [[ $box == fedora ]]; then
             if [[ $_vagrant_dev_host_os == ubuntu ]]; then
-                box=generic/fedora$RADIA_RUN_VERSION_FEDORA
+                box=generic/fedora$install_version_fedora
             else
-                box=fedora/$RADIA_RUN_VERSION_FEDORA-cloud-base
+                box=fedora/$install_version_fedora-cloud-base
             fi
         fi
     elif [[ $box == centos ]]; then
         if [[ $_vagrant_dev_host_os == ubuntu ]]; then
-            box=generic/centos7
+            box=generic/centos$install_version_centos
         else
-            box=centos/7
+            box=centos/$install_version_centos
         fi
     fi
     if vagrant box list | grep "$box" >& /dev/null; then

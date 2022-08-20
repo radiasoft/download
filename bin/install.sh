@@ -197,8 +197,10 @@ install_init_vars() {
     fi
     : ${install_depot_server:=https://depot.radiasoft.org}
     install_prog="curl $install_depot_server | bash -s"
-    : ${RADIA_RUN_VERSION_FEDORA:=36}
-    : ${RADIA_RUN_VERSION_PYTHON:=3.10.5}
+    : ${install_version_fedora:=36}
+    : ${install_version_python:=3.10.5}
+    : ${install_version_python_venv:=py3}
+    : ${install_version_centos:=7}
     eval "$(install_vars_export)"
 }
 
