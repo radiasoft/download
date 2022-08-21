@@ -234,7 +234,6 @@ elegant_make_gpu() {
 }
 
 elegant_python_install() {
-    local v=$1
     local h=$PWD
     cd epics/extensions/src/SDDS/python
     elegant_make clean

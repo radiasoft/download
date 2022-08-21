@@ -7,7 +7,7 @@ common_python() {
     if [[ ! $mpicc ]]; then
         install_err mpicc not found
     fi
-    MAKE_OPTS=-j$(codes_num_cores) bivio_pyenv_"$v"
+    MAKE_OPTS=-j$(codes_num_cores) install_repo_eval pyenv
     install_source_bashrc
     # Need to set here
     codes_dir[pyenv_prefix]=$(realpath "$(pyenv prefix)")

@@ -10,13 +10,7 @@ redhat_dev_main() {
         install_err 'run as vagrant (or other ordinary user), not root'
     fi
     install_yum update
-    if [[ $install_os_release_id == fedora && $install_os_release_version_id == 29 ]]; then
-        # Fixed in yum update, but need to restart and reset failed
-        # https://bugzilla.redhat.com/show_bug.cgi?id=1158846
-        if [[ $(systemctl is-failed nfs-idmapd) == failsed ]]; then
-            install_sudo systemctl reset-failed
-            install_sudo systemctl restart nfs-idmapd
-        fi
+    if [[ $install_os_release_id == fedora ]]; then
         # this is a very an annoying feature, because it happens in every interactive shell
         install_sudo rm -f /etc/profile.d/console-login-helper-messages-profile.sh
     fi

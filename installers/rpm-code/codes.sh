@@ -229,15 +229,10 @@ codes_install() {
     cd "$prev"
     local p=${module}_python_install
     if codes_is_function "$p"; then
-        local vs=${module}_python_version
-        local v=${!vs:-${install_virt_python_venv:(-1)}}
-        local n="py$v"
-        codes_msg "Building: $n"
+        codes_msg "Running: $p"
         cd "$d"
-        install_not_strict_cmd pyenv activate "$n"
-        codes_dir[pyenv_prefix]=$(realpath "$(pyenv prefix)")
-        "$p" "$v" "$n"
-        codes_install_pyenv_done
+        "$p"
+        codes_install_python_done
     fi
     local d=${codes_dir[prefix]}/lib64
     if [[ -d $d ]]; then
@@ -246,7 +241,7 @@ codes_install() {
     cd "$prev"
 }
 
-codes_install_pyenv_done() {
+codes_install_python_done() {
     local pp=${codes_dir[pyenv_prefix]}
     if [[ ! $pp ]]; then
         install_err 'pyenv prefix not working'
