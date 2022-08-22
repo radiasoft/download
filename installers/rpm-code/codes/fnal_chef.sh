@@ -3,7 +3,7 @@
 fnal_chef_main() {
     codes_yum_dependencies eigen3-devel gsl-devel
     codes_dependencies common boost pydot
-    codes_download https://bitbucket.org/fnalacceleratormodeling/chef.git mac-native
+    codes_download https://bitbucket.org/fnalacceleratormodeling/chef.git
 }
 
 fnal_chef_python_install() {
