@@ -22,7 +22,7 @@ common_python() {
     )
     install_pip_install "${d[@]}"
     # Force MPI mode (not auto-detected)
-    CC=$mpicc HDF5_MPI=ON install_pip_install --no-binary=h5py h5py
+    CC=$mpicc HDF5_MPI=ON install_pip_install --no-binary=h5py h5py==2.10.0
     d=(
         # pillow and python-dateutil installed by matplotlib
         # pipdeptree is useful for debugging
