@@ -343,6 +343,10 @@ codes_python_lib_dir() {
     python -c 'import sysconfig; print(sysconfig.get_path("purelib"))'
 }
 
+codes_python_version() {
+   python -c 'import platform; print(platform.python_version())'
+}
+
 codes_yum_dependencies() {
     rpm_code_yum_dependencies "$@"
 }

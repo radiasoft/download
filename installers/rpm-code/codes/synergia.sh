@@ -2,7 +2,8 @@
 
 synergia_python_install() {
     cd synergia2
-    perl -pi -e "s{(?<=find_package.Python3)}{ $RADIA_RUN_VERSION_PYTHON EXACT REQUIRED}" CMakeLists.txt
+    declare p=$(codes_python_version)
+    perl -pi -e "s{(?<=find_package.Python3)}{ $p EXACT REQUIRED}" CMakeLists.txt
     codes_cmake \
         -D BOOST_ROOT="${codes_dir[prefix]}" \
         -D CHEF_DIR="${codes_dir[pyenv_prefix]}/lib/chef/cmake" \
