@@ -21,7 +21,7 @@ mantid_main() {
 
 mantid_install() {
     local install_prefix=$1
-    codes_download mantidproject/mantid
+    codes_download mantidproject/mantid v6.4.0
     mantid_patch_eigen_cmake
     codes_cmake \
         -DBOOST_ROOT="${codes_dir[prefix]}" \

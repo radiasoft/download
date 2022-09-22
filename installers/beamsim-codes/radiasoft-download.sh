@@ -47,7 +47,6 @@ declare -a _beamsim_codes_all=(
 
     madx
     mantid
-    mgis
     openmc
 
     # needs hypre and metis
@@ -56,6 +55,8 @@ declare -a _beamsim_codes_all=(
     petsc4py
     slepc4py
     fenics
+
+    mgis
 
     pydicom
 
