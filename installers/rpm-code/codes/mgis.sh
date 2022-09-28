@@ -23,7 +23,7 @@ mgis_mfront() {
 mgis_mgis() {
     declare p="$PWD"
     codes_download thelfer/MFrontGenericInterfaceSupport
-    local f
+    declare f
     for f in $(find . -name 'CMakeLists.txt'); do
         sed -i '1s/^/set(CMAKE_CXX_STANDARD 17)\nset(CXX_STANDARD_REQUIRED ON)\n/' "$f"
     done
@@ -35,7 +35,7 @@ mgis_mgis() {
         -Denable-python-bindings=ON
     codes_make
     codes_make_install
-    local d="${codes_dir[lib]}"/python3.7/site-packages/mgis
+    declare d="${codes_dir[lib]}"/python3.7/site-packages/mgis
     mv "$d" "$(codes_python_lib_dir)"
     rmdir --ignore-fail-on-non-empty --parents "$(dirname "$d")"
     cd "$p"
