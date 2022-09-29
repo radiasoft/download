@@ -50,7 +50,6 @@ declare -a _beamsim_codes_all=(
     # needs hypre and metis
     petsc
     slepc
-    slepc4py
     fenics
 
     mgis
@@ -85,7 +84,6 @@ declare -a _beamsim_codes_install_skip=(
     trilinos
     petsc
     slepc
-    slepc4py
     forthon
     openpmd
     pygist

@@ -31,5 +31,5 @@ fenics_python_install() {
 
 fenics_main() {
     codes_yum_dependencies mpfr-devel gmp-devel
-    codes_dependencies petsc slepc4py
+    codes_dependencies petsc slepc
 }
