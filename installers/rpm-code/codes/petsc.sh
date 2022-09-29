@@ -12,6 +12,8 @@ petsc_main() {
     local petsc_version=3.12.3
     codes_download https://gitlab.com/petsc/petsc/-/archive/v"$petsc_version/petsc-v$petsc_version".tar.gz
     perl -pi -e 's{((?:FCFLAGS|OPTF)\s*=)}{$1 -fallow-argument-mismatch }' config/BuildSystem/config/packages/{scalapack,MUMPS}.py
+    # thread.isAlive was removed in python 3.9
+    perl -pi -e 's{thread.isAlive}{thread.is_alive}' config/BuildSystem/script.py
     ./configure --COPTFLAGS=-O2 --CXXOPTFLAGS=-O2 --FOPTFLAGS=-O2 \
         --with-fortran-bindings=no \
         --with-debugging=0 \
