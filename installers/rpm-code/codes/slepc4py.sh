@@ -8,5 +8,5 @@ slepc4py_python_install() {
 
 
 slepc4py_main() {
-    codes_dependencies slepc petsc4py
+    codes_dependencies slepc petsc
 }
