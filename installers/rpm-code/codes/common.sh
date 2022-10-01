@@ -102,6 +102,7 @@ common_main() {
         libtool
         llvm-libs
         nodejs
+        perl-FindBin
         valgrind-devel
     )
     codes_yum_dependencies "${rpms[@]}"
