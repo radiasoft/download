@@ -4,9 +4,6 @@ pymesh_python_install() {
     cd PyMesh
     perl -pi -e 's{.*third_party.*(cgal|eigen|tetgen|clipper|qhull|cork|carve|draco|mmg|tbb|json).*}{}' setup.py
     NUM_CORES=$(codes_num_cores) codes_python_install
-    # run tests outside build directory
-    cd ..
-    python -c 'import pymesh; pymesh.test()'
 }
 
 pymesh_main() {
