@@ -139,8 +139,23 @@ EOF
 bluesky_patch_pyCHX() {
     # Fixes scipy version conflicts
     cat <<'EOF'
-@@ -339 +341 @@
+@@ -322,8 +322,6 @@
+
+ #from . import sigtools
+ import numpy as np
+-from scipy._lib.six import callable
+-from scipy._lib._version import NumpyVersion
+ from scipy import linalg
+ from scipy.fftpack import (fft, ifft, ifftshift, fft2, ifft2, fftn,
+                            ifftn, fftfreq)
+@@ -337,8 +335,6 @@
+                    zeros_like)
+ #from ._arraytools import axis_slice, axis_reverse, odd_ext, even_ext, const_ext
+
 -_rfft_mt_safe = (NumpyVersion(np.__version__) >= '1.9.0.dev-e24486e')
-+#_rfft_mt_safe = (NumpyVersion(np.__version__) >= '1.9.0.dev-e24486e')
+-
+ _rfft_lock = threading.Lock()
+
+ def fftconvolve_new(in1, in2, mode="full"):
 EOF
 }
