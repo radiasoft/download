@@ -2,35 +2,32 @@
 
 synergia_python_install() {
     cd synergia2
-    declare p=$(codes_python_version)
-    perl -pi -e "s{(?<=find_package.Python3)}{ $p EXACT REQUIRED}" CMakeLists.txt
+    synergia_patch_find_fftw3
     codes_cmake \
-        -D BOOST_ROOT="${codes_dir[prefix]}" \
-        -D CHEF_DIR="${codes_dir[pyenv_prefix]}/lib/chef/cmake" \
-        -D CMAKE_INSTALL_PREFIX="${codes_dir[pyenv_prefix]}" \
-        -D FFTW3_LIBRARY_DIRS=/usr/lib64/mpich/lib \
-        -D USE_PYTHON_3=1 \
-        -D USE_SIMPLE_TIMER=0
+        -DCMAKE_INSTALL_PREFIX="${codes_dir[pyenv_prefix]}" \
+        -DFFTW3_LIBRARY_DIRS=/usr/lib64
     codes_make_install
-    # synergia has this in multiple CMakeLists.txt
-    #   install(FILES
-    #    __init__.py
-    #    "${CMAKE_CURRENT_BINARY_DIR}/version.py"
-    #    DESTINATION lib/synergia)
-    # easier to just move it to the right place at the end.
-    mv "${codes_dir[pyenv_prefix]}/lib/synergia" "$(codes_python_lib_dir)"
-    cd ..
-    cp src/synergia/bunch/tests/test_bunch.py ..
-    cd ..
-    perl -pi - test_bunch.py <<'EOF'
-/sys.path.append/ && ($_ = '');
-s{(?<=from )(?=foundation|bunch|utils)}{synergia.};
-s{(?=import convertors)}{from synergia };
-EOF
-    nosetests test_bunch.py
 }
 
 synergia_main() {
-    codes_dependencies fnal_chef
-    codes_download https://bitbucket.org/fnalacceleratormodeling/synergia2.git mac-native
+    codes_dependencies common
+    codes_download fnalacceleratormodeling/synergia2 devel3
+}
+
+synergia_patch_find_fftw3() {
+    # TODO(e-carlin): discuss with rjn how to remove the posit and put the $BIVIO_MPI_LIB
+    # in the patch. I don't want to escape all the $ so 'EOF' is nice but then I can't do
+    # variable expansion
+    # POSIT: $BIVIO_MPI_LIB
+    patch CMake/FindFFTW3.cmake <<'EOF'
+@@ -39,7 +39,7 @@
+ set(FFTW3_MPI_NAMES ${FFTW3_MPI_NAMES} fftw3_mpi)
+
+ find_library(FFTW3_MPI_LIBRARIES NAMES ${FFTW3_MPI_NAMES}
+-    PATHS ${FFTW3_LIBRARY_DIRS}
++    PATHS /usr/lib64/mpich/lib
+     NO_DEFAULT_PATH)
+ if(FFTW3_MPI_LIBRARIES)
+     set(FFTW3_MPI_FOUND TRUE)
+EOF
 }
