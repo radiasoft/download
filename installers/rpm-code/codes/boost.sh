@@ -4,11 +4,6 @@ _boost_ver=1.79.0
 
 _boost_dir=boost_${_boost_ver//./_}
 
-# boost 1.72.0 has this problem on gcc11
-# https://github.com/boostorg/thread/issues/364
-#                 from libs/coroutine/src/posix/stack_traits.cpp:22:
-# ./boost/thread/pthread/thread_data.hpp:60:5: error: missing binary operator before token "("
-
 boost_python_install() {
     cd "$_boost_dir"
     ./bootstrap.sh --prefix="${codes_dir[prefix]}"

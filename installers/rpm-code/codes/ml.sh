@@ -16,6 +16,7 @@ ml_python_install() {
         'flatbuffers>=2.0'
         'gast>=0.2.1,<=0.4.0'
         'google_pasta>=0.1.1'
+        'grpcio>=1.24.3,<2.0' # sys.byteorder == 'little' on our systems
         'h5py>=2.9.0'
         'keras_preprocessing>=1.1.1'
         'libclang>=13.0.0'
@@ -25,11 +26,10 @@ ml_python_install() {
         'protobuf>=3.9.2,<3.20'
         'setuptools'
         'six>=1.12.0'
+        'tensorflow-io-gcs-filesystem>=0.23.1'
         'termcolor>=1.1.0'
         'typing_extensions>=3.6.6'
         'wrapt>=1.11.0'
-        'tensorflow-io-gcs-filesystem>=0.23.1'
-        'grpcio>=1.24.3,<2.0' # sys.byteorder == 'little' on our systems
     )
     install_pip_install "${x[@]}"
     install_pip_install --no-deps tensorflow==2.10.0
