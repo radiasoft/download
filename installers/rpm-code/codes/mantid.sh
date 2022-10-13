@@ -1,24 +1,22 @@
 #!/bin/bash
 
 mantid_main() {
-    # These were determined by running cmake for the various packages (ex oce) and seeing what
+    # These were determined by running cmake for the various packages and seeing what
     # was missing.
     # There is also the mantid-developer package that is a meta package of all of the dependencies.
     # https://developer.mantidproject.org/GettingStarted.html#red-hat-cent-os-fedora
     # https://copr.fedorainfracloud.org/coprs/mantid/mantid/packages/
-    # Although some packages here are not listed in it (ex freeglut-devel which is for oce).
     codes_yum_dependencies \
         eigen3-devel \
-        freeglut-devel  \
         jemalloc-devel \
         jsoncpp-devel \
         muParser-devel \
+        opencascade-devel \
         poco-devel \
         tbb-devel
     codes_dependencies common boost ipykernel
     install_pip_install pre-commit pylint sphinx_bootstrap_theme
     mantid_nexus_install
-    mantid_oce_install
     # Mantid installs a great deal and requires its own specific environment variables to run right
     # (ex. see the mantidpython script it creates). So, install it in its own subdirectory so it
     # doesn't interfere with other libs.
@@ -40,8 +38,6 @@ mantid_install() {
         -DNEXUS_CPP_LIBRARIES="${codes_dir[lib]}"/libNeXusCPP.so \
         -DNEXUS_C_LIBRARIES="${codes_dir[lib]}"/libNeXus.so \
         -DNEXUS_INCLUDE_DIR="${codes_dir[include]}"/nexus/ \
-        -DOPENCASCADE_INCLUDE_DIR="${codes_dir[include]}"/oce/ \
-        -DOPENCASCADE_LIBRARY_DIR="${codes_dir[lib]}" \
         '-GUnix Makefiles'
     codes_cmake_build
     codes_make_install
@@ -85,19 +81,6 @@ mantid_nexus_install() {
     codes_make
     codes_make_install
     cd ../
-}
-
-mantid_oce_install() {
-    codes_download tpaviot/oce OCE-0.18.3
-    # options taken from https://kojipkgs.fedoraproject.org//packages/OCE/0.18.3/8.fc32/data/logs/x86_64/build.log
-    codes_cmake \
-        -DCMAKE_INSTALL_PREFIX="${codes_dir[prefix]}" \
-        -DOCE_DRAW=ON \
-        -DOCE_INSTALL_PREFIX="${codes_dir[prefix]}" \
-        -DOCE_MULTITHREAD_LIBRARY:STRING=TBB \
-        -DOCE_WITH_FREEIMAGE=ON \
-        -DOCE_WITH_GL2PS=ON
-    codes_make_install
 }
 
 mantid_patch_eigen_cmake() {
