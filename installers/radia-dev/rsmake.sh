@@ -36,14 +36,11 @@ rsmake_main() {
     source ~/.bashrc
     set -euo pipefail
     local p
-    for p in py2 py3; do
-        pyenv activate "$p"
-        cd cpp/py
-        make python
-        cd ../..
-        install -m 555 env/radia_python/radia*.so "$(rsmake_lib_dir)"
-        find . -name radia\*.so -exec rm {} \;
-    done
+    cd cpp/py
+    make python
+    cd ../..
+    install -m 555 env/radia_python/radia*.so "$(rsmake_lib_dir)"
+    find . -name radia\*.so -exec rm {} \;
     echo 'NOTE: uti*.py are installed with SRW, not Radia'
 }
 

@@ -12,13 +12,12 @@ declare -a _beamsim_codes_all=(
     ml
 
     rsbeams
-    
+
     amrex
 
     # create a delay here so radiasoft.repo in radiasoft/rpm-code
     # is "old" by the time bnlcrl (or other fast build) happens
     # otherwise, the cache will be stale
-    fnal_chef
     synergia
 
     jspec
@@ -52,8 +51,6 @@ declare -a _beamsim_codes_all=(
     # needs hypre and metis
     petsc
     slepc
-    petsc4py
-    slepc4py
     fenics
 
     mgis
@@ -67,7 +64,6 @@ declare -a _beamsim_codes_all=(
     pygist
     warp
 
-    libgfortran4
     xraylib
     shadow3
 
@@ -89,12 +85,9 @@ declare -a _beamsim_codes_install_skip=(
     trilinos
     petsc
     slepc
-    petsc4py
-    slepc4py
     forthon
     openpmd
     pygist
-    libgfortran4
     xraylib
     pyzgoubi
 )

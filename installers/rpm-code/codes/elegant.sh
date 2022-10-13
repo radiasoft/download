@@ -234,23 +234,19 @@ elegant_make_gpu() {
 }
 
 elegant_python_install() {
-    local v=$1
     local h=$PWD
     cd epics/extensions/src/SDDS/python
     elegant_make clean
-    # builds extensions/lib/$_elegant_arch/sddsdatamodule.so
-    local p3=
-    if (( v >= 3 )); then
-        p3=PYTHON3=1
-        # PYTHON_PREFIX is incorrectly configured in the Makefile. Should
-        # use get_python_inc to get the directory. This fix is good enough.
-        # https://github.com/radiasoft/download/issues/83
-        local p=$(python3 -c 'import distutils.sysconfig as s; from os.path import dirname as d; print(d(d(s.get_python_inc())))')
-        perl -pi -e 's{^(PYTHON_PREFIX\s*=\s*).*python3.*}{$1 '"$p"'}' Makefile
-    fi
-    # PYTHON3 is ifdef'd so will be empty (no arg) when not py3
-    elegant_make shared $p3
-    # py3 builds sddsdata.so; py2 builds sddsdatamodule.so
+    # PYTHON_PREFIX is incorrectly configured in the Makefile. Should
+    # use get_python_inc to get the directory. This fix is good enough.
+    # https://github.com/radiasoft/download/issues/83
+    local p=$(python -c 'import distutils.sysconfig as s; from os.path import dirname as d; print(d(d(s.get_python_inc())))')
+    perl -pi -e 's{^(PYTHON_PREFIX\s*=\s*).*python3.*}{$1 '"$p"'}' Makefile
+    # PYTHON_VERSION is also incorrect in the Makefile. It assumes a version of major.minor with
+    # only 3 characters (ex. 3.10 -> 3.1)
+    local v=$(python -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
+    perl -pi -e 's{^(PYTHON_VERSION\s*=\s*).*python.*}{$1 '"$v"'}' Makefile
+    elegant_make shared PYTHON3=1
     codes_python_lib_copy "$h"/epics/extensions/src/SDDS/python/sdds.py \
         "$h"/epics/extensions/lib/$_elegant_arch/sddsdata*.so
     # remove just for in case sddsdata gets renamed

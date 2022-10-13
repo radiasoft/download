@@ -30,7 +30,7 @@ EOF
     install_source_bashrc
     local my_sh=${codes_dir[bashrc_d]}/my.sh
     echo echo PASS > "$my_sh"
-    test_python_version=2
+    test_python_version=3
 }
 
 test_python_install() {

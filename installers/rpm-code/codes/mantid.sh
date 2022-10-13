@@ -1,13 +1,19 @@
 #!/bin/bash
 
 mantid_main() {
+    # These were determined by running cmake for the various packages and seeing what
+    # was missing.
+    # There is also the mantid-developer package that is a meta package of all of the dependencies.
+    # https://developer.mantidproject.org/GettingStarted.html#red-hat-cent-os-fedora
+    # https://copr.fedorainfracloud.org/coprs/mantid/mantid/packages/
     codes_yum_dependencies \
         eigen3-devel \
-        OCE-devel \
         jemalloc-devel \
         jsoncpp-devel \
         muParser-devel \
-        poco-devel
+        opencascade-devel \
+        poco-devel \
+        tbb-devel
     codes_dependencies common boost ipykernel
     install_pip_install pre-commit pylint sphinx_bootstrap_theme
     mantid_nexus_install

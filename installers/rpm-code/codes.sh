@@ -76,6 +76,9 @@ codes_dir_setup() {
     if codes_is_common; then
         install_msg 'creating directories'
         mkdir -p "${todo[@]}"
+    else
+        # common doesn't use pyenv_prefix, it creates it
+        codes_dir[pyenv_prefix]=$(realpath "$(pyenv prefix)")
     fi
 }
 
@@ -229,15 +232,10 @@ codes_install() {
     cd "$prev"
     local p=${module}_python_install
     if codes_is_function "$p"; then
-        local vs=${module}_python_version
-        local v=${!vs:-3}
-        local n="py$v"
-        codes_msg "Building: $n"
+        codes_msg "Running: $p"
         cd "$d"
-        install_not_strict_cmd pyenv activate "$n"
-        codes_dir[pyenv_prefix]=$(realpath "$(pyenv prefix)")
-        "$p" "$v" "$n"
-        codes_install_pyenv_done
+        "$p"
+        codes_install_python_done
     fi
     local d=${codes_dir[prefix]}/lib64
     if [[ -d $d ]]; then
@@ -246,7 +244,7 @@ codes_install() {
     cd "$prev"
 }
 
-codes_install_pyenv_done() {
+codes_install_python_done() {
     local pp=${codes_dir[pyenv_prefix]}
     if [[ ! $pp ]]; then
         install_err 'pyenv prefix not working'
@@ -343,6 +341,10 @@ codes_python_include_dir() {
 
 codes_python_lib_dir() {
     python -c 'import sysconfig; print(sysconfig.get_path("purelib"))'
+}
+
+codes_python_version() {
+   python -c 'import platform; print(platform.python_version())'
 }
 
 codes_yum_dependencies() {

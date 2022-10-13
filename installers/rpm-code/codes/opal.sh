@@ -4,6 +4,8 @@ opal_main() {
     codes_dependencies trilinos h5hut boost
     opal_mithra
     codes_download https://gitlab.psi.ch/OPAL/src/-/archive/OPAL-2021.1.0/src-OPAL-2021.1.0.tar.bz2
+    # git.radiasoft.org/download/issues/342
+    perl -pi -e 's{add_compile_options \(-Werror\)}{}' CMakeLists.txt
     perl -pi -e '
         # https://stackoverflow.com/a/20991533
         # boost is compiled multithreaded, because it does not mean "pthreads",

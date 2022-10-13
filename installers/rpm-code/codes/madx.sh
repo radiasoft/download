@@ -2,7 +2,7 @@
 
 madx_main() {
     codes_dependencies common
-    local v=5.07.00
+    local v=5.08.01
     codes_download https://github.com/MethodicalAcceleratorDesign/MAD-X/archive/$v.tar.gz MAD-X-$v madx $v
     perl -pi -e '
         s{.3-9...0-9...0-9.}{[0-9]+\\\\.[0-9]+\\\\.+[0-9]};

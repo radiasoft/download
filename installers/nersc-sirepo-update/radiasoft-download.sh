@@ -16,7 +16,7 @@ nersc_sirepo_update_main() {
     shifterimg pull "$i"
     local v=sirepo-$c
     if [[ ! -e ~/.pyenv/versions/$v ]]; then
-        install_not_strict_cmd pyenv virtualenv 3.7.2 "$v"
+        install_not_strict_cmd pyenv virtualenv "$install_version_python" "$v"
     fi
     install_not_strict_cmd pyenv shell "$v"
     local p x

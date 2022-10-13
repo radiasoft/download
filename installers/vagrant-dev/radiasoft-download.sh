@@ -8,11 +8,7 @@ set -euo pipefail
 
 _vagrant_dev_update_tgz_base=vagrant-dev-update.tgz
 _vagrant_dev_update_tgz_path=/vagrant/$_vagrant_dev_update_tgz_base
-
-_vagrant_dev_host_os=$(uname)
-if [[ $_vagrant_dev_host_os == Linux ]]; then
-    _vagrant_dev_host_os=$(source /etc/os-release && echo "$ID")
-fi
+_vagrant_dev_host_os=$install_os_release_id
 
 vagrant_dev_box_add() {
     # Returns: $box
@@ -26,16 +22,16 @@ vagrant_dev_box_add() {
     elif [[ $box =~ fedora ]]; then
         if [[ $box == fedora ]]; then
             if [[ $_vagrant_dev_host_os == ubuntu ]]; then
-                box=generic/fedora32
+                box=generic/fedora$install_version_fedora
             else
-                box=fedora/32-cloud-base
+                box=fedora/$install_version_fedora-cloud-base
             fi
         fi
     elif [[ $box == centos ]]; then
         if [[ $_vagrant_dev_host_os == ubuntu ]]; then
-            box=generic/centos7
+            box=generic/centos$install_version_centos
         else
-            box=centos/7
+            box=centos/$install_version_centos
         fi
     fi
     if vagrant box list | grep "$box" >& /dev/null; then
@@ -124,7 +120,7 @@ expects: fedora|centos[/<version>], <ip address>, update, v[1-9].radia.run"
         vagrant_dev_no_vbguest=${vagrant_dev_no_vbguest-1}
     fi
     # Mounts only really work on Darwin for now
-    if [[ ! ${vagrant_dev_no_mounts+1} && $_vagrant_dev_host_os != Darwin ]]; then
+    if [[ ! ${vagrant_dev_no_mounts+1} && $_vagrant_dev_host_os != darwin ]]; then
         vagrant_dev_no_mounts=1
         vagrant_dev_no_vbguest=${vagrant_dev_no_vbguest-1}
     fi
@@ -313,7 +309,7 @@ vagrant_dev_vagrantfile() {
         fi
     fi
     declare macos_fixes=
-    if [[ $_vagrant_dev_host_os == Darwin ]]; then
+    if [[ $_vagrant_dev_host_os == darwin ]]; then
         macos_fixes='v.customize [
             "modifyvm", :id,
                 # Fix Mac thunderbolt issue

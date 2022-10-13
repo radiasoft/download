@@ -107,7 +107,8 @@ rpm_code_main() {
         rpm_code_build "${args[@]}"
         return
     fi
-    install_repo_eval rpm-build "$base" "$image" rpm-code rpm_code_build "${args[@]}"
+    # POSIT: containers/bin/build-docker.sh._build_image_os_tag
+    install_repo_eval rpm-build "$base" "$image:fedora-$install_version_fedora" rpm-code rpm_code_build "${args[@]}"
     if [[ ${rpm_code_is_proprietary:-} ]]; then
         rpm_code_install_proprietary "$base"
     else

@@ -46,25 +46,25 @@ install_args() {
 }
 
 install_assert_pip_version() {
-    local package=$1
-    local version=$2
-    local note=$3
-    local e=$package==$version
-    local a=$(pip list --format=freeze 2>/dev/null | grep "$package"==)
+    declare package=$1
+    declare version=$2
+    declare note=$3
+    declare e=$package==$version
+    declare a=$(pip list --format=freeze 2>/dev/null | grep "$package"==)
     if [[ $a != $e ]]; then
         install_err "$e required and $a installed; $note; use pipdeptree to diagnose"
     fi
 }
 
 install_clean() {
-    local f
+    declare f
     for f in ${install_clean_cmds[@]+"${install_clean_cmds[@]}"}; do
         eval "$f" || true
     done
 }
 
 install_depot_server() {
-    local force=${1:-}
+    declare force=${1:-}
     if [[ ! $force && ${install_server:-github} != github ]]; then
         echo -n "$install_server"
         return
@@ -73,12 +73,12 @@ install_depot_server() {
 }
 
 install_download() {
-    local url=$1
-    local file res
+    declare url=$1
+    declare file res
     if [[ ! $url =~ ^[[:lower:]]+: ]]; then
         url=$install_url/$url
     fi
-    local x=( "${install_curl_flags[@]}" )
+    declare x=( "${install_curl_flags[@]}" )
     install_info curl ${x[@]+"${x[@]}"} "$url"
     if [[ $url =~ ^https://api\.github\.com ]]; then
         x+=( -H 'Accept: application/vnd.github.raw' )
@@ -147,7 +147,7 @@ install_exec() {
 }
 
 install_info() {
-    local f=install_msg
+    declare f=install_msg
     if [[ -n $install_verbose ]]; then
         install_verbose= install_log "$@"
     fi
@@ -197,6 +197,12 @@ install_init_vars() {
     fi
     : ${install_depot_server:=https://depot.radiasoft.org}
     install_prog="curl $install_depot_server | bash -s"
+    # These vars are only used in a few cases, e.g. vagrant-dev and pyenv
+    : ${install_version_fedora:=36}
+    : ${install_version_python:=3.10.5}
+    : ${install_version_python_venv:=py${install_version_python%%.*}}
+    : ${install_version_centos:=7}
+    eval "$(install_vars_export)"
 }
 
 install_main() {
@@ -225,19 +231,17 @@ install_not_strict_cmd() {
 }
 
 install_os_release_vars() {
-    local x=/etc/os-release
+    declare x=/etc/os-release
     # always update
-    if [[ -r /etc/os-release ]]; then
-        export install_os_release_id=$(source "$x"; echo "$ID")
+    if [[ -r $x ]]; then
+        export install_os_release_id=$(source "$x"; echo "${ID,,}")
         export install_os_release_version_id=$(source "$x"; echo "$VERSION_ID")
         return
     fi
+    # COMPAT: darwin doesn't support ${x,,}
     export install_os_release_id=$(uname | tr A-Z a-z)
     if [[ $install_os_release_id == darwin ]]; then
-        # Probably not important, but do something legit by deleting patch version
-        export install_os_release_version_id=$(
-            sw_vers -productVersion | perl -p -e 's{\.\d+$}{}'
-        )
+        export install_os_release_version_id=$(sw_vers -productVersion)
     else
         # Have something legal; unlikely to get here
         export install_os_release_version_id=0
@@ -251,7 +255,7 @@ install_repo() {
         install_extra_args=( "$@" )
         install_script_dir=
     fi
-    local first rest
+    declare first rest
     if [[ ! ${install_repo:-/} =~ / ]]; then
         if [[ $install_repo =~ \.sh$ ]]; then
             install_url ''
@@ -284,9 +288,9 @@ install_repo_as_root() {
 }
 
 install_repo_as_user() {
-    local user=$1
+    declare user=$1
     shift
-    local sudo=
+    declare sudo=
     if [[ $(id -u -n) == $user ]]; then
         # passing env vars on the command line is
         # tricky so this is the easiest way
@@ -316,7 +320,7 @@ install_repo_as_user() {
 }
 
 install_repo_eval() {
-    local prev_pwd=$PWD
+    declare prev_pwd=$PWD
     # don't run in a subshell so can add to environment,
     # but don't override these vars.
     install_extra_args=() \
@@ -330,14 +334,14 @@ install_repo_eval() {
 }
 
 install_script_eval() {
-    local script=$1
+    declare script=$1
     if [[ ! $install_script_dir ]]; then
-        local pwd=$PWD
+        declare pwd=$PWD
         install_tmp_dir
         install_script_dir=$PWD
         cd "$pwd"
     fi
-    local source=$install_script_dir/$(date +%Y%m%d%H%M%S)-$(basename "$script")
+    declare source=$install_script_dir/$(date +%Y%m%d%H%M%S)-$(basename "$script")
     install_download "$script" > "$source"
     if [[ ! -s $source ]]; then
         install_err
@@ -345,10 +349,10 @@ install_script_eval() {
     if [[ ! $(head -1 "$source") =~ ^#! ]]; then
         install_err "$script: no #! at start of file: $source"
     fi
-    local m=
+    declare m=
     if [[ "$script" == radiasoft-download.sh ]]; then
         # before sourcing, which can modify anything
-        local f=$(basename "$install_url")
+        declare f=$(basename "$install_url")
         f=${f//-/_}_main
         # three cases: main without args or with install_extra_args
         # Be loose in case there's a bug. Compliant scripts must
@@ -371,7 +375,7 @@ install_source_bashrc() {
 }
 
 install_sudo() {
-    local sudo=
+    declare sudo=
     if [[ $EUID != 0 || $1 =~ ^- ]]; then
         sudo=sudo
     fi
@@ -386,8 +390,8 @@ install_tmp_dir() {
 }
 
 install_url() {
-    local repo=$1
-    local rest=${2:-}
+    declare repo=$1
+    declare rest=${2:-}
     case $install_server in
         github)
             install_url=https://api.github.com/repos/$repo/contents
@@ -414,14 +418,17 @@ usage: $install_prog [verbose|quiet] [<installer>|*/*] [extra args]"
 }
 
 install_vars_export() {
-    echo "export install_server='$install_server' install_channel='$install_channel' install_debug='$install_debug' install_depot_server='$install_depot_server' install_proprietary_key='$install_proprietary_key'"
+    for f in install_server install_channel install_debug install_depot_server install_proprietary_key $(compgen -A variable RADIA_RUN_); do
+        export "$f"
+        echo "$(declare -p $f);"
+    done
 }
 
 install_virt_vars() {
     export install_virt_docker=
     export install_virt_virtualbox=
     # https://stackoverflow.com/a/46436970
-    local f=/proc/1/cgroup
+    declare f=/proc/1/cgroup
     if [[ -r $f ]] && grep -s -q /docker "$f" || [[ -e /.dockerenv ]]; then
         export install_virt_docker=1
     fi
@@ -434,12 +441,12 @@ install_virt_vars() {
 }
 
 install_yum() {
-    local args=( "$@" )
-    local yum=yum
+    declare args=( "$@" )
+    declare yum=yum
     if [[ $(type -t dnf) ]]; then
         yum=dnf
     fi
-    local flags=( -y --color=never )
+    declare flags=( -y --color=never )
     if [[ ! $install_debug ]]; then
         flags+=( -q )
     fi
@@ -448,7 +455,7 @@ install_yum() {
 }
 
 install_yum_install() {
-    local x y todo=()
+    declare x y todo=()
     for x in "$@"; do
         y=$x
         if [[ $x =~ ^https?:// ]]; then
