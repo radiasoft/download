@@ -8,8 +8,6 @@ mgis_main() {
 
 mgis_mfront() {
     codes_download thelfer/tfel TFEL-4.0.0
-    # TODO(e-carlin):  should probably add -Denable-python-bindings
-    # TODO(e-carlin):  try remove python_iclude_dir and python_library and instead use Python_ADDITIONAL_VERSIONS
     codes_cmake \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX="${codes_dir[prefix]}" \
@@ -38,7 +36,6 @@ mgis_mgis() {
         -Denable-python-bindings=ON
     # python should be installed in pyenv_prefix not prefix
     for f in $(find bindings/python -name 'cmake_install.cmake'); do
-        # TODO(e-carlin):  codes_python_lib_dir is unquoted. discuss with rjn how to fix
         sed -i "1iset(CMAKE_INSTALL_PREFIX ${codes_dir[pyenv_prefix]})" "$f"
     done
     codes_make
