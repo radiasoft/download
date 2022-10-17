@@ -98,6 +98,9 @@ vagrant_dev_main() {
 expects: fedora|centos[/<version>], <ip address>, update, v[1-9].radia.run"
         esac
     done
+    if [[ ! $os ]]; then
+        install_err 'usage: radia_run vagrant-dev fedora|centos [host|ip] [update]'
+    fi
     if [[ ! $host ]]; then
         if [[ ! $PWD =~ /(v[2-9]?)$ ]]; then
             install_err 'either specify a host or run from directory named v, v2, v3, ..., v9'
