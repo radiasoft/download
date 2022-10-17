@@ -44,6 +44,7 @@ common_python() {
         cachetools
         scikit-image==0.18.3
         tifffile
+        typing-extensions
 
         # Needed by rscode-bluesky and rscode-rsbeams
         # https://github.com/jupyter/notebook/issues/2435
