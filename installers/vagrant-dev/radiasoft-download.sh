@@ -9,6 +9,7 @@ set -euo pipefail
 _vagrant_dev_update_tgz_base=vagrant-dev-update.tgz
 _vagrant_dev_update_tgz_path=/vagrant/$_vagrant_dev_update_tgz_base
 _vagrant_dev_host_os=$install_os_release_id
+_vagrant_dev_have_sudo=
 
 vagrant_dev_box_add() {
     # Returns: $box
@@ -68,10 +69,7 @@ vagrant_dev_init_nfs() {
     if [[ ${vagrant_dev_no_mounts:+1} ]]; then
         return
     fi
-    install_msg 'We need access to sudo on your Mac to mount NFS'
-    if ! sudo true; then
-        install_err 'must have access to sudo'
-    fi
+    vagrant_dev_prepare_sudo
     if [[ ! -r /etc/exports ]]; then
         sudo touch /etc/exports
         # vagrant requires /etc/exports readable by an ordinary user
@@ -100,6 +98,9 @@ vagrant_dev_main() {
 expects: fedora|centos[/<version>], <ip address>, update, v[1-9].radia.run"
         esac
     done
+    if [[ ! $os ]]; then
+        install_err 'usage: radia_run vagrant-dev fedora|centos [host|ip] [update]'
+    fi
     if [[ ! $host ]]; then
         if [[ ! $PWD =~ /(v[2-9]?)$ ]]; then
             install_err 'either specify a host or run from directory named v, v2, v3, ..., v9'
@@ -136,6 +137,7 @@ expects: fedora|centos[/<version>], <ip address>, update, v[1-9].radia.run"
     if [[ ! $ip ]]; then
         ip=$(vagrant_dev_ip "$host")
     fi
+    vagrant_dev_prepare_host
     vagrant_dev_init_nfs
     vagrant_dev_prepare
     if [[ ! ${vagrant_dev_no_vbguest:+1} ]]; then
@@ -241,6 +243,31 @@ http://vagrantup.com'
         fi
     fi
     vagrant_dev_plugins
+}
+
+vagrant_dev_prepare_host() {
+    if [[ $_vagrant_dev_host_os != darwin ]]; then
+        return
+    fi
+    declare f=/etc/vbox/networks.conf
+    if [[ -r $f ]]; then
+        return
+    fi
+    vagrant_dev_prepare_sudo
+    sudo mkdir -p -m 0755 "$(dirname "$f")"
+    echo '* 0.0.0.0/0 ::/0' | sudo dd of="$f"
+    sudo chmod 644 "$f"
+}
+
+vagrant_dev_prepare_sudo() {
+    if [[ ${_vagrant_dev_have_sudo:-} ]]; then
+        return
+    fi
+    install_msg 'We need access to sudo on your Mac to configure virtualbox'
+    if ! sudo true; then
+        install_err 'must have access to sudo'
+    fi
+    _vagrant_dev_have_sudo=1
 }
 
 vagrant_dev_pre_install() {
