@@ -37,6 +37,7 @@ srw_python_install() {
     make python
     cd ../..
     srw_python_patch_srwlib
+    srw_python_patch_uti_math_eigen
     codes_python_lib_copy env/work/srw_python/{{srwl,uti}*.py,srwlpy*.so}
     find . -name srwlpy\*.so -exec rm {} \;
 }
@@ -56,5 +57,19 @@ index 9e052df..0ab17fb 100644
                  else:
                      #srwl_uti_save_intens_ascii(resStokes.arS, meshRes, file_path1, numComp, _arLabels = resLabelsToSave, _arUnits = resUnitsToSave, _mutual = doMutual, _cmplx = (1 if doMutual else 0)) #OC30052017
                      #srwl_uti_save_intens_ascii(resStokes.arS, meshRes, fp1, numComp, _arLabels = resLabelsToSave, _arUnits = resUnitsToSave, _mutual = doMutual, _cmplx = (1 if doMutual else 0)) #OC14082018
+EOF
+}
+
+srw_python_patch_uti_math_eigen() {
+    patch --quiet env/work/srw_python/uti_math_eigen.py <<'EOF'
+@@ -29,7 +29,7 @@
+ #from sklearn.decomposition import PCA as PCA #OC04082021 (moved to try-except)
+ try:
+     from scipy.linalg import eigh as largest_eigh
+-    from scipy.sparse.linalg.eigen.arpack import eigsh as largest_eigsh
++    from scipy.sparse.linalg import eigsh as largest_eigsh
+ except:
+     print("UtiMathEigen WARNING: SciPy unavailable; to install: pip install scipy")
+ try:
 EOF
 }
