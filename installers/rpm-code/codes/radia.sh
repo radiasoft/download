@@ -20,8 +20,23 @@ EOF
         # The MODE flag hardwires includes incorrectly
         s/^(LIBCFLAGS\s*=)/$1 -D_WITH_MPI /;
         ' cpp/gcc/Makefile
+    radia_patch_py_ssize_t
     cd cpp/gcc
     make "-j$(codes_num_cores)" lib
+}
+
+radia_patch_py_ssize_t() {
+    patch cpp/src/clients/python/pyparse.h <<'EOF'
+@@ -17,7 +17,7 @@
+ //#include <cstring>
+ 
+ using namespace std;
+-
++#define PY_SSIZE_T_CLEAN
+ //Without the following Python.h will enforce usage of python**_d.lib in dbug mode, which may not be always existing
+ //NOTE: to make it compilable with VC2013 (VC12), that blcock had to be moved down and placed after the previous includes
+ #if defined(_DEBUG) 
+EOF
 }
 
 radia_python_install() {
