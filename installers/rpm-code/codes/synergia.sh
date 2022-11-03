@@ -3,9 +3,12 @@
 synergia_python_install() {
     cd synergia2
     synergia_patch_find_fftw3
+    # kokkos (submodule of synergia) doesn't set GNUInstallDirs. So,
+    # codes_cmake_fix_lib_dir doesn't work. Pass CMAKE_INSTALL_LIBDIR explicitly.
     codes_cmake \
         -DCMAKE_INSTALL_PREFIX="${codes_dir[pyenv_prefix]}" \
-        -DFFTW3_LIBRARY_DIRS=/usr/lib64
+        -DFFTW3_LIBRARY_DIRS=/usr/lib64 \
+        -DCMAKE_INSTALL_LIBDIR=lib
     codes_make_install
 }
 
