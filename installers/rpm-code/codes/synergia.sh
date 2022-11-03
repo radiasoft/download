@@ -3,6 +3,7 @@
 synergia_python_install() {
     cd synergia2
     synergia_patch_find_fftw3
+    synergia_patch_kokkos
     # kokkos (submodule of synergia) doesn't set GNUInstallDirs. So,
     # codes_cmake_fix_lib_dir doesn't work. Pass CMAKE_INSTALL_LIBDIR explicitly.
     codes_cmake \
@@ -33,4 +34,9 @@ synergia_patch_find_fftw3() {
  if(FFTW3_MPI_LIBRARIES)
      set(FFTW3_MPI_FOUND TRUE)
 EOF
+}
+
+synergia_patch_kokkos() {
+    perl -pi -e 's/g_show_warnings.*=.*;/g_show_warnings = false;/' \
+        $(find ./src/synergia/utils/kokkos -regex '.*\(c\|h\)pp$')
 }
