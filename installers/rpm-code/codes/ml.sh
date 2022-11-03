@@ -18,6 +18,7 @@ ml_python_install() {
         'google_pasta>=0.1.1'
         'grpcio>=1.24.3,<2.0' # sys.byteorder == 'little' on our systems
         'h5py>=2.9.0'
+        'keras>=2.10.0,<2.11'
         'keras_preprocessing>=1.1.1'
         'libclang>=13.0.0'
         'numpy>=1.20'
@@ -26,7 +27,9 @@ ml_python_install() {
         'protobuf>=3.9.2,<3.20'
         'setuptools'
         'six>=1.12.0'
+        'tensorboard>=2.10,<2.11'
         'tensorflow-io-gcs-filesystem>=0.23.1'
+        'tensorflow_estimator>=2.10.0,<2.11'
         'termcolor>=1.1.0'
         'typing_extensions>=3.6.6'
         'wrapt>=1.11.0'
