@@ -50,5 +50,5 @@ EOF
     gcl container-beamsim
     gcl container-sirepo-ci
     cd container-beamsim
-    build_docker_post_hook=$x install_repo container-build
+    build_docker_post_hook=$x install_repo_eval container-build
 }

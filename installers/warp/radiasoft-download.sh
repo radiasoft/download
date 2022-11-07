@@ -4,8 +4,8 @@
 #
 
 warp_main() {
-    if [[ -z $NERSC_HOST ]]; then
-        install_repo code warp
+    if [[ -z ${NERSC_HOST:-} ]]; then
+        install_repo_eval code warp
         return $?
     fi
     if [[ $NERSC_HOST != cori ]]; then

@@ -248,41 +248,6 @@ install_os_release_vars() {
     fi
 }
 
-install_repo() {
-    if (( $# > 0 )); then
-        install_repo=$1
-        shift
-        install_extra_args=( "$@" )
-        install_script_dir=
-    fi
-    declare first rest
-    if [[ ! ${install_repo:-/} =~ / ]]; then
-        if [[ $install_repo =~ \.sh$ ]]; then
-            install_url ''
-            install_script_eval "$install_repo"
-            return
-        fi
-        first=download
-        rest=installers/$install_repo
-    elif [[ $install_repo =~ ^/*([^/].*[^/])/*$ ]]; then
-        first=${BASH_REMATCH[1]}
-        if [[ $first =~ ^([^/]+/[^/]+)/(.+)$ ]]; then
-            first=${BASH_REMATCH[1]}
-            rest=${BASH_REMATCH[2]}
-        elif [[ $first =~ ^([^/]+/[^/]+)$ ]]; then
-            rest=
-        fi
-    fi
-    if [[ ! $first ]]; then
-        install_err "$install_repo: invalid repo name"
-    fi
-    if [[ ! $first =~ / ]]; then
-        first=radiasoft/$first
-    fi
-    install_url "$first" "$rest"
-    install_script_eval radiasoft-download.sh
-}
-
 install_repo_as_root() {
     install_repo_as_user root "$@"
 }
@@ -329,7 +294,7 @@ install_repo_eval() {
         install_server="$install_server" \
         install_depot_server="$install_depot_server" \
         install_url= \
-        install_repo "$@"
+        install_repo_internal "$@"
     cd "$prev_pwd"
 }
 
@@ -368,6 +333,41 @@ install_script_eval() {
     if [[ $m && $(type -t "$m") == function ]]; then
         $m ${install_extra_args[@]+"${install_extra_args[@]}"}
     fi
+}
+
+install_repo_internal() {
+    if (( $# > 0 )); then
+        install_repo=$1
+        shift
+        install_extra_args=( "$@" )
+        install_script_dir=
+    fi
+    declare first rest
+    if [[ ! ${install_repo:-/} =~ / ]]; then
+        if [[ $install_repo =~ \.sh$ ]]; then
+            install_url ''
+            install_script_eval "$install_repo"
+            return
+        fi
+        first=download
+        rest=installers/$install_repo
+    elif [[ $install_repo =~ ^/*([^/].*[^/])/*$ ]]; then
+        first=${BASH_REMATCH[1]}
+        if [[ $first =~ ^([^/]+/[^/]+)/(.+)$ ]]; then
+            first=${BASH_REMATCH[1]}
+            rest=${BASH_REMATCH[2]}
+        elif [[ $first =~ ^([^/]+/[^/]+)$ ]]; then
+            rest=
+        fi
+    fi
+    if [[ ! $first ]]; then
+        install_err "$install_repo: invalid repo name"
+    fi
+    if [[ ! $first =~ / ]]; then
+        first=radiasoft/$first
+    fi
+    install_url "$first" "$rest"
+    install_script_eval radiasoft-download.sh
 }
 
 install_source_bashrc() {
