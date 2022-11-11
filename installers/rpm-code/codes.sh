@@ -91,6 +91,7 @@ codes_download() {
     if [[ ! $repo =~ / ]]; then
         repo=radiasoft/$repo
     fi
+    echo "REPO" $repo
     if [[ ! $repo =~ ^(ftp|https?): ]]; then
         repo=https://github.com/$repo.git
     fi

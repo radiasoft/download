@@ -2,7 +2,9 @@
 
 ndiff_main() {
     codes_dependencies common
-    git clone https://github.com/quinoacomputing/ndiff.git
+    codes_download quinoacomputing/ndiff
+    codes_cmake -DCMAKE_INSTALL_PREFIX="${codes_dir[prefix]}"
+    codes_make_install
     # pwd
     # sleep infinity
 
