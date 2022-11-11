@@ -230,6 +230,16 @@ install_not_strict_cmd() {
     set -euo pipefail
 }
 
+install_num_cores() {
+    declare res=$(grep -c '^core id[[:space:]]*:' /proc/cpuinfo)
+    # Use half the cores (likely hyperthreads)
+    res=$(( $res / 2 ))
+    if (( $res < 1 )); then
+        res=1
+    fi
+    echo "$res"
+}
+
 install_os_release_vars() {
     declare x=/etc/os-release
     # always update

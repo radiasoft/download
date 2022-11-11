@@ -313,15 +313,7 @@ codes_num_cores() {
         echo 1
         return
     fi
-    local res=$(grep -c '^core id[[:space:]]*:' /proc/cpuinfo)
-    # Use half the cores (likely hyperthreads) except if on TRAVIS
-    if [[ ${TRAVIS:-} != true ]]; then
-        res=$(( $res / 2 ))
-    fi
-    if (( $res < 1 )); then
-        res=1
-    fi
-    echo "$res"
+    install_num_cores
 }
 
 codes_python_install() {
