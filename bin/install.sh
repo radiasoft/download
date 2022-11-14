@@ -212,7 +212,7 @@ install_main() {
     install_msg "Log: $install_log_file"
     install_log install_main
     install_args "$@"
-    install_repo
+    install_repo_internal
     install_clean
     if [[ -z $install_verbose ]]; then
         rm -f "$install_log_file" >& /dev/null || true
@@ -246,6 +246,10 @@ install_os_release_vars() {
         # Have something legal; unlikely to get here
         export install_os_release_version_id=0
     fi
+}
+
+install_repo() {
+    install_err 'install_repo is deprecated, use install_repo_eval'
 }
 
 install_repo_as_root() {
