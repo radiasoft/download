@@ -54,6 +54,7 @@ declare -a _beamsim_codes_all=(
     fenics
 
     mgis
+    ndiff
 
     pydicom
 
