@@ -92,6 +92,7 @@ EOF
         strace
         sysstat
         tar
+        time
         tk-devel
         unzip
         wget
