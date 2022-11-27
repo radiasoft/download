@@ -82,7 +82,7 @@ rpm_code_install_proprietary() {
 
 rpm_code_main() {
     if (( $# < 1 )); then
-        install_err 'must supply code name, e.g. synergia'
+        install_err 'must supply code name, e.g. srw'
     fi
     if [[ $1 == rpm_build_do ]]; then
         install_repo_eval rpm-build "$@"
