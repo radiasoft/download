@@ -36,7 +36,7 @@ ml_python_install() {
     )
     install_pip_install "${x[@]}"
     install_pip_install --no-deps tensorflow==2.10.0
-    install_pip_install scikit-learn
+    install_pip_install scikit-learn h5ImageGenerator
 }
 
 
