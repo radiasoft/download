@@ -16,8 +16,6 @@ common_python() {
         numpy
         matplotlib==3.3.3
         scipy
-        # used by synergia and has man/man1 duplicate problem so just include here
-        nose
         Cython
     )
     install_pip_install "${d[@]}"
