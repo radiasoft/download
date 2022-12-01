@@ -66,6 +66,9 @@ common_python() {
 
         # conflict between rscode-bluesky and rscode-openmc
         uncertainties
+
+        # conflict between rscode-rsbeams and rscode-ipykernel
+        ipykernel
     )
     install_pip_install "${d[@]}"
 

@@ -2,7 +2,6 @@
 
 ipykernel_main() {
     codes_dependencies common
-    install_pip_install ipykernel
 }
 
 ipykernel_python_install() {
