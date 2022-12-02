@@ -436,6 +436,14 @@ install_vars_export() {
     done
 }
 
+# TODO(e-carlin): remove when f36 is deployed (https://github.com/radiasoft/download/issues/379)
+install_version_fedora_is_36() {
+    if [[ $install_version_fedora = 36 ]]; then
+        return 0
+    fi
+    return 1
+}
+
 install_virt_vars() {
     export install_virt_docker=
     export install_virt_virtualbox=
