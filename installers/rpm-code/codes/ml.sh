@@ -40,8 +40,7 @@ ml_python_install_f32() {
     )
     install_pip_install "${x[@]}"
     install_pip_install --no-deps tensorflow==2.3.1
-    install_pip_install keras==2.4.3 \
-        scikit-learn
+    install_pip_install keras==2.4.3 scikit-learn
 
 }
 
@@ -73,7 +72,6 @@ ml_python_install_f36() {
         'tensorflow_estimator>=2.10.0,<2.11'
         'termcolor>=1.1.0'
         'typing_extensions>=3.6.6'
-        'wrapt>=1.11.0'
     )
     install_pip_install "${x[@]}"
     install_pip_install --no-deps tensorflow==2.10.0
