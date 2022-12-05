@@ -26,9 +26,9 @@ common_python() {
     # We then must find a tensorflow version that complies. tensorflow/tools/pip_package/setup.py
     # will list the h5py versions that tensorflow supports
     # Force MPI mode (not auto-detected)
-    declare v=2.10.0
-    if install_version_fedora_is_36; then
-        v=3.7.0
+    declare v=3.7.0
+    if install_version_fedora_lt_36; then
+        v=2.10.0
     fi
     CC=$mpicc HDF5_MPI=ON install_pip_install --no-binary=h5py h5py=="$v"
     d=(
@@ -109,7 +109,7 @@ common_main() {
         nodejs
         valgrind-devel
     )
-    if install_version_fedora_is_36; then
+    if ! install_version_fedora_lt_36; then
         rpms+=('perl-FindBin')
     fi
     codes_yum_dependencies "${rpms[@]}"

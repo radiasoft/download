@@ -7,11 +7,11 @@ ml_main() {
 
 ml_python_install() {
     install_pip_install h5ImageGenerator
-    if install_version_fedora_is_36; then
-        ml_python_install_f36
+    if install_version_fedora_lt_36; then
+        ml_python_install_f32
         return
     fi
-    ml_python_install_f32
+    ml_python_install_f36
 }
 
 ml_python_install_f32() {
