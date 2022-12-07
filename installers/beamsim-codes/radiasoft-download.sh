@@ -18,7 +18,6 @@ declare -a _beamsim_codes_all=(
     # create a delay here so radiasoft.repo in radiasoft/rpm-code
     # is "old" by the time bnlcrl (or other fast build) happens
     # otherwise, the cache will be stale
-    synergia
     jspec
 
     bnlcrl
@@ -93,8 +92,8 @@ declare -a _beamsim_codes_install_skip=(
 )
 
 beamsim_codes_build() {
-    local script=$1
-    local start_at=${2:-}
+    declare script=$1
+    declare start_at=${2:-}
     for c in "${_beamsim_codes_all[@]}"; do
         if [[ $start_at ]]; then
             if [[ $start_at != $c ]]; then
@@ -105,6 +104,12 @@ beamsim_codes_build() {
         echo "$c"
         bash "$script" "$c"
     done
+}
+
+beamsim_codes_init_vars() {
+    if install_version_fedora_lt_36; then
+        _beamsim_codes_all+=('synergia')
+    fi
 }
 
 beamsim_codes_install() {
@@ -118,9 +123,9 @@ beamsim_codes_install() {
 }
 
 beamsim_codes_install_list() {
-    local IFS='|'
-    local r='^('"${_beamsim_codes_install_skip[*]}"')$'
-    local c
+    declare IFS='|'
+    declare r='^('"${_beamsim_codes_install_skip[*]}"')$'
+    declare c
     for c in "${_beamsim_codes_all[@]}"; do
         if [[ ! $c =~ $r ]]; then
             echo "$c"
@@ -130,7 +135,8 @@ beamsim_codes_install_list() {
 }
 
 beamsim_codes_main() {
-    local build=${1:-}
+    beamsim_codes_init_vars
+    declare build=${1:-}
     if [[ $build == build ]]; then
         shift
         beamsim_codes_build "$@"
