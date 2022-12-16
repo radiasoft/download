@@ -22,7 +22,7 @@ python_ci_main() {
             p=1
             ;;
         MISSING)
-            install_err '$GITHUB_REPOSITORY no set'
+            install_err '$GITHUB_REPOSITORY not set'
             ;;
         *)
             i=radiasoft/sirepo
@@ -51,7 +51,7 @@ python_ci_main() {
             if [[ -f test.sh ]]; then
                 bash test.sh
             else
-                pykern ci run
+                pykern ci run --github-ci-repo=$GITHUB_REPOSITORY
             fi
 EOF2
 EOF
