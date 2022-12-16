@@ -16,19 +16,21 @@ common_python() {
         numpy
         matplotlib==3.3.3
         scipy
-        # used by synergia and has man/man1 duplicate problem so just include here
-        nose
         Cython
     )
     install_pip_install "${d[@]}"
-    # hdf5, tensorflow, and hdf5 all need to agree with each other.
+    # hdf5, h5py, and  tensorflow all need to agree with each other.
     # We install hdf5 with whatever the latest version from the fedora repos is.
     # We then must backtrack to see what h5py version supports that. They'll mention it in their
     # "What's New" docs https://docs.h5py.org/en/latest/whatsnew/index.html
     # We then must find a tensorflow version that complies. tensorflow/tools/pip_package/setup.py
     # will list the h5py versions that tensorflow supports
     # Force MPI mode (not auto-detected)
-    CC=$mpicc HDF5_MPI=ON install_pip_install --no-binary=h5py h5py==3.7.0
+    declare v=3.7.0
+    if install_version_fedora_lt_36; then
+        v=2.10.0
+    fi
+    CC=$mpicc HDF5_MPI=ON install_pip_install --no-binary=h5py h5py=="$v"
     d=(
         # pillow and python-dateutil installed by matplotlib
         # pipdeptree is useful for debugging
@@ -68,6 +70,9 @@ common_python() {
 
         # conflict between rscode-bluesky and rscode-openmc
         uncertainties
+
+        # conflict between rscode-rsbeams and rscode-ipykernel
+        ipykernel
     )
     install_pip_install "${d[@]}"
 
@@ -102,9 +107,11 @@ common_main() {
         libtool
         llvm-libs
         nodejs
-        perl-FindBin
         valgrind-devel
     )
+    if ! install_version_fedora_lt_36; then
+        rpms+=('perl-FindBin')
+    fi
     codes_yum_dependencies "${rpms[@]}"
     install_repo_eval fedora-patches
     install_source_bashrc

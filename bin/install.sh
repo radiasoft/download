@@ -422,10 +422,25 @@ usage: $install_prog [verbose|quiet] [<installer>|*/*] [extra args]"
 }
 
 install_vars_export() {
-    for f in install_server install_channel install_debug install_depot_server install_proprietary_key $(compgen -A variable RADIA_RUN_); do
+    for f in install_server \
+        install_channel \
+        install_debug \
+        install_depot_server \
+        install_proprietary_key \
+        install_version_fedora \
+        install_version_python \
+        $(compgen -A variable RADIA_RUN_)
+    do
         export "$f"
         echo "$(declare -p $f);"
     done
+}
+
+install_version_fedora_lt_36() {
+    if (( $install_version_fedora < 36 )); then
+        return 0
+    fi
+    return 1
 }
 
 install_virt_vars() {

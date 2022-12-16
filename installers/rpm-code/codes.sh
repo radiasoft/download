@@ -109,7 +109,7 @@ codes_download() {
             elif [[ $qualifier ]]; then
                 # Don't pass --depth in this case for a couple of reasons:
                 # 1) we don't know where the commit is; 2) It might be a simple http
-                # transport (synergia.sh) which doesn't support git
+                # transport which doesn't support git
                 git clone $r -q "$repo"
                 cd "$d"
                 git checkout "$qualifier"
