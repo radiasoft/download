@@ -81,7 +81,10 @@ install_download() {
     declare x=( "${install_curl_flags[@]}" )
     install_info curl ${x[@]+"${x[@]}"} "$url"
     if [[ $url =~ ^https://api\.github\.com ]]; then
-        x+=( -H 'Accept: application/vnd.github.raw' )
+        x+=( --header 'Accept: application/vnd.github.raw' )
+        if [[ ${GITHUB_TOKEN:-} ]]; then
+            --header "Authorization: Bearer $GITHUB_TOKEN"
+        fi
     fi
     curl ${x[@]+"${x[@]}"} "$url"
 }
@@ -429,7 +432,8 @@ install_vars_export() {
         install_proprietary_key \
         install_version_fedora \
         install_version_python \
-        $(compgen -A variable RADIA_RUN_)
+        $(compgen -A variable RADIA_RUN_) \
+        $(compgen -A variable GITHUB_)
     do
         export "$f"
         echo "$(declare -p $f);"

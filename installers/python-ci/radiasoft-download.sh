@@ -6,9 +6,9 @@ python_ci_main() {
     if [[ ! -r setup.py ]]; then
         install_err 'no setup.py'
     fi
-    local i
-    local p=0
-    local r=$(basename "${GITHUB_REPOSITORY:-MISSING}")
+    declare i
+    declare p=0
+    declare r=$(basename "${GITHUB_REPOSITORY:-MISSING}")
     case $r in
         pykern)
             i=radiasoft/python3
@@ -28,8 +28,9 @@ python_ci_main() {
             i=radiasoft/sirepo
             ;;
     esac
-    local d=$PWD
-    local o=$(stat --format='%u:%g' "$d")
+    declare d=$PWD
+    declare o=$(stat --format='%u:%g' "$d")
+    declare c=
     set -x
     docker run -v "$d:$d" -i -u root --rm "$i:alpha" bash <<EOF | cat
         set -eou pipefail
@@ -42,6 +43,7 @@ python_ci_main() {
             set -eou pipefail
             set -x
             cd '$d'
+            export GITHUB_TOKEN='${GITHUB_TOKEN:-}'
             if (( $p )); then
                 pip uninstall -y pykern >& /dev/null || true
                 pip install git+https://github.com/radiasoft/pykern.git
