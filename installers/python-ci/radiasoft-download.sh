@@ -30,7 +30,6 @@ python_ci_main() {
     esac
     declare d=$PWD
     declare o=$(stat --format='%u:%g' "$d")
-    declare c=
     set -x
     docker run -v "$d:$d" -i -u root --rm "$i:alpha" bash <<EOF | cat
         set -eou pipefail
