@@ -199,7 +199,7 @@ install_init_vars() {
     install_prog="curl $install_depot_server | bash -s"
     # These vars are only used in a few cases, e.g. vagrant-dev and pyenv
     : ${install_version_fedora:=36}
-    : ${install_version_python:=3.10.5}
+    : ${install_version_python:=3.9.15}
     : ${install_version_python_venv:=py${install_version_python%%.*}}
     : ${install_version_centos:=7}
     eval "$(install_vars_export)"
