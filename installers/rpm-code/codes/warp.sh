@@ -1,15 +1,12 @@
 #!/bin/bash
 
 warp_python_install() {
-    # May only be needed for diags in warp init warp_script.py
     cd warp/pywarp90
     warp_patch_makefiles
-    warp_patch_serial_setup_py
-    codes_make clean
-    codes_make_install
+    make install
+    make clean
     warp_patch_parallel_setup_py
-    codes_make clean
-    codes_make pinstall
+    make pinstall
     cd ../..
     x=$(mpiexec -n 2 python -c 'import warp' 2>&1)
     if [[ ! $x =~ '# 2 proc' ]]; then
@@ -19,25 +16,17 @@ warp_python_install() {
 
 warp_main() {
     codes_dependencies common forthon pygist openpmd
-    codes_download https://bitbucket.org/berkeleylab/warp.git Release_5.0
+    codes_download https://bitbucket.org/berkeleylab/warp.git c1c0d155fadba42849547641c2dfcb6e5d23ce02
     cd pywarp90
-    if [[ ${codes_debug:-} ]]; then
-        perl -pi -e 's{^FARGS.*}{FARGS=--farg -fcheck=all}' Makefile.Forthon3 Makefile.Forthon3.pympi
-    else
-        perl -pi -e 's{^FARGS.*}{FARGS=--farg -fallow-argument-mismatch}' Makefile.Forthon3 Makefile.Forthon3.pympi
-    fi
-    cat > setup.local.py <<'EOF'
-if parallel:
-    libraries = fcompiler.libs + ['mpichf90', 'mpich', 'opa', 'mpl']
-EOF
 }
 
 warp_patch_makefiles() {
     patch Makefile.Forthon3  <<'EOF'
-@@ -1,19 +1,19 @@
+@@ -1,12 +1,12 @@
  DEBUG = #-g --farg "-O0"
- FARGS=--farg -fallow-argument-mismatch
+-FARGS =
 -FCOMP =
++FARGS = --farg -fallow-argument-mismatch
 +FCOMP = -F gfortran
  FCOMPEXEC =
  SO = so
@@ -46,94 +35,73 @@ warp_patch_makefiles() {
  PYTHON = python3
 -BUILDBASEDIR = build3
 +BUILDBASEDIR = build
+ TEMPBUILDDIR = $(BUILDBASEDIR)/temp
  INSTALLOPTIONS = #--user
  -include Makefile.local3
- BUILDBASE = --build-base $(BUILDBASEDIR)
+@@ -14,7 +14,7 @@
  INSTALLARGS = --pkgbase warp $(BUILDBASE)
 
- install: $(BUILDBASEDIR)/toppydep $(BUILDBASEDIR)/envpydep $(BUILDBASEDIR)/w3dpydep $(BUILDBASEDIR)/f3dpydep $(BUILDBASEDIR)/wxypydep $(BUILDBASEDIR)/fxypydep $(BUILDBASEDIR)/wrzpydep $(BUILDBASEDIR)/frzpydep $(BUILDBASEDIR)/herpydep $(BUILDBASEDIR)/cirpydep $(BUILDBASEDIR)/chopydep $(BUILDBASEDIR)/em3dpydep ranffortran.c
+ install: $(TEMPBUILDDIR)/toppydep $(TEMPBUILDDIR)/envpydep $(TEMPBUILDDIR)/w3dpydep $(TEMPBUILDDIR)/f3dpydep $(TEMPBUILDDIR)/wxypydep $(TEMPBUILDDIR)/fxypydep $(TEMPBUILDDIR)/wrzpydep $(TEMPBUILDDIR)/frzpydep $(TEMPBUILDDIR)/herpydep $(TEMPBUILDDIR)/cirpydep $(TEMPBUILDDIR)/chopydep $(TEMPBUILDDIR)/em3dpydep ranffortran.c
 -	$(PYTHON) setup.py $(FCOMP) $(FCOMPEXEC) build $(BUILDBASE) install $(INSTALLOPTIONS)
 +	pip install .
 
- build: $(BUILDBASEDIR)/toppydep $(BUILDBASEDIR)/envpydep $(BUILDBASEDIR)/w3dpydep $(BUILDBASEDIR)/f3dpydep $(BUILDBASEDIR)/wxypydep $(BUILDBASEDIR)/fxypydep $(BUILDBASEDIR)/wrzpydep $(BUILDBASEDIR)/frzpydep $(BUILDBASEDIR)/herpydep $(BUILDBASEDIR)/cirpydep $(BUILDBASEDIR)/chopydep $(BUILDBASEDIR)/em3dpydep ranffortran.c
+ build: $(TEMPBUILDDIR)/toppydep $(TEMPBUILDDIR)/envpydep $(TEMPBUILDDIR)/w3dpydep $(TEMPBUILDDIR)/f3dpydep $(TEMPBUILDDIR)/wxypydep $(TEMPBUILDDIR)/fxypydep $(TEMPBUILDDIR)/wrzpydep $(TEMPBUILDDIR)/frzpydep $(TEMPBUILDDIR)/herpydep $(TEMPBUILDDIR)/cirpydep $(TEMPBUILDDIR)/chopydep $(TEMPBUILDDIR)/em3dpydep ranffortran.c
  	$(PYTHON) setup.py $(FCOMP) $(FCOMPEXEC) build $(BUILDBASE)
+@@ -76,4 +76,3 @@
 
+ clean:
+ 	rm -rf $(BUILDBASEDIR) dist warp.egg-info *.o ../scripts/__version__.py
+-
 EOF
 
     patch Makefile.Forthon3.pympi  <<'EOF'
-@@ -1,20 +1,20 @@
+@@ -1,12 +1,12 @@
  DEBUG = #-g --farg "-O0"
- FARGS=--farg -fallow-argument-mismatch
+-FARGS = #--farg "-I/usr/local/mpi/include"
 -FCOMP =
++FARGS = --farg -fallow-argument-mismatch
 +FCOMP = -F gfortran
  FCOMPEXEC = --fcompexec mpifort
  SO = so
  VERBOSE = #-v
  FORTHON = Forthon3
  PYTHON = python3
--BUILDBASEDIR = build3parallel
+-BUILDBASEDIR = build3
 +BUILDBASEDIR = build
  INSTALLOPTIONS = #--user
  -include Makefile.local3.pympi
  BUILDBASE = --build-base $(BUILDBASEDIR)
- INSTALLARGS = --pkgbase warp $(BUILDBASE)
--MPIPARALLEL = --farg "-DMPIPARALLEL"
-+MPIPARALLEL = --farg "-DMPIPARALLEL -fallow-argument-mismatch"
+@@ -15,7 +15,7 @@
+ MPIPARALLEL = --farg "-DMPIPARALLEL"
 
- install: $(BUILDBASEDIR)/topparallelpydep $(BUILDBASEDIR)/envparallelpydep $(BUILDBASEDIR)/w3dparallelpydep $(BUILDBASEDIR)/f3dparallelpydep $(BUILDBASEDIR)/wxyparallelpydep $(BUILDBASEDIR)/fxyparallelpydep $(BUILDBASEDIR)/wrzparallelpydep $(BUILDBASEDIR)/frzparallelpydep $(BUILDBASEDIR)/herparallelpydep $(BUILDBASEDIR)/cirparallelpydep $(BUILDBASEDIR)/choparallelpydep $(BUILDBASEDIR)/em3dparallelpydep ranffortran.c
+ install: $(TEMPBUILDDIR)/topparallelpydep $(TEMPBUILDDIR)/envparallelpydep $(TEMPBUILDDIR)/w3dparallelpydep $(TEMPBUILDDIR)/f3dparallelpydep $(TEMPBUILDDIR)/wxyparallelpydep $(TEMPBUILDDIR)/fxyparallelpydep $(TEMPBUILDDIR)/wrzparallelpydep $(TEMPBUILDDIR)/frzparallelpydep $(TEMPBUILDDIR)/herparallelpydep $(TEMPBUILDDIR)/cirparallelpydep $(TEMPBUILDDIR)/choparallelpydep $(TEMPBUILDDIR)/em3dparallelpydep ranffortran.c
 -	$(PYTHON) setup.py $(FCOMP) $(FCOMPEXEC) --parallel build $(BUILDBASE) install $(INSTALLOPTIONS)
 +	pip install --ignore-installed .
 
- build: $(BUILDBASEDIR)/topparallelpydep $(BUILDBASEDIR)/envparallelpydep $(BUILDBASEDIR)/w3dparallelpydep $(BUILDBASEDIR)/f3dparallelpydep $(BUILDBASEDIR)/wxyparallelpydep $(BUILDBASEDIR)/fxyparallelpydep $(BUILDBASEDIR)/wrzparallelpydep $(BUILDBASEDIR)/frzparallelpydep $(BUILDBASEDIR)/herparallelpydep $(BUILDBASEDIR)/cirparallelpydep $(BUILDBASEDIR)/choparallelpydep $(BUILDBASEDIR)/em3dparallelpydep ranffortran.c
+ build: $(TEMPBUILDDIR)/topparallelpydep $(TEMPBUILDDIR)/envparallelpydep $(TEMPBUILDDIR)/w3dparallelpydep $(TEMPBUILDDIR)/f3dparallelpydep $(TEMPBUILDDIR)/wxyparallelpydep $(TEMPBUILDDIR)/fxyparallelpydep $(TEMPBUILDDIR)/wrzparallelpydep $(TEMPBUILDDIR)/frzparallelpydep $(TEMPBUILDDIR)/herparallelpydep $(TEMPBUILDDIR)/cirparallelpydep $(TEMPBUILDDIR)/choparallelpydep $(TEMPBUILDDIR)/em3dparallelpydep ranffortran.c
  	$(PYTHON) setup.py $(FCOMP) $(FCOMPEXEC) --parallel build $(BUILDBASE)
+@@ -77,4 +77,3 @@
 
+ clean:
+ 	rm -rf $(BUILDBASEDIR) dist warp.egg-info *.o ../scripts/__version__.py
+-
 EOF
 }
 
 warp_patch_parallel_setup_py() {
-    git checkout setup.py
     patch setup.py <<'EOF'
-@@ -30,6 +30,9 @@
-     elif o[0] == '--fcompexec': fcompexec = o[1]
-     elif o[0] == '--mpifort_compiler': mpifort_compiler = o[1]
+@@ -18,9 +18,9 @@
 
+ machine = sys.platform
+ debug   = 0
+-fcomp   = None
+-parallel = 0
+-fcompexec = None
++fcomp = 'gfortran'
 +parallel = 1
-+fcomp = 'gfortran'
 +fcompexec = 'mpifort'
- sys.argv = ['setup.py'] + args
- fcompiler = FCompiler(machine = machine,
-                       debug = debug,
-@@ -172,7 +175,7 @@
-                  platforms = 'Linux, Unix, Windows (bash), Mac OSX',
-                  ext_modules = [setuptools.Extension('warp.' + name,
-                                                      ['warpC_Forthon.c',
--                                                      os.path.join(builddir, 'Forthon.c'),
-+                                                      './build/temp.linux-x86_64-cpython-310/Forthon.c',
-                                                       'pmath_rng.c', 'ranf.c', 'ranffortran.c'],
-                                                      include_dirs = include_dirs,
-                                                      library_dirs = library_dirs,
-
-EOF
-}
-
-warp_patch_serial_setup_py() {
-    patch setup.py <<'EOF'
-@@ -30,6 +30,7 @@ for o in optlist:
-     elif o[0] == '--fcompexec': fcompexec = o[1]
-     elif o[0] == '--mpifort_compiler': mpifort_compiler = o[1]
-
-+fcomp = 'gfortran'
- sys.argv = ['setup.py'] + args
- fcompiler = FCompiler(machine = machine,
-                       debug = debug,
-@@ -172,7 +173,7 @@ machines that are space-charge dominated.""",
-                  platforms = 'Linux, Unix, Windows (bash), Mac OSX',
-                  ext_modules = [setuptools.Extension('warp.' + name,
-                                                      ['warpC_Forthon.c',
--                                                      os.path.join(builddir, 'Forthon.c'),
-+                                                      './build/temp.linux-x86_64-cpython-310/Forthon.c',
-                                                       'pmath_rng.c', 'ranf.c', 'ranffortran.c'],
-                                                      include_dirs = include_dirs,
-                                                      library_dirs = library_dirs,
+ mpifort_compiler = None
+ for o in optlist:
+     if   o[0] == '-g': debug = 1
 EOF
 }
