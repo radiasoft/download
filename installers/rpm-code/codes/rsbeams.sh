@@ -1,6 +1,6 @@
 #!/bin/bash
 
-declare -a _rsbeam_codes=(
+_rsbeam_codes=(
     rsbeams
     rsflash
     rslaser
@@ -12,7 +12,7 @@ declare -a _rsbeam_codes=(
 rsbeams_main() {
     rsbeams_init_vars
     codes_dependencies common ml
-    local r
+    declare r
     for r in "${_rsbeam_codes[@]}"; do
         codes_download radiasoft/"$r"
         cd ..
@@ -27,7 +27,7 @@ rsbeams_init_vars() {
 
 rsbeams_python_install() {
     install_pip_install nlopt DFO-LS Libensemble yt
-    local r
+    declare r
     for r in "${_rsbeam_codes[@]}"; do
         cd "$r"
         codes_python_install
