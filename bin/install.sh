@@ -83,7 +83,7 @@ install_download() {
     if [[ $url =~ ^https://api\.github\.com ]]; then
         x+=( --header 'Accept: application/vnd.github.raw' )
         if [[ ${GITHUB_TOKEN:-} ]]; then
-            --header "Authorization: Bearer $GITHUB_TOKEN"
+            x+=( --header "Authorization: Bearer $GITHUB_TOKEN" )
         fi
     fi
     curl ${x[@]+"${x[@]}"} "$url"
