@@ -1,6 +1,7 @@
 #!/bin/bash
 
 warp_python_install() {
+    warp_patch_numpy
     cd warp/pywarp90
     warp_patch_makefiles
     make install
@@ -86,6 +87,10 @@ EOF
  	rm -rf $(BUILDBASEDIR) dist warp.egg-info *.o ../scripts/__version__.py
 -
 EOF
+}
+
+warp_patch_numpy() {
+    perl -pi -e 's/np\.int/np.int_/' $(find . -name '*.py')
 }
 
 warp_patch_parallel_setup_py() {
