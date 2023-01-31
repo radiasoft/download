@@ -49,6 +49,7 @@ python_ci_main() {
             fi
             pip uninstall -y '$r' >& /dev/null || true
             pip install -e .
+            export PYKERN_PKCLI_TEST_MAX_FAILURES=1
             if [[ -f test.sh ]]; then
                 bash test.sh
             else
