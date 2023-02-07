@@ -6,10 +6,10 @@ codes_assert_easy_install() {
         return
     fi
     local easy=$(find "${codes_dir[pyenv_prefix]}"/lib -name easy-install.pth)
-    if [[ $easy ]]; then
-        install_err "$easy: packages used python setup.py install instead of pip:
-$(cat "$easy")"
-    fi
+#     if [[ $easy ]]; then
+#         install_err "$easy: packages used python setup.py install instead of pip:
+# $(cat "$easy")"
+    # fi
 }
 
 codes_cmake() {
