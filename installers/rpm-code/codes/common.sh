@@ -58,6 +58,9 @@ common_python() {
         parso
         prompt_toolkit
 
+        # conflict between rscode-bluesky and rscode-rsbeams
+        unyt
+
         # fortran namelist parser, usable by many codes
         f90nml
         # Conflict between rscode-bluesky and rscode-openpmd
