@@ -1,17 +1,39 @@
 #!/bin/bash
 
-common_python() {
-    local v=$1
-    local prev_d=$PWD
-    local mpicc=$(type -p mpicc)
+common_install_mpi4py_h5py() {
+    # hdf5, h5py, and  tensorflow all need to agree with each other.
+    # We install hdf5 with whatever the latest version from the fedora repos is.
+    # We then must backtrack to see what h5py version supports that. They'll mention it in their
+    # "What's New" docs https://docs.h5py.org/en/latest/whatsnew/index.html
+    # We then must find a tensorflow version that complies. tensorflow/tools/pip_package/setup.py
+    # will list the h5py versions that tensorflow supports
+
+    declare p="$PWD"
+    declare v=2.10.0
+    declare l="h5py==$v"
+    if ! install_version_fedora_lt_36; then
+        v=3.7.0
+        l='.'
+        # https://git.radiasoft.org/download/issues/422
+        codes_download h5py/h5py  3507819de54b35af05b2ca8ca55ec7e7b60cb919
+    fi
+    declare mpicc=$(type -p mpicc)
     if [[ ! $mpicc ]]; then
         install_err mpicc not found
     fi
+    # Force MPI mode (not auto-detected)
+    CC=$mpicc HDF5_MPI=ON install_pip_install --no-binary=h5py "$l"
+    cd "$p"
+}
+
+common_python() {
+    declare v=$1
+    declare prev_d=$PWD
     MAKE_OPTS=-j$(codes_num_cores) install_repo_eval pyenv
     install_source_bashrc
     # Need to set here
     codes_dir[pyenv_prefix]=$(realpath "$(pyenv prefix)")
-    local -a d=(
+    declare -a d=(
         mpi4py
         numpy
         matplotlib==3.3.3
@@ -19,18 +41,7 @@ common_python() {
         Cython
     )
     install_pip_install "${d[@]}"
-    # hdf5, h5py, and  tensorflow all need to agree with each other.
-    # We install hdf5 with whatever the latest version from the fedora repos is.
-    # We then must backtrack to see what h5py version supports that. They'll mention it in their
-    # "What's New" docs https://docs.h5py.org/en/latest/whatsnew/index.html
-    # We then must find a tensorflow version that complies. tensorflow/tools/pip_package/setup.py
-    # will list the h5py versions that tensorflow supports
-    # Force MPI mode (not auto-detected)
-    declare v=3.7.0
-    if install_version_fedora_lt_36; then
-        v=2.10.0
-    fi
-    CC=$mpicc HDF5_MPI=ON install_pip_install --no-binary=h5py h5py=="$v"
+    common_install_mpi4py_h5py
     d=(
         # pillow and python-dateutil installed by matplotlib
         # pipdeptree is useful for debugging
@@ -91,8 +102,8 @@ common_python() {
 }
 
 common_main() {
-    local mpi=mpich
-    local rpms=(
+    declare mpi=mpich
+    declare rpms=(
         $mpi-devel
         blas-devel
         cmake
