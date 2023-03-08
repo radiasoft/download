@@ -1,7 +1,7 @@
 #!/bin/bash
 
 graphtool_python_install() {
-    cd graph-tool-2.37
+    cd graph-tool-2.46
     ./configure \
         --enable-openmp \
         --prefix="${codes_dir[pyenv_prefix]}" \
@@ -12,7 +12,7 @@ graphtool_python_install() {
 }
 
 graphtool_main() {
-    codes_yum_dependencies graphviz sparsehash-devel
+    codes_yum_dependencies expat-devel graphviz sparsehash-devel
     codes_dependencies common cgal
-    codes_download https://downloads.skewed.de/graph-tool/graph-tool-2.37.tar.bz2
+    codes_download https://downloads.skewed.de/graph-tool/graph-tool-2.46.tar.bz2
 }
