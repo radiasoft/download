@@ -109,11 +109,14 @@ To test the installer, you can set:
 ```sh
 cd ~/src
 rm -f index.sh
-ln -s -r radiasoft/download/bin/index.sh .
+ln -s radiasoft/download/bin/index.sh index.html
 python3 -m http.server 2916
-# another window
-export install_server=http://$(dig $(hostname -f) +short):2916
-# assumes radia_run: curl $install_server/index.sh | bash -s unit-test arg1
+
+# In another window
+install_server=$(dig $(hostname -f) +short)
+# NOTE: You may have to set the IP manually for complex installers
+export install_server=http://${install_server:-127.0.0.1}:2916
+# assumes radia_run: curl $install_server | bash -s unit-test arg1
 radia_run unit-test arg1
 ```
 
