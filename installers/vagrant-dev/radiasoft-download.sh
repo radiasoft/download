@@ -377,7 +377,7 @@ EOF
 )
     fi
     declare eth1=
-    if [[ $vagrant_dev_provision_eth1 ]]; then
+    if [[ ${vagrant_dev_provision_eth1:-} ]]; then
         eth1='nmcli con add con-name eth1 ifname eth1 type ethernet ip4 10.10.10.10/24 && nmcli con up eth1'
     fi
     cat > Vagrantfile <<EOF
