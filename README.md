@@ -108,7 +108,7 @@ To test the installer, you can set:
 
 ```sh
 cd ~/src
-rm -f index.sh
+rm -f index.html
 ln -s radiasoft/download/bin/index.sh index.html
 python3 -m http.server 2916
 
