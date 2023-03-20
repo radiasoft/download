@@ -396,7 +396,7 @@ ${provider}
     # https://stackoverflow.com/a/33137719/3075806
     # Undo mapping of hostname to 127.0.?.1
     config.vm.provision "shell", inline: <<-'END'
-        "sed -i '/127.0.*$host/d' /etc/hosts"
+        sed -i '/127.0.*$host/d' /etc/hosts
         $eth1
     END
     ${mounts}

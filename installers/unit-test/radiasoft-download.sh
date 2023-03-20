@@ -15,10 +15,13 @@ unit_test_main() {
     if ! grep -s -q "$sentinel" "$install_log_file"; then
         install_err "$sentinel: install_exec failed"
     fi
-    sentinel=value$RANDOM
-    install_info "$sentinel"
-    if grep -s -q "$sentinel" "$install_log_file"; then
-        install_err "$sentinel: install_info failed"
+    if [[ ! ${install_verbose:-} ]]; then
+        # if install_debug/info is on, this test fails
+        sentinel=value$RANDOM
+        install_info "$sentinel"
+        if grep -s -q "$sentinel" "$install_log_file"; then
+            install_err "$sentinel: install_info failed"
+        fi
     fi
     sentinel=value$RANDOM
     install_verbose=1 install_info "$sentinel"

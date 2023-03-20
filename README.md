@@ -104,39 +104,15 @@ of keywords that gets recognized by the installer.
 You can also specify a file `radiasoft-download.sh` in any repo
 directory. The installer will go to that github repo for now.
 
-To test the installer, you can set:
+To run installers, the root of the tree is `~/src` so this file would
+be `~/src/radiasoft/download/README.md`. If your home directory is not
+set up this way, the following will not work.
+
+Installers can be run with a Python's http.server as follows:
 
 ```sh
-cd ~/src
-rm -f index.html
-ln -s radiasoft/download/bin/index.sh index.html
-python3 -m http.server 2916
-
-# In another window
-install_server=$(dig $(hostname -f) +short)
-# NOTE: You may have to set the IP manually for complex installers
-export install_server=http://${install_server:-127.0.0.1}:2916
-# assumes radia_run: curl $install_server | bash -s unit-test arg1
-radia_run unit-test arg1
+bash etc/dev-server.sh
 ```
 
-This will set the `$install_url` to `file://$HOME/src`.
-
-You can also pass `debug` to get more output.
-
-### Git repos
-
-For each local git repo that is being served, you'll need to:
-
-```sh
-git update-server-info
-```
-
-Currently, the list is short, e.g. radiasoft/pykern and biviosoftware/home-env:
-
-```sh
-cd ~/src/radiasoft/pykern
-git update-server-info
-cd ~/src/biviosoftware/home-env
-git update-server-info
-```
+This command starts the http.server and outputs instructions on how to
+run installers in the local dev environment.
