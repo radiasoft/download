@@ -8,6 +8,7 @@ python_ci_main() {
     fi
     declare i
     declare p=0
+    declare s=1
     declare r=$(basename "${GITHUB_REPOSITORY:-MISSING}")
     case $r in
         pykern)
@@ -20,6 +21,7 @@ python_ci_main() {
         sirepo)
             i=radiasoft/sirepo-ci
             p=1
+            s=0
             ;;
         MISSING)
             install_err '$GITHUB_REPOSITORY no set'
@@ -43,9 +45,13 @@ python_ci_main() {
             set -x
             cd '$d'
             export GITHUB_TOKEN='${GITHUB_TOKEN:-}'
-            if (( $p )); then
+            if (( $p )) || (( $s )); then
                 pip uninstall -y pykern >& /dev/null || true
                 pip install git+https://github.com/radiasoft/pykern.git
+                if (( $s )); then
+                    pip uninstall -y sirepo >& /dev/null || true
+                    pip install git+https://github.com/radiasoft/sirepo.git
+                fi
             fi
             pip uninstall -y '$r' >& /dev/null || true
             pip install -e .
