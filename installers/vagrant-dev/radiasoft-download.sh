@@ -128,6 +128,12 @@ expects: fedora|centos[/<version>], <ip address>, update, v[1-9].radia.run"
     if [[ ! ${vagrant_dev_no_nfs_src+1} && $os =~ centos ]]; then
         vagrant_dev_no_nfs_src=1
     fi
+#TODO(robnagler) handle fedora/<version> syntax
+    if [[ ! ${vagrant_dev_no_mounts+1} && $os =~ fedora ]] && (( $install_version_fedora >= 36 )); then
+        vagrant_dev_no_mounts=1
+        vagrant_dev_no_vbguest=${vagrant_dev_no_vbguest-}
+        vagrant_dev_provision_eth1=1
+    fi
     if [[ $_vagrant_dev_host_os == ubuntu ]]; then
         # libvirt has no vbguest.
         vagrant_dev_no_mounts=1
@@ -370,6 +376,10 @@ EOF
 EOF
 )
     fi
+    declare eth1=
+    if [[ ${vagrant_dev_provision_eth1:-} ]]; then
+        eth1='nmcli con add con-name eth1 ifname eth1 type ethernet ip4 10.10.10.10/24 && nmcli con up eth1'
+    fi
     cat > Vagrantfile <<EOF
 # -*-ruby-*-
 Vagrant.configure("2") do |config|
@@ -385,8 +395,10 @@ ${provider}
     ${vbguest}
     # https://stackoverflow.com/a/33137719/3075806
     # Undo mapping of hostname to 127.0.?.1
-    config.vm.provision "shell",
-        inline: "sed -i '/127.0.*$host/d' /etc/hosts"
+    config.vm.provision "shell", inline: <<-'END'
+        sed -i '/127.0.*$host/d' /etc/hosts
+        $eth1
+    END
     ${mounts}
 end
 EOF
