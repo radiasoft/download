@@ -4,6 +4,11 @@ bluesky_main() {
     codes_yum_dependencies mesa-libGL mongodb-org-server
     codes_dependencies common ipykernel
     bluesky_mongo
+    if install_version_fedora_lt_36; then
+        install_pip_install git+https://github.com/NSLS-II/sirepo-bluesky.git@e8043a3a182e250fa1f429882bf2728f46d1ec3a
+    else
+        install_pip_install git+https://github.com/NSLS-II/sirepo-bluesky.git
+    fi
     # https://github.com/radiasoft/container-beamsim-jupyter/issues/42#issuecomment-864152624
     # Install sirepo-bluesky from src because sirepo-bluesky on pypi is out of date (no ShadowFileHandler).
     # pychx depends on historydict but doesn't list it in install_requires.
@@ -15,7 +20,6 @@ bluesky_main() {
         databroker-pack \
         git+https://github.com/NSLS-II-CSX/csxtools.git@52ff964439005c8340e71d77d2a73b22a71dba05 \
         git+https://github.com/NSLS-II/eiger-io.git \
-        git+https://github.com/NSLS-II/sirepo-bluesky.git \
         hdf5plugin \
         historydict \
         numcodecs \
