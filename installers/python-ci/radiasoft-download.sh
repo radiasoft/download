@@ -44,10 +44,9 @@ python_ci_main() {
             cd '$d'
             export GITHUB_TOKEN='${GITHUB_TOKEN:-}'
             # POSIT: no spaces or specials in $p values
-            for x in ${p[*]}
-            do
+            for x in ${p[*]}; do
                 pip uninstall -y \$x >& /dev/null || true
-                pip install git+https://'${GITHUB_TOKEN:+$GITHUB_TOKEN@}'/radiasoft/\$x.git
+                pip install git+https://'${GITHUB_TOKEN:+$GITHUB_TOKEN@}'github.com/radiasoft/\$x.git
             done
             pip uninstall -y '$r' >& /dev/null || true
             pip install -e .
