@@ -39,15 +39,15 @@ python_ci_main() {
         chown -R vagrant: '$d'
         # POSIT: no interpolated vars in names
         trap 'chown -R "$o" "$d"' EXIT
-        su - vagrant <<EOF2
+        su - vagrant <<'EOF2'
             set -eou pipefail
-            set -x
             cd '$d'
             export GITHUB_TOKEN='${GITHUB_TOKEN:-}'
-            for x in "${p[*]}"
+            # POSIT: no spaces or specials in $p values
+            for x in ${p[*]}
             do
                 pip uninstall -y \$x >& /dev/null || true
-                pip install git+https://github.com/radiasoft/\$x.git
+                pip install git+https://'${GITHUB_TOKEN:+$GITHUB_TOKEN@}'/radiasoft/\$x.git
             done
             pip uninstall -y '$r' >& /dev/null || true
             pip install -e .
