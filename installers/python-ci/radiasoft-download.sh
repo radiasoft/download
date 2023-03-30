@@ -7,7 +7,7 @@ python_ci_main() {
         install_err 'no setup.py'
     fi
     declare i
-    declare p=0
+    declare -a p=()
     declare r=$(basename "${GITHUB_REPOSITORY:-MISSING}")
     case $r in
         pykern)
@@ -15,17 +15,18 @@ python_ci_main() {
             ;;
         rsaccounting|rsconf)
             i=radiasoft/python3
-            p=1
+            p+=( pykern )
             ;;
         sirepo)
             i=radiasoft/sirepo-ci
-            p=1
+            p+=( pykern )
             ;;
         MISSING)
             install_err '$GITHUB_REPOSITORY no set'
             ;;
         *)
             i=radiasoft/sirepo
+            p+=( pykern sirepo )
             ;;
     esac
     declare d=$PWD
@@ -38,15 +39,15 @@ python_ci_main() {
         chown -R vagrant: '$d'
         # POSIT: no interpolated vars in names
         trap 'chown -R "$o" "$d"' EXIT
-        su - vagrant <<EOF2
+        su - vagrant <<'EOF2'
             set -eou pipefail
-            set -x
             cd '$d'
             export GITHUB_TOKEN='${GITHUB_TOKEN:-}'
-            if (( $p )); then
-                pip uninstall -y pykern >& /dev/null || true
-                pip install git+https://github.com/radiasoft/pykern.git
-            fi
+            # POSIT: no spaces or specials in $p values
+            for x in ${p[*]}; do
+                pip uninstall -y \$x >& /dev/null || true
+                pip install git+https://'${GITHUB_TOKEN:+$GITHUB_TOKEN@}'github.com/radiasoft/\$x.git
+            done
             pip uninstall -y '$r' >& /dev/null || true
             pip install -e .
             export PYKERN_PKCLI_TEST_MAX_FAILURES=1
