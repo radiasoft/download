@@ -43,8 +43,9 @@ python_ci_main() {
             set -eou pipefail
             cd '$d'
             export GITHUB_TOKEN='${GITHUB_TOKEN:-}'
-            # POSIT: no spaces or specials in $p values
-            for x in ${p[*]}; do
+            # POSIT: no spaces or specials in repo names
+            declare x
+            for x in ${p+${p[*]}}; do
                 pip uninstall -y \$x >& /dev/null || true
                 pip install git+https://'${GITHUB_TOKEN:+$GITHUB_TOKEN@}'github.com/radiasoft/\$x.git
             done
