@@ -44,13 +44,21 @@ vagrant_dev_box_add() {
     fi
 }
 
-vagrant_dev_enable_mounts() {
-    if [[ ${vagrant_dev_no_mounts:+1} ]]; then
-        return
+vagrant_dev_first_up() {
+    declare os="$1"
+    declare host="$2"
+    declare ip="$3"
+    if [[ ! ${vagrant_dev_no_vbguest:+1} ||  ! ${vagrant_dev_no_mounts:+1} && ${vagrant_dev_provision_eth1:+1} ]]; then
+        vagrant_dev_vagrantfile "$os" "$host" "$ip" '1'
+        vagrant up
+        # TODO(e-carlin):  uncomment
+#         vagrant ssh <<'EOF'
+# sudo yum install -q -y kernel kernel-devel kernel-headers kernel-tools perl
+# EOF
+        vagrant halt
     fi
-    perl -pi -e 's/(synced_folder.*nfs.*disabled: )true(.*)/$1false$2/' Vagrantfile
-    vagrant reload
 }
+
 
 vagrant_dev_ip() {
     declare host=$1
@@ -155,17 +163,9 @@ expects: fedora|centos[/<version>], <ip address>, update, v[1-9].radia.run"
     vagrant_dev_prepare_host
     vagrant_dev_init_nfs
     vagrant_dev_prepare
-    if [[ ! ${vagrant_dev_no_vbguest:+1} ]]; then
-        vagrant_dev_vagrantfile "$os" "$host" "$ip" '1'
-        vagrant up
-        vagrant ssh <<'EOF'
-sudo yum install -q -y kernel kernel-devel kernel-headers kernel-tools perl
-EOF
-        vagrant halt
-    fi
+    vagrant_dev_first_up "$os" "$host" "$ip"
     vagrant_dev_vagrantfile "$os" "$host" "$ip" ''
     vagrant up
-    vagrant_dev_enable_mounts
     if [[ ${vagrant_dev_no_dev_env:+1} ]]; then
         return
     fi
@@ -187,14 +187,17 @@ EOF
 }
 
 vagrant_dev_mounts() {
+    declare first="${1:+1}"
     if [[ ${vagrant_dev_no_mounts:+1} ]]; then
         echo 'config.vm.synced_folder ".", "/vagrant", disabled: true'
         return
     fi
+    declare d='false'
+    if [[ $first ]]; then
+        d='true'
+    fi
     # Have to use proto=tcp otherwise mount defaults to udp which doesn't work in f36
-    # disabled: true because vagrant_dev_provision_eth1 needs to run before nfs mount will work.
-    # vagrant_dev_enable_mounts sets disabled: false
-    declare f=' type: "nfs", mount_options: ["nolock", "fsc", "actimeo=2", "proto=tcp"], nfs_udp: false, disabled: true'
+    declare f=' type: "nfs", mount_options: ["nolock", "fsc", "actimeo=2", "proto=tcp"], nfs_udp: false, disabled: '"$d"
     declare res=( 'config.vm.synced_folder ".", "/vagrant",'"$f" )
     if [[ ! ${vagrant_dev_no_nfs_src:+1} ]]; then
         mkdir -p "$HOME/src"
@@ -367,7 +370,7 @@ vagrant_dev_vagrantfile() {
     # vagrant_dev_box_add returns in box
     declare box
     vagrant_dev_box_add "$os"
-    declare mounts="$(vagrant_dev_mounts)"
+    declare mounts="$(vagrant_dev_mounts $first)"
     if [[ $_vagrant_dev_host_os == ubuntu ]]; then
         declare provider=$(cat <<'EOF'
     config.vm.provider :libvirt do |v|
