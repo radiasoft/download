@@ -49,7 +49,7 @@ vagrant_dev_first_up() {
     declare host="$2"
     declare ip="$3"
     if [[ ! ${vagrant_dev_no_vbguest:+1} ||  ! ${vagrant_dev_no_mounts:+1} && ${vagrant_dev_provision_eth1:+1} ]]; then
-        vagrant_dev_vagrantfile "$os" "$host" "$ip" '1'
+        vagrant_dev_vagrantfile "$os" "$host" "$ip" 1
         vagrant up
         # TODO(e-carlin):  uncomment
 #         vagrant ssh <<'EOF'
@@ -188,7 +188,7 @@ expects: fedora|centos[/<version>], <ip address>, update, v[1-9].radia.run"
     vagrant ssh <<EOF
 $(install_vars_export)
 curl $(install_depot_server)/index.sh | \
-  vagrant_dev_ignore_git_dir_ownership=$(vagrant_dev_ignore_git_dir_ownership $os) \
+  bivio_home_env_ignore_git_dir_ownership=$(vagrant_dev_ignore_git_dir_ownership $os) \
   bash -s redhat-dev
 EOF
     vagrant_dev_post_install
@@ -200,9 +200,9 @@ vagrant_dev_mounts() {
         echo 'config.vm.synced_folder ".", "/vagrant", disabled: true'
         return
     fi
-    declare d='false'
+    declare d=false
     if [[ $first ]]; then
-        d='true'
+        d=true
     fi
     # Have to use proto=tcp otherwise mount defaults to udp which doesn't work in f36
     declare f=' type: "nfs", mount_options: ["nolock", "fsc", "actimeo=2", "proto=tcp"], nfs_udp: false, disabled: '"$d"
