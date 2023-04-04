@@ -59,6 +59,12 @@ vagrant_dev_first_up() {
     fi
 }
 
+vagrant_dev_ignore_git_dir_ownership() {
+    declare os="$1"
+    if [[ ! ${vagrant_dev_no_nfs_src:+1} && $os =~ fedora && ! $(install_version_fedora_lt_36) ]]; then
+        echo 1
+    fi
+}
 
 vagrant_dev_ip() {
     declare host=$1
@@ -181,7 +187,9 @@ expects: fedora|centos[/<version>], <ip address>, update, v[1-9].radia.run"
     fi
     vagrant ssh <<EOF
 $(install_vars_export)
-curl $(install_depot_server)/index.sh | bash -s redhat-dev "${vagrant_dev_no_nfs_src:+1}"
+curl $(install_depot_server)/index.sh | \
+  vagrant_dev_ignore_git_dir_ownership=$(vagrant_dev_ignore_git_dir_ownership $os) \
+  bash -s redhat-dev
 EOF
     vagrant_dev_post_install
 }

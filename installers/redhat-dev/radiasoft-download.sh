@@ -2,14 +2,6 @@
 #
 # To run: curl radia.run | bash -s redhat-dev
 #
-redhat_dev_fix_git_nfs_permissions() {
-    declare no_fix_git_nfs_permissions=${1:+1}
-    if [[ $no_fix_git_nfs_permissions ]]; then
-        return
-    fi
-    git config --global --add safe.directory '*'
-}
-
 redhat_dev_main() {
     if [[ ! $install_os_release_id =~ fedora|centos|rhel ]]; then
         install_err "only works on Red Hat flavored Linux (os=$install_os_release_id)"
@@ -23,8 +15,6 @@ redhat_dev_main() {
         install_sudo rm -f /etc/profile.d/console-login-helper-messages-profile.sh
     fi
     install_repo_as_root redhat-base
-    # POSIT: redhat-base installs git
-    redhat_dev_fix_git_nfs_permissions ${1:+1}
     install_repo_as_root home
     install_repo_eval home
 }
