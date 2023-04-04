@@ -51,10 +51,9 @@ vagrant_dev_first_up() {
     if [[ ! ${vagrant_dev_no_vbguest:+1} ||  ! ${vagrant_dev_no_mounts:+1} && ${vagrant_dev_provision_eth1:+1} ]]; then
         vagrant_dev_vagrantfile "$os" "$host" "$ip" 1
         vagrant up
-        # TODO(e-carlin):  uncomment
-#         vagrant ssh <<'EOF'
-# sudo yum install -q -y kernel kernel-devel kernel-headers kernel-tools perl
-# EOF
+        vagrant ssh <<'EOF'
+sudo yum install -q -y kernel kernel-devel kernel-headers kernel-tools perl
+EOF
         vagrant halt
     fi
 }
