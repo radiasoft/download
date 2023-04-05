@@ -44,6 +44,27 @@ vagrant_dev_box_add() {
     fi
 }
 
+vagrant_dev_first_up() {
+    declare os="$1"
+    declare host="$2"
+    declare ip="$3"
+    if [[ ! ${vagrant_dev_no_vbguest:+1} ||  ! ${vagrant_dev_no_mounts:+1} && ${vagrant_dev_provision_eth1:+1} ]]; then
+        vagrant_dev_vagrantfile "$os" "$host" "$ip" 1
+        vagrant up
+        vagrant ssh <<'EOF'
+sudo yum install -q -y kernel kernel-devel kernel-headers kernel-tools perl
+EOF
+        vagrant halt
+    fi
+}
+
+vagrant_dev_ignore_git_dir_ownership() {
+    declare os="$1"
+    if [[ ! ${vagrant_dev_no_nfs_src:+1} && $os =~ fedora && ! $(install_version_fedora_lt_36) ]]; then
+        echo 1
+    fi
+}
+
 vagrant_dev_ip() {
     declare host=$1
     declare i=$(dig +short "$host" 2>/dev/null || true)
@@ -129,9 +150,10 @@ expects: fedora|centos[/<version>], <ip address>, update, v[1-9].radia.run"
         vagrant_dev_no_nfs_src=1
     fi
 #TODO(robnagler) handle fedora/<version> syntax
-    if [[ ! ${vagrant_dev_no_mounts+1} && $os =~ fedora ]] && (( $install_version_fedora >= 36 )); then
-        vagrant_dev_no_mounts=1
+    if [[ ! ${vagrant_dev_provision_eth1+1} && $os =~ fedora && ! $(install_version_fedora_lt_36) ]]; then
         vagrant_dev_no_vbguest=${vagrant_dev_no_vbguest-}
+        # Vagrant doesn't handle NetworkManager correctly so must handle ourselves
+        # https://github.com/hashicorp/vagrant/issues/12762
         vagrant_dev_provision_eth1=1
     fi
     if [[ $_vagrant_dev_host_os == ubuntu ]]; then
@@ -146,14 +168,7 @@ expects: fedora|centos[/<version>], <ip address>, update, v[1-9].radia.run"
     vagrant_dev_prepare_host
     vagrant_dev_init_nfs
     vagrant_dev_prepare
-    if [[ ! ${vagrant_dev_no_vbguest:+1} ]]; then
-        vagrant_dev_vagrantfile "$os" "$host" "$ip" '1'
-        vagrant up
-        vagrant ssh <<'EOF'
-sudo yum install -q -y kernel kernel-devel kernel-headers kernel-tools perl
-EOF
-        vagrant halt
-    fi
+    vagrant_dev_first_up "$os" "$host" "$ip"
     vagrant_dev_vagrantfile "$os" "$host" "$ip" ''
     vagrant up
     if [[ ${vagrant_dev_no_dev_env:+1} ]]; then
@@ -171,18 +186,25 @@ EOF
     fi
     vagrant ssh <<EOF
 $(install_vars_export)
-curl $(install_depot_server)/index.sh | bash -s redhat-dev
+curl $(install_depot_server)/index.sh | \
+  bivio_home_env_ignore_git_dir_ownership=$(vagrant_dev_ignore_git_dir_ownership $os) \
+  bash -s redhat-dev
 EOF
     vagrant_dev_post_install
 }
 
 vagrant_dev_mounts() {
+    declare first="${1:+1}"
     if [[ ${vagrant_dev_no_mounts:+1} ]]; then
         echo 'config.vm.synced_folder ".", "/vagrant", disabled: true'
         return
     fi
-    # Have to use vers=3 b/c vagrant will insert it (incorrectly) otherwise. Not sure why.
-    declare f=' type: "nfs", mount_options: ["nolock", "fsc", "actimeo=2"], nfs_version: 3, nfs_udp: false'
+    declare d=false
+    if [[ $first ]]; then
+        d=true
+    fi
+    # Have to use proto=tcp otherwise mount defaults to udp which doesn't work in f36
+    declare f=' type: "nfs", mount_options: ["nolock", "fsc", "actimeo=2", "proto=tcp"], nfs_udp: false, disabled: '"$d"
     declare res=( 'config.vm.synced_folder ".", "/vagrant",'"$f" )
     if [[ ! ${vagrant_dev_no_nfs_src:+1} ]]; then
         mkdir -p "$HOME/src"
@@ -355,7 +377,7 @@ vagrant_dev_vagrantfile() {
     # vagrant_dev_box_add returns in box
     declare box
     vagrant_dev_box_add "$os"
-    declare mounts="$(vagrant_dev_mounts)"
+    declare mounts="$(vagrant_dev_mounts $first)"
     if [[ $_vagrant_dev_host_os == ubuntu ]]; then
         declare provider=$(cat <<'EOF'
     config.vm.provider :libvirt do |v|
