@@ -44,6 +44,18 @@ vagrant_dev_box_add() {
     fi
 }
 
+vagrant_dev_eth1() {
+    local ip=$1
+    if [[ ! ${vagrant_dev_provision_eth1:-} ]]; then
+        return
+    fi
+    cat <<EOF
+    config.vm.provision "nmcli_eth1", type: "shell", run: "once", inline: <<-'END'
+        nmcli con add con-name eth1 ifname eth1 type ethernet ip4 $ip/24 && nmcli con up eth1
+    END
+EOF
+}
+
 vagrant_dev_first_up() {
     declare os="$1"
     declare host="$2"
@@ -184,6 +196,7 @@ expects: fedora|centos[/<version>], <ip address>, update, v[1-9].radia.run"
     if [[ $install_server =~ ^file: ]]; then
         declare install_server=
     fi
+    install_info 'Running installer: redhat-dev'
     vagrant ssh <<EOF
 $(install_vars_export)
 curl $(install_depot_server)/index.sh | \
@@ -196,7 +209,7 @@ EOF
 vagrant_dev_mounts() {
     declare first="${1:+1}"
     if [[ ${vagrant_dev_no_mounts:+1} ]]; then
-        echo 'config.vm.synced_folder ".", "/vagrant", disabled: true'
+        echo '    config.vm.synced_folder ".", "/vagrant", disabled: true'
         return
     fi
     declare d=false
@@ -205,14 +218,11 @@ vagrant_dev_mounts() {
     fi
     # Have to use proto=tcp otherwise mount defaults to udp which doesn't work in f36
     declare f=' type: "nfs", mount_options: ["nolock", "fsc", "actimeo=2", "proto=tcp"], nfs_udp: false, disabled: '"$d"
-    declare res=( 'config.vm.synced_folder ".", "/vagrant",'"$f" )
+    echo 'config.vm.synced_folder ".", "/vagrant",'"$f"
     if [[ ! ${vagrant_dev_no_nfs_src:+1} ]]; then
         mkdir -p "$HOME/src"
-        res+=( 'config.vm.synced_folder "'"$HOME/src"'", "/home/vagrant/src",'"$f" )
+        echo '    config.vm.synced_folder "'"$HOME/src"'", "/home/vagrant/src",'"$f"
     fi
-    declare IFS='
-    '
-    echo "${res[*]}"
 }
 
 vagrant_dev_plugins() {
@@ -236,6 +246,7 @@ vagrant_dev_plugins() {
 
 vagrant_dev_post_install() {
     if [[ ${vagrant_dev_post_install_repo:-} ]]; then
+        install_info "Running post-installer: $vagrant_dev_post_install_repo"
         vagrant ssh <<EOF
 $(install_vars_export)
 curl $(install_depot_server)/index.sh | bash -s $vagrant_dev_post_install_repo
@@ -377,7 +388,6 @@ vagrant_dev_vagrantfile() {
     # vagrant_dev_box_add returns in box
     declare box
     vagrant_dev_box_add "$os"
-    declare mounts="$(vagrant_dev_mounts $first)"
     if [[ $_vagrant_dev_host_os == ubuntu ]]; then
         declare provider=$(cat <<'EOF'
     config.vm.provider :libvirt do |v|
@@ -398,10 +408,6 @@ EOF
 EOF
 )
     fi
-    declare eth1=
-    if [[ ${vagrant_dev_provision_eth1:-} ]]; then
-        eth1="nmcli con add con-name eth1 ifname eth1 type ethernet ip4 $ip/24 && nmcli con up eth1"
-    fi
     cat > Vagrantfile <<EOF
 # -*-ruby-*-
 Vagrant.configure("2") do |config|
@@ -414,14 +420,14 @@ ${provider}
         v.cpus = ${vagrant_dev_cpus:-4}
     end
     config.ssh.forward_x11 = false
-    ${vbguest}
+    $vbguest
     # https://stackoverflow.com/a/33137719/3075806
     # Undo mapping of hostname to 127.0.?.1
-    config.vm.provision "shell", inline: <<-'END'
+    config.vm.provision "etc_hosts", type: "shell", run: "always", inline: <<-'END'
         sed -i '/127.0.*$host/d' /etc/hosts
-        $eth1
     END
-    ${mounts}
+$(vagrant_dev_eth1 $ip)
+$(vagrant_dev_mounts $first)
 end
 EOF
 }
