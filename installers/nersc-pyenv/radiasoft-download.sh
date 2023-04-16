@@ -45,5 +45,7 @@ nersc_pyenv_main() {
     if [[ ! -e $r/versions/$a ]]; then
         pyenv virtualenv "$v" "$a"
     fi
-    pyenv global "$a"
+    if ! ${nersc_pyenv_no_global:+}; then
+        pyenv global "$a"
+    fi
 }
