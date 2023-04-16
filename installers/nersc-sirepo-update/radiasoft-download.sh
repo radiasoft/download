@@ -15,10 +15,8 @@ nersc_sirepo_update_main() {
     local i=docker:radiasoft/sirepo:$c
     shifterimg pull "$i"
     local v=sirepo-$c
-    if [[ ! -e ~/.pyenv/versions/$v ]]; then
-        install_not_strict_cmd pyenv virtualenv "$install_version_python" "$v"
-    fi
-    install_not_strict_cmd pyenv shell "$v"
+    nersc_sirepo_update_pyenv "$v"
+    install_not_strict_cmd pyenv shell "$virtualenv_name"
     local p x
     local d=~/"$v"/radiasoft
     mkdir -p "$d"
@@ -43,4 +41,20 @@ nersc_sirepo_update_main() {
     done
     chmod 711 ~
     chmod -R a+rX ~/.pyenv
+}
+
+nersc_sirepo_update_pyenv() {
+    virtualenv_name=$1
+    if ! pyenv versions --bare | grep -q "^$install_version_python$"; then
+        nersc_pyenv_no_global=1 install_repo_eval nersc-pyenv
+    fi
+    if [[ -e ~/.pyenv/versions/$virtualenv_name ]]; then
+        install_not_strict_cmd pyenv shell "$virtualenv_name"
+        if [[ $(python --version | cut -d' ' -f2) != $install_version_python ]]; then
+            pyenv virtualenv-delete -f "$virtualenv_name"
+        else
+            return
+        fi
+    fi
+    install_not_strict_cmd pyenv virtualenv "$install_version_python" "$virtualenv_name"
 }
