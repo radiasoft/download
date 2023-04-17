@@ -53,7 +53,7 @@ nersc_sirepo_update_pyenv() {
         if [[ $(python --version | cut -d' ' -f2) != $install_version_python ]]; then
             pyenv virtualenv-delete -f "$virtualenv_name"
         else
-            return
+            return 0
         fi
     fi
     install_not_strict_cmd pyenv virtualenv "$install_version_python" "$virtualenv_name"
