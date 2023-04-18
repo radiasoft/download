@@ -58,6 +58,7 @@ common_python() {
         scikit-image==0.18.3
         tifffile
         typing-extensions
+        tzdata
 
         # Needed by rscode-bluesky and rscode-rsbeams
         # https://github.com/jupyter/notebook/issues/2435
