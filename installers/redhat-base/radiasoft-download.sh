@@ -76,6 +76,7 @@ EOF
         lsof
         make
         nginx
+        openssl
         openssl-devel
         patch
         pciutils
