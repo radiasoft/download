@@ -5,7 +5,7 @@ codes_assert_easy_install() {
         # local environment may have easy-install.pth
         return
     fi
-    local easy=$(find "${codes_dir[pyenv_prefix]}"/lib -name easy-install.pth)
+    declare easy=$(find "${codes_dir[pyenv_prefix]}"/lib -name easy-install.pth)
     if [[ $easy ]]; then
         install_err "$easy: packages used python setup.py install instead of pip:
 $(cat "$easy")"
@@ -15,7 +15,7 @@ $(cat "$easy")"
 codes_cmake() {
     mkdir build
     cd build
-    local t=Release
+    declare t=Release
     if [[ ${CODES_DEBUG_FLAG:-} ]]; then
         t=Debug
     fi
@@ -23,7 +23,7 @@ codes_cmake() {
 }
 
 codes_cmake_build() {
-    local cmd=( cmake --build . -j$(codes_num_cores) )
+    declare cmd=( cmake --build . -j$(codes_num_cores) )
     if [[ ${CODES_DEBUG_FLAG:-} ]]; then
         cmd+=( --verbose )
     fi
@@ -48,8 +48,8 @@ codes_dependencies() {
 }
 
 codes_dir_setup() {
-    local todo=()
-    local d n p
+    declare todo=()
+    declare d n p
     for n in prefix \
         etc \
         bashrc_d \
@@ -77,6 +77,7 @@ codes_dir_setup() {
         install_msg 'creating directories'
         mkdir -p "${todo[@]}"
     else
+
         # common doesn't use pyenv_prefix, it creates it
         codes_dir[pyenv_prefix]=$(realpath "$(pyenv prefix)")
     fi
@@ -84,10 +85,10 @@ codes_dir_setup() {
 
 codes_download() {
     # If download is an rpm, also installs
-    local repo=$1
-    local qualifier=${2:-}
-    local package=${3:-}
-    local version=${4:-}
+    declare repo=$1
+    declare qualifier=${2:-}
+    declare package=${3:-}
+    declare version=${4:-}
     if [[ ! $repo =~ / ]]; then
         repo=radiasoft/$repo
     fi
@@ -97,8 +98,8 @@ codes_download() {
     codes_msg "Download: $repo"
     case $repo in
         *.git)
-            local d=$(basename "$repo" .git)
-            local r=--recursive
+            declare d=$(basename "$repo" .git)
+            declare r=--recursive
             if [[ ${codes_download_nonrecursive:-} ]]; then
                r=
             fi
@@ -118,11 +119,11 @@ codes_download() {
                 git clone $r --depth 1 "$repo"
                 cd "$d"
             fi
-            local manifest=('' '')
+            declare manifest=('' '')
             repo=
             ;;
         *.tar.gz|*.tar.xz|*.tar.bz2)
-            local z s
+            declare z s
             case $repo in
                 *bz2)
                     s=bz2
@@ -140,9 +141,9 @@ codes_download() {
                     install_err "PROGRAM ERROR: repo=$repo must match outer case"
                     ;;
             esac
-            local b=$(basename "$repo" .tar."$s")
+            declare b=$(basename "$repo" .tar."$s")
             if [[ ${version:-} ]]; then
-                local manifest=( "$package" "$version" )
+                declare manifest=( "$package" "$version" )
             else
                 # github tarball
                 if [[ $repo =~ ([^/]+)/archive/v([^/]+).tar.$s$ ]]; then
@@ -155,10 +156,10 @@ codes_download() {
                 elif [[ ! $b =~ ^(.+)-([[:digit:]].+)$ ]]; then
                     codes_err "$repo: basename=$b does not match version regex"
                 fi
-                local manifest=( "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}" )
+                declare manifest=( "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}" )
             fi
-            local d=${qualifier:-$b}
-            local t=tarball-$RANDOM
+            declare d=${qualifier:-$b}
+            declare t=tarball-$RANDOM
 
             codes_curl -o "$t" "$repo"
             tar xf"$z" "$t"
@@ -166,15 +167,15 @@ codes_download() {
             cd "$d"
             ;;
         *.rpm)
-            local b=$(basename "$repo")
-            local n="${b//-*/}"
+            declare b=$(basename "$repo")
+            declare n="${b//-*/}"
             if rpm --quiet -q "$n"; then
                 echo "$b already installed"
             else
                 # not a yum dependency (codes script copies the files)
                 install_yum_install "$repo"
             fi
-            local manifest=(
+            declare manifest=(
                 "$(rpm -q --queryformat '%{NAME}' "$n")"
                 "$(rpm -q --queryformat '%{VERSION}-%{RELEASE}' "$n")"
             )
@@ -198,7 +199,7 @@ codes_download_proprietary() {
 }
 
 codes_download_module_file() {
-    local file=$1
+    declare file=$1
     install_download "codes/$codes_module/$file" > "$file"
 }
 
@@ -208,36 +209,46 @@ codes_err() {
 }
 
 codes_install() {
-    local module=$1
+    declare module=$1
     shift
-    local args=( "$@" )
-    local prev=$(pwd)
-    local d=$HOME/src/radiasoft/codes/$module-$(date -u +%Y%m%d.%H%M%S)
+    declare args=( "$@" )
+    declare prev=$(pwd)
+    declare d=$HOME/src/radiasoft/codes/$module-$(date -u +%Y%m%d.%H%M%S)
     rm -rf "$d"
     mkdir -p "$d"
     codes_msg "Build: $module"
     codes_msg "Directory: $d"
     cd "$d"
-    local codes_module=$module
-    local -A codes_dir=()
+    declare codes_module=$module
+    declare -A codes_dir=()
     codes_dir_setup
     # Needed for pyenv
     install_source_bashrc
     install_script_eval "codes/$module.sh"
-    local f=${module}_main
+    declare f=${module}_main
     if ! codes_is_function "$f"; then
         install_error "function=$f not defined for code=$module"
     fi
     $f ${args[@]+"${args[@]}"}
     cd "$prev"
-    local p=${module}_python_install
+    declare p=${module}_python_install
     if codes_is_function "$p"; then
         codes_msg "Running: $p"
         cd "$d"
         "$p"
         codes_install_python_done
     fi
-    local d=${codes_dir[prefix]}/lib64
+    declare t=${module}_test
+    if codes_is_function "$t"; then
+        codes_msg "Running: $t"
+        # python adds cwd to PYTHONPATH so go to a path where
+        # cwd won't contain any python that would be added
+        mkdir -p /tmp/$(date -u +%Y%m%d.%H%M%S)
+        cd "$_"
+        "$t"
+        cd -
+    fi
+    declare d=${codes_dir[prefix]}/lib64
     if [[ -d $d ]]; then
         install_err "$d created, and shouldn't be; see codes_cmake_fix_lib_dir"
     fi
@@ -245,7 +256,7 @@ codes_install() {
 }
 
 codes_install_python_done() {
-    local pp=${codes_dir[pyenv_prefix]}
+    declare pp=${codes_dir[pyenv_prefix]}
     if [[ ! $pp ]]; then
         install_err 'pyenv prefix not working'
     fi
@@ -269,7 +280,7 @@ codes_main() {
 }
 
 codes_make() {
-    local cmd=( make -j$(codes_num_cores) )
+    declare cmd=( make -j$(codes_num_cores) )
     if [[ $@ ]]; then
         cmd+=( "$@" )
     fi
@@ -282,10 +293,10 @@ codes_make_install() {
 
 codes_manifest_add_code() {
     # must supply all three params unless in a git repo
-    local package=${1:-}
-    local version=${2:-}
-    local repo=${3:-}
-    local pwd=$(pwd)
+    declare package=${1:-}
+    declare version=${2:-}
+    declare repo=${3:-}
+    declare pwd=$(pwd)
     if [[ ! $package ]]; then
         package=$(basename "$pwd")
     fi
@@ -313,7 +324,7 @@ codes_num_cores() {
         echo 1
         return
     fi
-    local res=$(grep -c '^core id[[:space:]]*:' /proc/cpuinfo)
+    declare res=$(grep -c '^core id[[:space:]]*:' /proc/cpuinfo)
     # Use half the cores (likely hyperthreads) except if on TRAVIS
     if [[ ${TRAVIS:-} != true ]]; then
         res=$(( $res / 2 ))
