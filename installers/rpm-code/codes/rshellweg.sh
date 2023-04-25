@@ -2,7 +2,7 @@
 
 rshellweg_main() {
     codes_dependencies common boost
-    codes_download radiasoft/rshellweg beamsim_build
+    codes_download radiasoft/rshellweg
 }
 
 rshellweg_python_install() {
