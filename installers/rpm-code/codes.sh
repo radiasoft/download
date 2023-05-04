@@ -241,12 +241,12 @@ codes_install() {
     declare t=${module}_test
     if codes_is_function "$t"; then
         codes_msg "Running: $t"
+        declare p=$PWD
         # python adds cwd to PYTHONPATH so go to a path where
         # cwd won't contain any python that would be added
-        mkdir -p /tmp/$(date -u +%Y%m%d.%H%M%S)
-        cd "$_"
+        install_tmp_dir
         "$t"
-        cd -
+        cd "$p"
     fi
     declare d=${codes_dir[prefix]}/lib64
     if [[ -d $d ]]; then
