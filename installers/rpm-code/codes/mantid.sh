@@ -11,7 +11,6 @@ mantid_main() {
         jemalloc-devel \
         jsoncpp-devel \
         muParser-devel \
-        opencascade-devel \
         poco-devel \
         tbb-devel
     codes_dependencies common boost ipykernel
@@ -28,10 +27,13 @@ mantid_main() {
 mantid_install() {
     local install_prefix=$1
     codes_download mantidproject/mantid v6.4.0
-    mantid_patch_eigen_cmake
     codes_cmake \
         -DBOOST_ROOT="${codes_dir[prefix]}" \
         -DCMAKE_INSTALL_PREFIX="$install_prefix" \
+        -DENABLE_DOCS=OFF \
+        -DENABLE_MANTIDQT=OFF \
+        -DENABLE_OPENCASCADE=OFF \
+        -DENABLE_OPENGL=OFF \
         -DENABLE_WORKBENCH=OFF \
         -DMANTID_FRAMEWORK_LIB=BUILD \
         -DMANTID_QT_LIB=OFF \
@@ -83,9 +85,14 @@ mantid_nexus_install() {
     cd ../
 }
 
-mantid_patch_eigen_cmake() {
-    # TODO(e-carlin): f32 eigen3 is 3.3.  Mantid technically depends on Eigen3 3.4 but the change
-    # that bumped 3.3 to 3.4 (6d5aa8a43d980d2ea0cf919da64fd3a2c44def0d) made no other other changes
-    # to the code. So, use 3.3 for now and see if there are any issues.
-    echo 'find_package(Eigen3 3.3 REQUIRED)' > ./buildconfig/CMake/Eigen.cmake
+mantid_test() {
+    rsmantid <<EOF
+import mantid.simpleapi
+import time
+
+# mantid import starts a process which downloads support files
+# it needs to complete before the program exits otherwise it segfaults.
+# Sleep to give it time.
+time.sleep(10)
+EOF
 }
