@@ -24,6 +24,7 @@ vagrant_rsconf_dev_master() {
     install_repo_eval vagrant-dev centos
     vagrant ssh <<'EOF'
         radia_run pyenv
+        source ~/.bashrc
         set -euo pipefail
         mkdir -p ~/src/radiasoft
         cd ~/src/radiasoft
