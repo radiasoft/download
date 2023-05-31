@@ -18,7 +18,7 @@ bluesky_main() {
         area_detector_handlers \
         dask \
         databroker-pack \
-        git+https://github.com/NSLS-II-CSX/csxtools.git@52ff964439005c8340e71d77d2a73b22a71dba05 \
+        git+https://github.com/NSLS-II-CSX/csxtools.git@8fb93788f5dc172853b1d868c2e326a7c85c618d \
         git+https://github.com/NSLS-II/eiger-io.git \
         hdf5plugin \
         historydict \
