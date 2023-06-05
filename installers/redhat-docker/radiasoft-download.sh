@@ -89,10 +89,7 @@ EOF2
     "tlscert": "/etc/docker/tls/cert.pem",
     "tlskey": "/etc/docker/tls/key.pem",
     "tlsverify": true,
-    "storage-driver": "overlay2",
-    "storage-opts": [
-        "overlay2.override_kernel_check=true"
-    ]
+    "storage-driver": "overlay2"
 }
 EOF2
     systemctl daemon-reload
