@@ -1,7 +1,7 @@
 #!/bin/bash
 
 bluesky_main() {
-    codes_yum_dependencies mesa-libGL mongodb-org-server
+    codes_yum_dependencies cairo-devel mesa-libGL mongodb-org-server
     codes_dependencies common ipykernel
     bluesky_mongo
     if install_version_fedora_lt_36; then

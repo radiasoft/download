@@ -56,6 +56,7 @@ common_python() {
         # Needed by rscode-bluesky and rscode-ml
         cachetools
         scikit-image==0.18.3
+        scikit-learn
         tifffile
         typing-extensions
         tzdata
@@ -72,6 +73,9 @@ common_python() {
 
         # conflict between rscode-bluesky and rscode-rsbeams
         unyt
+
+        # conflict between rscode-bluesky and rscode-shadow3
+        shadow3
 
         # fortran namelist parser, usable by many codes
         f90nml
