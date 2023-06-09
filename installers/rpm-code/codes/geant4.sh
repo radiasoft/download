@@ -62,7 +62,7 @@ EOF
 
 geant4_main() {
     codes_yum_dependencies \
-        expat-devel
+        expat-devel \
         qt5-qtbase \
         qt5-qtbase-devel
     codes_dependencies common
