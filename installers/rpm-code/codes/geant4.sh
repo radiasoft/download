@@ -55,7 +55,7 @@ done
 cat <<EOF2
 You must set 'GEANT4_DATA_DIR=$install_d' when running geant4 for it to find the datsets
 For example:
-GEANT4_DATA_DIR=$install_d ./exampleB1"
+GEANT4_DATA_DIR=$install_d ./exampleB1
 EOF2
 EOF
 }
