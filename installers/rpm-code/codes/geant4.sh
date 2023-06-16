@@ -65,6 +65,8 @@ geant4_main() {
         expat-devel \
         qt5-qtbase \
         qt5-qtbase-devel
+    # https://git.radiasoft.org/download/issues/489
+    strip --remove-section=.note.ABI-tag /usr/lib64/libQt5Core.so
     codes_dependencies common
     codes_download https://gitlab.cern.ch/geant4/geant4/-/archive/v11.1.1/geant4-v11.1.1.tar.gz
     codes_cmake \
