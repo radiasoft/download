@@ -16,6 +16,7 @@ opal_main() {
         # that is part of openmpi, not mpich
         s{.*mpi_mpifh.*}{};
         s{-fPIE}{};
+        s{(?=rt z)}{ stdc++ };
         s{add_link_options.*-pie.*}{};
     ' CMakeLists.txt
     # need to specify CC and CXX otherwise build uses wrong
@@ -26,14 +27,14 @@ opal_main() {
         HDF5_LIBRARY_DIR="$BIVIO_MPI_LIB" \
 	MITHRA_INCLUDE_DIR="${codes_dir[include]}" \
 	MITHRA_LIBRARY_DIR="${codes_dir[lib]}" \
-        CC=mpicc CXX=mpicxx \
+        CC=mpicc CXX=mpicc \
         codes_cmake \
         -D CMAKE_INSTALL_PREFIX="${codes_dir[prefix]}" \
 	-D ENABLE_OPAL_FEL=yes \
         -D ENABLE_SAAMG_SOLVER=TRUE \
         -D CMAKE_POSITION_INDEPENDENT_CODE=FALSE \
         -D USE_STATIC_LIBRARIES=FALSE
-    codes_make all
+    codes_make all VERBOSE=1
     # We need to strip because the binary is very large
     # https://github.com/radiasoft/download/issues/140
     install -m 755 --strip src/opal "${codes_dir[bin]}"/opal

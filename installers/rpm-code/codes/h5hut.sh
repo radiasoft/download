@@ -14,7 +14,7 @@ h5hut_main() {
     perl -pi -e 's{\`which}{\`type -p}' autogen.sh
     ./autogen.sh
     perl -pi -e 's{\`which}{\`type -p}' configure
-    CC=mpicc CXX=mpicxx ./configure \
+    CC=mpicc CXX=mpicc ./configure \
       --enable-parallel \
       --prefix="${codes_dir[prefix]}" \
       --with-pic

@@ -11,7 +11,7 @@ trilinos_main() {
         -D CMAKE_INSTALL_PREFIX:PATH="${codes_dir[prefix]}"
         -D METIS_LIBRARY_DIRS="${codes_dir[lib]}"
         -D MPI_BASE_DIR="$(dirname "$BIVIO_MPI_LIB")"
-        -D MPI_CXX_COMPILER:FILEPATH=mpicxx
+        -D MPI_CXX_COMPILER:FILEPATH=mpicc
         -D MPI_C_COMPILER:FILEPATH=mpicc
         -D MPI_Fortran_COMPILER:FILEPATH=mpif77
         -D TPL_ENABLE_BLAS:BOOL=ON
