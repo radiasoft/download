@@ -36,7 +36,9 @@ common_python() {
     declare -a d=(
         mpi4py
         numpy
-        matplotlib==3.3.3
+        # required by cmyt 1.3.0 (required by yt)
+        # https://github.com/radiasoft/download/issues/497
+        'matplotlib>=3.5.0'
         scipy
         Cython
     )
