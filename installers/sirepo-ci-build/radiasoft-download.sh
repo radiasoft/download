@@ -37,6 +37,7 @@ EOF
             gcl pykern
             cd pykern
             pip install -e .
+            export PYKERN_PKCLI_TEST_MAX_FAILURES=1 PYKERN_PKCLI_TEST_RESTARTABLE=1
             pykern ci run
             cd ..
             gcl sirepo
