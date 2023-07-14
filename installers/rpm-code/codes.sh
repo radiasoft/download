@@ -22,17 +22,26 @@ codes_cmake() {
     cmake -D CMAKE_RULE_MESSAGES:BOOL=OFF -D CMAKE_BUILD_TYPE:STRING="$t" "$@" ..
 }
 
+codes_cmake2() {
+    declare t=Release
+    if [[ ${CODES_DEBUG_FLAG:-} ]]; then
+        t=Debug
+    fi
+    cmake -S . -B build -D CMAKE_RULE_MESSAGES:BOOL=OFF -D CMAKE_BUILD_TYPE:STRING="$t" "$@"
+}
+
 codes_cmake_build() {
-    declare cmd=( cmake --build . -j$(codes_num_cores) )
+    declare target=${1:-}
+    declare cmd=( cmake --build build -j$(codes_num_cores) )
     if [[ ${CODES_DEBUG_FLAG:-} ]]; then
         cmd+=( --verbose )
     fi
-    "${cmd[@]}"
+    "${cmd[@]}" ${target:+--target $target}
 }
 
 codes_cmake_fix_lib_dir() {
     # otherwise uses ~/.local/lib64
-    find . -name CMakeLists.txt -print0 | xargs -0 perl -pi -e '/include\(GNUInstallDirs/ && ($_ .= q{
+    find . \( -name CMakeLists.txt -o -name \*.cmake \) -print0 | xargs -0 perl -pi -e '/include\(GNUInstallDirs/ && ($_ .= q{
 set(CMAKE_INSTALL_LIBDIR "lib" CACHE PATH "Library installation directory." FORCE)
 GNUInstallDirs_get_absolute_install_dir(CMAKE_INSTALL_FULL_LIBDIR CMAKE_INSTALL_LIBDIR)
 })'
