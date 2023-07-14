@@ -64,6 +64,8 @@ declare -a _beamsim_codes_all=(
     pygist
     warp
 
+    warpx
+
     xraylib
     shadow3
 
