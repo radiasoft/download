@@ -27,7 +27,7 @@ mantid_main() {
 mantid_install() {
     local install_prefix=$1
     codes_download mantidproject/mantid v6.4.0
-    codes_cmake \
+    codes_cmake2 \
         -DBOOST_ROOT="${codes_dir[prefix]}" \
         -DCMAKE_INSTALL_PREFIX="$install_prefix" \
         -DENABLE_DOCS=OFF \
@@ -41,8 +41,7 @@ mantid_install() {
         -DNEXUS_C_LIBRARIES="${codes_dir[lib]}"/libNeXus.so \
         -DNEXUS_INCLUDE_DIR="${codes_dir[include]}"/nexus/ \
         '-GUnix Makefiles'
-    codes_cmake_build
-    codes_make_install
+    codes_cmake_build install
 }
 
 mantid_install_rsmantid() {

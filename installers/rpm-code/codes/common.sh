@@ -75,6 +75,9 @@ common_python() {
         parso
         prompt_toolkit
 
+        # conflict between warpx and bnlcrl
+        periodictable
+
         # conflict between rscode-bluesky and rscode-rsbeams
         unyt
 
