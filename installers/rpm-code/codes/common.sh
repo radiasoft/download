@@ -35,10 +35,7 @@ common_python() {
     codes_dir[pyenv_prefix]=$(realpath "$(pyenv prefix)")
     declare -a d=(
         mpi4py
-        # numpy 1.25 adds words like min and max to the global namespace which
-        # then overrides the python builtins.
-        # https://git.radiasoft.org/sirepo/issues/6100
-        'numpy<1.25'
+        numpy
         # required by cmyt 1.3.0 (required by yt)
         # https://github.com/radiasoft/download/issues/497
         'matplotlib>=3.5.0'
