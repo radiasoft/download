@@ -35,7 +35,9 @@ common_python() {
     codes_dir[pyenv_prefix]=$(realpath "$(pyenv prefix)")
     declare -a d=(
         mpi4py
-        numpy
+        # Versions that don't have min and max on __all__
+        # https://github.com/radiasoft/sirepo/issues/6100
+        'numpy<1.25,>=1.25.2'
         # required by cmyt 1.3.0 (required by yt)
         # https://github.com/radiasoft/download/issues/497
         'matplotlib>=3.5.0'
