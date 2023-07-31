@@ -34,16 +34,17 @@ if [[ ! $install_d || ! -d $install_d || ! -w $install_d ]]; then
 fi
 
 declare datasets=(
+    G4ABLA.3.1
     G4EMLOW.8.2
-    G4PhotonEvaporation.5.7
-    G4RadioactiveDecay.5.6
+    G4ENSDFSTATE.2.3
+    G4INCL.1.0
+    G4NDL4.7
     G4PARTICLEXS.4.0
     G4PII.1.3
+    G4PhotonEvaporation.5.7
+    G4RadioactiveDecay.5.6
     G4RealSurface.2.2
     G4SAIDDATA.2.0
-    G4ABLA.3.1
-    G4INCL.1.0
-    G4ENSDFSTATE.2.3
     G4TENDL.1.4
 )
 
