@@ -4,6 +4,7 @@ warp_python_install() {
     cd warp
     warp_py_2_to_3
     warp_patch_numpy
+    warp_patch_math
     cd pywarp90
     warp_patch_makefiles
     warp_patch_serial_setup_py
@@ -118,6 +119,19 @@ EOF
  clean:
  	rm -rf $(BUILDBASEDIR) *.o ../scripts/$(BUILDBASEDIR) ../scripts/__version__.py
 -
+EOF
+}
+
+warp_patch_math() {
+    patch --quiet scripts/field_solvers/em3dsolver.py<<'EOF'
+@@ -5,6 +5,7 @@
+ import collections
+ import types
+ import operator
++import math
+
+ try:
+     import Opyndx
 EOF
 }
 
