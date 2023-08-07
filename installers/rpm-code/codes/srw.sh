@@ -75,13 +75,15 @@ srw_srwpy_backwards_compatible() {
 
     declare d=$(codes_python_lib_dir)
     install -m 444 /dev/stdin $d/srwpy_import_warning.py <<EOF
+import sys
+
 displayed = False
 
 def check(calling_module):
     global displayed
     if not displayed:
         displayed = True
-        print(f"This method of importing {calling_module} is deprecated. Please change to import from srwpy (ex: import {calling_module} -> from srwpy import {calling_module})")
+        print(f"This method of importing {calling_module} is deprecated. Please change to import from srwpy (ex: import {calling_module} -> from srwpy import {calling_module})", file=sys.stderr)
 EOF
     declare m
     for m in "${old_modules[@]}"; do
