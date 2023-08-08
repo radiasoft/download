@@ -1,12 +1,19 @@
 #!/bin/bash
 
 container_sirepo_base_main() {
-    declare user=${1:-}
-    if [[ $user == root ]]; then
-        container_sirepo_base_root
-        return
-    fi
-    container_sirepo_base_run_user
+    declare user=$1
+    case $user in
+        "root")
+            container_sirepo_base_root
+            ;;
+        "run_user")
+            container_sirepo_base_run_user
+            ;;
+        *)
+            install_err
+            exit "user=$1 unknown. Please set 'root' or 'run_user'"
+            ;;
+    esac
 }
 
 container_sirepo_base_root() {
