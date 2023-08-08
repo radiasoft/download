@@ -1,17 +1,19 @@
 #!/bin/bash
+#
+# Install dependencies common to containers for Sirepo development and CI.
+#
 
 container_sirepo_base_main() {
     declare user=$1
     case $user in
-        "root")
+        root)
             container_sirepo_base_root
             ;;
-        "run_user")
+        run_user)
             container_sirepo_base_run_user
             ;;
         *)
-            install_err
-            exit "user=$1 unknown. Please set 'root' or 'run_user'"
+            install_err "user=$1 unknown. Please set 'root' or 'run_user'"
             ;;
     esac
 }
