@@ -2,7 +2,7 @@
 
 openmc_dagmc() {
     local p="$PWD"
-    codes_download svalinn/DAGMC "$version"
+    codes_download svalinn/DAGMC develop
     codes_cmake \
         -D BUILD_STATIC_LIBS=OFF \
         -D BUILD_TALLY=ON \
@@ -17,14 +17,14 @@ openmc_main() {
     codes_yum_dependencies eigen3-devel
     codes_dependencies common
     openmc_moab
-    version=develop
     openmc_dagmc
     openmc_openmc
 }
 
 openmc_moab() {
     local p="$PWD"
-    codes_download https://bitbucket.org/fathomteam/moab.git Version5.1.0
+    # 20230827 fixes pymoab/core.pyx:1509:48: no suitable method found
+    codes_download https://bitbucket.org/fathomteam/moab.git bfccfc78e6cb3ddc02c39be437a64696bf126d86
     codes_cmake_fix_lib_dir
     # This cmake module uses python-config which doesn't work with venv
     # https://mail.python.org/archives/list/python-ideas@python.org/thread/QTCPOM5YBOKCWWNPDP7Z4QL2K6OWGSHL/
@@ -44,11 +44,10 @@ openmc_moab() {
 }
 
 openmc_openmc() {
-    codes_download openmc-dev/openmc "$version"
+    codes_download openmc-dev/openmc develop
     codes_cmake_fix_lib_dir
     CXX=mpicxx codes_cmake \
         -D CMAKE_INSTALL_PREFIX="${codes_dir[prefix]}" \
-        -D ENABLE_PYMOAB=ON \
         -D HDF5_PREFER_PARALLEL=on \
         -D OPENMC_USE_DAGMC=on \
         -D OPENMC_USE_MPI=on
