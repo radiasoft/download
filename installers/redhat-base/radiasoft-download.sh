@@ -75,6 +75,7 @@ EOF
         lshw
         lsof
         make
+        moreutils
         nginx
         openssl
         openssl-devel
