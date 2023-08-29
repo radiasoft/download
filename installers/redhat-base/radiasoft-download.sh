@@ -77,6 +77,7 @@ EOF
         make
         moreutils
         nginx
+        openssh-server
         openssl
         openssl-devel
         patch
