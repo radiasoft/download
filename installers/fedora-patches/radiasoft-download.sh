@@ -9,6 +9,7 @@ fedora_patches_mpich() {
     # to read the recorded switches:
     # readelf -p .GCC.command.line a.out
 
+    # -lmpicxx is deprecated so don't link with it
     install_sudo perl -pi -w -e '
     s{-Wp,-D_FORTIFY_SOURCE=2}{}g;
     s{-Wp,-D_GLIBCXX_ASSERTIONS}{}g;
@@ -22,7 +23,13 @@ fedora_patches_mpich() {
     # these flags are supplied by make/cmake
     s{-O2}{}g;
     s{-g\b}{}g;
+    s{"-lmpicxx"}{ # patched by git.radiasoft.org/download};
     ' /usr/lib64/mpich/bin/mpifort /usr/lib64/mpich/bin/mpic{c,xx}
+    install_sudo perl -pi -w -e '
+    s{#include "mpicxx.h"}{/* patched by git.radiasoft.org/download */};
+    ' /usr/include/mpich-x86_64/mpi.h
+    # Ensure compile time failures for mpi c++ bindings
+    install_sudo rm -f /usr/include/mpich-x86_64/mpicxx.h
     if grep -s -q format-security /usr/lib64/mpich/bin/mpifort; then
         # mpif77 and mpif90 are symlinks
         install_sudo perl -pi -w -e 's{-Werror=format-security}{}g' /usr/lib64/mpich/bin/mpifort
