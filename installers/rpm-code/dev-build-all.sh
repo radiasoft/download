@@ -1,4 +1,7 @@
 #!/bin/bash
+#
+# Build all the codes needed for beamsim
+#
 set +euo pipefail
 source ~/.bashrc
 set -euo pipefail
