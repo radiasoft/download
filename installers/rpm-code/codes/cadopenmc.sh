@@ -1,11 +1,11 @@
 #!/bin/bash
-declare _cadopenmc_gmsh_py_d=gmsh-py
+_cadopenmc_gmsh_py_d=gmsh-py
 
-declare _cadopenmc_gmsh_version=4.11.1
+_cadopenmc_gmsh_version=4.11.1
 
 cadopenmc_gmsh() {
     codes_download https://gmsh.info/src/gmsh-"$_cadopenmc_gmsh_version"-source.tgz
-    codes_cmake \
+    codes_cmake2 \
         -D ENABLE_BUILD_SHARED=ON \
         -D ENABLE_CAIRO=OFF \
         -D ENABLE_FLTK=OFF \
@@ -14,14 +14,17 @@ cadopenmc_gmsh() {
         -D ENABLE_TOUCHBAR=OFF
     codes_cmake_build
     # See cadopenmc_py
-    declare d=../$_cadopenmc_gmsh_d/gmsh
+    declare d=../$_cadopenmc_gmsh_py_d/gmsh
     mkdir -p "$d"
     cp -a api/gmsh.py "$d"/__init__.py
-    cp -a libgmsh.so."$_cadopenmc_gmsh_version" "$d"/gmsh
+    # This copies all symlinks. gmsh.py hardwires the major.minor version so
+    # really need all three. pip will create "-<version>" files which is a pain, but
+    # not much to do about it.
+    cp -a build/libgmsh.so.* "$d"
 }
 
 cadopenmc_gmsh_py() {
-    cd "$_cadopenmc_gmsh_d"
+    cd "$_cadopenmc_gmsh_py_d"
     cat > pyproject.toml <<'EOF'
 [build-system]
 requires = ["setuptools"]
