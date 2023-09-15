@@ -19,7 +19,7 @@ codes_cmake() {
     if [[ ${CODES_DEBUG_FLAG:-} ]]; then
         t=Debug
     fi
-    cmake -D CMAKE_RULE_MESSAGES:BOOL=OFF -D CMAKE_BUILD_TYPE:STRING="$t" "$@" ..
+    CLICOLOR=0 cmake -D CMAKE_RULE_MESSAGES:BOOL=OFF -D CMAKE_BUILD_TYPE:STRING="$t" "$@" ..
 }
 
 codes_cmake2() {
@@ -27,7 +27,7 @@ codes_cmake2() {
     if [[ ${CODES_DEBUG_FLAG:-} ]]; then
         t=Debug
     fi
-    cmake -S . -B build -D CMAKE_RULE_MESSAGES:BOOL=OFF -D CMAKE_BUILD_TYPE:STRING="$t" "$@"
+    CLICOLOR=0 cmake -S . -B build -D CMAKE_RULE_MESSAGES:BOOL=OFF -D CMAKE_BUILD_TYPE:STRING="$t" "$@"
 }
 
 codes_cmake_build() {
@@ -36,7 +36,7 @@ codes_cmake_build() {
     if [[ ${CODES_DEBUG_FLAG:-} ]]; then
         cmd+=( --verbose )
     fi
-    "${cmd[@]}" ${target:+--target $target}
+    CLICOLOR=0 "${cmd[@]}" ${target:+--target $target}
 }
 
 codes_cmake_fix_lib_dir() {
