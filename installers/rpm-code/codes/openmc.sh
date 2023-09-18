@@ -61,6 +61,7 @@ openmc_python_install() {
     cd ../moab/build/pymoab
     codes_python_install
     install_pip_install \
+        dagmc_geometry_slice_plotter \
         openmc-data-downloader \
         pymeshlab \
         vtk
