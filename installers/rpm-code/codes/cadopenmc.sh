@@ -51,6 +51,6 @@ cadopenmc_main() {
 }
 
 cadopenmc_python_install() {
-    cadopenmc_python_install
+    cadopenmc_gmsh_py
     pip install CAD_to_OpenMC
 }
