@@ -47,10 +47,40 @@ EOF
 
 cadopenmc_main() {
     codes_dependencies common
+    cadopenmc_opencascade
     cadopenmc_gmsh
 }
 
 cadopenmc_python_install() {
     cadopenmc_gmsh_py
     pip install CAD_to_OpenMC
+}
+
+cadopenmc_opencascade() {
+    codes_download_foss opencascade-7.7.0.tar.gz
+    codes_cmake2 \
+        -D BUILD_CPP_STANDARD=C++11 \
+        -D BUILD_Inspector=OFF \
+        -D BUILD_LIBRARY_TYPE=Shared \
+        -D BUILD_MODULE_ApplicationFramework=OFF \
+        -D BUILD_MODULE_DataExchange=ON \
+        -D BUILD_MODULE_Draw=OFF \
+        -D BUILD_MODULE_ModelingAlgorithms=OFF \
+        -D BUILD_MODULE_ModelingData=OFF \
+        -D BUILD_MODULE_Visualization=OFF \
+        -D BUILD_SAMPLES_QT=OFF \
+        -D CMAKE_INSTALL_PREFIX="${codes_dir[prefix]}" \
+        -D INSTALL_SAMPLES=OFF \
+        -D INSTALL_TEST_CASES=OFF \
+        -D USE_DRACO=OFF \
+        -D USE_FREEIMAGE=OFF \
+        -D USE_FREETYPE=OFF \
+        -D USE_GLES2=OFF \
+        -D USE_OPENGL=OFF \
+        -D USE_OPENVR=OFF \
+        -D USE_RAPIDJSON=OFF \
+        -D USE_TBB=OFF \
+        -D USE_TK=OFF \
+        -D USE_VTK=OFF
+    codes_cmake_build
 }
