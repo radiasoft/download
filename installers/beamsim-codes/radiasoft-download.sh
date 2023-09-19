@@ -45,7 +45,9 @@ declare -a _beamsim_codes_all=(
 
     madx
     mantid
+
     openmc
+    cadopenmc
 
     # needs hypre and metis
     petsc
