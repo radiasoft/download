@@ -90,6 +90,15 @@ common_python() {
 
         # conflict between rscode-bluesky and rscode-openmc
         uncertainties
+        jsonschema
+        tenacity
+        tzlocal
+
+        # conflict between rscode-openmc and rscode-ml
+        protobuf
+
+        # conflict between rscode-openmc and rscode-radia
+        trimesh
 
         # conflict between rscode-rsbeams and rscode-ipykernel
         ipykernel
