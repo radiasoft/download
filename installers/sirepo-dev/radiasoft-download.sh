@@ -25,7 +25,7 @@ sirepo_dev_main() {
         install_pip_uninstall "$p"
         if [[ -d $p ]]; then
             cd "$p"
-            git pull
+            git pull &> /dev/null || true
         else
             gcl "$p"
             cd "$p"
