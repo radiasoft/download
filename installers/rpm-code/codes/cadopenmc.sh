@@ -27,6 +27,7 @@ cadopenmc_gmsh() {
 }
 
 cadopenmc_main() {
+    codes_yum_dependencies libglvnd-devel
     codes_dependencies common
     cadopenmc_opencascade
     cadopenmc_gmsh
