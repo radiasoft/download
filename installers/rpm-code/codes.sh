@@ -19,7 +19,7 @@ codes_cmake() {
     if [[ ${CODES_DEBUG_FLAG:-} ]]; then
         t=Debug
     fi
-    cmake -D CMAKE_RULE_MESSAGES:BOOL=OFF -D CMAKE_BUILD_TYPE:STRING="$t" "$@" ..
+    CLICOLOR=0 cmake -D CMAKE_RULE_MESSAGES:BOOL=OFF -D CMAKE_BUILD_TYPE:STRING="$t" "$@" ..
 }
 
 codes_cmake2() {
@@ -27,7 +27,7 @@ codes_cmake2() {
     if [[ ${CODES_DEBUG_FLAG:-} ]]; then
         t=Debug
     fi
-    cmake -S . -B build -D CMAKE_RULE_MESSAGES:BOOL=OFF -D CMAKE_BUILD_TYPE:STRING="$t" "$@"
+    CLICOLOR=0 cmake -S . -B build -D CMAKE_RULE_MESSAGES:BOOL=OFF -D CMAKE_BUILD_TYPE:STRING="$t" "$@"
 }
 
 codes_cmake_build() {
@@ -36,7 +36,7 @@ codes_cmake_build() {
     if [[ ${CODES_DEBUG_FLAG:-} ]]; then
         cmd+=( --verbose )
     fi
-    "${cmd[@]}" ${target:+--target $target}
+    CLICOLOR=0 "${cmd[@]}" ${target:+--target $target}
 }
 
 codes_cmake_fix_lib_dir() {
@@ -131,36 +131,40 @@ codes_download() {
             declare manifest=('' '')
             repo=
             ;;
-        *.tar.gz|*.tar.xz|*.tar.bz2)
+        *.tar.gz|*.tar.xz|*.tar.bz2|*.tgz)
             declare z s
             case $repo in
-                *bz2)
-                    s=bz2
+                *.bz2)
+                    s=tar.bz2
                     z=j
                     ;;
-                *gz)
-                    s=gz
+                *.gz)
+                    s=tar.gz
                     z=z
                     ;;
-                *xz)
-                    s=xz
+                *.tgz)
+                    s=tgz
+                    z=z
+                ;;
+                *.xz)
+                    s=tar.xz
                     z=J
                     ;;
                 *)
                     install_err "PROGRAM ERROR: repo=$repo must match outer case"
                     ;;
             esac
-            declare b=$(basename "$repo" .tar."$s")
+            declare b=$(basename "$repo" ".$s")
             if [[ ${version:-} ]]; then
                 declare manifest=( "$package" "$version" )
             else
                 # github tarball
-                if [[ $repo =~ ([^/]+)/archive/v([^/]+).tar.$s$ ]]; then
+                if [[ $repo =~ ([^/]+)/archive/v([^/]+).$s$ ]]; then
                     if [[ ! $qualifier ]]; then
                         qualifier=${BASH_REMATCH[1]}-${BASH_REMATCH[2]}
                     fi
                 # gitlab tarball
-                elif [[ $repo =~ /-/archive/v[^/]+/([^/]+)-v([^/]+).tar.$s$ ]]; then
+                elif [[ $repo =~ /-/archive/v[^/]+/([^/]+)-v([^/]+).$s$ ]]; then
                     : pass
                 elif [[ ! $b =~ ^(.+)-([[:digit:]].+)$ ]]; then
                     codes_err "$repo: basename=$b does not match version regex"
@@ -190,7 +194,7 @@ codes_download() {
             )
             ;;
         *)
-            codes_err "$repo: unknown repository format; must end in .git, .rpm, .tar.gz, .tar.xz, .tar.bz2"
+            codes_err "$repo: unknown repository format; must end in .git, .rpm, .tar.gz, .tgz, .tar.xz, .tar.bz2"
             ;;
     esac
     if [[ ! ${codes_download_reuse_git:-} ]]; then
