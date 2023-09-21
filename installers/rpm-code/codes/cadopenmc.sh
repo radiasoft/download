@@ -4,7 +4,8 @@ _cadopenmc_gmsh_py_d=gmsh-py
 _cadopenmc_gmsh_version=4.11.1
 
 cadopenmc_gmsh() {
-    codes_download https://gmsh.info/src/gmsh-"$_cadopenmc_gmsh_version"-source.tgz
+    # https://gmsh.info/src/gmsh-"$_cadopenmc_gmsh_version"-source.tgz
+    codes_download_foss gmsh-"$_cadopenmc_gmsh_version"-source.tar.xz
     # Even though not installing, we need CMAKE_INSTALL_PREFIX to allow gmsh to find
     # opencascade.
     codes_cmake2 \
@@ -34,6 +35,7 @@ cadopenmc_main() {
 }
 
 cadopenmc_opencascade() {
+    # opencascade.com
     codes_download_foss opencascade-7.7.0.tar.gz
     codes_cmake2 \
         -D BUILD_CPP_STANDARD=C++11 \
