@@ -102,6 +102,9 @@ common_python() {
 
         # conflict between rscode-rsbeams and rscode-ipykernel
         ipykernel
+
+        # conflict between rsbeams and cadopenmc
+        nlopt
     )
     install_pip_install "${d[@]}"
 
