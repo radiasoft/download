@@ -48,7 +48,9 @@ common_python() {
         # pillow and python-dateutil installed by matplotlib
         # pipdeptree is useful for debugging
         pipdeptree
-        pandas
+
+        # tfs-pandas (required by sirepo-bluesky which is required by rscode-bluesky)
+        'pandas>=2.0,<2.1.0'
         sympy
         tables
 

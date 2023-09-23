@@ -15,5 +15,6 @@ if [[ $code == common ]]; then
     if [[ ! $(docker images | grep radiasoft/fedora) ]]; then
         docker pull radiasoft/fedora
     fi
-    install_server= radia_run container-build
+    # install_server should be set local server when building image
+    radia_run container-build
 fi
