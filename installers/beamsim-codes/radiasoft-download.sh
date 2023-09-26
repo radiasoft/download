@@ -39,8 +39,6 @@ declare -a _beamsim_codes_all=(
     parmetis
     metis
     trilinos
-# see pyopaltools.sh
-#    pyopaltools
     opal
 
     madx
