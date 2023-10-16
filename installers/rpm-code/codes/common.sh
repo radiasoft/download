@@ -46,7 +46,7 @@ common_python() {
     common_install_mpi4py_h5py
     d=(
         # Needed by omega
-        pmd_beamphysics
+        openpmd-beamphysics
 
         # pillow and python-dateutil installed by matplotlib
         # pipdeptree is useful for debugging
