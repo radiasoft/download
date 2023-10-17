@@ -82,6 +82,7 @@ EOF
         openssl-devel
         patch
         pciutils
+        perl-debugger
         pkgconfig
         procps-ng
         pxz
