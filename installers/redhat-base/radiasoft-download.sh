@@ -82,7 +82,6 @@ EOF
         openssl-devel
         patch
         pciutils
-        perl-debugger
         pkgconfig
         procps-ng
         pxz
@@ -113,6 +112,10 @@ EOF
         )
     fi
     install_yum_install "${x[@]}"
+    # TODO(robnagler) generalize
+    if [[ $install_os_release_id == fedora ]] && ! install_version_fedora_lt_36; then
+        install_yum_install perl-debugger
+    fi
     # See: git.radiasoft.org/download/issues/231
     if [[ $install_os_release_id == fedora && $install_os_release_version_id == 32 ]]; then
         install_sudo dnf module enable -y nodejs:16/default
