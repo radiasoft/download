@@ -36,17 +36,24 @@ common_python() {
     declare -a d=(
         mpi4py
         numpy
-        matplotlib==3.3.3
+        # required by cmyt 1.3.0 (required by yt)
+        # https://github.com/radiasoft/download/issues/497
+        'matplotlib>=3.5.0'
         scipy
         Cython
     )
     install_pip_install "${d[@]}"
     common_install_mpi4py_h5py
     d=(
+        # Needed by omega
+        openpmd-beamphysics
+
         # pillow and python-dateutil installed by matplotlib
         # pipdeptree is useful for debugging
         pipdeptree
-        pandas
+
+        # tfs-pandas (required by sirepo-bluesky which is required by rscode-bluesky)
+        'pandas>=2.0,<2.1.0'
         sympy
         tables
 
@@ -71,6 +78,9 @@ common_python() {
         parso
         prompt_toolkit
 
+        # conflict between warpx and bnlcrl
+        periodictable
+
         # conflict between rscode-bluesky and rscode-rsbeams
         unyt
 
@@ -89,9 +99,21 @@ common_python() {
 
         # conflict between rscode-bluesky and rscode-openmc
         uncertainties
+        jsonschema
+        tenacity
+        tzlocal
+
+        # conflict between rscode-openmc and rscode-ml
+        protobuf
+
+        # conflict between rscode-openmc and rscode-radia
+        trimesh
 
         # conflict between rscode-rsbeams and rscode-ipykernel
         ipykernel
+
+        # conflict between rsbeams and cadopenmc
+        nlopt
     )
     install_pip_install "${d[@]}"
 

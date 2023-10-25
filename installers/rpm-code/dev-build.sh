@@ -14,9 +14,9 @@ fi
 if [[ $1 == common ]]; then
     cd ~/src/radiasoft/container-rpm-code
     if [[ ! $(docker images | grep radiasoft/fedora) ]]; then
-        cd container-fedora
-        # in case set by dev-env.sh, because server isn't running yet
+        cd ../container-fedora
         radia_run container-build
+        cd -
     fi
     radia_run container-build
 fi

@@ -39,13 +39,13 @@ declare -a _beamsim_codes_all=(
     parmetis
     metis
     trilinos
-# see pyopaltools.sh
-#    pyopaltools
     opal
 
     madx
     mantid
+
     openmc
+    cadopenmc
 
     # needs hypre and metis
     petsc
@@ -63,6 +63,8 @@ declare -a _beamsim_codes_all=(
     openpmd
     pygist
     warp
+
+    warpx
 
     xraylib
     shadow3
