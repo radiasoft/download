@@ -17,6 +17,9 @@ python_ci_main() {
             i=radiasoft/python3
             p+=( pykern )
             ;;
+        rslearn)
+            i=radiasoft/python3
+            ;;
         sirepo)
             i=radiasoft/sirepo-ci
             p+=( pykern )
