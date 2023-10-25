@@ -50,7 +50,7 @@ python_ci_main() {
                 pip install git+https://'${GITHUB_TOKEN:+$GITHUB_TOKEN@}'github.com/radiasoft/\$x.git
             done
             pip uninstall -y '$r' >& /dev/null || true
-            pip install -e .
+            pip install --no-cache-dir -e .
             export PYKERN_PKCLI_TEST_MAX_FAILURES=1 PYKERN_PKCLI_TEST_RESTARTABLE=1
             if [[ -f test.sh ]]; then
                 bash test.sh
