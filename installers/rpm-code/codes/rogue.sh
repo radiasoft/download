@@ -13,3 +13,8 @@ rogue_main() {
     codes_make
     codes_make_install
 }
+
+rogue_python_install() {
+    cd rogue
+    install_pip_install -r pip_requirements.txt
+}
