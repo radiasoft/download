@@ -9,32 +9,12 @@ flash_tarball_main() {
     if [[ ! -f $t ]]; then
             install_err "$t must exist"
     fi
-    install_tmp_dir
-    declare p=$PWD
-    declare r=()
     install_url radiasoft/download installers
     install_script_eval rpm-code/codes.sh
-    codes_download flashcap
-    git fetch --unshallow
-    declare x
-    for x in \
-        'CapLaser3D 47a641aa467ff48c1337a69e6c3a6778e5b854ae' \
-        'CapLaserBELLA master' \
-    ; do
-        x=( $x )
-        git checkout --quiet "${x[1]}"
-        cd "config/${x[0]}"
-        # POSIT: Matches sirepo.sim_data._flash_problem_files_archive_basename
-        n=problemFiles-archive.${x[0]}.zip
-        zip --quiet "$p/$n" *F90 Config Makefile
-        r+=($n)
-        cd ../..
-    done
-    cd ..
-    r+=( "$(flash_tarball_patch_and_update_tgz "$t")" )
+    declare r=( "$(flash_tarball_patch_and_update_tgz "$t")" )
     x=$d/flash-$(date -u +%Y%m%d.%H%M%S).tar.gz
     rm -f "$x"
-    tar czf "$x" "${r[@]}"
+    tar czf "$x" "$r"
     ln -s --force "$(basename "$x")" $d/flash-dev.tar.gz
 }
 
