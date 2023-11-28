@@ -41,3 +41,7 @@ pcas_DEPEND_DIRS = libcom
 EOF
     cd "$p"
 }
+
+epics_python_install() {
+    install_pip_install p4p
+}
