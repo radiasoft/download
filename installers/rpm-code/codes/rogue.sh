@@ -1,7 +1,7 @@
 #!/bin/bash
 
 rogue_main() {
-    codes_yum_dependencies zeromq-devel python-devel mesa-libG net-tools
+    codes_yum_dependencies zeromq-devel python-devel mesa-libGL net-tools
     codes_dependencies common boost epics
     codes_download slaclab/rogue
     codes_cmake \
