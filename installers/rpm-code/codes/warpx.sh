@@ -10,12 +10,13 @@ warpx_main() {
     codes_cmake_fix_lib_dir
     codes_cmake2 \
         -D CMAKE_INSTALL_PREFIX="${codes_dir[prefix]}" \
+        -D WarpX_APP=OFF \
         -D WarpX_DIMS='1;2;RZ;3' \
-        -D WarpX_LIB=ON
-    codes_cmake_build install
+        -D WarpX_PYTHON=ON
 }
 
 warpx_python_install() {
     cd "$_warpx_src_d"
-    codes_cmake_build pip_install
+    PYINSTALLOPTIONS="--jobs=$(codes_num_cores)" codes_cmake_build pip_install
+    install -m 444 build/lib/libamrex*so "${codes_dir[lib]}"
 }
