@@ -9,7 +9,7 @@ radia_main() {
     rm -rf ext_lib
     perl -pi - cpp/py/setup.py <<'EOF'
         s/\bfftw/sfftw/;
-        s/mpi_cxx/mpicxx/;
+        s/mpi_cxx/mpi/;
         s{/usr/lib/openmpi/lib}{/usr/lib64/mpich/lib}g;
         s{/usr/lib/openmpi/include}{/usr/include/mpich-x86_64}g;
 EOF
@@ -29,13 +29,13 @@ radia_patch_py_ssize_t() {
     patch cpp/src/clients/python/pyparse.h <<'EOF'
 @@ -17,7 +17,7 @@
  //#include <cstring>
- 
+
  using namespace std;
 -
 +#define PY_SSIZE_T_CLEAN
  //Without the following Python.h will enforce usage of python**_d.lib in dbug mode, which may not be always existing
  //NOTE: to make it compilable with VC2013 (VC12), that blcock had to be moved down and placed after the previous includes
- #if defined(_DEBUG) 
+ #if defined(_DEBUG)
 EOF
 }
 
