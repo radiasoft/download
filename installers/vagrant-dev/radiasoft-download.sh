@@ -22,11 +22,7 @@ vagrant_dev_box_add() {
         box=$vagrant_dev_box
     elif [[ $box =~ fedora ]]; then
         if [[ $box == fedora ]]; then
-            if [[ $_vagrant_dev_host_os == ubuntu ]]; then
-                box=generic/fedora$install_version_fedora
-            else
-                box=fedora/$install_version_fedora-cloud-base
-            fi
+            box=generic/fedora$install_version_fedora
         fi
     elif [[ $box == centos ]]; then
         if [[ $_vagrant_dev_host_os == ubuntu ]]; then
@@ -144,6 +140,7 @@ expects: fedora|centos[/<version>], <ip address>, update, v[1-9].radia.run"
     if [[ $base == $host ]]; then
         host=$host.radia.run
     fi
+    vagrant_dev_private_net=${vagrant_dev_private_net-1}
     # vbguest is pretty broken so we are defaulting to off for now
     vagrant_dev_no_vbguest=${vagrant_dev_no_vbguest-1}
     if [[ ${vagrant_dev_barebones:+1} ]]; then
@@ -355,6 +352,15 @@ EOF3
     vagrant destroy -f
 }
 
+vagrant_dev_provision_private_net() {
+    if [[ ! ${vagrant_dev_private_net:-} ]]; then
+        return
+    fi
+    cat <<EOF
+    config.vm.network "private_network", ip: "$ip"
+EOF
+}
+
 vagrant_dev_vagrantfile() {
     declare os=$1 host=$2 ip=$3 first=$4
     declare vbguest='' timesync=''
@@ -413,7 +419,7 @@ EOF
 Vagrant.configure("2") do |config|
     config.vm.box = "$box"
     config.vm.hostname = "$host"
-    config.vm.network "private_network", ip: "$ip"
+$(vagrant_dev_provision_private_net)
 ${provider}
         # 8192 needed for compiling some the larger codes
         v.memory = ${vagrant_dev_memory:-8192}
