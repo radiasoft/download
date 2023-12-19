@@ -15,21 +15,21 @@ vagrant_dev_box_add() {
     # Returns: $box
     box=$1
     declare provider=virtualbox
-    if [[ $_vagrant_dev_host_os == ubuntu ]]; then
+    if [[ $_vagrant_dev_host_os =~ ^(ubuntu|centos)$ ]]; then
         provider=libvirt
     fi
     if [[ ${vagrant_dev_box:-} ]]; then
         box=$vagrant_dev_box
     elif [[ $box =~ fedora ]]; then
         if [[ $box == fedora ]]; then
-            if [[ $_vagrant_dev_host_os == ubuntu ]]; then
+            if [[ $_vagrant_dev_host_os =~ ^(ubuntu|centos)$ ]]; then
                 box=generic/fedora$install_version_fedora
             else
                 box=fedora/$install_version_fedora-cloud-base
             fi
         fi
     elif [[ $box == centos ]]; then
-        if [[ $_vagrant_dev_host_os == ubuntu ]]; then
+        if [[ $_vagrant_dev_host_os =~ ^(ubuntu|centos)$ ]]; then
             box=generic/centos$install_version_centos
         else
             box=centos/$install_version_centos
@@ -158,9 +158,6 @@ expects: fedora|centos[/<version>], <ip address>, update, v[1-9].radia.run"
         vagrant_dev_no_mounts=1
         vagrant_dev_no_vbguest=${vagrant_dev_no_vbguest-1}
     fi
-    if [[ ! ${vagrant_dev_no_nfs_src+1} && $os =~ centos ]]; then
-        vagrant_dev_no_nfs_src=1
-    fi
 #TODO(robnagler) handle fedora/<version> syntax
     if [[ ! ${vagrant_dev_provision_eth1+1} && $os =~ fedora && ! $(install_version_fedora_lt_36) ]]; then
         vagrant_dev_no_vbguest=${vagrant_dev_no_vbguest-}
@@ -168,7 +165,11 @@ expects: fedora|centos[/<version>], <ip address>, update, v[1-9].radia.run"
         # https://github.com/hashicorp/vagrant/issues/12762
         vagrant_dev_provision_eth1=1
     fi
-    if [[ $_vagrant_dev_host_os == ubuntu ]]; then
+    # TODO(e-carlin): Think about the issues this might cause. We are changing centos to be libvirt
+    # for vm_devbox but this will mess with installs on centos not under devbox (ex bkf7:~/v(3|4))
+    # I've made changes where everywhere we used to just have a check for ubuntu is now a check for
+    # ubuntu or centos
+    if [[ $_vagrant_dev_host_os =~ ^(ubuntu|centos)$ ]]; then
         # libvirt has no vbguest.
         vagrant_dev_no_mounts=1
         vagrant_dev_no_nfs_src=1
@@ -177,6 +178,7 @@ expects: fedora|centos[/<version>], <ip address>, update, v[1-9].radia.run"
     if [[ ! $ip ]]; then
         ip=$(vagrant_dev_ip "$host")
     fi
+    # TODO(e-carlin): I'm here
     vagrant_dev_prepare_host
     vagrant_dev_init_nfs
     vagrant_dev_prepare
@@ -388,7 +390,7 @@ vagrant_dev_vagrantfile() {
     # vagrant_dev_box_add returns in box
     declare box
     vagrant_dev_box_add "$os"
-    if [[ $_vagrant_dev_host_os == ubuntu ]]; then
+    if [[ $_vagrant_dev_host_os =~ ^(ubuntu|centos)$ ]]; then
         declare provider=$(cat <<'EOF'
     config.vm.provider :libvirt do |v|
 EOF
