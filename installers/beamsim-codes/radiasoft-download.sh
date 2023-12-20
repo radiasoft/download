@@ -66,7 +66,6 @@ declare -a _beamsim_codes_all=(
 
     warpx
 
-    xraylib
     shadow3
 
     pyzgoubi
@@ -90,7 +89,6 @@ declare -a _beamsim_codes_install_skip=(
     forthon
     openpmd
     pygist
-    xraylib
     pyzgoubi
 )
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-common_install_mpi4py_h5py() {
+common_install_h5py() {
     # hdf5, h5py, and  tensorflow all need to agree with each other.
     # We install hdf5 with whatever the latest version from the fedora repos is.
     # We then must backtrack to see what h5py version supports that. They'll mention it in their
@@ -9,20 +9,14 @@ common_install_mpi4py_h5py() {
     # will list the h5py versions that tensorflow supports
 
     declare p="$PWD"
-    declare v=2.10.0
-    declare l="h5py==$v"
-    if ! install_version_fedora_lt_36; then
-        v=3.7.0
-        l='.'
-        # https://git.radiasoft.org/download/issues/422
-        codes_download h5py/h5py  3507819de54b35af05b2ca8ca55ec7e7b60cb919
-    fi
+    # https://git.radiasoft.org/download/issues/422
+    codes_download h5py/h5py 3.10.0
     declare mpicc=$(type -p mpicc)
     if [[ ! $mpicc ]]; then
         install_err mpicc not found
     fi
     # Force MPI mode (not auto-detected)
-    CC=$mpicc HDF5_MPI=ON install_pip_install --no-binary=h5py "$l"
+    CC=$mpicc HDF5_MPI=ON install_pip_install --no-binary=h5py .
     cd "$p"
 }
 
@@ -43,7 +37,7 @@ common_python() {
         Cython
     )
     install_pip_install "${d[@]}"
-    common_install_mpi4py_h5py
+    common_install_h5py
     d=(
         # Needed by omega
         openpmd-beamphysics
@@ -62,6 +56,7 @@ common_python() {
 
         # Needed by rscode-bluesky and rscode-ml
         cachetools
+        lxml
         scikit-image==0.18.3
         tifffile
         typing-extensions
@@ -98,6 +93,9 @@ common_python() {
         jsonschema
         tenacity
         tzlocal
+
+        # conflict between rscode-bluesky and rscode-shadow3
+        xraylib
 
         # conflict between rscode-openmc and rscode-ml
         protobuf
