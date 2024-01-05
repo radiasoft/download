@@ -62,6 +62,7 @@ common_python() {
         typing-extensions
         tzdata
 
+
         # Needed by rscode-bluesky and rscode-rsbeams
         # https://github.com/jupyter/notebook/issues/2435
         # yt (in rscode-rsbeams) installs jedi, which needs to be forced to 0.17.2
@@ -71,6 +72,7 @@ common_python() {
         jedi==0.17.2
         parso
         prompt_toolkit
+        fsspec
 
         # conflict between warpx and bnlcrl
         periodictable
