@@ -25,7 +25,7 @@ ml_python_common() {
 
 # Match gpu versions to make it easy to move between environments.
 ml_python_cpu() {
-    install_pip_install tensorflow~=_ml_python_tensorflow_version
+    install_pip_install tensorflow~="$_ml_python_tensorflow_version"
     install_pip_install --index-url https://download.pytorch.org/whl/cpu \
         "${_ml_python_torch_base[@]}"
     install_pip_install --find-links https://data.pyg.org/whl/torch-2.1.0+cpu.html \
@@ -57,5 +57,5 @@ ml_python_gpu() {
         "${_ml_python_torch_extras[@]}"
     # Tensorflow, python, cuda, compatability matrix
     # https://www.tensorflow.org/install/source#gpu
-    install_pip_install tensorflow[and-cuda]~=_ml_python_tensorflow_version
+    install_pip_install tensorflow[and-cuda]~="$_ml_python_tensorflow_version"
 }
