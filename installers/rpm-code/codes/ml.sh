@@ -6,7 +6,5 @@ ml_main() {
 }
 
 ml_python_install() {
-    install_pip_install h5ImageGenerator \
-        scikit-learn sympy \
-        tensorflow~=2.15.0
+    install_repo_eval ml-python cpu
 }
