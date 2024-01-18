@@ -75,6 +75,10 @@ vagrant_dev_ignore_git_dir_ownership() {
 
 vagrant_dev_ip() {
     declare host=$1
+    if [[ ! ${vagrant_dev_provision_eth1:-} ]]; then
+        echo -n
+        return
+    fi
     declare i=$(dig +short "$host" 2>/dev/null || true)
     if [[ $i ]]; then
         echo -n "$i"
@@ -122,6 +126,9 @@ vagrant_dev_main() {
             v|v[1-9]|*.radia.run)
                 host=$a
                 ;;
+            [a-z]*.*.*)
+                host=$a
+                ;;
             *)
                 install_err "invalid arg=$a
 expects: fedora|centos[/<version>], <ip address>, update, v[1-9].radia.run"
@@ -140,9 +147,13 @@ expects: fedora|centos[/<version>], <ip address>, update, v[1-9].radia.run"
     if [[ $base == $host ]]; then
         host=$host.radia.run
     fi
-    vagrant_dev_private_net=${vagrant_dev_private_net-1}
-    # vbguest is pretty broken so we are defaulting to off for now
-    vagrant_dev_no_vbguest=${vagrant_dev_no_vbguest-1}
+    if [[ ${vagrant_dev_vm_devbox:+1} ]]; then
+        vagrant_dev_no_mounts=${vagrant_dev_no_mounts-1}
+        vagrant_dev_no_nfs_src=${vagrant_dev_no_nfs_src-1}
+        vagrant_dev_no_vbguest=${vagrant_dev_no_vbguest-1}
+        vagrant_dev_private_net=${vagrant_dev_private_net-}
+        vagrant_dev_provision_eth1=${vagrant_dev_provision_eth1-}
+    fi
     if [[ ${vagrant_dev_barebones:+1} ]]; then
         # allow individual overrides
         vagrant_dev_no_dev_env=${vagrant_dev_no_dev_env-1}
@@ -150,6 +161,9 @@ expects: fedora|centos[/<version>], <ip address>, update, v[1-9].radia.run"
         vagrant_dev_no_nfs_src=${vagrant_dev_no_nfs_src-1}
         vagrant_dev_no_vbguest=${vagrant_dev_no_vbguest-1}
     fi
+    vagrant_dev_private_net=${vagrant_dev_private_net-1}
+    # vbguest is pretty broken so we are defaulting to off for now
+    vagrant_dev_no_vbguest=${vagrant_dev_no_vbguest-1}
     # Mounts only really work on Darwin for now
     if [[ ! ${vagrant_dev_no_mounts+1} && $_vagrant_dev_host_os != darwin ]]; then
         vagrant_dev_no_mounts=1
