@@ -40,6 +40,17 @@ vagrant_dev_box_add() {
     fi
 }
 
+vagrant_dev_disable_security() {
+    vagrant ssh <<'EOF'
+sudo bash <<'EOF_BASH'
+systemctl stop firewalld || true
+systemctl disable firewalld || true
+perl -pi -e 's{(?<=^SELINUX=).*}{disabled}' /etc/selinux/config
+EOF_BASH
+EOF
+    vagrant reload
+}
+
 vagrant_dev_eth1() {
     local ip=$1
     if [[ ! ${vagrant_dev_provision_eth1:-} ]]; then
@@ -197,7 +208,7 @@ expects: fedora|centos[/<version>], <ip address>, update, v[1-9].radia.run"
     if [[ ${vagrant_dev_no_dev_env:+1} ]]; then
         return
     fi
-    vagrant_dev_stop_services
+    vagrant_dev_disable_security
     declare f
     for f in ~/.gitconfig ~/.netrc; do
         if [[ -r $f ]]; then
@@ -374,17 +385,6 @@ vagrant_dev_provision_private_net() {
     cat <<EOF
     config.vm.network "private_network", ip: "$ip"
 EOF
-}
-
-vagrant_dev_stop_services() {
-    vagrant ssh <<EOF
-sudo bash -s <<EOF_BASH
-systemctl stop firewalld || true
-systemctl disable firewalld || true
-perl -pi -e 's{(?<=^SELINUX=).*}{disabled}' /etc/selinux/config || true
-EOF_BASH
-EOF
-    vagrant reload
 }
 
 vagrant_dev_vagrantfile() {
