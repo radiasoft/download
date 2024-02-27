@@ -323,8 +323,14 @@ install_script_eval() {
     fi
     declare m=
     if [[ "$script" == radiasoft-download.sh ]]; then
-        # before sourcing, which can modify anything
-        declare f=$(basename "$install_url")
+        declare f
+        # POSIT: same special case in install_url()
+        if [[ $install_url =~ ^https://api.github.com/repos/[^/]+/([^/]+)/contents$ ]]; then
+            f=${BASH_REMATCH[1]}
+        else
+            f=$(basename "$install_url")
+        fi
+        # before sourcing, which can modify anything, do this calculation
         f=${f//-/_}_main
         # three cases: main without args or with install_extra_args
         # Be loose in case there's a bug. Compliant scripts must
