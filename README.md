@@ -116,3 +116,12 @@ bash etc/dev-server.sh
 
 This command starts the http.server and outputs instructions on how to
 run installers in the local dev environment.
+
+### install.sh testing
+
+To test with a github install_server, that is, to test install.sh
+itself, you an run it this way:
+
+```sh
+bash -s debug some/repo < download/bin/install.sh
+```
