@@ -3,8 +3,8 @@
 # Assumes running in GITHUB
 #
 python_ci_main() {
-    if [[ ! -r setup.py ]]; then
-        install_err 'no setup.py'
+    if ! [[ -r setup.py || -r pyproject.toml ]]; then
+        install_err 'no setup.py or pyproject.toml'
     fi
     declare i
     declare -a p=()
