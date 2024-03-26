@@ -22,22 +22,22 @@ radia_run slurm-dev
         install_err 'run as vagrant, not root'
     fi
     install_yum update
-    local c=2 n=
-    if [[ $(hostname) != $_slurm_dev_nfs_server ]]; then
+    declare c=2 n=
+    if [[ ${slurm_dev_want_nfs:-} && $(hostname) != $_slurm_dev_nfs_server ]]; then
         # specify 4 CPUs if non-local
         c=4
         n=1
         slurm_dev_nfs
     fi
     install_yum install slurm-slurmd slurm-slurmctld
-    local k=/etc/munge/munge.key
+    declare k=/etc/munge/munge.key
     if ! install_sudo test -e "$k"; then
         dd if=/dev/urandom bs=1 count=1024 \
             | install_sudo install -m 400 -o munge -g munge /dev/stdin "$k"
     fi
     install_sudo perl -pi -e "s{^NodeName=.*}{NodeName=localhost CPUs=$c State=UNKNOWN}" \
          /etc/slurm/slurm.conf
-    local f
+    declare f
     for f in munge slurmctld slurmd; do
         install_sudo systemctl start "$f"
         install_sudo systemctl enable "$f"
@@ -68,7 +68,7 @@ systemctl restart nfs-server
 
 "
     fi
-    local f
+    declare f
     for f in ~/src/radiasoft/{pykern,sirepo}; do
         # do not put vers=4.1 because will get "no client callback" errors
         # F29 uses v4.2 by default
