@@ -456,7 +456,7 @@ ${provider}
     # https://stackoverflow.com/a/33137719/3075806
     # Undo mapping of hostname to 127.0.?.1
     config.vm.provision "etc_hosts", type: "shell", run: "always", inline: <<-'END'
-        sed -i '/127.0.*$host/d' /etc/hosts
+        sed -i '/^127.0.*$host\|^::1/d' /etc/hosts
     END
 $(vagrant_dev_eth1 $ip)
 $(vagrant_dev_mounts $first)
