@@ -29,7 +29,8 @@ common_python() {
     codes_dir[pyenv_prefix]=$(realpath "$(pyenv prefix)")
     declare -a d=(
         mpi4py
-        numpy
+        # https://github.com/radiasoft/download/issues/509
+        'numpy<2.0.0'
         # required by cmyt 1.3.0 (required by yt)
         # https://github.com/radiasoft/download/issues/497
         'matplotlib>=3.5.0'
