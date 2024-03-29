@@ -16,6 +16,7 @@ bluesky_main() {
         ModestImage \
         PyQt5 \
         area_detector_handlers \
+        bluesky-queueserver-api \
         dask \
         databroker-pack \
         git+https://github.com/NSLS-II-CSX/csxtools.git@52ff964439005c8340e71d77d2a73b22a71dba05 \
@@ -25,8 +26,8 @@ bluesky_main() {
         numcodecs \
         papermill \
         photutils \
-        pyOlog \
         pyCHX==4.0.10 \
+        pyOlog \
         scikit-beam \
         xray-vision \
         zarr
