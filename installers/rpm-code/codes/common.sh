@@ -58,6 +58,7 @@ common_python() {
         # Needed by rscode-bluesky and rscode-ml
         cachetools
         lxml
+        pydantic
         scikit-image==0.18.3
         tifffile
         typing-extensions
@@ -92,10 +93,11 @@ common_python() {
         'wrapt>=1.11.1'
 
         # conflict between rscode-bluesky and rscode-openmc
-        uncertainties
         jsonschema
         tenacity
+        toolz
         tzlocal
+        uncertainties
 
         # conflict between rscode-bluesky and rscode-shadow3
         xraylib
