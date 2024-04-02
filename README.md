@@ -117,6 +117,15 @@ bash etc/dev-server.sh
 This command starts the http.server and outputs instructions on how to
 run installers in the local dev environment.
 
+### Serverless testing
+
+Many of the installers can be tested with:
+
+```sh
+export install_server=file://$HOME/src
+curl https://radia.run | install_debug=1 bash -s nersc-sirepo-update alpha
+```
+
 ### install.sh testing
 
 To test with a github install_server, that is, to test install.sh

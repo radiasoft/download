@@ -3,17 +3,24 @@
 # Update/install sirepo shifter image, pyenv, python repos, and file
 # permissions to be used by sirepo server in $channel.
 #
+# To test on nersc:
+# export install_server=file://$HOME/src
+# curl https://radia.run | install_debug=1 bash -s nersc-sirepo-update alpha
+#
+# In dev, add this (permanently):
+# export nersc_sirepo_update_docker=1
+#
 nersc_sirepo_update_docker() {
     # For development
     declare cmd=$1
     declare image=$2
-    declare args=( "${@:2}" )
+    declare args=( "${@:3}" )
     case $cmd in
         pull)
             docker pull "$image" | tee
             ;;
         run)
-            docker run --net=none "${args[@]}"
+            docker run --net=none "$image" "${args[@]}"
             ;;
         *)
             install_err "invalid shifter command=$cmd"
@@ -65,16 +72,16 @@ nersc_sirepo_update_python_repos() {
     declare image=$1
     declare p t
     for p in pykern sirepo; do
+        t=$(nersc_sirepo_update_shifter run "$image" python -c "import $p; print($p.__version__)")
+        if [[ ! $t =~ ^[0-9]{8}\.[0-9]{6}$ ]]; then
+            install_err "package=$p missing version: output=$t"
+        fi
         if [[ -d "$p" ]]; then
             cd "$p"
             git fetch --all --tags --prune
         else
             git clone https://github.com/radiasoft/"$p"
             cd "$p"
-        fi
-        t=$(nersc_sirepo_update_shifter run "$image" python -c "import $p; print($p.__version__)")
-        if [[ ! $t =~ ^[0-9]{8}\.[0-9]{6}$ ]]; then
-            install_err "package=$p missing version: output=$t"
         fi
         git -c advice.detachedHead=false checkout -q tags/"$t"
         install_pip_install .
@@ -89,13 +96,14 @@ nersc_sirepo_update_shifter() {
     fi
     declare cmd=$1
     declare image=docker:$2
-    declare args=( "${@:2}" )
+    declare args=( "${@:3}" )
     case $cmd in
         pull)
+            return
             shifterimg pull "$image" | tee
             ;;
         run)
-            shifter --image="$image" --entrypoint "${args[@]}"
+            PYENV_VIRTUAL_ENV= PYENV_VIRTUALENV_INIT= PYENV_ROOT= PYENV_VERSION= shifter --image="$image" --entrypoint "${args[@]}"
             ;;
         *)
             install_err "invalid shifter command=$cmd"
