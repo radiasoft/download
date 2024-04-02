@@ -1,60 +1,104 @@
 #!/bin/bash
 #
-# Update shifter image and pyenv
+# Update/install sirepo shifter image, pyenv, python repos, and file
+# permissions to be used by sirepo server in $channel.
 #
+nersc_sirepo_update_docker() {
+    # For development
+    declare cmd=$1
+    declare image=$2
+    declare args=( "${@:2}" )
+    case $cmd in
+        pull)
+            docker pull "$image" | tee
+            ;;
+        run)
+            docker run --net=none "${args[@]}"
+            ;;
+        *)
+            install_err "invalid shifter command=$cmd"
+            ;;
+    esac
+}
+
 nersc_sirepo_update_main() {
-    local c=${1:-}
-    if [[ ! $c =~ ^(alpha|beta|prod)$ ]]; then
-        install_err "invalid channel=${c:-<missing arg>}"
+    declare channel=${1:-}
+    if [[ ! $channel =~ ^(alpha|beta|prod)$ ]]; then
+        install_err "invalid channel=${channel:-<missing arg>}"
     fi
-    if ! [[ $PATH =~ pyenv/bin ]]; then
-        export PATH="$HOME/.pyenv/bin:$PATH"
-    fi
-    install_not_strict_cmd eval "$(pyenv init -)"
-    install_not_strict_cmd eval "$(pyenv virtualenv-init -)"
-    local i=docker:radiasoft/sirepo:$c
-    shifterimg pull "$i"
-    local v=sirepo-$c
+    declare v=sirepo-$channel
     nersc_sirepo_update_pyenv "$v"
-    install_not_strict_cmd pyenv shell "$virtualenv_name"
-    local p x
-    local d=~/"$v"/radiasoft
+    declare d=~/"$v"/radiasoft
     mkdir -p "$d"
     cd "$d"
-    for p in pykern sirepo; do
-        if [[ ! -d "$p" ]]; then
-            git clone https://github.com/radiasoft/"$p"
-            cd "$p"
-        else
-            cd "$p"
-            git checkout master
-            git pull
-        fi
-        x=$(shifter --image="$i" /bin/bash -c "grep git-commit /home/vagrant/.pyenv/versions/py3/lib/python3*/site-packages/$p-20*-info/* 2>/dev/null")
-        if [[ ! $x =~ git-commit=(.*) ]]; then
-            install_err "missing git-commit for $p: output=$x"
-        fi
-        git checkout "${BASH_REMATCH[1]}"
-        install_pip_uninstall .
-        install_pip_install .
-        cd ..
-    done
+    declare i=radiasoft/sirepo:$channel
+    nersc_sirepo_update_shifter pull "$i"
+    nersc_sirepo_update_python_repos "$i"
+    # Needs to be world executable
     chmod 711 ~
     chmod -R a+rX ~/.pyenv
 }
 
 nersc_sirepo_update_pyenv() {
-    virtualenv_name=$1
+    declare venv_name=$1
+    if [[ ! $PATH =~ pyenv/bin ]]; then
+        export PATH="$HOME/.pyenv/bin:$PATH"
+    fi
+    if [[ ! -d ~/.pyenv ]]; then
+        nersc_pyenv_no_global=1 install_repo_eval nersc-pyenv
+    fi
+    install_not_strict_cmd eval "$(pyenv init -)"
+    install_not_strict_cmd eval "$(pyenv virtualenv-init -)"
     if ! pyenv versions --bare | grep -q "^$install_version_python$"; then
         nersc_pyenv_no_global=1 install_repo_eval nersc-pyenv
     fi
-    if [[ -e ~/.pyenv/versions/$virtualenv_name ]]; then
-        install_not_strict_cmd pyenv shell "$virtualenv_name"
-        if [[ $(python --version | cut -d' ' -f2) != $install_version_python ]]; then
-            pyenv virtualenv-delete -f "$virtualenv_name"
-        else
-            return 0
-        fi
+    if pyenv shell "$venv_name" 2>/dev/null \
+        && [[ $(python --version | cut -d' ' -f2) == $install_version_python ]]; then
+        return
     fi
-    install_not_strict_cmd pyenv virtualenv "$install_version_python" "$virtualenv_name"
+    pyenv virtualenv-delete -f "$venv_name" &> /dev/null || true
+    pyenv virtualenv "$install_version_python" "$venv_name"
+    pyenv shell "$venv_name"
+}
+
+nersc_sirepo_update_python_repos() {
+    declare image=$1
+    declare p t
+    for p in pykern sirepo; do
+        if [[ -d "$p" ]]; then
+            cd "$p"
+            git fetch --all --tags --prune
+        else
+            git clone https://github.com/radiasoft/"$p"
+            cd "$p"
+        fi
+        t=$(nersc_sirepo_update_shifter run "$image" python -c "import $p; print($p.__version__)")
+        if [[ ! $t =~ ^[0-9]{8}\.[0-9]{6}$ ]]; then
+            install_err "package=$p missing version: output=$t"
+        fi
+        git -c advice.detachedHead=false checkout -q tags/"$t"
+        install_pip_install .
+        cd ..
+    done
+}
+
+nersc_sirepo_update_shifter() {
+    if [[ ${nersc_sirepo_update_docker:+1} ]]; then
+        nersc_sirepo_update_docker "$@"
+        return
+    fi
+    declare cmd=$1
+    declare image=docker:$2
+    declare args=( "${@:2}" )
+    case $cmd in
+        pull)
+            shifterimg pull "$image" | tee
+            ;;
+        run)
+            shifter --image="$image" --entrypoint "${args[@]}"
+            ;;
+        *)
+            install_err "invalid shifter command=$cmd"
+            ;;
+    esac
 }
