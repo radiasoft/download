@@ -99,7 +99,6 @@ nersc_sirepo_update_shifter() {
     declare args=( "${@:3}" )
     case $cmd in
         pull)
-            return
             shifterimg pull "$image" | tee
             ;;
         run)
