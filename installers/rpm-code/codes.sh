@@ -39,6 +39,10 @@ codes_cmake_build() {
     CLICOLOR=0 "${cmd[@]}" ${target:+--target $target}
 }
 
+codes_cmake_clean() {
+    rm -rf build
+}
+
 codes_cmake_fix_lib_dir() {
     # otherwise uses ~/.local/lib64
     find . \( -name CMakeLists.txt -o -name \*.cmake \) -print0 | xargs -0 perl -pi -e '/include\(GNUInstallDirs/ && ($_ .= q{
