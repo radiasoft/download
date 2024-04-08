@@ -16,6 +16,8 @@ declare -a _beamsim_codes_all=(
 
     amrex
 
+    bmad
+
     # create a delay here so radiasoft.repo in radiasoft/rpm-code
     # is "old" by the time bnlcrl (or other fast build) happens
     # otherwise, the cache will be stale
@@ -40,6 +42,8 @@ declare -a _beamsim_codes_all=(
     metis
     trilinos
     opal
+
+    impactt
 
     madx
     mantid

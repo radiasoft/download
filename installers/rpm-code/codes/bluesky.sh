@@ -2,7 +2,7 @@
 
 bluesky_main() {
     codes_yum_dependencies mesa-libGL mongodb-org-server
-    codes_dependencies common ipykernel shadow3 srw
+    codes_dependencies common ipykernel shadow3 srw xraylib
     bluesky_mongo
     if install_version_fedora_lt_36; then
         install_pip_install git+https://github.com/NSLS-II/sirepo-bluesky.git@e8043a3a182e250fa1f429882bf2728f46d1ec3a

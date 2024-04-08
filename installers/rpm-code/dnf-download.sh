@@ -2,7 +2,7 @@
 #
 # Download rscode-*.rpm from system dnf repo
 #
-set -e
+set -euo pipefail
 declare code=$1
 set +euo pipefail
 source ~/.bashrc

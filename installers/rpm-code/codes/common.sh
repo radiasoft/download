@@ -99,9 +99,6 @@ common_python() {
         tzlocal
         uncertainties
 
-        # conflict between rscode-bluesky and rscode-shadow3
-        xraylib
-
         # conflict between rscode-openmc and rscode-ml
         protobuf
 

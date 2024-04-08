@@ -1,7 +1,7 @@
 #!/bin/bash
 
 shadow3_main() {
-    codes_dependencies common
+    codes_dependencies common xraylib
 }
 
 shadow3_python_install() {
