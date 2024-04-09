@@ -1,4 +1,18 @@
 #!/bin/bash
+#
+# Usage for install:
+#
+# radia_run beamsim-codes [codes...]
+#
+# With args, installs "everything" (see list below and _beamsim_codes_install_skip).
+# Otherwise installs only specific codes.
+#
+# Usage for build:
+# radia_run beamsim-codes build build-script.sh [start_at]
+#
+# Tries to build all codes with build-script.sh. If start_at is set,
+# will skip codes until start_at found and then builds that and the
+# rest of the codes.
 
 declare -a _beamsim_codes_all=(
     common
@@ -123,7 +137,7 @@ beamsim_codes_install() {
     # etc. first, which may be required for later codes.
     install_yum update
     # POSIT: codes do not have special or spaces
-    install_repo_eval code $(beamsim_codes_install_list)
+    install_repo_eval code ${*:-$(beamsim_codes_install_list)}
     install_repo_eval fedora-patches
 }
 
@@ -147,5 +161,5 @@ beamsim_codes_main() {
         beamsim_codes_build "$@"
         return
     fi
-    beamsim_codes_install
+    beamsim_codes_install "$@"
 }
