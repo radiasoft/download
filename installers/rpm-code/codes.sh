@@ -220,6 +220,38 @@ codes_download_module_file() {
     install_download "codes/$codes_module/$file" > "$file"
 }
 
+codes_epics_make_install() {
+    declare epics="${codes_dir[prefix]}"/epics
+    declare os=linux-x86_64
+    cat <<EOF > configure/RELEASE.local
+EPICS_BASE=$epics
+${codes_epics_release_local:-}
+EOF
+    codes_make
+    declare -a f=( $(echo bin/"$os"/*) )
+    if [[ $f ]]; then
+        install -m 555 "${f[@]}" "$epics/bin/$os"
+    fi
+    declare f t
+    for f in lib/"$os"/*; do
+        if [[ -L $f ]]; then
+            t=$epics/lib/$os/$(basename "$f")
+            rm -f "$t"
+            ln -s "$(readlink "$f")" "$t"
+        else
+            install -m 444 "$f" "$epics/lib/$os"
+        fi
+    done
+    declare i=include${codes_epics_include_dir:+/$codes_epics_include_dir}
+    install -m 755 -d "$epics/$i"
+    install -m 444 "$i"/* "$epics/$i"
+    for f in cfg db dbd; do
+        if [[ -d $f ]]; then
+            install -m 444 "$f"/* "$epics/$f"
+        fi
+    done
+}
+
 codes_err() {
     codes_msg "$@"
     return 1
@@ -242,21 +274,21 @@ codes_install() {
     # Needed for pyenv
     install_source_bashrc
     install_script_eval "codes/$module.sh"
-    declare f=${module}_main
-    if ! codes_is_function "$f"; then
-        install_error "function=$f not defined for code=$module"
+    declare f=$(codes_module_function main)
+    if [[ ! $f ]]; then
+        install_err "no main defined for code=$module"
     fi
     $f ${args[@]+"${args[@]}"}
     cd "$prev"
-    declare p=${module}_python_install
-    if codes_is_function "$p"; then
+    declare p=$(codes_module_function python_install)
+    if [[ $p ]]; then
         codes_msg "Running: $p"
         cd "$d"
         "$p"
         codes_install_python_done
     fi
-    declare t=${module}_test
-    if codes_is_function "$t"; then
+    declare t=$(codes_module_function test)
+    if [[ $t ]]; then
         codes_msg "Running: $t"
         declare p=$PWD
         # python adds cwd to PYTHONPATH so go to a path where
@@ -327,6 +359,14 @@ codes_manifest_add_code() {
 source: $repo
 build: $pwd
 "
+}
+
+codes_module_function() {
+    declare suffix=$1
+    declare f=${module//-/_}_$suffix
+    if codes_is_function "$f"; then
+        echo "$f"
+    fi
 }
 
 codes_msg() {
