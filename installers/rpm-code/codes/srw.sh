@@ -26,30 +26,11 @@ srw_main() {
 
 srw_python_install() {
     install_pip_install primme
-    install_pip_install srwpy==4.0.0.b1
-    srw_python_patch_srwlib
-    srw_srwpy_backwards_compatible
+    install_pip_install srwpy==4.1.0
+    _srw_srwpy_backwards_compatible
 }
 
-srw_python_patch_srwlib() {
-    patch --quiet $(python -c 'import srwpy.srwlib; print(srwpy.srwlib.__file__)') <<'EOF'
-diff --git a/env/work/srw_python/srwlib.py b/env/work/srw_python/srwlib.py
-index 9e052df..0ab17fb 100644
---- a/env/work/srw_python/srwlib.py
-+++ b/env/work/srw_python/srwlib.py
-@@ -10267,6 +10267,8 @@ def srwl_wfr_emit_prop_multi_e(_e_beam, _mag, _mesh, _sr_meth, _sr_rel_prec, _n_
-                         #srwl_uti_save_intens_ascii(resStokes2.to_deg_coh(), meshRes2, fpdc2, _n_stokes = 1, _arLabels = resLabelsToSaveDC, _arUnits = resUnitsToSaveDC, _mutual = doMutual, _cmplx = 0) #OC12072019 # Deg. of Coh. Cut vs Y
-                         #srwl_uti_save_intens_ascii(resStokes2.to_deg_coh(), meshRes2, fpdc2, _n_stokes = 1, _arLabels = resLabelsToSaveDC, _arUnits = resUnitsToSaveDC, _mutual = 2, _cmplx = 0) #OC16072019 # Deg. of Coh. Cut vs Y
-                         srwl_uti_save_intens(resStokes2.to_deg_coh(), meshRes2, fpdc2, _n_stokes = 1, _arLabels = resLabelsToSaveDC, _arUnits = resUnitsToSaveDC, _mutual = 2, _cmplx = 0, _form = _file_form) #OC17072021 # Deg. of Coh. Cut vs Y
-+                elif _char == 61 and i + 1 < nRecv:
-+                    pass
-                 else:
-                     #srwl_uti_save_intens_ascii(resStokes.arS, meshRes, file_path1, numComp, _arLabels = resLabelsToSave, _arUnits = resUnitsToSave, _mutual = doMutual, _cmplx = (1 if doMutual else 0)) #OC30052017
-                     #srwl_uti_save_intens_ascii(resStokes.arS, meshRes, fp1, numComp, _arLabels = resLabelsToSave, _arUnits = resUnitsToSave, _mutual = doMutual, _cmplx = (1 if doMutual else 0)) #OC14082018
-EOF
-}
-
-srw_srwpy_backwards_compatible() {
+_srw_srwpy_backwards_compatible() {
     declare -a old_modules=(
         srwl_bl
         srwl_uti_brightness
