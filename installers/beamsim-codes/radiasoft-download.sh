@@ -4,8 +4,8 @@
 #
 # radia_run beamsim-codes [codes...]
 #
-# With args, installs "everything" (see list below and _beamsim_codes_install_skip).
-# Otherwise installs only specific codes.
+# Without args, installs "everything" (see list below and _beamsim_codes_install_skip).
+# Otherwise installs only specific codes listed in args.
 #
 # Usage for build:
 # radia_run beamsim-codes build build-script.sh [start_at]
