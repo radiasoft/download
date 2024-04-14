@@ -104,7 +104,7 @@ EOF
         zip
         zlib-devel
     )
-    if [[ ! -e /.dockerenv ]]; then
+    if [[ ! ${install_virt_docker:-} ]]; then
         x+=(
             lvm2
             # for ssh x11 forwarding

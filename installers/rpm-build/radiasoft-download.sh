@@ -48,7 +48,7 @@ rpm_build_main() {
         # Needs to be owned by rpm_build_user
         chown "${rpm_build_user}:" "$PWD"
     fi
-    docker run -u root -i --network=host --rm -v "$PWD:$rpm_build_guest_d" "$image" <<EOF
+    $RADIA_RUN_OCI_CMD run -u root -i --network=host --rm -v "$PWD:$rpm_build_guest_d" "$image" <<EOF
 set -euo pipefail
 # SECURITY: not building a container so ok to add sudo
 # POSIT: Same code in containers/bin/build.sh

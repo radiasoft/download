@@ -176,8 +176,8 @@ install_init_vars() {
         install_channel=prod
         install_channel_is_default=1
     fi
-    install_os_release_vars
-    install_virt_vars
+    install_init_vars_os_release
+    install_init_vars_virt
     : ${install_debug:=}
     : ${install_default_repo:=container-run}
     : ${install_server:=github}
@@ -205,7 +205,59 @@ install_init_vars() {
     : ${install_version_python:=3.9.15}
     : ${install_version_python_venv:=py${install_version_python%%.*}}
     : ${install_version_centos:=7}
+    install_init_vars_oci
     eval "$(install_vars_export)"
+}
+
+install_init_vars_oci() {
+    if [[ ${RADIA_RUN_OCI_CMD:-} ]]; then
+        if [[ ! $RADIA_RUN_OCI_CMD =~ ^(docker|podman)$ ]]; then
+            install_err "invalid RADIA_RUN_OCI_CMD=$RADIA_RUN_OCI_CMD; must be podman or docker"
+        fi
+        return
+    fi
+    # Prefer docker over podman unless user can't execute docker
+    RADIA_RUN_OCI_CMD=docker
+    if [[ $(type -p podman) \
+        && ! ( $(type -p docker) && ( $EUID == 0 || $(groups) =~ docker ) ) \
+    ]]; then
+        RADIA_RUN_OCI_CMD=podman
+    fi
+    export RADIA_RUN_OCI_CMD
+}
+
+install_init_vars_os_release() {
+    declare x=/etc/os-release
+    # always update
+    if [[ -r $x ]]; then
+        export install_os_release_id=$(source "$x"; echo "${ID,,}")
+        export install_os_release_version_id=$(source "$x"; echo "$VERSION_ID")
+        return
+    fi
+    # COMPAT: darwin doesn't support ${x,,}
+    export install_os_release_id=$(uname | tr A-Z a-z)
+    if [[ $install_os_release_id == darwin ]]; then
+        export install_os_release_version_id=$(sw_vers -productVersion)
+    else
+        # Have something legal; unlikely to get here
+        export install_os_release_version_id=0
+    fi
+}
+
+install_init_vars_virt() {
+    export install_virt_docker=
+    export install_virt_virtualbox=
+    # https://stackoverflow.com/a/46436970
+    declare f=/proc/1/cgroup
+    if [[ -r $f ]] && grep -s -q /docker "$f" || [[ -e /.dockerenv ]] || [[ ${container:-} == oci ]]; then
+        export install_virt_docker=1
+    fi
+
+    f=/dev/disk/by-id
+    # disk works outside docker, but inside docker systemd-detect-virt works
+    if [[ -r $f && $(ls "$f") =~ VBOX ]] || [[ $(systemd-detect-virt --vm 2>/dev/null || true) == oracle ]]; then
+        export install_virt_virtualbox=1
+    fi
 }
 
 install_main() {
@@ -231,24 +283,6 @@ install_not_strict_cmd() {
     set +euo pipefail
     "$@"
     set -euo pipefail
-}
-
-install_os_release_vars() {
-    declare x=/etc/os-release
-    # always update
-    if [[ -r $x ]]; then
-        export install_os_release_id=$(source "$x"; echo "${ID,,}")
-        export install_os_release_version_id=$(source "$x"; echo "$VERSION_ID")
-        return
-    fi
-    # COMPAT: darwin doesn't support ${x,,}
-    export install_os_release_id=$(uname | tr A-Z a-z)
-    if [[ $install_os_release_id == darwin ]]; then
-        export install_os_release_version_id=$(sw_vers -productVersion)
-    else
-        # Have something legal; unlikely to get here
-        export install_os_release_version_id=0
-    fi
 }
 
 install_repo() {
@@ -451,22 +485,6 @@ install_version_fedora_lt_36() {
         return 0
     fi
     return 1
-}
-
-install_virt_vars() {
-    export install_virt_docker=
-    export install_virt_virtualbox=
-    # https://stackoverflow.com/a/46436970
-    declare f=/proc/1/cgroup
-    if [[ -r $f ]] && grep -s -q /docker "$f" || [[ -e /.dockerenv ]]; then
-        export install_virt_docker=1
-    fi
-
-    f=/dev/disk/by-id
-    # disk works outside docker, but inside docker systemd-detect-virt works
-    if [[ -r $f && $(ls "$f") =~ VBOX ]] || [[ $(systemd-detect-virt --vm 2>/dev/null || true) == oracle ]]; then
-        export install_virt_virtualbox=1
-    fi
 }
 
 install_yum() {

@@ -17,10 +17,10 @@ nersc_sirepo_update_docker() {
     declare args=( "${@:3}" )
     case $cmd in
         pull)
-            docker pull "$image" | tee
+            $RADIA_RUN_OCI_CMD pull "$image" | tee
             ;;
         run)
-            docker run --net=none "$image" "${args[@]}"
+            $RADIA_RUN_OCI_CMD run --net=none "$image" "${args[@]}"
             ;;
         *)
             install_err "invalid shifter command=$cmd"

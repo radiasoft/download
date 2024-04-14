@@ -7,7 +7,7 @@ docker_main() {
     local tag=$install_image:$install_channel
     install_info "Downloading $tag"
     if [[ -z $install_test ]]; then
-        install_exec docker pull "$tag"
+        install_exec $RADIA_RUN_OCI_CMD pull "$tag"
     fi
     install_radia_run
 }
