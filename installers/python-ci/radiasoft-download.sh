@@ -32,7 +32,7 @@ python_ci_main() {
     declare d=$PWD
     declare o=$(stat --format='%u:%g' "$d")
     set -x
-    docker run -v "$d:$d" -i -u root --rm "$i:alpha" bash <<EOF | cat
+    $RADIA_RUN_OCI_CMD run -v "$d:$d" -i -u root --rm "$i:alpha" bash <<EOF | cat
         set -eou pipefail
         set -x
         cd '$d'

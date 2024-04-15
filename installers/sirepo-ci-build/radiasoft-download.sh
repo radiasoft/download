@@ -26,7 +26,7 @@ EOF
         image=\$1
         shift
         set -euo pipefail
-        docker run -i "\$@" \$image bash <<'EOF2'
+        $RADIA_RUN_OCI_CMD run -i "\$@" \$image bash <<'EOF2'
             source ~/.bashrc
             set -eou pipefail
             $(install_vars_export)

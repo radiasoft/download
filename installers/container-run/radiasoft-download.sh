@@ -34,11 +34,11 @@ container_run_main() {
     if [[ $container_run_image =~ ^radiasoft/beamsim$ ]]; then
         container_run_interactive=1
     fi
-    if ! type -p docker >& /dev/null; then
+    if ! type -p "$RADIA_RUN_OCI_CMD" >& /dev/null; then
         if [[ $(uname) == Darwin && -e /Applications/Docker.app ]]; then
-            install_err 'docker is not running. Please start the Docker application'
+            install_err "$RADIA_RUN_OCI_CMD is not running. Please start the application"
         fi
-        install_err 'docker command not found. Please install Docker.'
+        install_err "$RADIA_RUN_OCI_CMD command not found. Please install"
     fi
     container_run_radia_run
 }
@@ -134,16 +134,16 @@ radia_run_assert_not_root() {
 # Inline hear so syntax checked and easier to edit.
 #
 radia_run_check() {
-    local x=$(docker inspect --format='{{.State.Running}}' "$radia_run_container" 2>/dev/null || true)
+    local x=$($RADIA_RUN_OCI_CMD inspect --format='{{.State.Running}}' "$radia_run_container" 2>/dev/null || true)
     if [[ $x == true ]]; then
         radia_run_msg 'Server is running; stopping'
         local res
-        if ! res=$(docker rm -f "$radia_run_container" 2>&1); then
+        if ! res=$(RADIA_RUN_OCI_CMD rm -f "$radia_run_container" 2>&1); then
             radia_run_msg "$res"
             radia_run_msg 'Failed to stop, trying to start anyway.'
         fi
     elif [[ $x == false ]]; then
-        docker rm "$radia_run_container" >&/dev/null || true
+        $RADIA_RUN_OCI_CMD rm "$radia_run_container" >&/dev/null || true
     fi
 }
 
@@ -230,11 +230,11 @@ radia_run_main() {
     local image=$radia_run_image:$radia_run_channel
     radia_run_msg "Updating Docker image: $image ..."
     local res
-    if ! res=$(docker pull "$image" 2>&1); then
+    if ! res=$($RADIA_RUN_OCI_CMD pull "$image" 2>&1); then
         radia_run_msg "$res"
         radia_run_msg 'Update failed: Assuming network failure, continuing.'
     fi
-    local cmd=( docker run --init --name "$radia_run_container" -v "$PWD:$radia_run_guest_dir" )
+    local cmd=( $RADIA_RUN_OCI_CMD run --init --name "$radia_run_container" -v "$PWD:$radia_run_guest_dir" )
     if [[ $radia_run_db_dir ]]; then
         cmd+=( -v "$PWD:$radia_run_db_dir" )
     fi
@@ -273,7 +273,7 @@ radia_run_msg() {
 radia_run_prompt() {
     local stop="To stop the application container, run:
 
-docker rm -f '$radia_run_container'"
+$RADIA_RUN_OCI_CMD rm -f '$radia_run_container'"
     if [[ $radia_run_uri ]]; then
         radia_run_msg "Point your browser to:
 
