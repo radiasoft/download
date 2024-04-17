@@ -1,6 +1,6 @@
 #!/bin/bash
 
-rogue_main() {
+epics_rogue_main() {
     codes_yum_dependencies zeromq-devel python-devel mesa-libGL net-tools
     codes_dependencies common boost epics
     codes_download slaclab/rogue
@@ -14,7 +14,7 @@ rogue_main() {
     codes_make_install
 }
 
-rogue_python_install() {
+epics_rogue_python_install() {
     cd rogue
     install_pip_install -r pip_requirements.txt
     install_pip_install pyqt5-tools

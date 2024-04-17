@@ -2,7 +2,7 @@
 
 epics_install() {
     declare b="${codes_dir[prefix]}"/epics
-    codes_download https://epics.anl.gov/download/base/base-7.0.2.tar.gz
+    codes_download https://epics.anl.gov/download/base/base-7.0.8.tar.gz
     cd ..
     mv base-7.0.2 "$b"
     cd "$b"
