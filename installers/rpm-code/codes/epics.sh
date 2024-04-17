@@ -1,10 +1,12 @@
 #!/bin/bash
 
+_epics_version=7.0.8
+
 epics_install() {
     declare b="${codes_dir[prefix]}"/epics
-    codes_download https://epics.anl.gov/download/base/base-7.0.8.tar.gz
+    codes_download https://epics.anl.gov/download/base/base-"$_epics_version".tar.gz
     cd ..
-    mv base-7.0.2 "$b"
+    mv base-"$_epics_version" "$b"
     cd "$b"
     epics_pcas
     declare a=linux-x86_64
