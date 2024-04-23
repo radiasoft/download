@@ -76,11 +76,6 @@ nersc_sirepo_update_python_repos() {
         if [[ ! $t =~ ^[0-9]{8}\.[0-9]{1,6}$ ]]; then
             install_err "package=$p missing version: output=$t"
         fi
-        # Right pad with zeros only if less than 15 chars to avoid
-        # precision issues in 64 bit floats.
-        if (( ${#t} < 15 )); then
-            t=$(printf '%0.6f' "$t")
-        fi
         if [[ -d "$p" ]]; then
             cd "$p"
             git fetch --all --tags --prune
