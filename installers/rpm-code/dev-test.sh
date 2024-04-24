@@ -12,9 +12,9 @@ x=$rpm_code_install_dir/rscode-test-${BASH_REMATCH[1]}-1.x86_64.rpm
 actual="$(rpm -qlp "$x" | sort)"
 expect="/home/vagrant/.local/bin/rscode-test
 /home/vagrant/.local/etc/bashrc.d/my.sh
-/home/vagrant/.pyenv/versions/2.7.16/envs/py2/lib/python2.7/site-packages/my.py
-/home/vagrant/.pyenv/versions/2.7.16/envs/py2/xyz
-/home/vagrant/.pyenv/versions/2.7.16/envs/py2/xyz/PASS"
+/home/vagrant/.pyenv/versions/3.9.15/envs/py3/lib/python3.9/site-packages/my.py
+/home/vagrant/.pyenv/versions/3.9.15/envs/py3/xyz
+/home/vagrant/.pyenv/versions/3.9.15/envs/py3/xyz/PASS"
 if [[ $expect != $actual ]]; then
     echo "FAIL: unexpected output from:
 rpm -qlp $x

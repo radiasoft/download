@@ -90,8 +90,7 @@ codes_dir_setup() {
         install_msg 'creating directories'
         mkdir -p "${todo[@]}"
     else
-
-        # common doesn't use pyenv_prefix, it creates it
+        # common installs pyenv and sets pyenv_prefix
         codes_dir[pyenv_prefix]=$(realpath "$(pyenv prefix)")
     fi
 }
@@ -269,10 +268,10 @@ codes_install() {
     codes_msg "Directory: $d"
     cd "$d"
     declare codes_module=$module
+    # Needed to setup pyenv (used in codes_dir_setup)
+    install_source_bashrc
     declare -A codes_dir=()
     codes_dir_setup
-    # Needed for pyenv
-    install_source_bashrc
     install_script_eval "codes/$module.sh"
     declare f=$(codes_module_function main)
     if [[ ! $f ]]; then
@@ -374,22 +373,18 @@ codes_msg() {
 }
 
 codes_num_cores() {
-    if [[ $codes_module =~ opal|test && $install_virt_virtualbox ]]; then
-        # certain codes hang in parallel make inside docker and virtualbox
-        # because they run out of memory.
-        install_msg 'codes_num_cores: restricting to one core'
-        echo 1
-        return
+    # Cache (mostly) to limit install_msg to once (below)
+    if [[ ! ${codes_num_cores:-} ]]; then
+        if [[ $codes_module =~ ^(opal)$ && $install_virt_virtualbox ]]; then
+            # certain codes hang in parallel make inside docker and virtualbox
+            # because they run out of memory.
+            install_msg 'codes_num_cores: restricting to one core'
+            codes_num_cores=1
+        else
+            codes_num_cores=$(lscpu | perl -n -e 'BEGIN {$r = 1}; /^(?:Socket|Core).*?(\d+)/ && ($r *= $1); END {print($r)}')
+        fi
     fi
-    declare res=$(grep -c '^core id[[:space:]]*:' /proc/cpuinfo)
-    # Use half the cores (likely hyperthreads) except if on TRAVIS
-    if [[ ${TRAVIS:-} != true ]]; then
-        res=$(( $res / 2 ))
-    fi
-    if (( $res < 1 )); then
-        res=1
-    fi
-    echo "$res"
+    echo "$codes_num_cores"
 }
 
 codes_python_install() {
@@ -404,7 +399,7 @@ codes_python_lib_copy() {
 }
 
 codes_python_include_dir() {
-   python -c 'import distutils.sysconfig as s; print(s.get_python_inc())'
+    python -c 'import distutils.sysconfig as s; print(s.get_python_inc())'
 }
 
 codes_python_lib_dir() {
@@ -412,7 +407,7 @@ codes_python_lib_dir() {
 }
 
 codes_python_version() {
-   python -c 'import platform; print(platform.python_version())'
+    python -c 'import platform; print(platform.python_version())'
 }
 
 codes_yum_dependencies() {

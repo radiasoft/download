@@ -55,7 +55,7 @@ rpm_code_dependencies_done() {
 }
 
 rpm_code_is_common() {
-    [[ $1 =~ ^(common|common_test)$ ]]
+    [[ $1 == common ]]
 }
 
 rpm_code_install_rpm() {
@@ -96,7 +96,7 @@ rpm_code_main() {
     local base=$rpm_code_rpm_prefix-$code
     # these need to be space separated b/c substitution below
     local image=radiasoft/rpm-code
-    if rpm_code_is_common "$code" || [[ $code == test ]]; then
+    if rpm_code_is_common "$code"; then
         image=radiasoft/fedora
     fi
     if [[ ${rpm_code_debug:-} ]]; then

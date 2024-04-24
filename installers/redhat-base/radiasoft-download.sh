@@ -57,6 +57,7 @@ EOF
         biosdevname
         bzip2
         bzip2-devel
+        direnv
         emacs-nox
         gcc
         gcc-c++
