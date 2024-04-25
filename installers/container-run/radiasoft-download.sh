@@ -255,7 +255,7 @@ radia_run_main() {
     fi
     # if linux and uid or gid is different...
     # POSIT: $radia_run_guest_uid is same as its gid
-    if [[ $(uname) == ^[Ll]inux$ \
+    if [[ $(uname) =~ ^[Ll]inux$ \
         && $(stat -c '%u %g' "$PWD") != "$radia_run_guest_uid $radia_run_guest_uid" \
     ]]; then
         # fixup returns the args
