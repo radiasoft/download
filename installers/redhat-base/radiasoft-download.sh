@@ -117,6 +117,7 @@ EOF
         x+=(
             perl-debugger
             direnv
+            opendkim-tools
         )
     fi
     install_yum_install "${x[@]}"
