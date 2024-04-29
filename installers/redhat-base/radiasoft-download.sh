@@ -57,6 +57,7 @@ EOF
         biosdevname
         bzip2
         bzip2-devel
+        createrepo
         emacs-nox
         gcc
         gcc-c++
@@ -77,6 +78,7 @@ EOF
         make
         moreutils
         nginx
+        opendkim
         openssh-server
         openssl
         openssl-devel
