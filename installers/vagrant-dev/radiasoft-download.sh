@@ -9,7 +9,6 @@ set -euo pipefail
 _vagrant_dev_update_tgz_base=vagrant-dev-update.tgz
 _vagrant_dev_update_tgz_path=/vagrant/$_vagrant_dev_update_tgz_base
 _vagrant_dev_host_os=$install_os_release_id
-_vagrant_dev_have_sudo=
 
 vagrant_dev_box_add() {
     # Returns: $box
@@ -18,7 +17,7 @@ vagrant_dev_box_add() {
     if [[ $_vagrant_dev_host_os == ubuntu ]]; then
         provider=libvirt
     fi
-    if [[ ${vagrant_dev_box:-} ]]; then
+    if [[ $vagrant_dev_box ]]; then
         box=$vagrant_dev_box
     elif [[ $box =~ fedora ]]; then
         if [[ $box == fedora ]]; then
@@ -52,22 +51,24 @@ EOF
 }
 
 vagrant_dev_eth1() {
-    local ip=$1
-    if [[ ! ${vagrant_dev_provision_eth1:-} ]]; then
-        return
-    fi
-    cat <<EOF
+    declare os=$1
+    declare ip=$2
+    if [[ $os == fedora && $vagrant_dev_private_net ]]; then
+        # Vagrant doesn't handle NetworkManager correctly so setup eth1
+        # https://github.com/hashicorp/vagrant/issues/12762
+        cat <<EOF
     config.vm.provision "nmcli_eth1", type: "shell", run: "once", inline: <<-'END'
         nmcli con add con-name eth1 ifname eth1 type ethernet ip4 $ip/24 && nmcli con up eth1
     END
 EOF
+    fi
 }
 
 vagrant_dev_first_up() {
     declare os="$1"
     declare host="$2"
     declare ip="$3"
-    if [[ ! ${vagrant_dev_no_vbguest:+1} ||  ! ${vagrant_dev_no_mounts:+1} && ${vagrant_dev_provision_eth1:+1} ]]; then
+    if [[ ! $vagrant_dev_no_vbguest ||  ! $vagrant_dev_no_mounts && $vagrant_dev_private_net ]]; then
         vagrant_dev_vagrantfile "$os" "$host" "$ip" 1
         vagrant up
         vagrant ssh <<'EOF'
@@ -79,17 +80,13 @@ EOF
 
 vagrant_dev_ignore_git_dir_ownership() {
     declare os="$1"
-    if [[ ! ${vagrant_dev_no_nfs_src:+1} && $os =~ fedora && ! $(install_version_fedora_lt_36) ]]; then
+    if [[ ! $vagrant_dev_no_nfs_src && $os =~ fedora ]]; then
         echo 1
     fi
 }
 
 vagrant_dev_ip() {
     declare host=$1
-    if [[ ! ${vagrant_dev_provision_eth1:-} ]]; then
-        echo -n
-        return
-    fi
     declare i=$(dig +short "$host" 2>/dev/null || true)
     if [[ $i ]]; then
         echo -n "$i"
@@ -110,7 +107,7 @@ vagrant_dev_ip() {
 }
 
 vagrant_dev_init_nfs() {
-    if [[ ${vagrant_dev_no_mounts:+1} ]]; then
+    if [[ $vagrant_dev_no_mounts ]]; then
         return
     fi
     vagrant_dev_prepare_sudo
@@ -122,7 +119,8 @@ vagrant_dev_init_nfs() {
 }
 
 vagrant_dev_main() {
-    declare f os= host= ip= vagrant_dev_is_update=
+    declare f os= host= ip= update=
+    vagrant_dev_modifiers
     for a in "$@"; do
         case $a in
             fedora*|centos*)
@@ -132,7 +130,7 @@ vagrant_dev_main() {
                 ip=$a
                 ;;
             update)
-                vagrant_dev_is_update=1
+                update=1
                 ;;
             v|v[1-9]|*.radia.run)
                 host=$a
@@ -158,54 +156,20 @@ expects: fedora|centos[/<version>], <ip address>, update, v[1-9].radia.run"
     if [[ $base == $host ]]; then
         host=$host.radia.run
     fi
-    if [[ ${vagrant_dev_vm_devbox:+1} ]]; then
-        vagrant_dev_no_mounts=${vagrant_dev_no_mounts-1}
-        vagrant_dev_no_nfs_src=${vagrant_dev_no_nfs_src-1}
-        vagrant_dev_no_vbguest=${vagrant_dev_no_vbguest-1}
-        vagrant_dev_private_net=${vagrant_dev_private_net-}
-        vagrant_dev_provision_eth1=${vagrant_dev_provision_eth1-}
-    fi
-    if [[ ${vagrant_dev_barebones:+1} ]]; then
-        # allow individual overrides
-        vagrant_dev_no_dev_env=${vagrant_dev_no_dev_env-1}
-        vagrant_dev_no_mounts=${vagrant_dev_no_mounts-1}
-        vagrant_dev_no_nfs_src=${vagrant_dev_no_nfs_src-1}
-        vagrant_dev_no_vbguest=${vagrant_dev_no_vbguest-1}
-    fi
-    vagrant_dev_private_net=${vagrant_dev_private_net-1}
-    # vbguest is pretty broken so we are defaulting to off for now
-    vagrant_dev_no_vbguest=${vagrant_dev_no_vbguest-1}
-    # Mounts only really work on Darwin for now
-    if [[ ! ${vagrant_dev_no_mounts+1} && $_vagrant_dev_host_os != darwin ]]; then
-        vagrant_dev_no_mounts=1
-        vagrant_dev_no_vbguest=${vagrant_dev_no_vbguest-1}
-    fi
-    if [[ ! ${vagrant_dev_no_nfs_src+1} && $os =~ centos ]]; then
-        vagrant_dev_no_nfs_src=1
-    fi
-#TODO(robnagler) handle fedora/<version> syntax
-    if [[ ! ${vagrant_dev_provision_eth1+1} && $os =~ fedora && ! $(install_version_fedora_lt_36) ]]; then
-        vagrant_dev_no_vbguest=${vagrant_dev_no_vbguest-}
-        # Vagrant doesn't handle NetworkManager correctly so must handle ourselves
-        # https://github.com/hashicorp/vagrant/issues/12762
-        vagrant_dev_provision_eth1=1
-    fi
-    if [[ $_vagrant_dev_host_os == ubuntu ]]; then
-        # libvirt has no vbguest.
-        vagrant_dev_no_mounts=1
-        vagrant_dev_no_nfs_src=1
-        vagrant_dev_no_vbguest=1
-    fi
-    if [[ ! $ip ]]; then
-        ip=$(vagrant_dev_ip "$host")
+    if [[ $vagrant_dev_private_net ]]; then
+        if [[ ! $ip ]]; then
+            ip=$(vagrant_dev_ip "$host")
+        fi
+    elif [[ $ip ]]; then
+        install_err "cannot have ip=$ip when vagrant_dev_private_net is false"
     fi
     vagrant_dev_prepare_host
     vagrant_dev_init_nfs
-    vagrant_dev_prepare
+    vagrant_dev_prepare "$update"
     vagrant_dev_first_up "$os" "$host" "$ip"
     vagrant_dev_vagrantfile "$os" "$host" "$ip" ''
     vagrant up
-    if [[ ${vagrant_dev_no_dev_env:+1} ]]; then
+    if [[ $vagrant_dev_no_dev_env ]]; then
         return
     fi
     vagrant_dev_disable_security
@@ -226,12 +190,47 @@ curl $(install_depot_server)/index.sh | \
   bivio_home_env_ignore_git_dir_ownership=$(vagrant_dev_ignore_git_dir_ownership $os) \
   bash -s redhat-dev
 EOF
-    vagrant_dev_post_install
+    vagrant_dev_post_install "$update"
+}
+
+vagrant_dev_modifiers() {
+    if [[ ${vagrant_dev_vm_devbox:=} ]]; then
+        vagrant_dev_no_mounts=1
+        vagrant_dev_no_vbguest=1
+        vagrant_dev_private_net=1
+    elif [[ ${vagrant_dev_barebones:=} ]]; then
+        # allow individual overrides
+        vagrant_dev_no_dev_env=${vagrant_dev_no_dev_env-1}
+        vagrant_dev_no_mounts=${vagrant_dev_no_mounts-1}
+        vagrant_dev_no_vbguest=${vagrant_dev_no_vbguest-1}
+    fi
+    if [[ $_vagrant_dev_host_os == ubuntu ]]; then
+        # libvirt has no vbguest.
+        vagrant_dev_no_mounts=1
+        vagrant_dev_no_nfs_src=1
+        vagrant_dev_no_vbguest=1
+    fi
+    # Defaults
+    : ${vagrant_dev_box:=}
+    : ${vagrant_dev_cpus:=4}
+    : ${vagrant_dev_memory:=8192}
+    : ${vagrant_dev_no_dev_env:=}
+    # We aren't doing mounts any more by default.
+    # They only really work on Darwin.
+    : ${vagrant_dev_no_mounts:=1}
+    : ${vagrant_dev_no_nfs_src:=1}
+    # vbguest is pretty broken so default to off.
+    : ${vagrant_dev_no_vbguest:=1}
+    : ${vagrant_dev_post_install_repo:=}
+    : ${vagrant_dev_private_net:=1}
+    if [[ $vagrant_dev_no_mounts != $vagrant_dev_no_nfs_src ]]; then
+        install_err "vagrant_dev_no_mounts='$vagrant_dev_no_mounts' != vagrant_dev_no_nfs_src='$vagrant_dev_no_nfs_src'"
+    fi
 }
 
 vagrant_dev_mounts() {
     declare first="${1:+1}"
-    if [[ ${vagrant_dev_no_mounts:+1} ]]; then
+    if [[ $vagrant_dev_no_mounts ]]; then
         echo '    config.vm.synced_folder ".", "/vagrant", disabled: true'
         return
     fi
@@ -242,7 +241,7 @@ vagrant_dev_mounts() {
     # Have to use proto=tcp otherwise mount defaults to udp which doesn't work in f36
     declare f=' type: "nfs", mount_options: ["nolock", "fsc", "actimeo=2", "proto=tcp"], nfs_udp: false, disabled: '"$d"
     echo 'config.vm.synced_folder ".", "/vagrant",'"$f"
-    if [[ ! ${vagrant_dev_no_nfs_src:+1} ]]; then
+    if [[ ! $vagrant_dev_no_nfs_src ]]; then
         mkdir -p "$HOME/src"
         echo '    config.vm.synced_folder "'"$HOME/src"'", "/home/vagrant/src",'"$f"
     fi
@@ -250,7 +249,7 @@ vagrant_dev_mounts() {
 
 vagrant_dev_plugins() {
     declare x=()
-    if [[ ! ${vagrant_dev_no_vbguest:+1} ]]; then
+    if [[ ! $vagrant_dev_no_vbguest ]]; then
         x+=( vagrant-vbguest )
     fi
     if [[ ! ${x[@]+1} ]]; then
@@ -268,14 +267,15 @@ vagrant_dev_plugins() {
 }
 
 vagrant_dev_post_install() {
-    if [[ ${vagrant_dev_post_install_repo:-} ]]; then
+    declare update=$1
+    if [[ $vagrant_dev_post_install_repo ]]; then
         install_info "Running post-installer: $vagrant_dev_post_install_repo"
         vagrant ssh <<EOF
 $(install_vars_export)
 curl $(install_depot_server)/index.sh | bash -s $vagrant_dev_post_install_repo
 EOF
     fi
-    if [[ ! $vagrant_dev_is_update ]]; then
+    if [[ ! $update ]]; then
         return
     fi
     # if this fails, we still want to remove the tar file
@@ -291,12 +291,15 @@ EOF
 }
 
 vagrant_dev_prepare() {
+    declare update=$1
     if [[ ! $(type -t vagrant) ]]; then
         install_err 'vagrant not installed. Please visit to install:
 
 http://vagrantup.com'
     fi
-    vagrant_dev_pre_install
+    if [[ $update ]]; then
+        vagrant_dev_prepare_update
+    fi
     if [[ -d .vagrant ]]; then
         declare s=$(vagrant status 2>&1 || true)
         declare re=' not created |machine is required to run'
@@ -322,20 +325,17 @@ vagrant_dev_prepare_host() {
 }
 
 vagrant_dev_prepare_sudo() {
-    if [[ ${_vagrant_dev_have_sudo:-} ]]; then
+    if [[ ${_vagrant_dev_prepare_sudo:-} ]]; then
         return
     fi
     install_msg 'We need access to sudo on your Mac to configure virtualbox'
     if ! sudo true; then
         install_err 'must have access to sudo'
     fi
-    _vagrant_dev_have_sudo=1
+    _vagrant_dev_prepare_sudo=1
 }
 
-vagrant_dev_pre_install() {
-    if [[ ! $vagrant_dev_is_update ]]; then
-        return
-    fi
+vagrant_dev_prepare_update() {
     # if the file is there, then assume aborted update
     if [[ ! -r $_vagrant_dev_update_tgz_base ]]; then
         declare s=$(vagrant status --machine-readable 2>&1 || true)
@@ -378,8 +378,8 @@ EOF3
     vagrant destroy -f
 }
 
-vagrant_dev_provision_private_net() {
-    if [[ ! ${vagrant_dev_private_net:-} ]]; then
+vagrant_dev_private_net() {
+    if [[ ! $vagrant_dev_private_net ]]; then
         return
     fi
     cat <<EOF
@@ -390,7 +390,7 @@ EOF
 vagrant_dev_vagrantfile() {
     declare os=$1 host=$2 ip=$3 first=$4
     declare vbguest='' timesync=''
-    if [[ ${vagrant_dev_no_vbguest:+1} ]]; then
+    if [[ $vagrant_dev_no_vbguest ]]; then
         vbguest='if Vagrant.has_plugin? "vagrant-vbguest"
       config.vbguest.no_install  = true
       config.vbguest.auto_update = false
@@ -445,11 +445,11 @@ EOF
 Vagrant.configure("2") do |config|
     config.vm.box = "$box"
     config.vm.hostname = "$host"
-$(vagrant_dev_provision_private_net)
-${provider}
+$(vagrant_dev_private_net "$ip")
+$provider
         # 8192 needed for compiling some the larger codes
-        v.memory = ${vagrant_dev_memory:-8192}
-        v.cpus = ${vagrant_dev_cpus:-4}
+        v.memory = $vagrant_dev_memory
+        v.cpus = $vagrant_dev_cpus
     end
     config.ssh.forward_x11 = false
     $vbguest
@@ -458,8 +458,8 @@ ${provider}
     config.vm.provision "etc_hosts", type: "shell", run: "always", inline: <<-'END'
         sed -i '/^127.0.*$host\|^::1/d' /etc/hosts
     END
-$(vagrant_dev_eth1 $ip)
-$(vagrant_dev_mounts $first)
+$(vagrant_dev_eth1 "$os" "$ip")
+$(vagrant_dev_mounts "$first")
 end
 EOF
 }
