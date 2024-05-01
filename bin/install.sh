@@ -96,24 +96,23 @@ install_foss_server() {
     echo -n "$(install_depot_server force)"/foss
 }
 
-install_pip_install() {
-    # --no-color does not work always
-    # --progress-bar=off seems to work
-    # but this seems to work always
-    pip install "$@" | cat
-}
-
-install_pip_uninstall() {
-    # we don't care if uninstall work
-    pip uninstall -y "$@" >& /dev/null || true
-}
-
-install_proprietary_server() {
-    # proprietary is best served from the $install_server, which
-    # will be the local server (dev). Having a copy of the code
-    # locally in dev is better than sharing the proprietary
-    # key in dev.
-    echo -n "$(install_depot_server)/$install_proprietary_key"
+install_git_clone() {
+    # repo of the form repo, org/repo or https://git-server/org/repo{.git,}
+    # You can set RADIA_RUN_GIT_CLONE_BRANCH_<REPO> to clone a specific branch.
+    # RADIA_RUN_*  carries inside containers and ssh (see install_vars_export).
+    declare repo=$1
+    declare b=${repo##*/}
+    if [[ $b == $repo ]]; then
+        repo=radiasoft/$repo
+    fi
+    if [[ ! $repo =~ ^https? ]]; then
+        repo=https://github.com
+    fi
+    b=${b%%.git}
+    b=${b^^}
+    b=RADIA_RUN_GIT_CLONE_BRANCH_${b//[^A-Z0-9_]/_}
+    b=${!b:-}
+    git clone -q -c advice.detachedHead=false --depth 1 ${b:+--branch "$b"} "$repo"
 }
 
 install_err() {
@@ -283,6 +282,26 @@ install_not_strict_cmd() {
     set +euo pipefail
     "$@"
     set -euo pipefail
+}
+
+install_pip_install() {
+    # --no-color does not work always
+    # --progress-bar=off seems to work
+    # but this seems to work always
+    pip install "$@" | cat
+}
+
+install_pip_uninstall() {
+    # we don't care if uninstall work
+    pip uninstall -y "$@" >& /dev/null || true
+}
+
+install_proprietary_server() {
+    # proprietary is best served from the $install_server, which
+    # will be the local server (dev). Having a copy of the code
+    # locally in dev is better than sharing the proprietary
+    # key in dev.
+    echo -n "$(install_depot_server)/$install_proprietary_key"
 }
 
 install_repo() {
@@ -505,8 +524,14 @@ install_yum_install() {
     declare x y todo=()
     for x in "$@"; do
         y=$x
-        if [[ $x =~ ^https?:// ]]; then
-            x=$(rpm -q "$y" 2>/dev/null || true)
+        # Get real name from file or url, which contains a slash or ends in .rpm.
+        # Note this checks the version explicitly, which is a
+        # different behavior from when the arg is a simple name.
+        if [[ $x =~ (/|\.rpm$) ]]; then
+            x=$(rpm -qp "$y")
+            if [[ ! $x ]]; then
+                install_err "install_yum_install invalid rpm=$y"
+            fi
         fi
         # even if $x is empty (above) then will append to todo
         if ! rpm -q "$x" >& /dev/null; then
