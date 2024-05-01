@@ -24,5 +24,5 @@ export rpm_code_install_dir=$(_root)/yum/fedora/$install_version_fedora/$(arch)/
 export radiasoft_repo_file=$rpm_code_install_dir/radiasoft.repo
 export install_proprietary_key=proprietary_code
 # for convenience to test rpm-perl, not used here
-export rpm_perl_install_dir=$(_root)/radiasoft/rsconf/rpm
+export rpm_perl_install_dir=$(_root)/radiasoft/rsconf/run/rpm
 unset _root
