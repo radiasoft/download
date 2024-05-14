@@ -9,6 +9,7 @@ aravis_main() {
         gstreamer1-plugins-good \
         gtk-doc \
         gtk3-devel \
+        libusb1-devel \
         meson \
         python-gobject
     codes_dependencies common
