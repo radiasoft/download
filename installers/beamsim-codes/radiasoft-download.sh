@@ -58,6 +58,7 @@ declare -a _beamsim_codes_all=(
     opal
 
     impactt
+    impactx
 
     madx
     mantid
