@@ -105,8 +105,9 @@ install_git_clone() {
     if [[ $b == $repo ]]; then
         repo=radiasoft/$repo
     fi
-    if [[ ! $repo =~ ^https? ]]; then
-        repo=https://github.com
+    # If not already an absolute file or uri
+    if [[ ! $repo =~ ^(/|[A-Za-z]+:) ]]; then
+        repo=https://github.com/$repo
     fi
     b=${b%%.git}
     b=${b^^}
