@@ -200,7 +200,7 @@ codes_download() {
             declare manifest=( "$package" "$version" )
             declare t=zip-$RANDOM
             codes_curl -o "$t" "$repo"
-            unzip "$t"
+            unzip -q "$t"
             cd "$qualifier"
             rm -f "$t"
             ;;
