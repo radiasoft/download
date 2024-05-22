@@ -196,6 +196,14 @@ codes_download() {
                 "$(rpm -q --queryformat '%{VERSION}-%{RELEASE}' "$n")"
             )
             ;;
+        *.zip)
+            declare manifest=( "$package" "$version" )
+            declare t=zip-$RANDOM
+            codes_curl -o "$t" "$repo"
+            unzip "$t"
+            cd "$qualifier"
+            rm -f "$t"
+            ;;
         *)
             codes_err "$repo: unknown repository format; must end in .git, .rpm, .tar.gz, .tgz, .tar.xz, .tar.bz2"
             ;;
