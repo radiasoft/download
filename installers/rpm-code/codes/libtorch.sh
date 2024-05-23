@@ -10,4 +10,7 @@ libtorch_main() {
         mv "$f"/* "${codes_dir[$f]}"
     done
     mv  share/cmake/* "${codes_dir[lib]}"/cmake
+    # TODO(e-carlin):  these files have conflicts (openmc and trilinos) just removing for now...
+    rm /home/vagrant/.local/lib/libfmt.a
+    rm /home/vagrant/.local/lib/libgtest.a
 }
