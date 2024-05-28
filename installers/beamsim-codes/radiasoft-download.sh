@@ -60,6 +60,8 @@ declare -a _beamsim_codes_all=(
     impactt
     impactx
 
+    # TODO(e-carlin):  need to add amrex, pyamrex ?????
+
     madx
     mantid
 
