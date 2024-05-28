@@ -16,6 +16,8 @@ warpx_main() {
 }
 
 warpx_python_install() {
+    # TODO(e-carlin):
+    need to fix this, conflicts with new amrex
     cd "$_warpx_src_d"
     PYINSTALLOPTIONS="--jobs=$(codes_num_cores)" codes_cmake_build pip_install
     install -m 444 build/lib/libamrex*so "${codes_dir[lib]}"
