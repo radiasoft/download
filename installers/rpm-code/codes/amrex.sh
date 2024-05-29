@@ -7,6 +7,7 @@ amrex_main() {
       -DCMAKE_INSTALL_PREFIX="${codes_dir[prefix]}"  \
       -DAMReX_BUILD_SHARED_LIBS=ON  \
       -DAMReX_LINEAR_SOLVERS=ON     \
+      -DAMReX_MPI_THREAD_MULTIPLE=ON  \
       -DAMReX_OMP=ON                \
       -DAMReX_PARTICLES=ON          \
       -DAMReX_SPACEDIM="1;2;3"
