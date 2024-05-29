@@ -30,4 +30,5 @@ EOF
         -DImpactX_amrex_internal=OFF \
         -DImpactX_pyamrex_internal=OFF
     codes_cmake_build install
+    codes_cmake_build pip_install
 }
