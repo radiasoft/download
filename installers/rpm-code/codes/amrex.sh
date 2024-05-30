@@ -2,6 +2,7 @@
 
 amrex_main() {
     codes_dependencies common
+    # If this version is changed all dependent codes (pyamrex, impactx, warpx) must be updated.
     codes_download https://github.com/AMReX-Codes/amrex/releases/download/24.05/amrex-24.05.tar.gz amrex
     codes_cmake2   \
       -DAMReX_BUILD_SHARED_LIBS=ON  \

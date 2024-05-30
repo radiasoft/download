@@ -2,6 +2,7 @@
 
 impactx_main() {
     codes_dependencies common amrex pyamrex
+    # POSIT: Same version as amrex and pyamrex
     codes_download https://github.com/ECP-WarpX/impactx/archive/24.05.tar.gz  impactx-24.05 impactx 24.05
     # Impactx defaults to appending all options to the binary filename.
     # So, create a symlink from that name to impactx.

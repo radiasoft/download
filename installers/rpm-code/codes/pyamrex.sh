@@ -2,6 +2,7 @@
 
 pyamrex_main() {
     codes_dependencies common amrex
+    # POSIT: Same version as amrex
     codes_download https://github.com/AMReX-Codes/pyamrex/archive/refs/tags/24.05.tar.gz pyamrex-24.05 pyamrex 24.05
     codes_cmake_fix_lib_dir
     codes_cmake2 \
