@@ -25,10 +25,12 @@ impactx_main() {
 EOF
     codes_cmake_fix_lib_dir
     codes_cmake2  \
+      -DAMReX_MPI_THREAD_MULTIPLE=ON \
+      -DAMReX_OMP=ON \
       -DCMAKE_INSTALL_PREFIX="${codes_dir[prefix]}"  \
-      -DImpactX_amrex_internal=OFF                   \
-      -DImpactX_pyamrex_internal=OFF                 \
-      -DImpactX_PYTHON=ON
+      -DImpactX_PYTHON=ON \
+      -DImpactX_amrex_internal=OFF \
+      -DImpactX_pyamrex_internal=OFF
     codes_cmake_build install
     codes_cmake_build pip_install
 }
