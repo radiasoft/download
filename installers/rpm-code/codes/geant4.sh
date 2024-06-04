@@ -33,12 +33,14 @@ if [[ ! $install_d || ! -d $install_d || ! -w $install_d ]]; then
     exit 1
 fi
 
+# Same datasets as geant4 would install with GEANT4_INSTALL_DATA=ON
+# https://gitlab.cern.ch/geant4/geant4/-/blob/geant4-11.2-release/cmake/Modules/G4DatasetDefinitions.cmake
 declare datasets=(
-    G4ABLA.3.1
-    G4EMLOW.8.2
+    G4ABLA.3.3
+    G4EMLOW.8.5
     G4ENSDFSTATE.2.3
-    G4INCL.1.0
-    G4NDL4.7
+    G4INCL.1.2
+    G4NDL.4.7
     G4PARTICLEXS.4.0
     G4PII.1.3
     G4PhotonEvaporation.5.7
@@ -62,17 +64,15 @@ EOF
 }
 
 geant4_main() {
-    codes_yum_dependencies \
-        expat-devel \
-        qt5-qtbase \
-        qt5-qtbase-devel
+    codes_yum_dependencies expat-devel
     codes_dependencies common
-    codes_download https://gitlab.cern.ch/geant4/geant4/-/archive/v11.1.1/geant4-v11.1.1.tar.gz
+    codes_download https://gitlab.cern.ch/geant4/geant4/-/archive/v11.2.1/geant4-v11.2.1.tar.gz
     codes_cmake \
         -DCMAKE_INSTALL_LIBDIR="${codes_dir[lib]}" \
         -DCMAKE_INSTALL_PREFIX="${codes_dir[prefix]}" \
         -DGEANT4_BUILD_MULTITHREADED=ON \
-        -DGEANT4_USE_QT=ON
+        -DGEANT4_USE_OPENGL_X11=OFF \
+        -DGEANT4_USE_QT=OFF
     codes_make install
     geant4_install_data_download_script
 }
