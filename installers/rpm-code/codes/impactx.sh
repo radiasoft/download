@@ -1,8 +1,9 @@
 #!/bin/bash
 
 impactx_main() {
-    codes_dependencies common
-    codes_download https://github.com/ECP-WarpX/impactx/archive/24.04.tar.gz  impactx-24.04 impactx 24.04
+    codes_dependencies common amrex pyamrex
+    # POSIT: Same version as amrex and pyamrex
+    codes_download https://github.com/ECP-WarpX/impactx/archive/24.05.tar.gz  impactx-24.05 impactx 24.05
     # Impactx defaults to appending all options to the binary filename.
     # So, create a symlink from that name to impactx.
     # This is already done for lib files.
@@ -24,6 +25,12 @@ impactx_main() {
  #    FILE ImpactXTargets.cmake
 EOF
     codes_cmake_fix_lib_dir
-    codes_cmake2 -DCMAKE_INSTALL_PREFIX="${codes_dir[prefix]}"
+    codes_cmake2  \
+      -DAMReX_OMP=ON \
+      -DCMAKE_INSTALL_PREFIX="${codes_dir[prefix]}"  \
+      -DImpactX_PYTHON=ON \
+      -DImpactX_amrex_internal=OFF \
+      -DImpactX_pyamrex_internal=OFF
     codes_cmake_build install
+    codes_cmake_build pip_install
 }
