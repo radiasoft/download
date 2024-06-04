@@ -65,8 +65,6 @@ EOF
 
 geant4_main() {
     codes_yum_dependencies expat-devel
-    #     qt5-qtbase \
-    #     qt5-qtbase-devel
     codes_dependencies common
     codes_download https://gitlab.cern.ch/geant4/geant4/-/archive/v11.2.1/geant4-v11.2.1.tar.gz
     codes_cmake \
