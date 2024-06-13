@@ -1,7 +1,7 @@
 #!/bin/bash
 
 impactx_main() {
-    codes_dependencies common amrex pyamrex
+    codes_dependencies common amrex openpmdapi pyamrex
     # POSIT: Same version as amrex and pyamrex
     codes_download https://github.com/ECP-WarpX/impactx/archive/24.05.tar.gz  impactx-24.05 impactx 24.05
     # Impactx defaults to appending all options to the binary filename.
@@ -30,6 +30,7 @@ EOF
       -DCMAKE_INSTALL_PREFIX="${codes_dir[prefix]}"  \
       -DImpactX_PYTHON=ON \
       -DImpactX_amrex_internal=OFF \
+      -DImpactX_openpmd_internal=OFF \
       -DImpactX_pyamrex_internal=OFF
     codes_cmake_build install
     codes_cmake_build pip_install
