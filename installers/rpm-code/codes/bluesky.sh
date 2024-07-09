@@ -28,7 +28,6 @@ bluesky_main() {
         photutils \
         pyCHX==4.0.10 \
         pyOlog \
-        scikit-beam \
         xray-vision \
         zarr
 
