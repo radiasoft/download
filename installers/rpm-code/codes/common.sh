@@ -76,6 +76,9 @@ common_python() {
         prompt_toolkit
         fsspec
 
+        # Needed by rscode-bluesky and rscode-impactt
+        pint
+
         # conflict between warpx and bnlcrl
         periodictable
 
@@ -93,6 +96,7 @@ common_python() {
         'wrapt>=1.11.1'
 
         # conflict between rscode-bluesky and rscode-openmc
+        asteval
         jsonschema
         tenacity
         toolz

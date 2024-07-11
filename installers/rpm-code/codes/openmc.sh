@@ -44,7 +44,11 @@ openmc_moab() {
 }
 
 openmc_openmc() {
-    codes_download openmc-dev/openmc develop
+    # Python 3.9 support was dropped a few commits after this. The
+    # commits directly before 3.9 support being dropped all showed
+    # broken builds. This was the first one to show a successful
+    # build.
+    codes_download openmc-dev/openmc b1b8a4c32834f82b0687600efbffa0e3181ef4c4
     codes_cmake_fix_lib_dir
     CXX=mpicxx codes_cmake \
         -D CMAKE_INSTALL_PREFIX="${codes_dir[prefix]}" \
@@ -61,6 +65,7 @@ openmc_python_install() {
     cd ../moab/build/pymoab
     codes_python_install
     install_pip_install \
+        "neutronics_material_maker[density]" \
         dagmc_geometry_slice_plotter \
         openmc-data-downloader \
         pymeshlab \
