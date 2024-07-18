@@ -1,8 +1,10 @@
 #!/bin/bash
 #
-# Create a Centos or Fedora VirtualBox with guest additions
+# Create an Alma or Fedora VirtualBox.
+# The name centos is kept for backwards compatability but an alma
+# linux machine will be created.
 #
-# Usage: curl radia.run | bash -s vagrant-up centos|fedora [guest-name:v.radia.run [guest-ip:10.10.10.10]]
+# Usage: curl radia.run | bash -s vagrant-dev centos|alma|fedora [guest-name:v.radia.run [guest-ip:10.10.10.10]]
 #
 set -euo pipefail
 
@@ -14,20 +16,17 @@ vagrant_dev_box_add() {
     # Returns: $box
     box=$1
     declare provider=virtualbox
-    if [[ $_vagrant_dev_host_os == ubuntu ]]; then
-        provider=libvirt
-    fi
     if [[ $vagrant_dev_box ]]; then
         box=$vagrant_dev_box
     elif [[ $box =~ fedora ]]; then
         if [[ $box == fedora ]]; then
             box=generic/fedora$install_version_fedora
         fi
-    elif [[ $box == centos ]]; then
+    elif [[ $box == centos || $box == alma ]]; then
         if [[ $_vagrant_dev_host_os == ubuntu ]]; then
-            box=generic/centos$install_version_centos
+            box=generic/alma$install_version_centos
         else
-            box=centos/$install_version_centos
+            box=almalinux/$install_version_centos
         fi
     fi
     if vagrant box list | grep "$box" >& /dev/null; then
@@ -123,7 +122,7 @@ vagrant_dev_main() {
     vagrant_dev_modifiers
     for a in "$@"; do
         case $a in
-            fedora*|centos*)
+            fedora*|centos*|alma*)
                 os=$a
                 ;;
             [1-9]*)
@@ -140,11 +139,11 @@ vagrant_dev_main() {
                 ;;
             *)
                 install_err "invalid arg=$a
-expects: fedora|centos[/<version>], <ip address>, update, v[1-9].radia.run"
+expects: fedora|centos|alma[/<version>], <ip address>, update, v[1-9].radia.run"
         esac
     done
     if [[ ! $os ]]; then
-        install_err 'usage: radia_run vagrant-dev fedora|centos [host|ip] [update]'
+        install_err 'usage: radia_run vagrant-dev fedora|centos|alma [host|ip] [update]'
     fi
     if [[ ! $host ]]; then
         if [[ ! $PWD =~ /(v[2-9]?)$ ]]; then

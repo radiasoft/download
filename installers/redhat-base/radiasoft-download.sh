@@ -25,6 +25,10 @@ EOF
     elif [[ ! -e /etc/yum.repos.d/epel.repo ]]; then
         yum --color=never --enablerepo=extras install -y -q epel-release
     fi
+    if [[ $install_os_release_id == almalinux ]]; then
+        # Provides packages like perl(IPC::Run) needed by moreutils (below)
+        install_yum config-manager --set-enabled crb
+    fi
     # mandb takes a really long time on some installs
     x=/usr/bin/mandb
     if [[ ! -L $x && $(readlink "$x") != true ]]; then

@@ -32,19 +32,15 @@ Then re-run this command
         perl -pi -e 's{(?<=^SELINUX=).*}{disabled}' /etc/selinux/config
         install_err 'Disabled selinux. You need to "vagrant reload", then re-run this installer'
     fi
-    if type dnf >& /dev/null; then
+    declare o=rhel
+    if [[ $install_os_release_id == fedora ]]; then
         dnf -y -q install dnf-plugins-core
-        dnf -q config-manager \
-            --add-repo \
-            https://download.docker.com/linux/fedora/docker-ce.repo
-        dnf -y -q install docker-ce
-    else
-        yum-config-manager \
-            --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-        yum makecache fast
-        yum -y -q install yum-plugin-ovl
-        yum -y -q install docker-ce
+        o=fedora
     fi
+    dnf -q config-manager \
+        --add-repo \
+        https://download.docker.com/linux/"$o"/docker-ce.repo
+    dnf -y -q install docker-ce
     usermod -aG docker vagrant
     install -d -m 700 /etc/docker
     mkdir -p "$data"

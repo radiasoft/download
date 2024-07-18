@@ -3,9 +3,7 @@
 # To run: curl radia.run | bash -s perl-dev
 #
 perl_dev_main() {
-    if [[ $install_os_release_id != centos ]]; then
-        install_err 'only works on CentOS (RHEL) Linux'
-    fi
+    install_assert_centos
     if (( $EUID == 0 )); then
         install_err 'run as vagrant (or other ordinary user), not root'
     fi

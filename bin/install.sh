@@ -45,6 +45,12 @@ install_args() {
     fi
 }
 
+install_assert_centos() {
+    if [[ $install_os_release_id != almalinux ]]; then
+        install_err 'only works on RHEL like Linux'
+    fi
+}
+
 install_assert_pip_version() {
     declare package=$1
     declare version=$2
@@ -204,7 +210,7 @@ install_init_vars() {
     : ${install_version_fedora:=36}
     : ${install_version_python:=3.9.15}
     : ${install_version_python_venv:=py${install_version_python%%.*}}
-    : ${install_version_centos:=7}
+    : ${install_version_centos:=9}
     install_init_vars_oci
     eval "$(install_vars_export)"
 }
@@ -509,16 +515,12 @@ install_version_fedora_lt_36() {
 
 install_yum() {
     declare args=( "$@" )
-    declare yum=yum
-    if [[ $(type -t dnf) ]]; then
-        yum=dnf
-    fi
     declare flags=( -y --color=never )
     if [[ ! $install_debug ]]; then
         flags+=( -q )
     fi
-    install_info "$yum" "${args[@]}"
-    install_sudo "$yum" "${flags[@]}" "${args[@]}"
+    install_info dnf "${args[@]}"
+    install_sudo dnf "${flags[@]}" "${args[@]}"
 }
 
 install_yum_install() {
