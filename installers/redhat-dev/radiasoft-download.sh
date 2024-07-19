@@ -3,7 +3,7 @@
 # To run: curl radia.run | bash -s redhat-dev
 #
 redhat_dev_main() {
-    if [[ ! $install_os_release_id =~ fedora|centos|rhel|alma ]]; then
+    if ! install_os_is_redhat; then
         install_err "only works on Red Hat flavored Linux (os=$install_os_release_id)"
     fi
     if (( $EUID == 0 )); then

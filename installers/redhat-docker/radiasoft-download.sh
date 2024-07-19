@@ -41,6 +41,23 @@ Then re-run this command
         --add-repo \
         https://download.docker.com/linux/"$o"/docker-ce.repo
     dnf -y -q install docker-ce
+
+    if install_os_is_fedora; then
+        install_yum_install dnf-plugins-core
+        dnf -q config-manager \
+            --add-repo \
+            https://download.docker.com/linux/fedora/docker-ce.repo
+    elif install_os_is_centos_7; then
+        yum-config-manager \
+            --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+        yum makecache fast
+        install_yum_install yum-plugin-ovl
+    else
+        dnf -q config-manager \
+            --add-repo \
+            https://download.docker.com/linux/rhel/docker-ce.repo
+    fi
+    install_yum_install docker-ce
     usermod -aG docker vagrant
     install -d -m 700 /etc/docker
     mkdir -p "$data"

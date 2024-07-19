@@ -1,10 +1,10 @@
 #!/bin/bash
 #
-# Create an Alma or Fedora VirtualBox.
-# The name centos is kept for backwards compatability but an alma
-# linux machine will be created.
+# Create an AlmaLinux or Fedora VirtualBox.
+# The name centos is kept for backwards compatability but an almalinux
+# machine will be created.
 #
-# Usage: curl radia.run | bash -s vagrant-dev centos|alma|fedora [guest-name:v.radia.run [guest-ip:10.10.10.10]]
+# Usage: curl radia.run | bash -s vagrant-dev centos|almalinux|fedora [guest-name:v.radia.run [guest-ip:10.10.10.10]]
 #
 set -euo pipefail
 
@@ -16,13 +16,20 @@ vagrant_dev_box_add() {
     # Returns: $box
     box=$1
     declare provider=virtualbox
+    if [[ $_vagrant_dev_host_os == ubuntu ]]; then
+        provider=libvirt
+    fi
     if [[ $vagrant_dev_box ]]; then
         box=$vagrant_dev_box
-    elif [[ $box =~ fedora ]]; then
-        if [[ $box == fedora ]]; then
-            box=generic/fedora$install_version_fedora
+    elif [[ $box == fedora ]]; then
+        box=generic/fedora$install_version_fedora
+    elif [[ $box == centos ]]; then
+        if [[ $_vagrant_dev_host_os == ubuntu ]]; then
+            box=generic/centos$install_version_centos
+        else
+            box=centos/$install_version_centos
         fi
-    elif [[ $box == centos || $box == alma ]]; then
+    elif [[ $box == almalinux ]]; then
         if [[ $_vagrant_dev_host_os == ubuntu ]]; then
             box=generic/alma$install_version_centos
         else
@@ -31,8 +38,6 @@ vagrant_dev_box_add() {
     fi
     if vagrant box list | grep "$box" >& /dev/null; then
         vagrant box update --box "$box"
-    elif [[ $box == fedora/32-cloud-base ]]; then
-        vagrant box add https://depot.radiasoft.org/foss/fedora32-box.json
     else
         vagrant box add --provider $provider "$box"
     fi
@@ -79,7 +84,7 @@ EOF
 
 vagrant_dev_ignore_git_dir_ownership() {
     declare os="$1"
-    if [[ ! $vagrant_dev_no_nfs_src && $os =~ fedora ]]; then
+    if [[ ! $vagrant_dev_no_nfs_src && $os == fedora ]]; then
         echo 1
     fi
 }
@@ -122,7 +127,7 @@ vagrant_dev_main() {
     vagrant_dev_modifiers
     for a in "$@"; do
         case $a in
-            fedora*|centos*|alma*)
+            fedora|centos|almalinux)
                 os=$a
                 ;;
             [1-9]*)
@@ -139,11 +144,11 @@ vagrant_dev_main() {
                 ;;
             *)
                 install_err "invalid arg=$a
-expects: fedora|centos|alma[/<version>], <ip address>, update, v[1-9].radia.run"
+expects: fedora|centos|almalinux, <ip address>, update, v[1-9].radia.run"
         esac
     done
     if [[ ! $os ]]; then
-        install_err 'usage: radia_run vagrant-dev fedora|centos|alma [host|ip] [update]'
+        install_err 'usage: radia_run vagrant-dev fedora|centos|almalinux [host|ip] [update]'
     fi
     if [[ ! $host ]]; then
         if [[ ! $PWD =~ /(v[2-9]?)$ ]]; then
