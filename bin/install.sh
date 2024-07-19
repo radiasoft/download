@@ -285,8 +285,12 @@ install_not_strict_cmd() {
     set -euo pipefail
 }
 
+install_os_is_almalinux() {
+    [[ $install_os_release_id =~ almalinux ]]
+}
+
 install_os_is_centos() {
-    [[ $install_os_release_id =~ almalinux|centos ]]
+    install_os_is_almalinux || [[ $install_os_release_id =~ centos ]]
 }
 
 

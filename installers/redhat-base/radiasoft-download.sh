@@ -25,7 +25,7 @@ EOF
     elif [[ ! -e /etc/yum.repos.d/epel.repo ]]; then
         yum --color=never --enablerepo=extras install -y -q epel-release
     fi
-    if [[ $install_os_release_id == almalinux ]]; then
+    if install_os_is_almalinux; then
         # Provides packages like perl(IPC::Run) needed by moreutils (below)
         install_yum config-manager --set-enabled crb
     fi
