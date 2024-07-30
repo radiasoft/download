@@ -24,7 +24,7 @@ pyenv_install() {
     # Updating the patches this way fixes the problem
     find "$PYENV_ROOT" -name \*.patch -print0 | xargs -0 -n 100 perl -pi -e 's{^(\+\+\+|--- |diff.* )\.\./}{$1}'
     install_source_bashrc
-    if [[ $install_os_release_id == darwin ]]; then
+    if install_os_is_darwin; then
         pyenv_homebrew
     fi
     export PYTHON_CONFIGURE_OPTS="${_pyenv_valgrind:+--without-pymalloc --with-pydebug --with-valgrind} --enable-shared"

@@ -3,7 +3,7 @@
 # To run: curl radia.run | bash -s perl-dev
 #
 perl_dev_main() {
-    if ! install_os_is_centos; then
+    if ! install_os_is_rhel_compatible; then
         install_err 'only works on RHEL like Linux'
     fi
     if (( $EUID == 0 )); then

@@ -10,7 +10,7 @@ redhat_dev_main() {
         install_err 'run as vagrant (or other ordinary user), not root'
     fi
     install_yum update
-    if [[ $install_os_release_id == fedora ]]; then
+    if install_os_is_fedora; then
         # this is a very an annoying feature, because it happens in every interactive shell
         install_sudo rm -f /etc/profile.d/console-login-helper-messages-profile.sh
     fi

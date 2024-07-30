@@ -33,7 +33,7 @@ Then re-run this command
         install_err 'Disabled selinux. You need to "vagrant reload", then re-run this installer'
     fi
     declare o=rhel
-    if [[ $install_os_release_id == fedora ]]; then
+    if install_os_is_fedora; then
         dnf -y -q install dnf-plugins-core
         o=fedora
     fi
@@ -52,10 +52,12 @@ Then re-run this command
             --add-repo https://download.docker.com/linux/centos/docker-ce.repo
         yum makecache fast
         install_yum_install yum-plugin-ovl
-    else
+    elif install_os_is_rhel_compatible; then
         dnf -q config-manager \
             --add-repo \
             https://download.docker.com/linux/rhel/docker-ce.repo
+    else
+        install_err "installer does not support os=$install_os_release_id"
     fi
     install_yum_install docker-ce
     usermod -aG docker vagrant

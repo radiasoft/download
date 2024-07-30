@@ -236,7 +236,7 @@ install_init_vars_os_release() {
     fi
     # COMPAT: darwin doesn't support ${x,,}
     export install_os_release_id=$(uname | tr A-Z a-z)
-    if [[ $install_os_release_id == darwin ]]; then
+    if install_os_is_darwin; then
         export install_os_release_version_id=$(sw_vers -productVersion)
     else
         # Have something legal; unlikely to get here
@@ -289,13 +289,17 @@ install_os_is_almalinux() {
     [[ $install_os_release_id =~ almalinux ]]
 }
 
-install_os_is_centos() {
+install_os_is_rhel_compatible() {
     install_os_is_almalinux || [[ $install_os_release_id =~ centos ]]
 }
 
 
 install_os_is_centos_7() {
-    install_os_is_centos && $install_version_centos -eq 7
+    install_os_is_rhel_compatible && $install_version_centos -eq 7
+}
+
+install_os_is_darwin() {
+    [[ $install_os_release_id =~ darwin ]]
 }
 
 install_os_is_fedora() {
@@ -303,7 +307,7 @@ install_os_is_fedora() {
 }
 
 install_os_is_redhat() {
-    [[ $install_os_release_id =~ rhel ]] || install_os_is_fedora || install_os_is_centos
+    [[ $install_os_release_id =~ rhel ]] || install_os_is_fedora || install_os_is_rhel_compatible
 }
 
 install_pip_install() {
