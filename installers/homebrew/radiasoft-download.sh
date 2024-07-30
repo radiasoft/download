@@ -1,7 +1,7 @@
 #!/bin/bash
 
 homebrew_main() {
-    if [[ $install_os_release_id != darwin ]]; then
+    if ! install_os_is_darwin; then
         install_err "Brew is only needed on Mac OS"
     fi
     if [[ ! $(type -p git) ]]; then

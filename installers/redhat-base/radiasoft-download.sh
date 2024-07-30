@@ -8,7 +8,7 @@ redhat_base_main() {
         return 1
     fi
     local x
-    if [[ $install_os_release_id == fedora ]]; then
+    if install_os_is_fedora; then
         x=/etc/yum.repos.d/mongodb-org-4.4.repo
         if [[ ! -e $x ]]; then
             # Use RHEL8 rpm because mongodb uses SSPL which fedora doesn't support
@@ -24,6 +24,10 @@ EOF
         fi
     elif [[ ! -e /etc/yum.repos.d/epel.repo ]]; then
         yum --color=never --enablerepo=extras install -y -q epel-release
+    fi
+    if install_os_is_almalinux; then
+        # Provides packages like perl(IPC::Run) needed by moreutils (below)
+        install_yum config-manager --set-enabled crb
     fi
     # mandb takes a really long time on some installs
     x=/usr/bin/mandb
@@ -113,7 +117,7 @@ EOF
             xorg-x11-xauth
         )
     fi
-    if [[ $install_os_release_id == fedora ]]; then
+    if install_os_is_fedora; then
         x+=(
             perl-debugger
             direnv

@@ -7,8 +7,8 @@ slurm_dev_main() {
         install_msg 'sbatch already installed, nothing to do'
         return
     fi
-    if [[ $install_os_release_id != fedora ]]; then
-        if [[ $install_os_release_id == darwin ]]; then
+    if ! install_os_is_fedora; then
+        if install_os_is_darwin; then
             install_err 'You need to run:
 
 radia_run vagrant-dev fedora

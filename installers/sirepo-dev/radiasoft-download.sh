@@ -1,7 +1,7 @@
 #!/bin/bash
 
 sirepo_dev_main() {
-    if [[ $install_os_release_id != fedora ]]; then
+    if ! install_os_is_fedora; then
         install_err 'only works on Fedora Linux'
     fi
     if (( $EUID == 0 )); then
