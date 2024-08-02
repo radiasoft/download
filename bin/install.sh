@@ -295,7 +295,7 @@ install_os_is_rhel_compatible() {
 
 
 install_os_is_centos_7() {
-    install_os_is_rhel_compatible && $install_version_centos -eq 7
+    install_os_is_rhel_compatible && [[ $install_version_centos -eq 7 ]]
 }
 
 install_os_is_darwin() {
@@ -366,6 +366,7 @@ install_repo_as_user() {
             install_channel="$install_channel" \
             install_debug="$install_debug" \
             install_depot_server="$install_depot_server" \
+            install_version_centos="$install_version_centos" \
             bash -l -s "$@"
     )
 }
@@ -517,6 +518,7 @@ install_vars_export() {
         install_proprietary_key \
         install_version_fedora \
         install_version_python \
+        install_version_centos \
         $(compgen -A variable RADIA_RUN_) \
         $(compgen -A variable GITHUB_)
     do

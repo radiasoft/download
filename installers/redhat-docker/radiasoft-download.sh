@@ -25,23 +25,13 @@ umount /var/lib/docker
 rmdir /var/lib/docker
 perl -pi -e "s{^/var/lib/docker.*}{}" /etc/fstab
 
-Then re-run this command
+Then re-run this command. This should only happen in development environments.
 '
     fi
     if selinuxenabled; then
         perl -pi -e 's{(?<=^SELINUX=).*}{disabled}' /etc/selinux/config
         install_err 'Disabled selinux. You need to "vagrant reload", then re-run this installer'
     fi
-    declare o=rhel
-    if install_os_is_fedora; then
-        dnf -y -q install dnf-plugins-core
-        o=fedora
-    fi
-    dnf -q config-manager \
-        --add-repo \
-        https://download.docker.com/linux/"$o"/docker-ce.repo
-    dnf -y -q install docker-ce
-
     if install_os_is_fedora; then
         install_yum_install dnf-plugins-core
         dnf -q config-manager \
@@ -60,6 +50,9 @@ Then re-run this command
         install_err "installer does not support os=$install_os_release_id"
     fi
     install_yum_install docker-ce
+    if [[ ! ${redhat_docker_dev:-} ]]; then
+        return 0
+    fi
     usermod -aG docker vagrant
     install -d -m 700 /etc/docker
     mkdir -p "$data"
