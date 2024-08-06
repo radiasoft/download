@@ -50,7 +50,7 @@ Then re-run this command. This should only happen in development environments.
         install_err "installer does not support os=$install_os_release_id"
     fi
     install_yum_install docker-ce
-    if [[ ! ${redhat_docker_dev:-} ]]; then
+    if [[ ${redhat_docker_no_local_setup:-} ]]; then
         return 0
     fi
     usermod -aG docker vagrant
