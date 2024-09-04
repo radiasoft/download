@@ -5,14 +5,15 @@
 set -euo pipefail
 
 vagrant_rsconf_dev_main() {
+    declare os=${1:-centos}
     case $(basename "$PWD") in
         v3)
-            vagrant_rsconf_dev_master
+            vagrant_rsconf_dev_master "$os"
             ;;
         v2|v4|v5)
             vagrant_dev_no_docker_disk= vagrant_dev_barebones=1 \
                 install_server=http://v3.radia.run:2916 \
-                vagrant_rsconf_dev_worker
+                vagrant_rsconf_dev_worker "$os"
             ;;
         *)
             install_err 'Must be run from v2, v3, v4, or v5 dirs'
@@ -21,8 +22,10 @@ vagrant_rsconf_dev_main() {
 }
 
 vagrant_rsconf_dev_master() {
-    install_repo_eval vagrant-dev centos
-    vagrant ssh <<'EOF'
+    declare os=$1
+    install_repo_eval vagrant-dev "$os"
+    vagrant ssh <<EOF
+        $(install_vars_export)
         radia_run pyenv
         source ~/.bashrc
         set -euo pipefail
@@ -48,6 +51,7 @@ EOF
 
 vagrant_rsconf_dev_run() {
     install_server=$install_server vagrant ssh -c 'sudo su -' <<EOF
+        $(install_vars_export)
         set -euo pipefail
         export install_channel=dev install_server=$install_server
         curl "$install_server/index.html" | bash -s rsconf.sh "\$(hostname -f)" setup_dev
@@ -55,7 +59,8 @@ EOF
 }
 
 vagrant_rsconf_dev_worker() {
-    install_repo_eval vagrant-dev centos
+    declare os=$1
+    install_repo_eval vagrant-dev "$os"
     vagrant_rsconf_dev_run || true
     vagrant reload
     vagrant_rsconf_dev_run
