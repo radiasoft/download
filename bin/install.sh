@@ -109,6 +109,9 @@ install_git_clone() {
     if [[ ! $repo =~ ^(/|[A-Za-z]+:) ]]; then
         repo=https://github.com/$repo
     fi
+    if [[ $repo =~ ^https://github.com(.+) && ${GITHUB_TOKEN:+1} ]]; then
+        repo=https://$GITHUB_TOKEN@github.com/${BASH_REMATCH[1]}
+    fi
     b=${b%%.git}
     b=${b^^}
     b=RADIA_RUN_GIT_CLONE_BRANCH_${b//[^A-Z0-9_]/_}
