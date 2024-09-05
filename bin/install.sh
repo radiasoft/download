@@ -298,7 +298,7 @@ install_os_is_rhel_compatible() {
 
 
 install_os_is_centos_7() {
-    install_os_is_rhel_compatible && $install_version_centos -eq 7
+    [[ $install_os_release_id =~ centos ]] && [[ $install_os_release_version_id == 7 ]]
 }
 
 install_os_is_darwin() {
