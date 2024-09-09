@@ -31,7 +31,7 @@ pyenv_install() {
     pyenv install "$install_version_python"
     pyenv global "$install_version_python"
     pip install --upgrade pip
-    pip install --upgrade setuptools tox
+    pip install --upgrade build setuptools
     pyenv virtualenv "$install_version_python" "$install_version_python_venv"
     pyenv global "$install_version_python_venv"
 }
