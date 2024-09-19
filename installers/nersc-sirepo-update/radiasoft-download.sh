@@ -5,7 +5,7 @@
 #
 # To test on nersc:
 # export install_server=file://$HOME/src
-# curl https://radia.run | install_debug=1 bash -s nersc-sirepo-update alpha root-dir
+# curl $install_server/radiasoft/download/bin/index.sh | install_debug=1 bash -s nersc-sirepo-update alpha root-dir
 #
 # In dev, add this (permanently):
 # export nersc_sirepo_update_docker=1
