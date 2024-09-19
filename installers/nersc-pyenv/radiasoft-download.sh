@@ -2,17 +2,6 @@
 #
 # To run: curl radia.run | bash -s nersc-pyenv
 #
-_nersc_pyenv_root=~/.pyenv
-
-_nersc_pyenv_bashrc='
-if ! [[ $PATH =~ pyenv/bin ]]; then
-    export PYENV_ROOT='"$_nersc_pyenv_root"'
-    export PATH="$PYENV_ROOT/bin:$PATH"
-    eval "$(pyenv init --path)"
-    eval "$(pyenv virtualenv-init -)"
-fi
-'
-
 nersc_pyenv_bashrc() {
     local f=~/.bashrc.ext
     if [[ ! -e $f ]] || ! grep -i /.bashrc.ext ~/.bashrc; then
@@ -28,7 +17,8 @@ nersc_pyenv_main() {
     if [[ $SHELL != /bin/bash ]]; then
         install_err "Currently only supports bash shells; SHELL=$SHELL"
     fi
-    local r=$_nersc_pyenv_root
+    nersc_pyenv_vars
+    local r=$nersc_pyenv_root
     if [[ ! -d $r ]]; then
         # the path here avoids an error message
         curl -s -S -L https://pyenv.run | PATH="$r/bin:$PATH" bash
@@ -48,4 +38,18 @@ nersc_pyenv_main() {
     if ! ${nersc_pyenv_no_global:+}; then
         pyenv global "$a"
     fi
+}
+
+nersc_pyenv_vars() {
+    if [[ ! ${nersc_pyenv_root:-} ]]; then
+        install_err '$nerc_pyenv_root must be set'
+    fi
+    _nersc_pyenv_bashrc='
+if ! [[ $PATH =~ pyenv/bin ]]; then
+    export PYENV_ROOT='"$nersc_pyenv_root"'
+    export PATH="$PYENV_ROOT/bin:$PATH"
+    eval "$(pyenv init --path)"
+    eval "$(pyenv virtualenv-init -)"
+fi
+'
 }

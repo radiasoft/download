@@ -5,7 +5,7 @@
 #
 # To test on nersc:
 # export install_server=file://$HOME/src
-# curl https://radia.run | install_debug=1 bash -s nersc-sirepo-update alpha
+# curl https://radia.run | install_debug=1 bash -s nersc-sirepo-update alpha root-dir
 #
 # In dev, add this (permanently):
 # export nersc_sirepo_update_docker=1
@@ -30,28 +30,33 @@ nersc_sirepo_update_docker() {
 
 nersc_sirepo_update_main() {
     declare channel=${1:-}
+    declare root_dir=${2:-}
     if [[ ! $channel =~ ^(alpha|beta|prod)$ ]]; then
         install_err "invalid channel=${channel:-<missing arg>}"
     fi
+    if ! [[ -d $root_dir && $(stat -c %a "$root_dir") =~ [157]$ ]]; then
+        install_err "root directory must be world executable"
+    fi
     declare v=sirepo-$channel
-    nersc_sirepo_update_pyenv "$v"
-    declare d=~/"$v"/radiasoft
+    nersc_sirepo_update_pyenv "$v" "$root_dir"
+    declare d=$root_dir/"$v"/radiasoft
     mkdir -p "$d"
     cd "$d"
     declare i=radiasoft/sirepo:$channel
     nersc_sirepo_update_shifter pull "$i"
     nersc_sirepo_update_python_repos "$i"
-    # Needs to be world executable
-    chmod 711 ~
-    chmod -R a+rX ~/.pyenv
+    chmod -R a+rX "$PYENV_ROOT"
 }
 
 nersc_sirepo_update_pyenv() {
     declare venv_name=$1
+    declare root_dir=$2
+    export PYENV_ROOT=$root_dir/.pyenv
+    export nersc_pyenv_root=$PYENV_ROOT
     if [[ ! $PATH =~ pyenv/bin ]]; then
-        export PATH="$HOME/.pyenv/bin:$PATH"
+        export PATH="$PYENV_ROOT/bin:$PATH"
     fi
-    if [[ ! -d ~/.pyenv ]]; then
+    if [[ ! -d $PYENV_ROOT ]]; then
         nersc_pyenv_no_global=1 install_repo_eval nersc-pyenv
     fi
     install_not_strict_cmd eval "$(pyenv init -)"
