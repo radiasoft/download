@@ -2,9 +2,9 @@
 
 openpmdapi_main() {
     codes_dependencies common
-    # POSIT: Version that impactx and waprx want
-    # https://github.com/ECP-WarpX/impactx/blob/24.05/cmake/dependencies/ABLASTR.cmake#L197
-    # https://github.com/ECP-WarpX/WarpX/blob/24.05/cmake/dependencies/openPMD.cmake#L95
+    # POSIT: Version that impactx and warpx want
+    # https://github.com/ECP-WarpX/impactx/blob/24.09/cmake/dependencies/ABLASTR.cmake#L180
+    # https://github.com/ECP-WarpX/WarpX/blob/24.09/cmake/dependencies/openPMD.cmake#L90
     codes_download https://github.com/openPMD/openPMD-api/archive/refs/tags/0.15.2.tar.gz openPMD-api-0.15.2 openpmdapi 0.15.2
     codes_cmake_fix_lib_dir
     codes_cmake2  \
