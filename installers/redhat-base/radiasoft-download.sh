@@ -121,6 +121,10 @@ EOF
         x+=(
             perl-debugger
             direnv
+        )
+    fi
+    if ! install_os_is_centos_7; then
+        x+=(
             opendkim-tools
         )
     fi
