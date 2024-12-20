@@ -13,7 +13,7 @@ nersc_pyenv_main() {
 }
 
 _nersc_pyenv_instructions() {
-    if [[ ${nersc_pyenv_no_global:+} ]]; then
+    if [[ ${nersc_pyenv_no_global:+1} ]]; then
         # Not installing globally (nersc-sirepo-update sets this)
        return
     fi
@@ -38,7 +38,7 @@ _nersc_pyenv_python() {
     if [[ ! -e $PYENV_ROOT/versions/$a ]]; then
         pyenv virtualenv "$v" "$a"
     fi
-    if ! ${nersc_pyenv_no_global:+}; then
+    if [[ ! ${nersc_pyenv_no_global:+1} ]]; then
         pyenv global "$a"
     fi
 }
