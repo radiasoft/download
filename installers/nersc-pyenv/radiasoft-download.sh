@@ -9,6 +9,7 @@ nersc_pyenv_main() {
     _nersc_pyenv_vars
     _nersc_pyenv_setup
     _nersc_pyenv_python
+    _nersc_pyenv_instructions
 }
 
 _nersc_pyenv_instructions() {
