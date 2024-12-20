@@ -22,7 +22,7 @@ export PYENV_ROOT=$PYENV_ROOT" '
 if [[ ! $PATH =~ $PYENV_ROOT/bin ]]; then
     export PATH=$PYENV_ROOT/bin:$PATH
 fi
-if [[ $(type -f pyenv) != function ]]; then &> /dev/null; then
+if [[ $(type -f pyenv) != function ]]; then
     eval "$(pyenv init -)"
     eval "$(pyenv virtualenv-init -)"
 fi
