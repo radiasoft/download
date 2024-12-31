@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Assumes running in GITHUB
+# Requires GITHUB_REPOSITORY and accepts GITHUB_TOKEN
 #
 python_ci_main() {
     if ! [[ -r setup.py || -r pyproject.toml ]]; then
@@ -10,12 +10,8 @@ python_ci_main() {
     declare -a p=()
     declare r=$(basename "${GITHUB_REPOSITORY:-MISSING}")
     case $r in
-        pykern)
+        pykern|chronver)
             i=radiasoft/python3
-            ;;
-        rsaccounting|rsconf|chronver|rslearn)
-            i=radiasoft/python3
-            p+=( pykern )
             ;;
         sirepo)
             i=radiasoft/sirepo-ci
@@ -25,8 +21,13 @@ python_ci_main() {
             install_err '$GITHUB_REPOSITORY no set'
             ;;
         *)
-            i=radiasoft/sirepo
-            p+=( pykern sirepo )
+            p+=( pykern )
+            if grep -s sirepo setup.py pyproject.toml &> /dev/null; then
+                i=radiasoft/sirepo
+                p+=( sirepo )
+            else
+                i=radiasoft/python3
+            fi
             ;;
     esac
     declare d=$PWD
