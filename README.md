@@ -123,8 +123,10 @@ Many of the installers can be tested with:
 
 ```sh
 export install_server=file://$HOME/src
-curl https://radia.run | install_debug=1 bash -s nersc-sirepo-update alpha
+curl $install_server/radiasoft/download/bin/install.sh | install_debug=1 bash -s python-ci
 ```
+
+Assumes a directory structure where src/radiasoft/download is this repo.
 
 ### install.sh testing
 
