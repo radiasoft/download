@@ -68,6 +68,7 @@ openmc_python_install() {
         "neutronics_material_maker[density]" \
         dagmc_geometry_slice_plotter \
         openmc-data-downloader \
+        git+https://github.com/svalinn/pydagmc.git \
         pymeshlab \
         vtk
 }
