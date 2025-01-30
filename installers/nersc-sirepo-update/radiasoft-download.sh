@@ -53,7 +53,7 @@ nersc_sirepo_update_pyenv() {
     declare root_dir=$2
     export PYENV_ROOT=$root_dir/.pyenv
     export nersc_pyenv_root=$PYENV_ROOT
-    if [[ ! $PATH =~ pyenv/bin ]]; then
+    if [[ ! $PATH =~ $PYENV_ROOT/bin ]]; then
         export PATH="$PYENV_ROOT/bin:$PATH"
     fi
     if [[ ! -d $PYENV_ROOT ]]; then
