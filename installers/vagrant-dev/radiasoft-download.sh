@@ -315,6 +315,9 @@ http://vagrantup.com'
 }
 
 vagrant_dev_prepare_host() {
+    if [[ $_vagrant_dev_host_os != darwin ]]; then
+        return
+    fi
     declare f=/etc/vbox/networks.conf
     if [[ -r $f ]]; then
         return
