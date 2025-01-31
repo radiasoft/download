@@ -57,7 +57,7 @@ EOF
 vagrant_dev_eth1() {
     declare os=$1
     declare ip=$2
-    if [[ $os == fedora && $vagrant_dev_private_net ]]; then
+    if ! install_os_is_almalinux && [[ $os == fedora && $vagrant_dev_private_net ]]; then
         # Vagrant doesn't handle NetworkManager correctly so setup eth1
         # https://github.com/hashicorp/vagrant/issues/12762
         cat <<EOF
