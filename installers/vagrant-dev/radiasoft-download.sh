@@ -48,7 +48,8 @@ vagrant_dev_disable_security() {
 sudo bash <<'EOF_BASH'
 systemctl stop firewalld || true
 systemctl disable firewalld || true
-perl -pi -e 's{(?<=^SELINUX=).*}{disabled}' /etc/selinux/config
+# Early in setup so perl might not yet be installed. Use sed instead.
+sed -i 's/^SELINUX=.*/SELINUX=disabled/' /etc/selinux/config
 EOF_BASH
 EOF
     vagrant reload
