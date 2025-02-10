@@ -369,6 +369,7 @@ install_repo_as_user() {
             install_channel="$install_channel" \
             install_debug="$install_debug" \
             install_depot_server="$install_depot_server" \
+            install_version_centos="$install_version_centos" \
             bash -l -s "$@"
     )
 }
@@ -520,6 +521,7 @@ install_vars_export() {
         install_proprietary_key \
         install_version_fedora \
         install_version_python \
+        install_version_centos \
         $(compgen -A variable RADIA_RUN_) \
         $(compgen -A variable GITHUB_)
     do

@@ -9,6 +9,11 @@ redhat_dev_main() {
     if (( $EUID == 0 )); then
         install_err 'run as vagrant (or other ordinary user), not root'
     fi
+    if install_os_is_centos_7; then
+        install_sudo sed -i.bak -e 's,^mirrorlist=http://mirrorlist,#mirrorlist=http://vault,' -e 's,^#baseurl=http://mirror.centos.org,baseurl=https://depot.radiasoft.org/yum,' /etc/yum.repos.d/CentOS-Base.repo
+        install_yum clean all
+        install_yum makecache
+    fi
     install_yum update
     if install_os_is_fedora; then
         # this is a very an annoying feature, because it happens in every interactive shell
