@@ -16,7 +16,7 @@ vagrant_dev_box_add() {
     # Returns: $box
     box=$1
     declare provider=virtualbox
-    if [[ $_vagrant_dev_host_os == ubuntu ]]; then
+    if vagrant_dev_want_libvirt; then
         provider=libvirt
     fi
     if [[ $vagrant_dev_box ]]; then
@@ -257,6 +257,10 @@ vagrant_dev_plugins() {
     if [[ ! $vagrant_dev_no_vbguest ]]; then
         x+=( vagrant-vbguest )
     fi
+
+    if vagrant_dev_want_libvirt; then
+        x+=( vagrant-libvirt )
+    fi
     if [[ ! ${x[@]+1} ]]; then
         return
     fi
@@ -425,7 +429,7 @@ vagrant_dev_vagrantfile() {
     # vagrant_dev_box_add returns in box
     declare box
     vagrant_dev_box_add "$os"
-    if [[ $_vagrant_dev_host_os == ubuntu ]]; then
+    if vagrant_dev_want_libvirt; then
         declare provider=$(cat <<'EOF'
     config.vm.provider :libvirt do |v|
 EOF
@@ -467,4 +471,8 @@ $(vagrant_dev_eth1 "$os" "$ip")
 $(vagrant_dev_mounts "$first")
 end
 EOF
+}
+
+vagrant_dev_want_libvirt() {
+    install_os_is_almalinux || [[ $_vagrant_dev_host_os == ubuntu ]]
 }
