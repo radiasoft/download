@@ -20,7 +20,7 @@ index_main() {
             https://api.github.com/repos/radiasoft/download/contents/bin/install.sh
         )
     fi
-    curl --silent --show-error "${a[@]}" | bash ${install_debug:+-x} -s "$@"
+    curl --fail --silent --show-error "${a[@]}" | bash ${install_debug:+-x} -s "$@"
 }
 
 index_main "$@"
