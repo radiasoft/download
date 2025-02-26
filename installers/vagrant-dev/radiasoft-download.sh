@@ -198,6 +198,12 @@ EOF
     vagrant_dev_post_install "$update"
 }
 
+vagrant_dev_memballoon() {
+    if vagrant_dev_want_libvirt && [[ ! $vagrant_dev_memballoon_enable ]]; then
+        echo "v.memballoon_enabled = false"
+    fi
+}
+
 vagrant_dev_modifiers() {
     if [[ ${vagrant_dev_vm_devbox:=} ]]; then
         vagrant_dev_no_mounts=1
@@ -220,6 +226,7 @@ vagrant_dev_modifiers() {
     : ${vagrant_dev_cpus:=4}
     : ${vagrant_dev_memory:=8192}
     : ${vagrant_dev_no_dev_env:=}
+    : ${vagrant_dev_memballoon_enable:=}
     # We aren't doing mounts any more by default.
     # They only really work on Darwin.
     : ${vagrant_dev_no_mounts:=1}
@@ -459,6 +466,7 @@ $provider
         # 8192 needed for compiling some the larger codes
         v.memory = $vagrant_dev_memory
         v.cpus = $vagrant_dev_cpus
+$(vagrant_dev_memballoon)
     end
     config.ssh.forward_x11 = false
     $vbguest
