@@ -67,7 +67,13 @@ cadopenmc_opencascade() {
 
 cadopenmc_python_install() {
     cadopenmc_python_install_gmsh
-    pip install CAD_to_OpenMC
+    cadopenmc_python_install_CAD_to_OpenMC
+}
+
+cadopenmc_python_install_CAD_to_OpenMC() {
+    codes_download https://github.com/openmsr/CAD_to_OpenMC.git
+    perl -pi -e "s/'numpy',//" pyproject.toml
+    codes_python_install
 }
 
 cadopenmc_python_install_gmsh() {
@@ -89,5 +95,5 @@ EOF
     cat > MANIFEST.in <<'EOF'
 include gmsh/*
 EOF
-    pip install .
+    codes_python_install
 }
