@@ -87,7 +87,7 @@ elegant_download() {
         codes_curl "$u" | tar xzf -
     # spiffe (and also elegant) source code is now maintained on github
     codes_curl https://github.com/rtsoliday/spiffe/archive/refs/tags/spiffe-4.10.0.tar.gz | tar xzf -
-    mv spiffe-spiffe-4.10.0 oag/apps/src/spiffe
+    mv spiffe-spiffe-4.10.0 spiffe
     done
 }
 
