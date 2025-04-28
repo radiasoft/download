@@ -79,12 +79,14 @@ elegant_download() {
     for f in '' /apps /apps/configure /apps/configure/os /apps/config /apps/src/utils/tools; do
         svn --non-recursive -q checkout https://svn.aps.anl.gov/AOP/oag/trunk"$f" oag"$f"
     done
-    for f in elegant.2021.1.0 SDDS.5.0 oag.1.26 epics.extensions.configure spiffe.4.8.1; do
+    for f in elegant.2021.1.0 SDDS.5.0 oag.1.26 epics.extensions.configure; do
         u=https://ops.aps.anl.gov/downloads/$f.tar.gz
         if [[ $f =~ ^(.+[[:alpha:]])\.([[:digit:]].+)$ ]]; then
             codes_manifest_add_code "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}" "$u"
         fi
         codes_curl "$u" | tar xzf -
+    # spiffe (and also elegant) source code is now maintained on github
+    codes_curl https://github.com/rtsoliday/spiffe/archive/refs/tags/spiffe-4.10.0.tar.gz | tar xzf -
     done
 }
 
