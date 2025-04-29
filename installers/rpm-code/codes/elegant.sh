@@ -64,8 +64,10 @@ elegant_build() {
     cd ../../../../../oag/apps/src/elegant
     elegant_make clean
     elegant_make mpi "$with_path" Pelegant
-    cd ../spiffe
+    cd ../../../../spiffe
     elegant_make static
+    #TODO(pjm): spiffe has a hard-coded arch name which differs in case
+    cp bin/Linux-x86_64/spiffe ../oag/apps/bin/linux-x86_64/
     cd "$h"
 }
 
@@ -85,10 +87,11 @@ elegant_download() {
             codes_manifest_add_code "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}" "$u"
         fi
         codes_curl "$u" | tar xzf -
-    # spiffe (and also elegant) source code is now maintained on github
+    done
     codes_curl https://github.com/rtsoliday/spiffe/archive/refs/tags/spiffe-4.10.0.tar.gz | tar xzf -
     mv spiffe-spiffe-4.10.0 spiffe
-    done
+    codes_curl https://github.com/rtsoliday/SDDS/archive/refs/tags/SDDS-5.8.tar.gz | tar zxf -
+    mv SDDS-SDDS-5.8 SDDS
 }
 
 elegant_install_bin() {
