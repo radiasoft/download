@@ -11,6 +11,14 @@ for r in container-rpm-code container-fedora; do
     fi
 done
 
+if [[ $1 != common ]]; then
+    docker image inspect radiasoft/rpm-code:fedora-36 > /dev/null
+    if [[ $? -ne 0 ]]; then
+        echo "radiasoft/rpm-code:fedora-36 image not found. You need to dev-build.sh common"
+        exit 1
+    fi
+fi
+
 if ! radia_run rpm-code "$@"; then
     # this is a good guess, but there are other problems
     echo "you may need to start your server:
