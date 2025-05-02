@@ -12,11 +12,14 @@ for r in container-rpm-code container-fedora; do
 done
 
 if [[ $1 != common ]]; then
-    docker image inspect radiasoft/rpm-code:fedora-36 > /dev/null
+    export required_image="radiasoft/rpm-code:fedora-$install_version_fedora"
+    set +e
+    docker image inspect $required_image > /dev/null
     if [[ $? -ne 0 ]]; then
-        echo "radiasoft/rpm-code:fedora-36 image not found. You need to dev-build.sh common"
+        echo "$required_image image not found. You need to dev-build.sh common"
         exit 1
     fi
+    set -e
 fi
 
 if ! radia_run rpm-code "$@"; then
