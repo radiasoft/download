@@ -559,13 +559,14 @@ install_yum() {
 
 install_yum_add_repo() {
     declare repo=$1
-    # Guess at os incompatibility with new dnf upgrade
-    if [[ $(type -t dnf6) ]]; then
-        install_err 'dnf6 or above is not supported'
-    elif [[ $(type -t dnf5) ]]; then
+    if [[ $(type -t dnf5) ]]; then
+        if [[ $(readlink /usr/bin/dnf) != dnf5 ]]; then
+            install_err 'dnf6 or above is not supported'
+        fi
         install_yum_install dnf-plugins-core
         install_yum addrepo --from-repofile="$repo"
     elif [[ $(type -t dnf) ]]; then
+        # dnf 4 or before
         install_yum_install dnf-plugins-core
         install_yum config-manager --add-repo "$repo"
     elif [[ $(type -t yum-config-manager) ]]; then
