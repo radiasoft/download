@@ -187,7 +187,7 @@ install_init_vars() {
     : ${install_tmp_dir:=/var/tmp}
     : ${install_verbose:=}
     : ${install_proprietary_key:=missing-proprietary-key}
-    install_curl_flags=( -L -s -S )
+    install_curl_flags=( --fail --location --silent --show-error )
     install_extra_args=()
     install_repo=
     install_script_dir=
@@ -540,15 +540,40 @@ install_version_fedora_lt_36() {
 install_yum() {
     declare args=( "$@" )
     declare yum=yum
-    if [[ $(type -t dnf) ]]; then
-        yum=dnf
+    declare flags=( -y )
+    if [[ $(type -t dnf5) ]]; then
+        yum=dnf5
+    else
+        # dnf5 does not support --color
+        flags+=( ---color=never )
+        if [[ $(type -t dnf) ]]; then
+            yum=dnf
+        fi
     fi
-    declare flags=( -y --color=never )
     if [[ ! $install_debug ]]; then
         flags+=( -q )
     fi
     install_info "$yum" "${args[@]}"
     install_sudo "$yum" "${flags[@]}" "${args[@]}"
+}
+
+install_yum_add_repo() {
+    declare repo=$1
+    # Guess at os incompatibility with new dnf upgrade
+    if [[ $(type -t dnf6) ]]; then
+        install_err 'dnf6 or above is not supported'
+    elif [[ $(type -t dnf5) ]]; then
+        install_yum_install dnf-plugins-core
+        install_yum addrepo --from-repofile="$repo"
+    elif [[ $(type -t dnf) ]]; then
+        install_yum_install dnf-plugins-core
+        install_yum config-manager --add-repo "$repo"
+    elif [[ $(type -t yum-config-manager) ]]; then
+        yum-config-manager --add-repo "$repo"
+        install_yum makecache fast
+    else
+        install_err "install_yum_add_repo does not support os=$install_os_release_id"
+    fi
 }
 
 install_yum_install() {
