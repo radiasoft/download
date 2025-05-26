@@ -539,13 +539,17 @@ install_version_fedora_lt_36() {
 
 install_yum() {
     declare args=( "$@" )
+    declare cmd=$1
     declare yum=yum
     declare flags=( -y )
     if [[ $(type -t dnf5) ]]; then
         yum=dnf5
     else
-        # dnf5 does not support --color
-        flags+=( ---color=never )
+        # dnf5 and config-manager do not support --color
+        # install and update are the only problematic outputs
+        if [[ $cmd =~ install|update ]]; then
+            flags+=( ---color=never )
+        fi
         if [[ $(type -t dnf) ]]; then
             yum=dnf
         fi
@@ -554,7 +558,8 @@ install_yum() {
         flags+=( -q )
     fi
     install_info "$yum" "${args[@]}"
-    install_sudo "$yum" "${flags[@]}" "${args[@]}"
+    # cat prevents color output in dnf5
+    install_sudo "$yum" "${flags[@]}" "${args[@]}" | cat
 }
 
 install_yum_add_repo() {
