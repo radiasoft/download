@@ -545,11 +545,8 @@ install_yum() {
     if [[ $(type -t dnf5) ]]; then
         yum=dnf5
     else
-        # dnf5 and config-manager do not support --color
-        # install and update are the only problematic outputs
-        if [[ $cmd =~ install|update ]]; then
-            flags+=( ---color=never )
-        fi
+        # dnf5 does not support --color
+        flags+=( --color=never )
         if [[ $(type -t dnf) ]]; then
             yum=dnf
         fi
