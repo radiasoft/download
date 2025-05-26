@@ -22,11 +22,12 @@ gpgkey=https://www.mongodb.org/static/pgp/server-4.4.asc
 includepkgs=mongodb-org-server
 EOF
         fi
-    elif [[ ! -e /etc/yum.repos.d/epel.repo ]]; then
-        yum --color=never --enablerepo=extras install -y -q epel-release
+    else
+        install_yum_install --enablerepo=extras epel-release
     fi
-    if install_os_is_almalinux; then
+    if install_os_is_almalinux && ! install_yum repolist | grep -q '^crb '; then
         # Provides packages like perl(IPC::Run) needed by moreutils (below)
+        # TODO(robnagler) will break with dnf5, probably
         install_yum config-manager --set-enabled crb
     fi
     # mandb takes a really long time on some installs

@@ -531,10 +531,7 @@ install_vars_export() {
 }
 
 install_version_fedora_lt_36() {
-    if (( $install_version_fedora < 36 )); then
-        return 0
-    fi
-    return 1
+    (( $install_version_fedora < 36 ))
 }
 
 install_yum() {
@@ -561,6 +558,9 @@ install_yum() {
 
 install_yum_add_repo() {
     declare repo=$1
+    if [[ -r /etc/yum.repos.d/${repo##*/} ]]; then
+        return
+    fi
     if [[ $(type -t dnf5) ]]; then
         if [[ $(readlink /usr/bin/dnf) != dnf5 ]]; then
             install_err 'dnf6 or above is not supported'
@@ -580,6 +580,11 @@ install_yum_add_repo() {
 }
 
 install_yum_install() {
+    declare -a flags=()
+    while [[ ${1:-} =~ ^- ]]; do
+        flags+=( "$1" )
+        shift
+    done
     declare x y todo=()
     for x in "$@"; do
         y=$x
@@ -600,7 +605,7 @@ install_yum_install() {
     if (( ${#todo[@]} <= 0 )); then
         return
     fi
-    install_yum install "${todo[@]}"
+    install_yum install "${flags[@]}" "${todo[@]}"
 }
 
 install_main "$@"
