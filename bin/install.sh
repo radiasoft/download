@@ -551,7 +551,9 @@ install_yum() {
     if [[ ! $install_debug ]]; then
         flags+=( -q )
     fi
-    install_info "$yum" "${args[@]}"
+    if [[ ${args[0]} != repolist ]]; then
+        install_info "$yum" "${args[@]}"
+    fi
     # cat prevents color output in dnf5
     install_sudo "$yum" "${flags[@]}" "${args[@]}" | cat
 }
