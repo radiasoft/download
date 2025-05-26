@@ -62,7 +62,6 @@ EOF
         biosdevname
         bzip2
         bzip2-devel
-        createrepo
         emacs-nox
         gcc
         gcc-c++
@@ -89,7 +88,6 @@ EOF
         openssl-devel
         patch
         pciutils
-        pkgconfig
         procps-ng
         pxz
         readline-devel
@@ -112,22 +110,15 @@ EOF
         zlib-devel
     )
     if [[ ! ${install_virt_docker:-} ]]; then
-        x+=(
-            lvm2
-            # for ssh x11 forwarding
-            xorg-x11-xauth
-        )
+        x+=( lvm2 xorg-x11-xauth )
     fi
     if install_os_is_fedora; then
-        x+=(
-            perl-debugger
-            direnv
-        )
+        x+=( perl-debugger direnv )
     fi
-    if ! install_os_is_centos_7; then
-        x+=(
-            opendkim-tools
-        )
+    if install_os_is_centos_7; then
+        x+=( createrepo pkgconfig )
+    else
+        x+=( createrepo_c opendkim-tools pkgconf-pkg-config )
     fi
     install_yum_install "${x[@]}"
 }
