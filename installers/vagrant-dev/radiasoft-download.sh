@@ -460,6 +460,7 @@ EOF
 # -*-ruby-*-
 Vagrant.configure("2") do |config|
     config.vm.box = "$box"
+    config.vm.box_check_update = false
     config.vm.hostname = "$host"
 $(vagrant_dev_private_net "$ip")
 $provider
