@@ -21,7 +21,7 @@ epics_install() {
     rm -rf modules documentation html src test
     find lib -name '*.a' | xargs -n 100 rm -f
     cd bin/"$a"
-    ls | egrep -v '^S99|\.p[lm]$' | xargs -I % install -m 555 % "${codes_dir[bin]}"
+    ls | grep -E -v '^S99|\.p[lm]$' | xargs -I % install -m 555 % "${codes_dir[bin]}"
 }
 
 epics_main() {
