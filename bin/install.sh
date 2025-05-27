@@ -419,7 +419,7 @@ install_script_eval() {
         # three cases: main without args or with install_extra_args
         # Be loose in case there's a bug. Compliant scripts must
         # not call main in any form
-        if ! egrep "^$f( *| .*@.*)$" "$source" >&/dev/null; then
+        if ! grep -E "^$f( *| .*@.*)$" "$source" >&/dev/null; then
             m=$f
             # Just in case repo was evaled already
             unset "$m"
