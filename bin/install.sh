@@ -183,6 +183,7 @@ install_init_vars() {
     install_init_vars_virt
     : ${install_debug:=}
     : ${install_default_repo:=container-run}
+    # POSIT: index.sh defaults to github
     : ${install_server:=github}
     : ${install_tmp_dir:=/var/tmp}
     : ${install_verbose:=}
