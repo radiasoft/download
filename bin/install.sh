@@ -459,10 +459,12 @@ install_script_eval() {
     fi
     install_info "Source: $source"
     if ! source "$source"; then
-        install_err "Error in script=$script"
+        install_err "Error sourcing script=$script"
     fi
     if [[ $m && $(type -t "$m") == function ]]; then
-        $m ${install_extra_args[@]+"${install_extra_args[@]}"}
+        if ! $m ${install_extra_args[@]+"${install_extra_args[@]}"}; then
+            install_err "Error in function=$m script=$script"
+        fi
     fi
 }
 
