@@ -458,7 +458,9 @@ install_script_eval() {
         fi
     fi
     install_info "Source: $source"
-    source "$source"
+    if ! source "$source"; then
+        install_err "Error in script=$script"
+    fi
     if [[ $m && $(type -t "$m") == function ]]; then
         $m ${install_extra_args[@]+"${install_extra_args[@]}"}
     fi
