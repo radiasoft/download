@@ -203,7 +203,7 @@ install_init_vars_basic() {
         install_log_file=/tmp/$(date +%Y%m%d%H%M%S)-$RANDOM-$(basename "$install_log_file")
     fi
     install_extra_args=()
-    install_prog="curl $install_depot_server | bash -s"
+    install_prog="curl $install_server | bash -s"
     install_repo=
     install_script_dir=
     if [[ ! -w $install_tmp_dir ]]; then
