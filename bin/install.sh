@@ -7,6 +7,8 @@
 #
 set -euo pipefail
 
+# Define all variables in functions. All functions must be prefixed with install_
+
 install_args() {
     while [[ ${1:-} ]]; do
         case "$1" in
@@ -88,6 +90,17 @@ install_download() {
         fi
     fi
     curl ${x[@]+"${x[@]}"} "$url"
+}
+
+install_export_this_script() {
+    # POSIT: all functions prefixed by install_
+    declare f
+    echo 'set -eou pipefail'
+    install_vars_export
+    for f in $(compgen -A function install_); do
+        declare -f "$f"
+    done
+    echo 'install_main "$@"'
 }
 
 install_file_from_stdin() {
@@ -247,7 +260,11 @@ install_init_vars_oci() {
 
 install_init_vars_versions() {
     declare x=/etc/os-release
-    # always update
+    : ${install_version_fedora:=36}
+    : ${install_version_python:=3.9.15}
+    : ${install_version_python_venv:=py${install_version_python%%.*}}
+    : ${install_version_centos:=7}
+    # always set these vars
     if [[ -r $x ]]; then
         export install_os_release_id=$(source "$x"; echo "${ID,,}")
         export install_os_release_version_id=$(source "$x"; echo "$VERSION_ID")
@@ -261,10 +278,6 @@ install_init_vars_versions() {
         # Have something legal; unlikely to get here
         export install_os_release_version_id=0
     fi
-    : ${install_version_fedora:=36}
-    : ${install_version_python:=3.9.15}
-    : ${install_version_python_venv:=py${install_version_python%%.*}}
-    : ${install_version_centos:=7}
 }
 
 install_init_vars_servers() {
@@ -377,34 +390,18 @@ install_repo_as_root() {
 install_repo_as_user() {
     declare user=$1
     shift
-    declare sudo=
-    if [[ $(id -u -n) == $user ]]; then
-        # passing env vars on the command line is
-        # tricky so this is the easiest way
-        (
-            install_url radiasoft/download bin
-            install_download index.sh
-        ) | install_server="$install_server" \
-            install_channel="$install_channel" \
-            install_debug="$install_debug" \
-            install_depot_server="$install_depot_server" \
-            bash -l -s "$@"
+    declare s=$(install_export_this_script)
+    if [[ $(id -u "$user") == $EUID ]]; then
+        # environment is cascaded so no need for --login
+        bash -s "$@" <<<"$s"
         return
     fi
-    (
-        install_url radiasoft/download bin
-        install_download index.sh
-    ) | (
-        # Current directory might be inaccessible
-        cd /
-        install_sudo "--user=$user" \
-            install_server="$install_server" \
-            install_channel="$install_channel" \
-            install_debug="$install_debug" \
-            install_depot_server="$install_depot_server" \
-            install_version_centos="$install_version_centos" \
-            bash -l -s "$@"
-    )
+    # Current directory might be inaccessible inside sudo
+    declare prev_pwd=$PWD
+    cd /
+    # Need login environment for the user
+    install_sudo "--user=$user" bash --login -s "$@" <<<"$s"
+    cd "$prev_pwd"
 }
 
 install_repo_eval() {
@@ -412,13 +409,48 @@ install_repo_eval() {
     # don't run in a subshell so can add to environment,
     # but don't override these vars.
     install_extra_args=() \
+        install_depot_server="$install_depot_server" \
         install_repo= \
         install_script_dir="$install_script_dir" \
         install_server="$install_server" \
-        install_depot_server="$install_depot_server" \
         install_url= \
         install_repo_internal "$@"
     cd "$prev_pwd"
+}
+
+install_repo_internal() {
+    if (( $# > 0 )); then
+        install_repo=$1
+        shift
+        install_extra_args=( "$@" )
+        install_script_dir=
+    fi
+    declare first rest
+    if [[ ! ${install_repo:-/} =~ / ]]; then
+        if [[ $install_repo =~ \.sh$ ]]; then
+            install_url ''
+            install_script_eval "$install_repo"
+            return
+        fi
+        first=download
+        rest=installers/$install_repo
+    elif [[ $install_repo =~ ^/*([^/].*[^/])/*$ ]]; then
+        first=${BASH_REMATCH[1]}
+        if [[ $first =~ ^([^/]+/[^/]+)/(.+)$ ]]; then
+            first=${BASH_REMATCH[1]}
+            rest=${BASH_REMATCH[2]}
+        elif [[ $first =~ ^([^/]+/[^/]+)$ ]]; then
+            rest=
+        fi
+    fi
+    if [[ ! $first ]]; then
+        install_err "$install_repo: invalid repo name"
+    fi
+    if [[ ! $first =~ / ]]; then
+        first=radiasoft/$first
+    fi
+    install_url "$first" "$rest"
+    install_script_eval radiasoft-download.sh
 }
 
 install_script_eval() {
@@ -471,41 +503,6 @@ install_script_eval() {
     fi
 }
 
-install_repo_internal() {
-    if (( $# > 0 )); then
-        install_repo=$1
-        shift
-        install_extra_args=( "$@" )
-        install_script_dir=
-    fi
-    declare first rest
-    if [[ ! ${install_repo:-/} =~ / ]]; then
-        if [[ $install_repo =~ \.sh$ ]]; then
-            install_url ''
-            install_script_eval "$install_repo"
-            return
-        fi
-        first=download
-        rest=installers/$install_repo
-    elif [[ $install_repo =~ ^/*([^/].*[^/])/*$ ]]; then
-        first=${BASH_REMATCH[1]}
-        if [[ $first =~ ^([^/]+/[^/]+)/(.+)$ ]]; then
-            first=${BASH_REMATCH[1]}
-            rest=${BASH_REMATCH[2]}
-        elif [[ $first =~ ^([^/]+/[^/]+)$ ]]; then
-            rest=
-        fi
-    fi
-    if [[ ! $first ]]; then
-        install_err "$install_repo: invalid repo name"
-    fi
-    if [[ ! $first =~ / ]]; then
-        first=radiasoft/$first
-    fi
-    install_url "$first" "$rest"
-    install_script_eval radiasoft-download.sh
-}
-
 install_source_bashrc() {
     install_not_strict_cmd source "$HOME"/.bashrc
 }
@@ -554,17 +551,20 @@ usage: $install_prog [verbose|quiet] [<installer>|*/*] [extra args]"
 }
 
 install_vars_export() {
-    for f in install_server \
-        install_channel \
-        install_debug \
-        install_depot_server \
-        install_proprietary_key \
-        install_version_fedora \
-        install_version_python \
-        install_version_centos \
-        $(compgen -A variable RADIA_RUN_) \
+    declare f
+    declare x=(
+        install_server
+        install_channel
+        install_debug
+        install_depot_server
+        install_proprietary_key
+        install_version_fedora
+        install_version_python
+        install_version_centos
+        $(compgen -A variable RADIA_RUN_)
         $(compgen -A variable GITHUB_)
-    do
+    )
+    for f in "${x[@]}"; do
         export "$f"
         echo "$(declare -p $f);"
     done
