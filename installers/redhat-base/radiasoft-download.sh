@@ -1,63 +1,30 @@
 #!/bin/bash
 #
-# Install important rpms and fixup some redhat distro issues
+# Install important rpms and fixup some Red Hat distro issues
 #
 redhat_base_main() {
     if (( $EUID != 0 )); then
         echo 'must be run as root' 1>&2
         return 1
     fi
-    local x
-    if install_os_is_fedora; then
-        x=/etc/yum.repos.d/mongodb-org-4.4.repo
-        if [[ ! -e $x ]]; then
-            # Use RHEL8 rpm because mongodb uses SSPL which fedora doesn't support
-            install -m 644 /dev/stdin "$x" <<'EOF'
-[mongodb-org-4.4]
-name=MongoDB Repository
-baseurl=https://repo.mongodb.org/yum/redhat/8/mongodb-org/4.4/x86_64/
-gpgcheck=1
-enabled=1
-gpgkey=https://www.mongodb.org/static/pgp/server-4.4.asc
-includepkgs=mongodb-org-server
-EOF
-        fi
-    else
-        install_yum_install --enablerepo=extras epel-release
-    fi
-    if install_os_is_almalinux && ! install_yum repolist | grep -q '^crb '; then
-        # Provides packages like perl(IPC::Run) needed by moreutils (below)
-        # TODO(robnagler) will break with dnf5, probably
-        install_yum config-manager --set-enabled crb
-    fi
+    _redhat_base_repos
+    _redhat_base_pkgs
+    _redhat_base_mandb
+    _redhat_base_terminfo
+    _redhat_base_profile_d
+}
+
+
+_redhat_base_mandb() {
     # mandb takes a really long time on some installs
-    x=/usr/bin/mandb
+    declare x=/usr/bin/mandb
     if [[ ! -L $x && $(readlink "$x") != true ]]; then
         ln -s -f true "$x"
     fi
-    local t=xterm-256color-screen
-    if [[ ! -r /usr/share/terminfo/${t::1}/$t ]]; then
-        # emacs matches $TERM name by splitting on the first dash. screen.xterm-256color
-        # is not recognized as an xterm by emacs so it was not working properly.
-        # This entry is set by
-        # https://github.com/biviosoftware/home-env/blob/master/bashrc.d/zz-10-base.sh
-        install_tmp_dir
-        local s
-        for s in screen.xterm-256color screen-256color; do
-            # centos7 has screen-256color, not screen.xterm-256color
-            if [[ -r /usr/share/terminfo/${s::1}/$s ]]; then
-                break
-            fi
-        done
-        if [[ $s ]]; then
-            (
-                umask 022
-                echo "$t|make emacs recognize $t,use=$s," > t
-                tic t
-            )
-        fi
-    fi
-    local x=(
+}
+
+_redhat_base_pkgs() {
+    declare x=(
         bind-utils
         biosdevname
         bzip2
@@ -121,4 +88,63 @@ EOF
         x+=( createrepo_c opendkim-tools pkgconf-pkg-config )
     fi
     install_yum_install "${x[@]}"
+}
+
+_redhat_base_profile_d() {
+    # POSIT: install_file_from_stdin doesn't use other install_*
+    install_sudo bash -euo pipefail <<"END_SUDO"
+$(declare -f install_file_from_stdin)
+echo "export RADIA_RUN_SERVER='$install_server'" \
+    | install_file_from_stdin 444 root root /etc/profile.d/rs-redhat-base.sh
+END_SUDO
+}
+
+_redhat_base_repos() {
+    declare x
+    if install_os_is_fedora; then
+        # TODO(robnagler) this is an old version of mongo
+        # Use RHEL8 rpm because mongodb uses SSPL which fedora doesn't support
+        install_file_from_stdin 644 root root /etc/yum.repos.d/mongodb-org-4.4.repo <<'EOF'
+[mongodb-org-4.4]
+name=MongoDB Repository
+baseurl=https://repo.mongodb.org/yum/redhat/8/mongodb-org/4.4/x86_64/
+gpgcheck=1
+enabled=1
+gpgkey=https://www.mongodb.org/static/pgp/server-4.4.asc
+includepkgs=mongodb-org-server
+EOF
+    else
+        install_yum_install --enablerepo=extras epel-release
+    fi
+    if install_os_is_almalinux && ! install_yum repolist | grep -q '^crb '; then
+        # Provides packages like perl(IPC::Run) needed by moreutils (below)
+        # TODO(robnagler) will break with dnf5, probably
+        install_yum config-manager --set-enabled crb
+    fi
+}
+
+# TODO(robnagler) maybe not necessary any more? Test with clean emacs/screen install
+_redhat_base_terminfo() {
+    declare t=xterm-256color-screen
+    if infocmp "$t" &> /dev/null; then
+        return
+    fi
+    # emacs matches $TERM name by splitting on the first dash. screen.xterm-256color
+    # is not recognized as an xterm by emacs so it was not working properly.
+    # This entry is set by
+    # https://github.com/biviosoftware/home-env/blob/master/bashrc.d/zz-10-base.sh
+    declare s
+    for s in screen.xterm-256color screen-256color; do
+        # centos7 has screen-256color, not screen.xterm-256color
+        if ! infocmp "$s" &> /dev/null; then
+            continue
+        fi
+    done
+    if [[ $s ]]; then
+        (
+            umask 022
+            s="$t|make emacs recognize $t,use=$s,"
+            tic /dev/stdin <<<"$s"
+        )
+    fi
 }
