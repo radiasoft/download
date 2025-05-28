@@ -168,49 +168,47 @@ install_log() {
 }
 
 install_init_vars() {
+    install_init_vars_basic_options
+    install_init_vars_basic
+    install_init_vars_servers
+    install_init_vars_versions
+    install_init_vars_virt
+    install_init_vars_oci
+    eval "$(install_vars_export)"
+}
+
+install_init_vars_basic() {
+    install_clean_cmds=()
+    install_curl_flags=( --fail --location --silent --show-error )
     # For error messages
     install_log_file=$PWD/radia-run-install.log
     if ! dd if=/dev/null of="$install_log_file" 2>/dev/null; then
         install_log_file=/tmp/$(date +%Y%m%d%H%M%S)-$RANDOM-$(basename "$install_log_file")
     fi
-    install_clean_cmds=()
-    install_channel_is_default=
-    if [[ ! ${install_channel-} ]]; then
-        install_channel=prod
-        install_channel_is_default=1
-    fi
-    install_init_vars_os_release
-    install_init_vars_virt
-    : ${install_debug:=}
-    : ${install_default_repo:=container-run}
-    # POSIT: index.sh defaults to github
-    : ${install_server:=github}
-    : ${install_tmp_dir:=/var/tmp}
-    : ${install_verbose:=}
-    : ${install_proprietary_key:=missing-proprietary-key}
-    install_curl_flags=( --fail --location --silent --show-error )
     install_extra_args=()
+    install_prog="curl $install_depot_server | bash -s"
     install_repo=
     install_script_dir=
-    install_url=
     if [[ ! -w $install_tmp_dir ]]; then
         install_tmp_dir=/var/tmp
     fi
     if [[ ! -w ${TMPDIR:-/tmp} ]]; then
         unset TMPDIR
     fi
-    if [[ $install_server =~ ^file://(/.+) && ! -r ${BASH_REMATCH[1]}/radiasoft/download ]]; then
-        install_server=github
+    install_url=
+}
+
+install_init_vars_basic_options() {
+    install_channel_is_default=
+    : ${install_tmp_dir:=/var/tmp}
+    : ${install_debug:=}
+    if [[ ! ${install_channel-} ]]; then
+        install_channel=prod
+        install_channel_is_default=1
     fi
-    : ${install_depot_server:=https://depot.radiasoft.org}
-    install_prog="curl $install_depot_server | bash -s"
-    # These vars are only used in a few cases, e.g. vagrant-dev and pyenv
-    : ${install_version_fedora:=36}
-    : ${install_version_python:=3.9.15}
-    : ${install_version_python_venv:=py${install_version_python%%.*}}
-    : ${install_version_centos:=7}
-    install_init_vars_oci
-    eval "$(install_vars_export)"
+    : ${install_default_repo:=container-run}
+    : ${install_proprietary_key:=missing-proprietary-key}
+    : ${install_verbose:=}
 }
 
 install_init_vars_oci() {
@@ -230,7 +228,7 @@ install_init_vars_oci() {
     export RADIA_RUN_OCI_CMD
 }
 
-install_init_vars_os_release() {
+install_init_vars_versions() {
     declare x=/etc/os-release
     # always update
     if [[ -r $x ]]; then
@@ -245,6 +243,23 @@ install_init_vars_os_release() {
     else
         # Have something legal; unlikely to get here
         export install_os_release_version_id=0
+    fi
+    : ${install_version_fedora:=36}
+    : ${install_version_python:=3.9.15}
+    : ${install_version_python_venv:=py${install_version_python%%.*}}
+    : ${install_version_centos:=7}
+}
+
+install_init_vars_servers() {
+    # POSIT: index.sh defaults to radia.run
+    declare s=https://radia.run
+    : ${install_server:=$s}
+    if [[ ! ${install_depot_server:-} ]]; then
+        if [[ $install_server == github ]]; then
+            install_depot_server=$s/depot
+        else
+            install_depot_server=$install_server/depot
+        fi
     fi
 }
 
