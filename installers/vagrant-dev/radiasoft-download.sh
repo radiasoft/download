@@ -36,7 +36,7 @@ vagrant_dev_box_add() {
             box=almalinux/$install_version_centos
         fi
     fi
-    if ! vagrant box list | grep -q "$box" >& /dev/null; then
+    if ! vagrant box list | grep -F -q "$box" >& /dev/null; then
         vagrant box add --provider "$provider" "$box"
     fi
 }
@@ -149,6 +149,10 @@ expects: fedora|centos|almalinux, <ip address>, update, v[1-9].radia.run"
     if [[ ! $os ]]; then
         install_err 'usage: radia_run vagrant-dev fedora|centos|almalinux [host|ip] [update]'
     fi
+    if [[ $install_server =~ ^file: ]]; then
+        install_error "File URLs do not work in VM install_server=$install_server
+Set up a development server"
+    fi
     if [[ ! $host ]]; then
         if [[ ! $PWD =~ /(v[2-9]?)$ ]]; then
             install_err 'either specify a host or run from directory named v, v2, v3, ..., v9'
@@ -182,14 +186,10 @@ expects: fedora|centos|almalinux, <ip address>, update, v[1-9].radia.run"
             vagrant ssh -c "install -m 600 /dev/stdin $(basename $f)" < "$f" >& /dev/null
         fi
     done
-    # file:// urls don't work inside the VM
-    if [[ $install_server =~ ^file: ]]; then
-        declare install_server=
-    fi
     install_info 'Running installer: redhat-dev'
     vagrant ssh <<EOF
 $(install_vars_export)
-curl $(install_depot_server)/index.sh | \
+curl $(install_server)/index.sh | \
   bivio_home_env_ignore_git_dir_ownership=$(vagrant_dev_ignore_git_dir_ownership $os) \
   bash -s redhat-dev
 EOF
@@ -285,8 +285,9 @@ vagrant_dev_post_install() {
     if [[ $vagrant_dev_post_install_repo ]]; then
         install_info "Running post-installer: $vagrant_dev_post_install_repo"
         vagrant ssh <<EOF
+source ~/.bashrc
 $(install_vars_export)
-curl $(install_depot_server)/index.sh | bash -s $vagrant_dev_post_install_repo
+radia_run $vagrant_dev_post_install_repo
 EOF
     fi
     if [[ ! $update ]]; then
@@ -396,8 +397,12 @@ vagrant_dev_private_net() {
     if [[ ! $vagrant_dev_private_net ]]; then
         return
     fi
+    declare x=""
+    if vagrant_dev_want_libvirt; then
+        x=, ":libvirt__forward_mode": "open"
+    fi
     cat <<EOF
-    config.vm.network "private_network", ip: "$ip"
+    config.vm.network "private_network", ip: "$ip"$x
 EOF
 }
 
