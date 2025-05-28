@@ -437,7 +437,8 @@ install_script_eval() {
     if [[ ! $(head -1 "$source") =~ ^#! ]]; then
         install_err "$script: no #! at start of file: $source"
     fi
-    declare m=
+    # Caculate main function before sourcing
+    declare m=$(basename script .sh)
     if [[ "$script" == radiasoft-download.sh ]]; then
         declare f
         # POSIT: same special case in install_url()
@@ -446,16 +447,18 @@ install_script_eval() {
         else
             f=$(basename "$install_url")
         fi
-        # before sourcing, which can modify anything, do this calculation
-        f=${f//-/_}_main
-        # three cases: main without args or with install_extra_args
-        # Be loose in case there's a bug. Compliant scripts must
-        # not call main in any form
-        if ! grep -E "^$f( *| .*@.*)$" "$source" >&/dev/null; then
-            m=$f
-            # Just in case repo was evaled already
-            unset "$m"
-        fi
+        m=${f//-/_}
+    fi
+    m+=_main
+    # three cases: main without args or with install_extra_args
+    # Be loose in case there's a bug. Compliant scripts must
+    # not call main in any form
+    if grep -E "^$f( *| .*@.*)$" "$source" >&/dev/null; then
+        # main is called in script so don't call again
+        m=
+    else
+        # Just in case repo was evaled already, get a fresh definition of main
+        unset "$m"
     fi
     install_info "Source: $source"
     if ! source "$source"; then
