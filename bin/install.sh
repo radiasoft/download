@@ -89,6 +89,23 @@ install_download() {
     curl ${x[@]+"${x[@]}"} "$url"
 }
 
+install_file_from_stdin() {
+    # read stdin (here doc), install in tgt if it is new or content or permissions changed
+    # mode is a number (compatible with stat %a); user & group are names
+    # Implementation can be used in subshells with: $(declare -f install_file_from_stdin)
+    # so keep implementation free of any but the simplest dependencies
+    declare mode=$1
+    declare owner=$2
+    declare group=$3
+    declare tgt=$4
+    # bash read -r -d '' adds an extra newline, because it reads until null
+    declare src=$(cat)
+    if ! cmp -s "$tgt" - <<<"$src" || [[ $(stat --format '%a %U %G' "$tgt") != "$mode $owner $group" ]]; then
+        # Can't use --compare, because stdin
+        install --mode="$mode" --owner="$owner" --group="$group" --no-target-directory /dev/stdin "$tgt" <<<"$src"
+    fi
+}
+
 install_foss_server() {
     # foss is best served from depot_sever, because the sources
     # are static and large. You can override this by setting
