@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Usage: curl https://depot.radiasoft.org | bash -s [repo args...]
+# Usage: curl https://radia.run | bash -s repo [args...]
 #
 # Find repos in radiasoft/download/installers or radiasoft/*/radiasoft-download.sh
 # or any repo with a radiasoft-download.sh in its root.
@@ -41,7 +41,8 @@ install_args() {
         set -x
     fi
     if [[ ! $install_repo ]]; then
-        install_repo=$install_default_repo
+        install_err "Usage: curl $install_server | bash -s repo [args...]
+Must supply repo argument"
     fi
 }
 
@@ -185,9 +186,9 @@ install_log() {
 }
 
 install_init_vars() {
+    install_init_vars_servers
     install_init_vars_basic_options
     install_init_vars_basic
-    install_init_vars_servers
     install_init_vars_versions
     install_init_vars_virt
     install_init_vars_oci
@@ -223,7 +224,6 @@ install_init_vars_basic_options() {
         install_channel=prod
         install_channel_is_default=1
     fi
-    : ${install_default_repo:=container-run}
     : ${install_proprietary_key:=missing-proprietary-key}
     : ${install_verbose:=}
 }
