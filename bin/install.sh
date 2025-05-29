@@ -154,7 +154,7 @@ install_err() {
     declare -a msg=( "$@" )
     trap - EXIT
     if (( ${#msg[@]} > 0 )); then
-        install_msg "${args[*]}
+        install_msg "${msg[*]}
 If you don't know what to do, please contact support@radiasoft.net."
     fi
     if [[ -z $install_verbose ]]; then
