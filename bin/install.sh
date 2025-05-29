@@ -166,10 +166,14 @@ If you don't know what to do, please contact support@radiasoft.net."
 }
 
 install_err_stack() {
-    if (( ! $# )); then
+    if (( $# <= 1)); then
         return
     fi
     declare funcs=( "$@" )
+    if [[ "${funcs[1]}" == install_err_trap ]]; then
+        # install_err called by install_err_trap, stack already printed
+        return
+    fi
     declare f
     install_msg 'bash stack:'
     for f in "${funcs[@]:1}"; do
