@@ -153,6 +153,7 @@ install_git_clone() {
 install_err() {
     declare -a msg=( "$@" )
     trap - EXIT
+    install_err_stack "${FUNCNAME[@]:-}"
     if (( ${#msg[@]} > 0 )); then
         install_msg "${msg[*]}
 If you don't know what to do, please contact support@radiasoft.net."
@@ -160,12 +161,26 @@ If you don't know what to do, please contact support@radiasoft.net."
     if [[ -z $install_verbose ]]; then
         install_clean >& /dev/null
     fi
+    # POSIT: errexit compatible with calling functions
     exit 1
+}
+
+install_err_stack() {
+    if (( ! $# )); then
+        return
+    fi
+    declare funcs=( "$@" )
+    declare f
+    install_msg 'bash stack:'
+    for f in "${funcs[@]:1}"; do
+        install_msg "  $f"
+    done
 }
 
 install_err_trap() {
     set +e
     trap - EXIT
+    install_err_stack "${FUNCNAME[@]:-}"
     if [[ -z $install_verbose ]]; then
         tail -10 "$install_log_file"
     fi
@@ -463,7 +478,8 @@ install_script_eval() {
         cd "$pwd"
     fi
     declare source=$install_script_dir/$(date +%Y%m%d%H%M%S)-$(basename "$script")
-    if ! install_download "$script" > "$source" || [[ ! -s $source ]]; then
+    install_download "$script" > "$source"
+    if [[ ! -s $source ]]; then
         install_err "error downloading script=$script"
     fi
     if [[ ! $(head -1 "$source") =~ ^#! ]]; then
@@ -493,13 +509,9 @@ install_script_eval() {
         unset "$m"
     fi
     install_info "Source: $source"
-    if ! source "$source"; then
-        install_err "Error sourcing script=$script"
-    fi
+    source "$source"
     if [[ $m && $(type -t "$m") == function ]]; then
-        if ! $m ${install_extra_args[@]+"${install_extra_args[@]}"}; then
-            install_err "Error in function=$m script=$script"
-        fi
+        $m ${install_extra_args[@]+"${install_extra_args[@]}"}
     fi
 }
 
