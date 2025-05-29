@@ -151,9 +151,10 @@ install_git_clone() {
 }
 
 install_err() {
+    declare -a msg=( "$@" )
     trap - EXIT
-    if [[ -n $1 ]]; then
-        install_msg "$*
+    if (( ${#msg[@]} > 0 )); then
+        install_msg "${args[*]}
 If you don't know what to do, please contact support@radiasoft.net."
     fi
     if [[ -z $install_verbose ]]; then
@@ -462,9 +463,8 @@ install_script_eval() {
         cd "$pwd"
     fi
     declare source=$install_script_dir/$(date +%Y%m%d%H%M%S)-$(basename "$script")
-    install_download "$script" > "$source"
-    if [[ ! -s $source ]]; then
-        install_err
+    if ! install_download "$script" > "$source" || [[ ! -s $source ]]; then
+        install_err "error downloading script=$script"
     fi
     if [[ ! $(head -1 "$source") =~ ^#! ]]; then
         install_err "$script: no #! at start of file: $source"
