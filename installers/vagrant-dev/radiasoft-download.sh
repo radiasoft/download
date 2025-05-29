@@ -189,8 +189,8 @@ Set up a development server"
     install_info 'Running installer: redhat-dev'
     vagrant ssh <<EOF
 $(install_vars_export)
-curl $(install_server)/index.sh | \
-  bivio_home_env_ignore_git_dir_ownership=$(vagrant_dev_ignore_git_dir_ownership $os) \
+curl '$install_server/index.sh' | \
+  bivio_home_env_ignore_git_dir_ownership='$(vagrant_dev_ignore_git_dir_ownership $os)' \
   bash -s redhat-dev
 EOF
     vagrant_dev_post_install "$update"
