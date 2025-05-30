@@ -29,7 +29,7 @@ radia_run slurm-dev
         n=1
         slurm_dev_nfs
     fi
-    install_yum install slurm-slurmd slurm-slurmctld
+    install_yum_install slurm-slurmd slurm-slurmctld
     declare k=/etc/munge/munge.key
     if ! install_sudo test -e "$k"; then
         dd if=/dev/urandom bs=1 count=1024 \
@@ -54,7 +54,7 @@ slurm_dev_nfs() {
     if grep -s -q $_slurm_dev_nfs_server:/home/vagrant /etc/fstab; then
         return
     fi
-    install_yum install nfs-utils
+    install_yum_install nfs-utils
     if ! showmount -e "$_slurm_dev_nfs_server" >&/dev/null; then
         install_err "
 on $_slurm_dev_nfs_server you need to:

@@ -36,7 +36,7 @@ pymesh_main() {
     # fmt is strange, can't specify depth
     #    git submodule update --init --recursive third_party/fmt
     # cgal is very large so use --depth=5 fmt needs --depth=10
-    #    git submodule update --init --depth=5 $(find third_party/* -maxdepth 0 -type d | egrep -iv '(geogram|fmt|mmg|cgal)')
+    #    git submodule update --init --depth=5 $(find third_party/* -maxdepth 0 -type d | grep -E -iv '(geogram|fmt|mmg|cgal)')
 }
 
 pymesh_patch_numpy_testing() {
