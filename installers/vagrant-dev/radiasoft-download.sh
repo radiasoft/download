@@ -150,7 +150,7 @@ expects: fedora|centos|almalinux, <ip address>, update, v[1-9].radia.run"
         install_err 'usage: radia_run vagrant-dev fedora|centos|almalinux [host|ip] [update]'
     fi
     if [[ $install_server =~ ^file: ]]; then
-        install_error "File URLs do not work in VM install_server=$install_server
+        install_err "File URLs do not work in VM install_server=$install_server
 Set up a development server"
     fi
     if [[ ! $host ]]; then
