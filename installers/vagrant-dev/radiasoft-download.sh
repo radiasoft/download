@@ -36,7 +36,7 @@ vagrant_dev_box_add() {
             box=almalinux/$install_version_centos
         fi
     fi
-    if ! vagrant box list | grep -F -q "$box" >& /dev/null; then
+    if ! vagrant box list | grep -F -q "$box"; then
         vagrant box add --provider "$provider" "$box"
     fi
 }
