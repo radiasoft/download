@@ -41,18 +41,6 @@ vagrant_dev_box_add() {
     fi
 }
 
-vagrant_dev_disable_security() {
-    vagrant ssh <<'EOF'
-sudo bash <<'EOF_BASH'
-systemctl stop firewalld || true
-systemctl disable firewalld || true
-# Early in setup so perl might not yet be installed. Use sed instead.
-sed -i 's/^SELINUX=.*/SELINUX=disabled/' /etc/selinux/config
-EOF_BASH
-EOF
-    vagrant reload
-}
-
 vagrant_dev_eth1() {
     declare os=$1
     declare ip=$2
@@ -71,14 +59,24 @@ vagrant_dev_first_up() {
     declare os="$1"
     declare host="$2"
     declare ip="$3"
+    declare p=''
     if [[ ! $vagrant_dev_no_vbguest ||  ! $vagrant_dev_no_mounts && $vagrant_dev_private_net ]]; then
-        vagrant_dev_vagrantfile "$os" "$host" "$ip" 1
-        vagrant up
-        vagrant ssh <<'EOF'
-sudo yum install -q -y kernel kernel-devel kernel-headers kernel-tools perl
-EOF
-        vagrant halt
+        p='install_yum kernel kernel-devel kernel-headers kernel-tools perl'
     fi
+    vagrant_dev_vagrantfile "$os" "$host" "$ip" 1
+    vagrant up
+    vagrant ssh -c 'sudo su -' <<"EOF"
+$(install_export_this_script)
+${install_debug:+set -x}
+systemctl stop firewalld || true
+systemctl disable firewalld || true
+if [[ -e /etc/selinux/config ]]; then
+    # Early in setup so perl might not yet be installed. Use sed instead.
+    sed -i 's/^SELINUX=.*/SELINUX=disabled/' /etc/selinux/config
+fi
+$i
+EOF
+    vagrant halt
 }
 
 vagrant_dev_ignore_git_dir_ownership() {
@@ -179,7 +177,6 @@ Set up a development server"
     if [[ $vagrant_dev_no_dev_env ]]; then
         return
     fi
-    vagrant_dev_disable_security
     declare f
     for f in ~/.gitconfig ~/.netrc; do
         if [[ -r $f ]]; then
@@ -189,6 +186,7 @@ Set up a development server"
     install_info 'Running installer: redhat-dev'
     vagrant ssh <<EOF
 $(install_vars_export)
+${install_debug:+set -x}
 curl '$install_server/index.sh' | \
   bivio_home_env_ignore_git_dir_ownership='$(vagrant_dev_ignore_git_dir_ownership $os)' \
   bash -s redhat-dev
@@ -297,6 +295,7 @@ EOF
     vagrant ssh <<EOF || true
 $(install_vars_export)
 source ~/.bashrc
+${install_debug:+set -x}
 tar xpzf $_vagrant_dev_update_tgz_path
 if [[ -f /vagrant/radia-run.sh ]]; then
     source /vagrant/radia-run.sh
@@ -359,9 +358,10 @@ vagrant_dev_prepare_update() {
         fi
         (cat <<EOF1; cat <<'EOF2'; cat <<EOF3) | vagrant ssh
 $(install_vars_export)
-EOF1
 source ~/.bashrc
 set -euo pipefail
+${install_debug:+set -x}
+EOF1
 if [[ -d src/radiasoft ]]; then
     e=
     cd src/radiasoft

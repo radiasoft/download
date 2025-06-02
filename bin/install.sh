@@ -100,7 +100,6 @@ install_export_this_script() {
     for f in $(compgen -A function install_); do
         declare -f "$f"
     done
-    echo 'install_main "$@"'
 }
 
 install_file_from_stdin() {
@@ -411,6 +410,8 @@ install_repo_as_user() {
     declare user=$1
     shift
     declare s=$(install_export_this_script)
+    s+='
+install_main "$@"'
     if [[ $(id -u "$user") == $EUID ]]; then
         # environment is cascaded so no need for --login
         bash -s "$@" <<<"$s"
