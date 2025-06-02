@@ -66,7 +66,7 @@ vagrant_dev_first_up() {
     fi
     vagrant_dev_vagrantfile "$os" "$host" "$ip" 1
     vagrant up
-    vagrant -c 'ssh sudo su' - <<"EOF"
+    vagrant ssh -c 'sudo su' - <<"EOF"
 set -x
 $(install_export_this_script)
 systemctl stop firewalld || true
