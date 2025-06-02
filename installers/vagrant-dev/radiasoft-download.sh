@@ -67,8 +67,8 @@ vagrant_dev_first_up() {
     vagrant_dev_vagrantfile "$os" "$host" "$ip" 1
     vagrant up
     vagrant ssh -c 'sudo su' - <<"EOF"
-set -x
 $(install_export_this_script)
+${install_debug:+set -x}
 systemctl stop firewalld || true
 systemctl disable firewalld || true
 if [[ -e /etc/selinux/config ]]; then
@@ -78,7 +78,6 @@ fi
 $i
 EOF
     vagrant halt
-    set +x
 }
 
 vagrant_dev_ignore_git_dir_ownership() {
@@ -188,6 +187,7 @@ Set up a development server"
     install_info 'Running installer: redhat-dev'
     vagrant ssh <<EOF
 $(install_vars_export)
+${install_debug:+set -x}
 curl '$install_server/index.sh' | \
   bivio_home_env_ignore_git_dir_ownership='$(vagrant_dev_ignore_git_dir_ownership $os)' \
   bash -s redhat-dev
@@ -296,6 +296,7 @@ EOF
     vagrant ssh <<EOF || true
 $(install_vars_export)
 source ~/.bashrc
+${install_debug:+set -x}
 tar xpzf $_vagrant_dev_update_tgz_path
 if [[ -f /vagrant/radia-run.sh ]]; then
     source /vagrant/radia-run.sh
@@ -358,9 +359,10 @@ vagrant_dev_prepare_update() {
         fi
         (cat <<EOF1; cat <<'EOF2'; cat <<EOF3) | vagrant ssh
 $(install_vars_export)
-EOF1
 source ~/.bashrc
 set -euo pipefail
+${install_debug:+set -x}
+EOF1
 if [[ -d src/radiasoft ]]; then
     e=
     cd src/radiasoft
