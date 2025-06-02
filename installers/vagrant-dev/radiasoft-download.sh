@@ -60,13 +60,12 @@ vagrant_dev_first_up() {
     declare host="$2"
     declare ip="$3"
     declare p=''
-    set -x
     if [[ ! $vagrant_dev_no_vbguest ||  ! $vagrant_dev_no_mounts && $vagrant_dev_private_net ]]; then
         p='install_yum kernel kernel-devel kernel-headers kernel-tools perl'
     fi
     vagrant_dev_vagrantfile "$os" "$host" "$ip" 1
     vagrant up
-    vagrant ssh -c 'sudo su' - <<"EOF"
+    vagrant ssh -c 'sudo su -' <<"EOF"
 $(install_export_this_script)
 ${install_debug:+set -x}
 systemctl stop firewalld || true
