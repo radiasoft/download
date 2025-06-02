@@ -492,29 +492,29 @@ install_script_eval() {
     # Caculate main function before sourcing
     declare m=$(basename "$script" .sh)
     if [[ "$script" == radiasoft-download.sh ]]; then
-        declare f
         # POSIT: same special case in install_url()
         if [[ $install_url =~ ^https://api.github.com/repos/[^/]+/([^/]+)/contents$ ]]; then
-            f=${BASH_REMATCH[1]}
+            m=${BASH_REMATCH[1]}
         else
-            f=$(basename "$install_url")
+            m=$(basename "$install_url")
         fi
-        m=${f//-/_}
     fi
-    m+=_main
+    # type -t checks below validate the identifier via checking if they are a function
+    m=${m//-/_}_main
     # three cases: main without args or with install_extra_args
     # Be loose in case there's a bug. Compliant scripts must
     # not call main in any form
     if grep -E "^$m( *| .*@.*)$" "$source" >&/dev/null; then
         # main is called in script so don't call again
         m=
-    else
-        # Just in case repo was evaled already, get a fresh definition of main
-        unset "$m"
+    elif [[ $(type -t "$m") == function ]]; then
+        # Delete in case repo (or same name) was evaled already and
+        # new one doesn't have $m defined as a function.
+        unset -f "$m"
     fi
     install_info "Source: $source"
     source "$source"
-    if [[ $m && $(type -t "$m") == function ]]; then
+    if [[ $(type -t "$m") == function ]]; then
         $m ${install_extra_args[@]+"${install_extra_args[@]}"}
     fi
 }
