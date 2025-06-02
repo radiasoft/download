@@ -60,13 +60,15 @@ vagrant_dev_first_up() {
     declare host="$2"
     declare ip="$3"
     declare p=''
+    set -x
     if [[ ! $vagrant_dev_no_vbguest ||  ! $vagrant_dev_no_mounts && $vagrant_dev_private_net ]]; then
         p='install_yum kernel kernel-devel kernel-headers kernel-tools perl'
     fi
     vagrant_dev_vagrantfile "$os" "$host" "$ip" 1
     vagrant up
     vagrant -c 'ssh sudo su' - <<"EOF"
-$(install_vars_export)
+set -x
+$(install_export_this_script)
 systemctl stop firewalld || true
 systemctl disable firewalld || true
 if [[ -e /etc/selinux/config ]]; then
@@ -76,6 +78,7 @@ fi
 $i
 EOF
     vagrant halt
+    set +x
 }
 
 vagrant_dev_ignore_git_dir_ownership() {
