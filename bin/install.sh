@@ -664,7 +664,7 @@ install_yum_install() {
     if (( ${#todo[@]} <= 0 )); then
         return
     fi
-    install_yum install "${flags[@]}" "${todo[@]}"
+    install_yum install "${flags[@]:-}" "${todo[@]}"
 }
 
 install_main "$@"
