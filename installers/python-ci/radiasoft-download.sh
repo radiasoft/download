@@ -22,7 +22,7 @@ python_ci_main() {
             ;;
         *)
             p+=( pykern )
-            if grep -s sirepo setup.py pyproject.toml &> /dev/null; then
+            if grep sirepo $(ls setup.py pyproject.toml 2>/dev/null) /dev/null &> /dev/null; then
                 i=radiasoft/sirepo
                 p+=( sirepo )
             else
