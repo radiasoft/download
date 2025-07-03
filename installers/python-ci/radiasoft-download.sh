@@ -35,25 +35,27 @@ python_ci_main() {
     set -x
     $RADIA_RUN_OCI_CMD run -v "$d:$d" -i -u root --rm "$i:alpha" bash <<EOF | cat
         set -eou pipefail
-        set -x
+        ${install_debug:+set -x}
         cd '$d'
         chown -R vagrant: '$d'
         # POSIT: no interpolated vars in names
         trap 'chown -R "$o" "$d"' EXIT
         su - vagrant <<'EOF2'
             set -eou pipefail
+            ${install_debug:+set -x}
             cd '$d'
             export GITHUB_TOKEN='${GITHUB_TOKEN:-}'
             # POSIT: no spaces or specials in repo names
             declare x
+            _pip() { pip --disable-pip-version-check --no-color --quiet "\$@"; }
             for x in ${p+${p[*]}}; do
-                pip uninstall -y \$x >& /dev/null || true
-                pip install git+https://'${GITHUB_TOKEN:+$GITHUB_TOKEN@}'github.com/radiasoft/\$x.git
+                _pip uninstall -y \$x >& /dev/null || true
+                _pip install git+https://'${GITHUB_TOKEN:+$GITHUB_TOKEN@}'github.com/radiasoft/\$x.git
             done
-            pip uninstall -y '$r' >& /dev/null || true
+            _pip uninstall -y '$r' >& /dev/null || true
             # GitHub CI runners are limited on disk space so use --no-cache-dir to limit disk usage as much as
             # possible. See git.radiasoft.org/downloads/issues/562
-            pip install --no-cache-dir -e .
+            _pip install --no-cache-dir -e .
             export PYKERN_PKCLI_TEST_MAX_FAILURES=1 PYKERN_PKCLI_TEST_RESTARTABLE=1
             if [[ -f test.sh ]]; then
                 bash test.sh

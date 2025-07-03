@@ -20,7 +20,7 @@ index_main() {
     else
         a+=( "$u/radiasoft/download/bin/install.sh" )
     fi
-    curl --fail --location --show-error --silent "${a[@]}" | install_server="$u" bash "${install_debug:+-x}" -s "$@"
+    curl --fail --location --show-error --silent "${a[@]}" | install_server="$u" bash ${install_debug:+-x} -s "$@"
 }
 
 index_main "$@"
