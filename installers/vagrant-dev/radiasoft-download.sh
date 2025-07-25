@@ -397,9 +397,9 @@ vagrant_dev_private_net() {
     if [[ ! $vagrant_dev_private_net ]]; then
         return
     fi
-    declare x=""
+    declare x=''
     if vagrant_dev_want_libvirt; then
-        x=, ":libvirt__forward_mode": "open"
+        x=', ":libvirt__forward_mode": "open"'
     fi
     cat <<EOF
     config.vm.network "private_network", ip: "$ip"$x
