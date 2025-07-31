@@ -1,6 +1,6 @@
 #!/bin/bash
 
-common_install_h5py() {
+_common_h5py() {
     # hdf5, h5py, and  tensorflow all need to agree with each other.
     # We install hdf5 with whatever the latest version from the fedora repos is.
     # We then must backtrack to see what h5py version supports that. They'll mention it in their
@@ -20,8 +20,13 @@ common_install_h5py() {
     cd "$p"
 }
 
-common_python() {
-    declare v=$1
+_common_nvm() {
+    PROFILE=/dev/null codes_download https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh '' nvm 0.40.3
+    install_source_bashrc
+    npm install node
+}
+
+_common_python() {
     declare prev_d=$PWD
     MAKE_OPTS=-j$(codes_num_cores) install_repo_eval pyenv
     install_source_bashrc
@@ -38,7 +43,7 @@ common_python() {
         Cython
     )
     install_pip_install "${d[@]}"
-    common_install_h5py
+    _common_h5py
     d=(
         # Needed by omega
         openpmd-beamphysics
@@ -147,7 +152,6 @@ common_main() {
         libffi-devel
         libtool
         llvm-libs
-        nodejs
         valgrind-devel
     )
     if ! install_version_fedora_lt_36; then
@@ -156,7 +160,7 @@ common_main() {
     codes_yum_dependencies "${rpms[@]}"
     install_repo_eval fedora-patches
     install_source_bashrc
-    common_python 3
+    _common_python
     # codes install into "lib/cmake" which needs to be owned by common
     install -d -m 755 "${codes_dir[lib]}"/cmake
 }
