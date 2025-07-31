@@ -52,7 +52,7 @@ GNUInstallDirs_get_absolute_install_dir(CMAKE_INSTALL_FULL_LIBDIR CMAKE_INSTALL_
 }
 
 codes_curl() {
-    curl -s -S -L "$@"
+    install_download "$@"
 }
 
 codes_dependencies() {
@@ -108,6 +108,7 @@ codes_download() {
         repo=https://github.com/$repo.git
     fi
     codes_msg "Download: $repo"
+    declare manifest=('' '')
     case $repo in
         *.git)
             declare d=$(basename "$repo" .git)
@@ -131,8 +132,10 @@ codes_download() {
                 git clone $r --depth 1 "$repo"
                 cd "$d"
             fi
-            declare manifest=('' '')
             repo=
+            ;;
+        *.sh)
+            codes_curl "$repo" | bash
             ;;
         *.tar.gz|*.tar.xz|*.tar.bz2|*.tgz)
             declare z s
@@ -159,7 +162,7 @@ codes_download() {
             esac
             declare b=$(basename "$repo" ".$s")
             if [[ ${version:-} ]]; then
-                declare manifest=( "$package" "$version" )
+                manifest=( "$package" "$version" )
             else
                 # github tarball
                 if [[ $repo =~ ([^/]+)/archive/v([^/]+).$s$ ]]; then
@@ -172,11 +175,10 @@ codes_download() {
                 elif [[ ! $b =~ ^(.+)-([[:digit:]].+)$ ]]; then
                     codes_err "$repo: basename=$b does not match version regex"
                 fi
-                declare manifest=( "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}" )
+                manifest=( "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}" )
             fi
             declare d=${qualifier:-$b}
             declare t=tarball-$RANDOM
-
             codes_curl -o "$t" "$repo"
             tar xf"$z" "$t"
             rm -f "$t"
@@ -191,7 +193,7 @@ codes_download() {
                 # not a yum dependency (codes script copies the files)
                 install_yum_install "$repo"
             fi
-            declare manifest=(
+            manifest=(
                 "$(rpm -q --queryformat '%{NAME}' "$n")"
                 "$(rpm -q --queryformat '%{VERSION}-%{RELEASE}' "$n")"
             )
