@@ -4,7 +4,8 @@ rpm_code_rpm_prefix=rscode
 
 rpm_code_build() {
     declare code=$1
-    declare args=( "$@" )
+    # Used by install_script_eval
+    declare install_extra_args=( "$@" )
     # flag used by code.sh to know if inside this function
     declare rpm_code_build=1
     declare rpm_code_exclude_f=$PWD/exclude.txt
@@ -13,7 +14,8 @@ rpm_code_build() {
     install_source_bashrc
     install_url radiasoft/download installers/rpm-code
     declare rpm_code_root_dirs=( $HOME/.pyenv $HOME/.declare )
-    install_extra_args=( "${args[@]}" ) install_script_eval codes.sh
+    # install_extra_args set above
+    install_script_eval codes.sh
     if [[ ${rpm_code_debug:-} ]]; then
         install_msg "Removing $HOME/rpmbuild"
         rm -rf "$HOME"/rpmbuild

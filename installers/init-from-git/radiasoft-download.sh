@@ -7,16 +7,18 @@
 # repo may be https://github.com/foo/bar or foo/bar
 
 init_from_git_main() {
+    declare args=( "$@" )
     install_tmp_dir
     init_from_git_tmpdir=$(pwd)
     cd
-    for repo in "${install_extra_args[@]}"; do
-        init_from_git_one "$repo"
+    declare r
+    for r in "${args[@]}"; do
+        init_from_git_one "$r"
     done
 }
 
 init_from_git_one() {
-    local repo=$1
+    declare repo=$1
     rm -rf "$init_from_git_tmpdir"
     mkdir -p "$init_from_git_tmpdir"
     (

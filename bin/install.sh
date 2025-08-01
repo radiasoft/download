@@ -516,7 +516,12 @@ install_script_eval() {
     install_info "Source: $source"
     source "$source"
     if [[ $(type -t "$m") == function ]]; then
-        $m ${install_extra_args[@]+"${install_extra_args[@]}"}
+        # Clear install_extra_args during call just in case, since
+        # has implicit use in subsequent calls to this function.
+        # Probably shouldn't but that's history at this point.
+        declare a=( ${install_extra_args[@]+"${install_extra_args[@]}"} )
+        unset install_extra_args
+        $m ${a[@]+"${a[@]}"}
     fi
 }
 
