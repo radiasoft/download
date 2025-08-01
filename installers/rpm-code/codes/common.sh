@@ -162,6 +162,7 @@ common_main() {
     install_repo_eval fedora-patches
     install_source_bashrc
     _common_python
+    _common_nvm
     # codes install into "lib/cmake" which needs to be owned by common
     install -d -m 755 "${codes_dir[lib]}"/cmake
 }
