@@ -275,11 +275,6 @@ codes_install() {
     declare -A codes_dir=()
     codes_dir_setup
     install_script_eval "codes/$module.sh"
-    declare f=$(codes_module_function main)
-    if [[ ! $f ]]; then
-        install_err "no main defined for code=$module"
-    fi
-    $f ${args[@]+"${args[@]}"}
     cd "$prev"
     declare p=$(codes_module_function python_install)
     if [[ $p ]]; then

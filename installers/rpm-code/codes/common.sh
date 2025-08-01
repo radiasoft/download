@@ -30,6 +30,7 @@ _common_python() {
     declare prev_d=$PWD
     MAKE_OPTS=-j$(codes_num_cores) install_repo_eval pyenv
     install_source_bashrc
+    install_pip_install --upgrade pip
     # Need to set here
     codes_dir[pyenv_prefix]=$(realpath "$(pyenv prefix)")
     declare -a d=(

@@ -30,5 +30,4 @@ centos7_main() {
     fi
     local f=$(basename "$op" .sh)
     install_script_eval "script/$f.sh"
-    "${f//-/_}_main" "${a[@]}"
 }
