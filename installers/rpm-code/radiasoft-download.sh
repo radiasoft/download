@@ -3,18 +3,19 @@
 rpm_code_rpm_prefix=rscode
 
 rpm_code_build() {
-    local code=$1
-    local args=( "$@" )
+    declare code=$1
+    # Used by install_script_eval
+    declare install_extra_args=( "$@" )
     # flag used by code.sh to know if inside this function
-    local rpm_code_build=1
-    local rpm_code_exclude_f=$PWD/exclude.txt
+    declare rpm_code_build=1
+    declare rpm_code_exclude_f=$PWD/exclude.txt
     install_source_bashrc
     _bivio_home_env_update -f
     install_source_bashrc
     install_url radiasoft/download installers/rpm-code
+    declare rpm_code_root_dirs=( $HOME/.pyenv $HOME/.declare )
+    # install_extra_args set above
     install_script_eval codes.sh
-    local rpm_code_root_dirs=( $HOME/.pyenv $HOME/.local )
-    codes_main "${args[@]}"
     if [[ ${rpm_code_debug:-} ]]; then
         install_msg "Removing $HOME/rpmbuild"
         rm -rf "$HOME"/rpmbuild
@@ -40,7 +41,7 @@ rpm_code_dependencies_done() {
     if [[ -e $rpm_code_exclude_f ]]; then
         install_err "duplicate call to rpm_code_dependencies_done"
     fi
-    local i
+    declare i
     for i in "$@"; do
         # trilinos is huge (4GB) so don't add as a dependency
         # only needed to compile opal.
@@ -59,23 +60,23 @@ rpm_code_is_common() {
 }
 
 rpm_code_install_rpm() {
-    local base=$1
+    declare base=$1
     # Y2100
-    local f="$(ls -t "$base"-20[0-9][0-9]*rpm | head -1)"
+    declare f="$(ls -t "$base"-20[0-9][0-9]*rpm | head -1)"
     # signing doesn't work, because rpmsign always prompts for password. People
     # have worked around it with an expect script, but that's just messed up.
-    local dst=$rpm_code_install_dir/$f
+    declare dst=$rpm_code_install_dir/$f
     install -m 444 "$f" "$dst"
     install_msg "$dst"
     rpm_code_install_rpm=$dst
 }
 
 rpm_code_install_proprietary() {
-    local rpm_base=$1
-    local rpm_code_install_rpm
+    declare rpm_base=$1
+    declare rpm_code_install_rpm
     rpm_code_install_rpm "$rpm_base"
     # Y2100
-    local l="$rpm_code_install_dir/$rpm_base-dev.rpm"
+    declare l="$rpm_code_install_dir/$rpm_base-dev.rpm"
     rm -f "$l"
     ln -s --relative "$rpm_code_install_rpm" "$l"
 }
@@ -89,21 +90,21 @@ rpm_code_main() {
         return
     fi
     install_tmp_dir
-    local code=$1
-    local args=( "$@" )
+    declare code=$1
+    declare args=( "$@" )
     # assert params and log
     install_info "rpm_code_install_dir=$rpm_code_install_dir"
-    local base=$rpm_code_rpm_prefix-$code
+    declare base=$rpm_code_rpm_prefix-$code
     # these need to be space separated b/c substitution below
-    local image=radiasoft/rpm-code
+    declare image=radiasoft/rpm-code
     if rpm_code_is_common "$code"; then
         image=radiasoft/fedora
     fi
     if [[ ${rpm_code_debug:-} ]]; then
         # emulate what rpm-build does
-        local rpm_build_guest_d=$PWD
-        local rpm_build_include_f=$rpm_build_guest_d/include.txt
-        local rpm_build_depends_f=$rpm_build_guest_d/depends.txt
+        declare rpm_build_guest_d=$PWD
+        declare rpm_build_include_f=$rpm_build_guest_d/include.txt
+        declare rpm_build_depends_f=$rpm_build_guest_d/depends.txt
         rpm_code_build "${args[@]}"
         return
     fi
@@ -122,7 +123,7 @@ rpm_code_yum_dependencies() {
         install_err 'must call codes_yum_dependencies before codes_dependencies'
     fi
     install_yum_install "$@"
-    local i
+    declare i
     for i in "$@"; do
         echo "$i"
     done >> $rpm_build_depends_f

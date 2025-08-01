@@ -283,5 +283,3 @@ $stop"
     fi
 
 }
-
-container_run_main ${install_extra_args[@]+"${install_extra_args[@]}"}
