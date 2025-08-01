@@ -13,7 +13,7 @@ rpm_code_build() {
     _bivio_home_env_update -f
     install_source_bashrc
     install_url radiasoft/download installers/rpm-code
-    declare rpm_code_root_dirs=( $HOME/.pyenv $HOME/.declare )
+    declare rpm_code_root_dirs=( $HOME/.pyenv $HOME/.local )
     # install_extra_args set above
     install_script_eval codes.sh
     if [[ ${rpm_code_debug:-} ]]; then
