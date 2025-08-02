@@ -121,7 +121,8 @@ _common_python() {
         ipykernel
 
         # conflict between rsbeams and cadopenmc
-        nlopt
+        # later versions force numpy 2.x
+        nlopt==2.7.1
     )
     install_pip_install "${d[@]}"
 
