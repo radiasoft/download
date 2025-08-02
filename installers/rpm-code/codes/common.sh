@@ -23,7 +23,7 @@ _common_h5py() {
 _common_nvm() {
     PROFILE=/dev/null codes_download https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh '' nvm 0.40.3
     install_source_bashrc
-    npm install node
+    nvm install node
 }
 
 _common_python() {
