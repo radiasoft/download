@@ -21,6 +21,8 @@ _common_h5py() {
 }
 
 _common_nvm() {
+    # Required when NVM_DIR is set
+    mkdir -p "$NVM_DIR"
     PROFILE=/dev/null codes_download https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh '' nvm 0.40.3
     install_source_bashrc
     nvm install node
@@ -161,8 +163,8 @@ common_main() {
     codes_yum_dependencies "${rpms[@]}"
     install_repo_eval fedora-patches
     install_source_bashrc
-    _common_python
     _common_nvm
+    _common_python
     # codes install into "lib/cmake" which needs to be owned by common
     install -d -m 755 "${codes_dir[lib]}"/cmake
 }
