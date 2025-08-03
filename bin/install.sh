@@ -128,9 +128,11 @@ install_foss_server() {
 
 install_git_clone() {
     # repo of the form repo, org/repo or https://git-server/org/repo{.git,}
-    # You can set RADIA_RUN_GIT_CLONE_BRANCH_<REPO> to clone a specific branch.
+    # You can set RADIA_RUN_GIT_CLONE_BRANCH_<REPO> to clone a specific branch
+    # or pass the branch explicitly.
     # RADIA_RUN_*  carries inside containers and ssh (see install_vars_export).
     declare repo=$1
+    declare branch=${2:-}
     declare b=${repo##*/}
     if [[ $b == $repo ]]; then
         repo=radiasoft/$repo
@@ -142,11 +144,14 @@ install_git_clone() {
     if [[ $repo =~ ^https://github.com(.+) && ${GITHUB_TOKEN:+1} ]]; then
         repo=https://$GITHUB_TOKEN@github.com/${BASH_REMATCH[1]}
     fi
-    b=${b%%.git}
-    b=${b^^}
-    b=RADIA_RUN_GIT_CLONE_BRANCH_${b//[^A-Z0-9_]/_}
-    b=${!b:-}
-    git clone -q -c advice.detachedHead=false --depth 1 ${b:+--branch "$b"} "$repo"
+    if [[ ! $branch ]]; then
+        declare x=${b%%.git}
+        x=${x^^}
+        x=RADIA_RUN_GIT_CLONE_BRANCH_${x//[^A-Z0-9_]/_}
+        branch=${!x:-}
+    fi
+    git clone -q -c advice.detachedHead=false --depth 1 \
+        ${branch:+--branch "$branch"} "$repo"
 }
 
 install_err() {
