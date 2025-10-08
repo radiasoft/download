@@ -179,7 +179,7 @@ codes_download() {
             fi
             declare d=${qualifier:-$b}
             declare t=tarball-$RANDOM
-            codes_curl"$repo" > "$t"
+            codes_curl "$repo" > "$t"
             tar xf"$z" "$t"
             rm -f "$t"
             cd "$d"
