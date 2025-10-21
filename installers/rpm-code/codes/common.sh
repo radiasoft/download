@@ -25,7 +25,9 @@ _common_nvm() {
     mkdir -p "$NVM_DIR"
     PROFILE=/dev/null codes_download https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh '' nvm 0.40.3
     install_source_bashrc
-    nvm install node
+    #TODO(pjm): fixed version of node until sirepo #725 is fixed
+    #nvm install node
+    nvm install 24.5.0
 }
 
 _common_python() {
