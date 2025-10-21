@@ -94,7 +94,8 @@ _common_python() {
         unyt
 
         # fortran namelist parser, usable by many codes
-        f90nml
+        # fixed version because 1.5 writes to /tests which causes a rpm conflict
+        f90nml==1.4.4
         # Conflict between rscode-bluesky and rscode-openpmd
         tqdm
         astunparse==1.6.3
