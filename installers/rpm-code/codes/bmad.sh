@@ -11,7 +11,7 @@ bmad_main() {
 }
 
 _bmad_compile() {
-    declare v=20240402-1
+    declare v=20250421-0
     codes_download https://github.com/bmad-sim/bmad-ecosystem/releases/download/"$v"/bmad_dist.tar.gz bmad_dist_"$v" bmad "$v"
     declare p=${codes_dir[prefix]}
     cat > util/user_prefs <<EOF
