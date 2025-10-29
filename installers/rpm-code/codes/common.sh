@@ -114,6 +114,9 @@ _common_python() {
         tzlocal
         uncertainties
 
+        # conflict between rscode-bluesky and rscode-impactt
+        prettytable
+
         # conflict between rscode-openmc and rscode-ml
         protobuf
 
