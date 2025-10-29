@@ -20,6 +20,6 @@ impactt_python_install() {
     codes_download https://github.com/ColwynGulliford/distgen.git v2.1.6
     codes_python_install
     install_pip_install polars-lts-cpu pydantic_settings prettytable eval_type_backport lume-base==0.3.3
-    codes_download https://github.com/ChristopherMayes/lume-impact.git v0.10.2
+    codes_download https://github.com/ChristopherMayes/lume-impact.git v0.9.7
     codes_python_install
 }
