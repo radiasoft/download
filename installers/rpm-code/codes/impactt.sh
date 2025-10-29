@@ -4,7 +4,7 @@ impactt_main() {
     # openpmdapi provides openpmd-beamphysics which is required by lume-base
     # pydicom is required by one of lume-base deps
     codes_dependencies common openpmdapi pydicom
-    codes_download https://github.com/impact-lbl/impact-t.git
+    codes_download https://github.com/impact-lbl/impact-t.git V2.3.2
     cd src
     codes_cmake2 -DCMAKE_INSTALL_PREFIX="${codes_dir[prefix]}"
     codes_cmake_build install
