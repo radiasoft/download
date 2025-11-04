@@ -7,7 +7,7 @@ bluesky_main() {
     if install_version_fedora_lt_36; then
         install_pip_install git+https://github.com/NSLS-II/sirepo-bluesky.git@e8043a3a182e250fa1f429882bf2728f46d1ec3a
     else
-        install_pip_install git+https://github.com/NSLS-II/sirepo-bluesky.git
+        install_pip_install git+https://github.com/NSLS-II/sirepo-bluesky.git@66d6b2e3810749ede8f9d0380279fa5a43c79aaa
     fi
 }
 
