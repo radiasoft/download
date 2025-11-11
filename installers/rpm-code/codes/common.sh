@@ -38,7 +38,8 @@ _common_python() {
     # Need to set here
     codes_dir[pyenv_prefix]=$(realpath "$(pyenv prefix)")
     declare -a d=(
-        mpi4py
+        # https://github.com/radiasoft/download/issues/813
+        'mpi4py==3.1.6'
         # https://github.com/radiasoft/download/issues/627
         'numpy==1.23.5'
         # required by cmyt 1.3.0 (required by yt)
