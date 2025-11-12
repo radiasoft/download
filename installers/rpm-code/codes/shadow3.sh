@@ -6,7 +6,8 @@ shadow3_main() {
 
 shadow3_python_install() {
     # devel-gfortran-yb66 on 20220603
-    install_pip_install srxraylib shadow3
+    # see also, xraylib.sh
+    install_pip_install srxraylib shadow3 xraylib
     install_pip_install --no-deps OASYS1-ShadowOui SYNED OASYS1-ShadowOui-Advanced-Tools
     local p=$(codes_python_lib_dir)/orangecontrib
     local u=$p/shadow/util
