@@ -43,7 +43,6 @@ declare -a _beamsim_codes_all=(
     radia
 
     ipykernel
-    bluesky
 
     elegant
 
