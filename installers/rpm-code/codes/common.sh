@@ -81,6 +81,7 @@ _common_python() {
         # yt (in rscode-rsbeams) installs jedi, which needs to be forced to 0.17.2
         # keep consistent with container-beamsim-jupyter
         dill
+        httpx
         ipython
         jedi==0.17.2
         parso
