@@ -8,7 +8,7 @@ shadow3_python_install() {
     # devel-gfortran-yb66 on 20220603
     # see also, xraylib.sh
     install_pip_install srxraylib shadow3 xraylib
-    install_pip_install --no-deps OASYS1-ShadowOui SYNED OASYS1-ShadowOui-Advanced-Tools
+    install_pip_install --no-deps OASYS1-ShadowOui==1.5.229 SYNED==1.0.39 OASYS1-ShadowOui-Advanced-Tools==1.0.133
     local p=$(codes_python_lib_dir)/orangecontrib
     local u=$p/shadow/util
     echo '# removed by RadiaSoft' > "$u"/__init__.py
