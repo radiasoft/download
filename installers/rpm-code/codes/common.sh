@@ -60,7 +60,7 @@ _common_python() {
 
         # tfs-pandas (required by sirepo-bluesky which is required by rscode-bluesky)
         'pandas>=2.0,<2.1.0'
-        sympy
+        'sympy==1.12.1'
         tables
 
         # Conflict between rscode-pyzgoubi and rscode-ml so just include here
