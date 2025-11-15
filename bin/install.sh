@@ -263,6 +263,12 @@ install_init_vars_basic_options() {
     fi
     : ${install_proprietary_key:=missing-proprietary-key}
     : ${install_verbose:=}
+    # containers/bin/build needs this. secrets are already in files or env vars.
+    # does not need to cascade in install_vars_export, because secrets need to cascade
+    # once inside docker.
+    if [[ ${install_vars_export_github_token-unset} == unset ]]; then
+        install_vars_export_github_token=1
+    fi
 }
 
 install_init_vars_oci() {
@@ -384,10 +390,18 @@ install_os_is_redhat() {
 }
 
 install_pip_install() {
+    declare -a a=()
+    declare u
+    for u in "$@"; do
+        if [[ ${GITHUB_TOKEN:+1} && $u =~ ^(git\+https://)(github.com.+) ]]; then
+            u=( "${BASH_REMATCH[1]}any-user:$GITHUB_TOKEN@${BASH_REMATCH[2]}" )
+        fi
+        a+=( "$u" )
+    done
     # --no-color does not work always
     # --progress-bar=off seems to work
-    # but this seems to work always
-    pip install "$@" | cat
+    # this seems to work always to remove noise
+    pip install "${a[@]}" | cat
 }
 
 install_pip_uninstall() {
@@ -592,6 +606,10 @@ install_vars_export() {
         $(compgen -A variable GITHUB_)
     )
     for f in "${x[@]}"; do
+        # This test needs to be general, because compgen matches all words beginning with GITHUB_TOKEN
+        if [[ ! $install_vars_export_github_token && $f =~ GITHUB_TOKEN ]]; then
+            continue
+        fi
         export "$f"
         echo "$(declare -p $f);"
     done
