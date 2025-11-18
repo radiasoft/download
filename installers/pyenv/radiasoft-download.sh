@@ -19,10 +19,6 @@ pyenv_install() {
     # This line stops a warning from the pyenv installer
     bivio_path_insert "$PYENV_ROOT"/bin 1
     install_download https://pyenv.run | bash
-    # Newer versions of patch do not like relative file names. Give this warning:
-    # 'Ignoring potentially dangerous file name ../Python-2.7.8/Lib/site.py'
-    # Updating the patches this way fixes the problem
-    find "$PYENV_ROOT" -name \*.patch -print0 | xargs -0 -n 100 perl -pi -e 's{^(\+\+\+|--- |diff.* )\.\./}{$1}'
     install_source_bashrc
     if install_os_is_darwin; then
         pyenv_homebrew
