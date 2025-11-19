@@ -94,8 +94,9 @@ _redhat_base_profile_d() {
     # POSIT: install_file_from_stdin doesn't use other install_*
     install_sudo bash -euo pipefail <<END_SUDO
 $(declare -f install_file_from_stdin)
-echo "export RADIA_RUN_SERVER='$install_server'" \
-    | install_file_from_stdin 444 root root /etc/profile.d/rs-redhat-base.sh
+cat <<END_CAT | install_file_from_stdin 444 root root /etc/profile.d/rs-redhat-base.sh
+export RADIA_RUN_SERVER='$install_server'
+export install_depot_server='$install_depot_server'
 END_SUDO
 }
 
