@@ -58,15 +58,14 @@ _common_python() {
         # pipdeptree is useful for debugging
         pipdeptree
 
-        # tfs-pandas (required by sirepo-bluesky which is required by rscode-bluesky)
-        'pandas>=2.0,<2.1.0'
+        'pandas>=2.0'
         'sympy==1.12.1'
         tables
 
         # Conflict between rscode-pyzgoubi and rscode-ml so just include here
         PyYAML
 
-        # Needed by rscode-bluesky and rscode-ml
+        # Needed by rscode-ml
         cachetools
         lxml
         pydantic
@@ -76,7 +75,7 @@ _common_python() {
         tzdata
 
 
-        # Needed by rscode-bluesky and rscode-rsbeams
+        # Needed by rscode-rsbeams
         # https://github.com/jupyter/notebook/issues/2435
         # yt (in rscode-rsbeams) installs jedi, which needs to be forced to 0.17.2
         # keep consistent with container-beamsim-jupyter
@@ -88,19 +87,19 @@ _common_python() {
         prompt_toolkit
         fsspec
 
-        # Needed by rscode-bluesky and rscode-impactt
+        # Needed by rscode-impactt
         pint
 
         # conflict between warpx and bnlcrl
         periodictable
 
-        # conflict between rscode-bluesky and rscode-rsbeams
+        # Needed by rscode-rsbeams
         unyt
 
         # fortran namelist parser, usable by many codes
         # fixed version because 1.5 writes to /tests which causes a rpm conflict
         f90nml==1.4.4
-        # Conflict between rscode-bluesky and rscode-openpmd
+        # Needed by rscode-openpmd
         tqdm
         astunparse==1.6.3
 
@@ -108,7 +107,7 @@ _common_python() {
         # version needs to be tensorflow_2_3_1_deps (see ml.sh)
         'wrapt>=1.11.1'
 
-        # conflict between rscode-bluesky and rscode-openmc
+        # Needed by rscode-openmc
         asteval
         jsonschema
         tenacity
@@ -116,7 +115,7 @@ _common_python() {
         tzlocal
         uncertainties
 
-        # conflict between rscode-bluesky and rscode-impactt
+        # Needed by rscode-impactt
         prettytable
 
         # conflict between rscode-openmc and rscode-ml
