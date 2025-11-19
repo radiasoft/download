@@ -667,7 +667,7 @@ install_yum_add_repo() {
             install_err 'dnf6 or above is not supported'
         fi
         install_yum_install dnf-plugins-core
-        install_yum addrepo --from-repofile="$repo"
+        install_yum config-manager addrepo --from-repofile="$repo"
     elif [[ $(type -t dnf) ]]; then
         # dnf 4 or before
         install_yum_install dnf-plugins-core
