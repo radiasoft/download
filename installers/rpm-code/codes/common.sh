@@ -9,8 +9,7 @@ _common_h5py() {
     # will list the h5py versions that tensorflow supports
 
     declare p="$PWD"
-    # https://git.radiasoft.org/download/issues/422
-    codes_download h5py/h5py 3.10.0
+    codes_download h5py/h5py 3.15.1
     declare mpicc=$(type -p mpicc)
     if [[ ! $mpicc ]]; then
         install_err mpicc not found
@@ -38,12 +37,13 @@ _common_python() {
     # Need to set here
     codes_dir[pyenv_prefix]=$(realpath "$(pyenv prefix)")
     declare -a d=(
+        #TODO(robnagler) 3.1.6 doesn't compile with py3.13,
         # https://github.com/radiasoft/download/issues/813
-        'mpi4py==3.1.6'
+        #'mpi4py==3.1.6'
+        mpi4py
         # https://github.com/radiasoft/download/issues/627
-        'numpy==1.23.5'
+        numpy
         # required by cmyt 1.3.0 (required by yt)
-        # https://github.com/radiasoft/download/issues/497
         'matplotlib>=3.5.0'
         scipy
         Cython
@@ -60,7 +60,6 @@ _common_python() {
 
         'pandas>=2.0'
         'sympy==1.12.1'
-        tables
 
         # Conflict between rscode-pyzgoubi and rscode-ml so just include here
         PyYAML
@@ -69,7 +68,8 @@ _common_python() {
         cachetools
         lxml
         pydantic
-        scikit-image==0.18.3
+        #TODO(robnagler) was scikit-image==0.18.3
+        scikit-image
         tifffile
         typing-extensions
         tzdata
@@ -82,7 +82,8 @@ _common_python() {
         dill
         httpx
         ipython
-        jedi==0.17.2
+        # jedi==0.17.2
+        jedi
         parso
         prompt_toolkit
         fsspec
@@ -98,10 +99,12 @@ _common_python() {
 
         # fortran namelist parser, usable by many codes
         # fixed version because 1.5 writes to /tests which causes a rpm conflict
-        f90nml==1.4.4
+        #TODO(robnagler) f90nml==1.4.4
+        f90nml
         # Needed by rscode-openpmd
         tqdm
-        astunparse==1.6.3
+        #TODO(robnagler) astunparse==1.6.3
+        astunparse
 
         #conflict between rscode-mantid and rscode-ml
         # version needs to be tensorflow_2_3_1_deps (see ml.sh)
@@ -128,10 +131,12 @@ _common_python() {
         ipykernel
 
         # conflict between rsbeams and cadopenmc
-        # later versions force numpy 2.x
-        nlopt==2.7.1
+        #TODO(robnagler) upgrade to for numpy 2.x nlopt==2.7.1
+        nlopt
     )
     install_pip_install "${d[@]}"
+    # Otherwise compile errors for strdup (gnu11), BLOSC/2 don't compile either
+    PYTABLES_NO_EMBEDDED_LIBS=1 CFLAGS=-std=gnu11 BLOSC_DIR=/usr BLOSC2_DIR=/usr pip install tables
 
     # Lots of dependencies so we install here to avoid rpm collisions.
     # Slows down builds of pykern, but doesn't affect development.
@@ -149,6 +154,9 @@ common_main() {
     declare rpms=(
         $mpi-devel
         blas-devel
+        # python tables
+        blosc-devel
+        blosc2-devel
         cmake
         fftw-$mpi-devel
         flex
