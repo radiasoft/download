@@ -95,10 +95,11 @@ _redhat_base_profile_d() {
     install_sudo bash -euo pipefail <<END_SUDO
 $(declare -f install_file_from_stdin)
 cat <<END_CAT | install_file_from_stdin 444 root root /etc/profile.d/rs-redhat-base.sh
-export RADIA_RUN_SERVER='$install_server'
-export install_depot_server='$install_depot_server'
-export install_version_fedora='$install_version_fedora'
-export install_version_python='$install_version_python'
+: \${RADIA_RUN_SERVER:='$install_server'}
+: \${install_depot_server:='$install_depot_server'}
+: \${install_version_fedora:='$install_version_fedora'}
+: \${install_version_python:='$install_version_python'}
+export RADIA_RUN_SERVER install_depot_server install_version_fedora install_version_python
 END_SUDO
 }
 
