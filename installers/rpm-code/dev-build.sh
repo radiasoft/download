@@ -11,7 +11,13 @@ for r in container-rpm-code container-fedora; do
     fi
 done
 
-if [[ $1 != common ]]; then
+if [[ $1 == common ]]; then
+    if [[ ! $(docker images | grep radiasoft/fedora) ]]; then
+        cd ~/src/radiasoft/container-fedora
+        radia_run container-build
+        cd -
+    fi
+else
     export required_image="radiasoft/rpm-code:fedora-$install_version_fedora"
     set +e
     docker image inspect $required_image > /dev/null
