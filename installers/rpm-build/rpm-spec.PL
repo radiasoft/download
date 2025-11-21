@@ -83,6 +83,9 @@ __DATA__
 %define _binary_payload w9.gzdio
 %undefine __check_files
 
+# Avoids warning source_date_epoch_from_changelog is set, but changelog has no entries
+%undefine source_date_epoch_from_changelog
+
 # Avoids duplicate build_ids error, because pyenv copies files to virtualenv
 %define _build_id_links none
 

@@ -41,8 +41,8 @@ _common_python() {
         # https://github.com/radiasoft/download/issues/813
         #'mpi4py==3.1.6'
         mpi4py
-        # https://github.com/radiasoft/download/issues/627
-        numpy
+        # tensorflow==2.20.0 requires numpy 2.2.6
+        numpy=2.2.6
         # required by cmyt 1.3.0 (required by yt)
         'matplotlib>=3.5.0'
         scipy
@@ -59,7 +59,8 @@ _common_python() {
         pipdeptree
 
         'pandas>=2.0'
-        'sympy==1.12.1'
+        # torch==2.9.1 requires sympy>=1.13.3
+        'sympy>=1.13.3'
 
         # Conflict between rscode-pyzgoubi and rscode-ml so just include here
         PyYAML
