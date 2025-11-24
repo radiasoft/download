@@ -12,7 +12,7 @@ elegant_build() {
     cd epics
     elegant_curl https://epics.anl.gov/download/base/base-7.0.9.tar.gz
     ln -s base-7.0.9 base
-    git clone https://github.com/epics-extensions/extensions
+    install_git_clone https://github.com/epics-extensions/extensions
     cd ..
     elegant_curl https://ops.aps.anl.gov/downloads/SDDS.5.9.tar.gz
     elegant_curl https://ops.aps.anl.gov/downloads/oag.apps.configure.tar.gz
