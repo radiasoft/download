@@ -26,7 +26,7 @@ srw_main() {
 
 srw_python_install() {
     install_pip_install primme
-    install_pip_install srwpy==4.1.0
+    install_pip_install srwpy==4.1.1
     _srw_srwpy_backwards_compatible
 }
 

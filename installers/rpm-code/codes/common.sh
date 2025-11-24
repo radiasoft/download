@@ -42,7 +42,7 @@ _common_python() {
         #'mpi4py==3.1.6'
         mpi4py
         # tensorflow==2.20.0 requires numpy 2.2.6
-        numpy=2.2.6
+        'numpy==2.2.6'
         # required by cmyt 1.3.0 (required by yt)
         'matplotlib>=3.5.0'
         scipy

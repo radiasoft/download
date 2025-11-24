@@ -15,7 +15,7 @@ openmc_dagmc() {
 
 openmc_main() {
     codes_yum_dependencies eigen3-devel
-    codes_dependencies common
+    codes_dependencies common pymesh
     openmc_moab
     openmc_dagmc
     openmc_openmc

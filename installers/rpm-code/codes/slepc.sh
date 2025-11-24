@@ -1,7 +1,6 @@
 #!/bin/bash
 
 slepc_main() {
-    codes_dependencies petsc
     local slepc_version=3.17.2
     codes_download https://gitlab.com/slepc/slepc/-/archive/v"$slepc_version/slepc-v$slepc_version".tar.gz
     # in slepc.rules there's a "include ${PETSC_DIR}/lib/petsc/conf/rules"

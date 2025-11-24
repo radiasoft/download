@@ -21,17 +21,16 @@ declare -a _beamsim_codes_all=(
     genesis
 
     # libraries
-    pydot
     boost
     ml
-
+    pydot
     rsbeams
-    rshellweg
 
-    amrex
+    # Jupyter stuff
+    ndiff
+    ipykernel
 
-    bmad
-
+    # Sirepo codes
     # create a delay here so radiasoft.repo in radiasoft/rpm-code
     # is "old" by the time bnlcrl (or other fast build) happens
     # otherwise, the cache will be stale
@@ -42,53 +41,71 @@ declare -a _beamsim_codes_all=(
     srw
     radia
 
-    ipykernel
-
     elegant
-
-    epics
-
-    hypre
 
     h5hut
     parmetis
+    hypre
     metis
     trilinos
     opal
 
+    genesis4
+
+    # no dependencies with openpmd
+    openpmdapi
+    pydicom
     impactt
+
+    # depends on openpmdapi
+    amrex
+    pyamrex
     impactx
+    warpx
 
     madx
+
     mantid
 
+    pymesh
     openmc
     cadopenmc
 
-    # needs hypre and metis
+    # Also needs hypre and metis
     petsc
     slepc
     fenics
-
     mgis
-    ndiff
 
-    pydicom
-
-    pymesh
+    rshellweg
 
     forthon
     openpmd
     pygist
     warp
 
-    warpx
 
+    xraylib
+    bmad
     shadow3
 
     pyzgoubi
     zgoubi
 
+    # Other codes
+    epics
+    epics-asyn
+    epics-pvxs
+    epics-rogue
+
+    # Codes not installed
+    # aravis
+    # It's needed by pymesh, maybe, but not installed currently.
+    # cgal
+    # geant4
+    # julia
+    # madness
+    # mlopal
 )
 
 # Some of these are deps and others are just build deps.

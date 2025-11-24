@@ -385,7 +385,9 @@ codes_num_cores() {
 }
 
 codes_python_install() {
-    # normal python install
+#TODO(robnagler) pykern should not be needed
+#    # normal python install; no-build-isolation so can see pykern
+#    install_pip_install --no-build-isolation .
     install_pip_install .
     codes_assert_easy_install
 }
