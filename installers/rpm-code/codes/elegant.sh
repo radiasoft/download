@@ -9,14 +9,14 @@ _elegant_arch=linux-x86_64
 declare -a _elegant_to_exclude
 
 elegant_build() {
-    local gpu_only
+    declare gpu_only
     if [[ ${1:-}  == 'gpu-only' ]]; then
 	gpu_only=1
     fi
-    local h=$PWD
-    local with_path="PATH=$h/epics/extensions/bin/$_elegant_arch:$PATH"
+    declare h=$PWD
+    declare with_path="PATH=$h/epics/extensions/bin/$_elegant_arch:$PATH"
     cd epics/base
-    local base=$PWD
+    declare base=$PWD
     elegant_make static
     cd "$h"/epics/extensions/configure
     elegant_make shared
@@ -72,16 +72,16 @@ elegant_build() {
 }
 
 elegant_download() {
-    local f u
+    declare f u
     mkdir -p epics
     cd epics
-    codes_curl https://epics.anl.gov/epics/download/base/base-7.0.4.1.tar.gz | tar xzf -
-    mv base-R7.0.4.1 base
+    codes_curl https://epics.anl.gov/epics/download/base/base-7.0.9.tar.gz | tar xzf -
+    mv base-7.0.9 base
     cd ..
     for f in '' /apps /apps/configure /apps/configure/os /apps/config /apps/src/utils/tools; do
         svn --non-recursive -q checkout https://svn.aps.anl.gov/AOP/oag/trunk"$f" oag"$f"
     done
-    for f in elegant.2021.1.0 SDDS.5.0 oag.1.26 epics.extensions.configure; do
+    for f in elegant.2025.3.0 SDDS.5.6 oag.1.29 epics.extensions.configure; do
         u=https://ops.aps.anl.gov/downloads/$f.tar.gz
         if [[ $f =~ ^(.+[[:alpha:]])\.([[:digit:]].+)$ ]]; then
             codes_manifest_add_code "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}" "$u"
@@ -90,8 +90,8 @@ elegant_download() {
     done
     codes_curl https://github.com/rtsoliday/spiffe/archive/refs/tags/spiffe-4.10.0.tar.gz | tar xzf -
     mv spiffe-spiffe-4.10.0 spiffe
-    codes_curl https://github.com/rtsoliday/SDDS/archive/refs/tags/SDDS-5.8.tar.gz | tar zxf -
-    mv SDDS-SDDS-5.8 SDDS
+    codes_curl https://github.com/rtsoliday/SDDS/archive/refs/tags/SDDS-5.9.1.tar.gz | tar zxf -
+    mv SDDS-SDDS-5.9.1 SDDS
 }
 
 elegant_install_bin() {
@@ -102,8 +102,8 @@ elegant_install_bin() {
     #
     # Some epics/extensions/src/SDDS/SDDSaps are not in the sdds or elegant rpm
     # but we install them anyway (e.g. sdds2stl, col2sdds) since they don't collide
-    local f b
-    local dst=${codes_dir[bin]}
+    declare f b
+    declare dst=${codes_dir[bin]}
 
     if [[ ${1:-}  == 'gpu-only' ]]; then
 	# Make creates an executable for gpu based elegant named
@@ -122,9 +122,9 @@ elegant_install_bin() {
 }
 
 elegant_install_share() {
-    local share_d=${codes_dir[share]}/elegant
+    declare share_d=${codes_dir[share]}/elegant
     install -d -m 755 "$share_d"
-    local f d
+    declare f d
     for f in defns.rpn LICENSE; do
         codes_download_module_file "$f"
         d=$share_d/$f
@@ -138,8 +138,8 @@ EOF
 
 elegant_install_tcl() {
     # Tcl setup
-    local p=${codes_dir[prefix]}/oag
-    local d=$p/apps/configData/elegant
+    declare p=${codes_dir[prefix]}/oag
+    declare d=$p/apps/configData/elegant
     mkdir -p "$d"
     # alpha.rpn needed by computeGeneralizedGradients
     # set OAGGlobal(OAGAppConfigDataDirectory) $env(OAG_TOP_DIR)/oag/apps/configData
@@ -156,7 +156,7 @@ exec tclsh "\$@"
 EOF
     d=$d/oagtcltk
     mkdir -p "$d"
-    local s=oag/apps/src/tcltkinterp/extensions
+    declare s=oag/apps/src/tcltkinterp/extensions
     for f in oag/apps/lib/$_elegant_arch/{*.{tcl,au},tclIndex}; do
         install -m 444 "$f" "$d"
     done
@@ -167,7 +167,7 @@ EOF
     # set auto_path [linsert $auto_path 0  $env(OAG_TOP_DIR)/oag/apps/lib/$env(HOST_ARCH)]
     ln -s --relative "$d" "$f/$_elegant_arch"
     d=$(dirname "$d")
-    local x y
+    declare x y
     for f in oag/apps/src/tcltkinterp/extensions/*/O.$_elegant_arch/*.so; do
         x=$(dirname "$(dirname "$f")")
         y=$d/$(basename "$x")
@@ -184,7 +184,7 @@ elegant_main() {
         motif-devel \
         openmotif-devel \
         subversion \
-        tcsh
+#        tcsh
     codes_dependencies common
     elegant_download
     elegant_build "$@"
@@ -194,22 +194,23 @@ elegant_main() {
 }
 
 elegant_make() {
-    local mode=$1
+    declare mode=$1
     shift
-    local shared=(
+    declare shared=(
         codes_make
         COMMANDLINE_LIBRARY=
         EPICS_HOST_ARCH=$_elegant_arch
         HOME=$HOME
         LINKER_USE_RPATH=NO
+        USR_CFLAGS=-std=gnu11
     )
-    local static=( "${shared[@]}" SHARED_LIBRARIES=NO )
+    declare static=( "${shared[@]}" SHARED_LIBRARIES=NO )
     case $mode in
         clean)
             "${shared[@]}" clean
             ;;
         gpu)
-	    elegant_make_gpu "${static[@]}" "$@"
+	    elegant_make_gpu "${static[@]:1}" "$@"
             ;;
         mpi)
             "${static[@]}" MPI=1 MPI_PATH=$(dirname $(type -p mpicc))/ "$@"
@@ -230,27 +231,26 @@ elegant_make() {
 }
 
 elegant_make_gpu() {
-    local cmd=$1
-    local with_path=$2
+    declare cmd=( "$@" )
     cd gpuElegant
     "$cmd"
     cd ../
     # POSIT: nvida-jupyter
-    "$cmd" "$with_path" LDLIBS="-lcudart -lcurand" LDFLAGS="-L/usr/local/cuda/lib64" GPU=1
+    "$cmd" LDLIBS="-lcudart -lcurand" LDFLAGS="-L/usr/local/cuda/lib64" GPU=1
 }
 
 elegant_python_install() {
-    local h=$PWD
+    declare h=$PWD
     cd epics/extensions/src/SDDS/python
     elegant_make clean
     # PYTHON_PREFIX is incorrectly configured in the Makefile. Should
     # use get_python_inc to get the directory. This fix is good enough.
     # https://github.com/radiasoft/download/issues/83
-    local p=$(python -c 'import distutils.sysconfig as s; from os.path import dirname as d; print(d(d(s.get_python_inc())))')
+    declare p=$(python -c 'import distutils.sysconfig as s; from os.path import dirname as d; print(d(d(s.get_python_inc())))')
     perl -pi -e 's{^(PYTHON_PREFIX\s*=\s*).*python3.*}{$1 '"$p"'}' Makefile
     # PYTHON_VERSION is also incorrect in the Makefile. It assumes a version of major.minor with
     # only 3 characters (ex. 3.10 -> 3.1)
-    local v=$(python -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
+    declare v=$(python -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
     perl -pi -e 's{^(PYTHON_VERSION\s*=\s*).*python.*}{$1 '"$v"'}' Makefile
     elegant_make shared PYTHON3=1
     codes_python_lib_copy "$h"/epics/extensions/src/SDDS/python/sdds.py \
