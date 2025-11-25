@@ -1,11 +1,13 @@
 #!/bin/bash
 
 trilinos_main() {
-    codes_dependencies metis
-    codes_download https://github.com/trilinos/Trilinos/archive/trilinos-release-13-0-1.tar.gz Trilinos-trilinos-release-13-0-1 trilinos 13.0.1
+    codes_dependencies parmetis
+    codes_download https://github.com/trilinos/Trilinos/archive/refs/tags/trilinos-release-16-1-0.tar.gz Trilinos-trilinos-release-16-1-0 trilinos 16.1.0
+    # faster for testing
+    # codes_download_foss trilinos-release-16-1-0.tar.gz Trilinos-trilinos-release-16-1-0 trilinos 16.1.0
     local x=(
         -D CMAKE_CXX_FLAGS:STRING="-DMPICH_IGNORE_CXX_SEEK -fPIC"
-        -D CMAKE_CXX_STANDARD:STRING="11"
+        -D CMAKE_CXX_STANDARD:STRING="17"
         -D CMAKE_C_FLAGS:STRING="-DMPICH_IGNORE_CXX_SEEK -fPIC"
         -D CMAKE_Fortran_FLAGS:STRING="-fPIC"
         -D CMAKE_INSTALL_PREFIX:PATH="${codes_dir[prefix]}"
@@ -40,6 +42,7 @@ trilinos_main() {
         -D Trilinos_ENABLE_Tpetra:BOOL=ON
         -D Trilinos_ENABLE_Zoltan2:BOOL=ON
     )
+    codes_cmake_fix_lib_dir
     codes_cmake "${x[@]}"
     # may need to use "make -j1 install" in dev
     codes_make_install

@@ -1,27 +1,27 @@
 #!/bin/bash
 opal_main() {
     # NOTE: trilinos is not added as an rpm dependency see ../radiasoft-download.sh
-    codes_dependencies trilinos h5hut boost
+    codes_dependencies trilinos h5hut # boost
     opal_mithra
-    codes_download https://gitlab.psi.ch/OPAL/src/-/archive/OPAL-2022.1.0/src-OPAL-2022.1.0.tar.bz2
+    codes_download_foss OPAL-2024.1.0.tar.xz
     # git.radiasoft.org/download/issues/342
-    perl -pi -e 's{add_compile_options \(-Werror\)}{}' CMakeLists.txt
-    perl -pi -e '
-        # https://stackoverflow.com/a/20991533
-        # boost is compiled multithreaded, because it does not mean "pthreads",
-        # but just that the code takes a bit more care on values in static sections.
-        # If we do not turn this ON, it will not find the variant compiled.
-        s{(?<=Boost_USE_MULTITHREADED )OFF}{ON};
-        # otherwise fails with -lmpi_mpifh not found, because
-        # that is part of openmpi, not mpich
-        s{.*mpi_mpifh.*}{};
-        s{-fPIE}{};
-        s{add_link_options.*-pie.*}{};
-    ' CMakeLists.txt
+#    perl -pi -e 's{add_compile_options \(-Werror\)}{}' CMakeLists.txt
+#    perl -pi -e '
+#        # https://stackoverflow.com/a/20991533
+#        # boost is compiled multithreaded, because it does not mean "pthreads",
+#        # but just that the code takes a bit more care on values in static sections.
+#        # If we do not turn this ON, it will not find the variant compiled.
+#        s{(?<=Boost_USE_MULTITHREADED )OFF}{ON};
+#        # otherwise fails with -lmpi_mpifh not found, because
+#        # that is part of openmpi, not mpich
+#        s{.*mpi_mpifh.*}{};
+#        s{-fPIE}{};
+#        s{add_link_options.*-pie.*}{};
+#    ' CMakeLists.txt
     # need to specify CC and CXX otherwise build uses wrong
     # compiler.
+#        BOOST_DIR="${codes_dir[prefix]}"
     H5HUT_PREFIX="${codes_dir[prefix]}" \
-        BOOST_DIR="${codes_dir[prefix]}" \
         HDF5_INCLUDE_DIR=/usr/include \
         HDF5_LIBRARY_DIR="$BIVIO_MPI_LIB" \
 	MITHRA_INCLUDE_DIR="${codes_dir[include]}" \

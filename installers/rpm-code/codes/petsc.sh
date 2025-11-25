@@ -2,7 +2,7 @@
 
 petsc_main() {
     codes_yum_dependencies eigen3-devel bison
-    codes_dependencies common boost metis hypre
+    codes_dependencies common boost parmetis hypre
     local petsc_version=3.17.4
     codes_download https://gitlab.com/petsc/petsc/-/archive/v"$petsc_version/petsc-v$petsc_version".tar.gz
     perl -pi -e 's{((?:FCFLAGS|OPTF)\s*=)}{$1 -fallow-argument-mismatch }' config/BuildSystem/config/packages/{scalapack,MUMPS}.py

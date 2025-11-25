@@ -19,6 +19,7 @@ _root() {
 
 export dev_port=2916
 export install_server=http://$(hostname -f):$dev_port
+export install_depot_server=$install_server
 export install_version_fedora=${install_version_fedora:-36}
 export rpm_code_install_dir=$(_root)/yum/fedora/$install_version_fedora/$(arch)/dev
 export radiasoft_repo_file=$rpm_code_install_dir/radiasoft.repo
