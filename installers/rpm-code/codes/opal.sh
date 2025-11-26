@@ -1,38 +1,41 @@
 #!/bin/bash
 opal_main() {
     # NOTE: trilinos is not added as an rpm dependency see ../radiasoft-download.sh
-    codes_dependencies trilinos h5hut # boost
+    codes_dependencies trilinos h5hut boost
     opal_mithra
-    codes_download_foss OPAL-2024.1.0.tar.xz
+    codes_download_foss OPAL-2022.1.0.tar.xz
+    set -x
     # git.radiasoft.org/download/issues/342
-#    perl -pi -e 's{add_compile_options \(-Werror\)}{}' CMakeLists.txt
-#    perl -pi -e '
-#        # https://stackoverflow.com/a/20991533
-#        # boost is compiled multithreaded, because it does not mean "pthreads",
-#        # but just that the code takes a bit more care on values in static sections.
-#        # If we do not turn this ON, it will not find the variant compiled.
-#        s{(?<=Boost_USE_MULTITHREADED )OFF}{ON};
-#        # otherwise fails with -lmpi_mpifh not found, because
-#        # that is part of openmpi, not mpich
-#        s{.*mpi_mpifh.*}{};
-#        s{-fPIE}{};
-#        s{add_link_options.*-pie.*}{};
-#    ' CMakeLists.txt
+    perl -pi -e 's{add_compile_options \(-Werror\)}{}' CMakeLists.txt
+    perl -pi -e '
+        # https://stackoverflow.com/a/20991533
+        # boost is compiled multithreaded, because it does not mean "pthreads",
+        # but just that the code takes a bit more care on values in static sections.
+        # If we do not turn this ON, it will not find the variant compiled.
+        s{(?<=Boost_USE_MULTITHREADED )OFF}{ON};
+        # otherwise fails with -lmpi_mpifh not found, because
+        # that is part of openmpi, not mpich
+        s{.*mpi_mpifh.*}{};
+        s{-fPIE}{};
+        s{add_link_options.*-pie.*}{};
+    ' CMakeLists.txt
     # need to specify CC and CXX otherwise build uses wrong
     # compiler.
-#        BOOST_DIR="${codes_dir[prefix]}"
+    # ‘uint32_t’ has not been declared => -include cstdint
+    # https://github.com/kokkos/kokkos-kernels/issues/2347 > -Wno-template-body
     H5HUT_PREFIX="${codes_dir[prefix]}" \
+        BOOST_DIR="${codes_dir[prefix]}" \
         HDF5_INCLUDE_DIR=/usr/include \
         HDF5_LIBRARY_DIR="$BIVIO_MPI_LIB" \
 	MITHRA_INCLUDE_DIR="${codes_dir[include]}" \
 	MITHRA_LIBRARY_DIR="${codes_dir[lib]}" \
-        CC=mpicc CXX=mpicxx \
+        CC=mpicc CXX=mpicxx CXXFLAGS='-include cstdint -include iostream -Wno-template-body -DUSE_BOOST_FILESYSTEM' CFLAGS="-std=gnu11" \
         codes_cmake \
         -D CMAKE_INSTALL_PREFIX="${codes_dir[prefix]}" \
+        -D CMAKE_CXX_STANDARD=11 \
 	-D ENABLE_OPAL_FEL=yes \
         -D ENABLE_SAAMG_SOLVER=TRUE \
-        -D CMAKE_POSITION_INDEPENDENT_CODE=FALSE \
-        -D USE_STATIC_LIBRARIES=FALSE
+        -D CMAKE_POSITION_INDEPENDENT_CODE=FALSE
     codes_make all
     # We need to strip because the binary is very large
     # https://github.com/radiasoft/download/issues/140
