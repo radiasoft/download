@@ -162,6 +162,7 @@ install_err() {
         install_msg "${msg[*]}
 If you don't know what to do, please contact support@radiasoft.net."
     fi
+    #DEBUG: sleep 100000000
     if [[ -z $install_verbose ]]; then
         install_clean >& /dev/null
     fi
@@ -186,6 +187,7 @@ install_err_stack() {
 }
 
 install_err_trap() {
+    #DEBUG: sleep 1000000
     set +e
     trap - EXIT
     install_err_stack "${FUNCNAME[@]:-}"

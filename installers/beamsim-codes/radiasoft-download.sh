@@ -50,12 +50,12 @@ declare -a _beamsim_codes_all=(
     trilinos
     opal
 
-    genesis4
-
-    # no dependencies with openpmd
     openpmdapi
     pydicom
     impactt
+
+    # Depends on genesis and lume-base installed by impactt
+    genesis4
 
     # depends on openpmdapi
     amrex
@@ -64,8 +64,6 @@ declare -a _beamsim_codes_all=(
     warpx
 
     madx
-
-    mantid
 
     pymesh
     openmc
@@ -80,7 +78,7 @@ declare -a _beamsim_codes_all=(
     rshellweg
 
     forthon
-    openpmd
+    openpmd-viewer
     pygist
     warp
 
@@ -105,6 +103,7 @@ declare -a _beamsim_codes_all=(
     # geant4
     # julia
     # madness
+    # mantid
     # mlopal
 )
 

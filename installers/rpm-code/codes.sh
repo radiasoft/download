@@ -274,6 +274,7 @@ codes_install() {
     install_source_bashrc
     declare -A codes_dir=()
     codes_dir_setup
+    declare install_debug=1 install_verbose=1
     install_script_eval "codes/$module.sh"
     cd "$prev"
     declare p=$(codes_module_function python_install)
@@ -385,9 +386,6 @@ codes_num_cores() {
 }
 
 codes_python_install() {
-#TODO(robnagler) pykern should not be needed
-#    # normal python install; no-build-isolation so can see pykern
-#    install_pip_install --no-build-isolation .
     install_pip_install .
     codes_assert_easy_install
 }
