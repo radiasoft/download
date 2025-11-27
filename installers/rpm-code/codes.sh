@@ -390,7 +390,8 @@ codes_num_cores() {
 }
 
 codes_python_install() {
-    install_pip_install .
+    # Not all installs are with cmake, but this helps any cmake builds
+    CMAKE_BUILD_PARALLEL_LEVEL=$(codes_num_cores) install_pip_install "$@" .
     codes_assert_easy_install
 }
 
