@@ -15,6 +15,7 @@ petsc_main() {
         --download-spai \
         --download-suitesparse \
         --download-superlu \
+        --with-x=0 \
         --prefix="${codes_dir[prefix]}"
     codes_make
     codes_make_install
