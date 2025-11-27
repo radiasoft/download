@@ -60,9 +60,9 @@ openmc_openmc() {
 
 openmc_python_install() {
     cd openmc
-    PYINSTALLOPTIONS="--jobs=$(codes_num_cores)" codes_python_install
+    codes_python_install
     cd ../moab/build
-    PYINSTALLOPTIONS="--jobs=$(codes_num_cores)" codes_python_install
+    codes_python_install
     install_pip_install \
         "neutronics_material_maker[density]" \
         dagmc_geometry_slice_plotter \

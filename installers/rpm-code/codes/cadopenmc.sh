@@ -35,7 +35,7 @@ cadopenmc_main() {
 
 cadopenmc_opencascade() {
     # opencascade.com
-    codes_download https://github.com/Open-Cascade-SAS/OCCT/archive/refs/tags/V7_9_1.tar.gz
+    codes_download https://github.com/Open-Cascade-SAS/OCCT/archive/refs/tags/V7_9_2.tar.gz OCCT-7_9_2 OCCT 7.9.2
     codes_cmake2 \
         -D BUILD_CPP_STANDARD=C++11 \
         -D BUILD_Inspector=OFF \
