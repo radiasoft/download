@@ -6,7 +6,6 @@ openmc_dagmc() {
     CC=mpicc CXX=mpicxx codes_cmake2 \
         -D BUILD_STATIC_LIBS=OFF \
         -D BUILD_TALLY=ON \
-        -D CMAKE_INSTALL_PREFIX="${codes_dir[prefix]}" \
         -D MOAB_DIR="${codes_dir[prefix]}"
     codes_cmake_build install
     cd "$p"
@@ -32,7 +31,6 @@ openmc_moab() {
 #    echo 'find_package(PythonLibs REQUIRED)' > pymoab/cmake/FindPythonDev.cmake
     CC=mpicc CXX=mpicxx codes_cmake2 \
         -D BUILD_SHARED_LIBS=ON \
-        -D CMAKE_INSTALL_PREFIX="${codes_dir[prefix]}" \
         -D ENABLE_HDF5=ON \
         -D ENABLE_MPI=ON \
         -D MPI_HOME="$(dirname $(dirname $(type -p mpicxx)))" \
@@ -51,7 +49,6 @@ openmc_openmc() {
     codes_download openmc-dev/openmc master
     codes_cmake_fix_lib_dir
     CC=mpicc CXX=mpicxx codes_cmake2 \
-        -D CMAKE_INSTALL_PREFIX="${codes_dir[prefix]}" \
         -D HDF5_PREFER_PARALLEL=on \
         -D OPENMC_USE_DAGMC=on \
         -D OPENMC_USE_MPI=on

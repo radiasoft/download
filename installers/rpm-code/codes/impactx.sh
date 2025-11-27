@@ -28,7 +28,6 @@ EOF
     CXXFLAGS=-Wno-template-body \
         codes_cmake2  \
         -DAMReX_OMP=ON \
-        -DCMAKE_INSTALL_PREFIX="${codes_dir[prefix]}"  \
         -DImpactX_PYTHON=ON \
         -DImpactX_amrex_internal=OFF \
         -DImpactX_openpmd_internal=OFF \

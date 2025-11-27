@@ -27,7 +27,11 @@ codes_cmake2() {
     if [[ ${CODES_DEBUG_FLAG:-} ]]; then
         t=Debug
     fi
-    CLICOLOR=0 cmake -S . -B build -D CMAKE_RULE_MESSAGES:BOOL=OFF -D CMAKE_BUILD_TYPE:STRING="$t" "$@"
+    CLICOLOR=0 cmake -S . -B build \
+        -D CMAKE_RULE_MESSAGES:BOOL=OFF \
+        -D CMAKE_BUILD_TYPE:STRING="$t" \
+        -D CMAKE_INSTALL_PREFIX="${codes_dir[prefix]}" \
+        "$@"
 }
 
 codes_cmake_build() {

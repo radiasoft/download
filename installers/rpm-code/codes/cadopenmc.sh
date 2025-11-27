@@ -8,7 +8,6 @@ cadopenmc_gmsh() {
     # Even though not installing, we need CMAKE_INSTALL_PREFIX to allow gmsh to find
     # opencascade.
     codes_cmake2 \
-        -D CMAKE_INSTALL_PREFIX="${codes_dir[prefix]}" \
         -D ENABLE_BUILD_SHARED=ON \
         -D ENABLE_CAIRO=OFF \
         -D ENABLE_FLTK=OFF \
@@ -47,7 +46,6 @@ cadopenmc_opencascade() {
         -D BUILD_MODULE_ModelingData=ON \
         -D BUILD_MODULE_Visualization=OFF \
         -D BUILD_SAMPLES_QT=OFF \
-        -D CMAKE_INSTALL_PREFIX="${codes_dir[prefix]}" \
         -D INSTALL_SAMPLES=OFF \
         -D INSTALL_TEST_CASES=OFF \
         -D USE_DRACO=OFF \

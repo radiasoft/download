@@ -7,7 +7,6 @@ warpx_main() {
     codes_cmake_fix_lib_dir
     CXXFLAGS=-Wno-template-body \
         codes_cmake2 \
-        -D CMAKE_INSTALL_PREFIX="${codes_dir[prefix]}" \
         -D WarpX_DIMS='1;2;RZ;3' \
         -D WarpX_PYTHON=ON \
         -D WarpX_amrex_internal=OFF \

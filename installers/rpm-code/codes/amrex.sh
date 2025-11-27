@@ -13,7 +13,6 @@ amrex_main() {
       -DAMReX_OMP=ON \
       -DAMReX_PARTICLES=ON \
       -DAMReX_PIC=ON \
-      -DAMReX_SPACEDIM="1;2;3" \
-      -DCMAKE_INSTALL_PREFIX="${codes_dir[prefix]}"
+      -DAMReX_SPACEDIM="1;2;3"
     codes_cmake_build install
 }

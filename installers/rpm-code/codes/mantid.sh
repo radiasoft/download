@@ -29,7 +29,6 @@ mantid_install() {
     codes_download mantidproject/mantid v6.4.0
     codes_cmake2 \
         -DBOOST_ROOT="${codes_dir[prefix]}" \
-        -DCMAKE_INSTALL_PREFIX="$install_prefix" \
         -DENABLE_DOCS=OFF \
         -DENABLE_MANTIDQT=OFF \
         -DENABLE_OPENCASCADE=OFF \
