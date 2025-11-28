@@ -100,6 +100,11 @@ END_SUDO
 }
 
 _redhat_base_repos() {
+    if install_os_is_centos_7; then
+        sed -i.bak -e 's,^mirrorlist=http://mirrorlist,#mirrorlist=http://vault,' -e 's,^#baseurl=http://mirror.centos.org,baseurl=https://depot.radiasoft.org/yum,' /etc/yum.repos.d/CentOS-Base.repo
+        install_yum clean all
+        install_yum makecache
+    fi
     declare x
     if install_os_is_fedora; then
         # TODO(robnagler) this is an old version of mongo
