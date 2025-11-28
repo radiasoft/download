@@ -21,6 +21,9 @@ mgis_mfront() {
 }
 
 mgis_mgis() {
+Could NOT find Boost: missing: python3 -- but boost python does not build until later boost which causes problems for Opal.
+build latest?
+https://github.com/thelfer/MFrontGenericInterfaceSupport/blob/master/INSTALL-cmake.md
     declare p="$PWD"
     # POSIT: Using TFEL-4.0.0 which is the version supported by MFrontGenericInterfaceSupport-2.0
     codes_download thelfer/MFrontGenericInterfaceSupport MFrontGenericInterfaceSupport-2.0

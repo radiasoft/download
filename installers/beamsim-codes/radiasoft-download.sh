@@ -73,7 +73,7 @@ declare -a _beamsim_codes_all=(
     petsc
     slepc
     fenics
-    mgis
+#    mgis
 
     rshellweg
 
