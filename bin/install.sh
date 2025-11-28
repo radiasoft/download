@@ -389,6 +389,20 @@ install_os_is_redhat() {
     [[ $install_os_release_id =~ rhel ]] || install_os_is_fedora || install_os_is_rhel_compatible
 }
 
+install_patch_centos7_mirror() {
+    declare f=/etc/yum.repos.d/CentOS-Base.repo
+    if ! install_os_is_centos_7 || grep -s '^baseurl=https://depot.radiasoft.org/yum' "$f" &>/dev/null; then
+        return
+    fi
+    # May not have perl yet
+    sed -i.bak \
+        -e 's,^mirrorlist=http://mirrorlist,#mirrorlist=http://vault,' \
+        -e 's,^#baseurl=http://mirror.centos.org,baseurl=https://depot.radiasoft.org/yum,' \
+        "$f"
+    install_yum clean all
+    install_yum makecache
+}
+
 install_pip_install() {
     declare -a a=()
     declare u
