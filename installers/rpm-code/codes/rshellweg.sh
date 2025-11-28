@@ -2,7 +2,7 @@
 
 rshellweg_main() {
     codes_dependencies common boost
-    codes_download radiasoft/rshellweg
+    codes_download radiasoft/rshellweg 174-pyproject
 }
 
 rshellweg_python_install() {
