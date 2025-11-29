@@ -17,7 +17,7 @@ python_ci_image() {
             install_err '$GITHUB_REPOSITORY no set'
             ;;
         *)
-            _extra_pip++=( pykern )
+            _extra_pip+=( pykern )
             if grep sirepo $(ls setup.py pyproject.toml 2>/dev/null) /dev/null &> /dev/null; then
                 _oci_image=radiasoft/sirepo
                 _extra_pip+=( sirepo )
@@ -49,6 +49,7 @@ python_ci_main() {
     $RADIA_RUN_OCI_CMD run -v "$d:$d" -i -u root --rm "$_oci_image" bash <<EOF | cat
         set -eou pipefail
         ${install_debug:+set -x}
+        $(install_vars_export)
         cd '$d'
         chown -R vagrant: '$d'
         # POSIT: no interpolated vars in names
