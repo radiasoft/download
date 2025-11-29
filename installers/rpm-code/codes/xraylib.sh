@@ -4,7 +4,7 @@ xraylib_main() {
     # this is needed for bmad (fortran)
     # and is a duplicate of the xraylib pip install in shadow3.sh
     codes_dependencies common
-    codes_download https://github.com/tschoonj/xraylib/releases/download/xraylib-4.1.5/xraylib-4.1.5.tar.xz
+    codes_download https://github.com/tschoonj/xraylib/releases/download/xraylib-4.2.0/xraylib-4.2.0.tar.xz
     autoreconf -i
     ./configure --prefix="${codes_dir[prefix]}"\
       --disable-idl --disable-java \

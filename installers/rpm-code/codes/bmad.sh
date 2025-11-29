@@ -1,7 +1,8 @@
 #!/bin/bash
 
 bmad_main() {
-    codes_yum_dependencies cairo-devel pango-devel plplot-fortran-devel
+    # bc needed by build
+    codes_yum_dependencies cairo-devel pango-devel plplot-fortran-devel bc
     codes_dependencies common xraylib
     _bmad_deps
     # bc is only used to compute compile time
