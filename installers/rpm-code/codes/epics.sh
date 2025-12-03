@@ -1,6 +1,6 @@
 #!/bin/bash
 
-_epics_version=7.0.8
+_epics_version=7.0.9
 
 epics_install() {
     declare b="${codes_dir[prefix]}"/epics
@@ -11,9 +11,11 @@ epics_install() {
     epics_pcas
     declare a=linux-x86_64
     codes_make \
-         EPICS_HOST_ARCH="$a" \
-         LINKER_USE_RPATH=YES \
-         SHARED_LIBRARIES=YES
+        EPICS_HOST_ARCH="$a" \
+        LINKER_USE_RPATH=YES \
+        SHARED_LIBRARIES=YES \
+        USR_CFLAGS=--std=gnu11 \
+        USR_CXXFLAGS=-Wno-template-body
     # Needs to happen here to get access to files in $b
     EPICS_BASE="$b" EPICS_HOST_ARCH="$a" install_pip_install  pcaspy
     # leave bin because there are other files (.pl & .pm) that may be referenced

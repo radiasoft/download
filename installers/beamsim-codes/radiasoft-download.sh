@@ -95,7 +95,6 @@ declare -a _beamsim_codes_all=(
     epics
     epics-asyn
     epics-pvxs
-    epics-rogue
 
     # Codes not installed
     # aravis
