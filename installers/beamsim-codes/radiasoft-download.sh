@@ -60,12 +60,12 @@ declare -a _beamsim_codes_all=(
     # depends on openpmdapi
     amrex
     pyamrex
-    impactx
     warpx
+    # depends on warpx
+    impactx
 
     madx
 
-    pymesh
     openmc
     cadopenmc
 
@@ -73,15 +73,14 @@ declare -a _beamsim_codes_all=(
     petsc
     slepc
     fenics
-# requires boost python
-#    mgis
 
     rshellweg
 
-    forthon
-    openpmd-viewer
-    pygist
-    warp
+    # forthon
+    # openpmd-viewer
+    # Does not compile with python 3.13
+    # pygist
+    # warp
 
 
     xraylib
@@ -105,6 +104,8 @@ declare -a _beamsim_codes_all=(
     # madness
     # mantid
     # mlopal
+    # requires boost python and unused
+    # mgis
 )
 
 # Some of these are deps and others are just build deps.

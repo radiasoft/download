@@ -1,7 +1,8 @@
 #!/bin/bash
 
 impactx_main() {
-    codes_dependencies common amrex openpmdapi pyamrex
+    # use warpx provides ablastr so a good dependency
+    codes_dependencies warpx
     # POSIT: Same version as amrex and pyamrex
     codes_download https://github.com/ECP-WarpX/impactx/archive/25.11.tar.gz  impactx-25.11 impactx 25.11
     # Impactx defaults to appending all options to the binary filename.
@@ -34,4 +35,6 @@ EOF
         -DImpactX_pyamrex_internal=OFF
     codes_cmake_build install
     codes_cmake_build pip_install
+    # so does not conflict with warp's ablastr
+    rm -f "${codes_dir[pyenv_prefix]}"/lib/libablstr.a
 }
