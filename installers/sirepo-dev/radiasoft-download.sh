@@ -8,14 +8,14 @@ sirepo_dev_main() {
         install_err 'run as vagrant (or other ordinary user), not root'
     fi
     install_source_bashrc
-    local p
+    declare p
     # remove old packages, if they exist
     for p in Forthon H5hut openPMD ml_for_py3 raydata; do
         install_yum remove -y rscode-"$p" >& /dev/null || true
     done
-    sirepo_dev_codes_only=1 install_repo_eval beamsim-codes
-    install_yum install fedora-workstation-repositories
-    install_yum config-manager --set-enabled google-chrome
+    install_repo_eval beamsim-codes
+    install_yum_install fedora-workstation-repositories
+    install_yum_enable_repo google-chrome
     install_yum install google-chrome-stable
     # rerun source, because beamsim-codes installs pyenv
     install_source_bashrc
@@ -38,7 +38,6 @@ sirepo_dev_main() {
     done
     cd sirepo
     sirepo_dev_npm_global
-    cd ..
 }
 
 sirepo_dev_npm_global() {

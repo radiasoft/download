@@ -641,6 +641,9 @@ install_yum() {
     declare yum=yum
     declare flags=( -y )
     if [[ $(type -t dnf5) ]]; then
+        if [[ $(readlink /usr/bin/dnf) != dnf5 ]]; then
+            install_err 'dnf6 or above is not supported'
+        fi
         yum=dnf5
     else
         # dnf5 does not support --color
@@ -665,9 +668,6 @@ install_yum_add_repo() {
         return
     fi
     if [[ $(type -t dnf5) ]]; then
-        if [[ $(readlink /usr/bin/dnf) != dnf5 ]]; then
-            install_err 'dnf6 or above is not supported'
-        fi
         install_yum_install dnf-plugins-core
         install_yum config-manager addrepo --from-repofile="$repo"
     elif [[ $(type -t dnf) ]]; then
@@ -679,6 +679,23 @@ install_yum_add_repo() {
         install_yum makecache fast
     else
         install_err "install_yum_add_repo does not support os=$install_os_release_id"
+    fi
+}
+
+install_yum_enable_repo() {
+    declare repo=$1
+    if [[ $(type -t dnf5) ]]; then
+        install_yum_install dnf-plugins-core
+        install_yum config-manager setopt "$repo".enabled=1
+    elif [[ $(type -t dnf) ]]; then
+        # dnf 4 or before
+        install_yum_install dnf-plugins-core
+        install_yum config-manager --set-enabled google-chrome
+    elif [[ $(type -t yum-config-manager) ]]; then
+        install_yum config-manager --set-enabled google-chrome
+        install_yum makecache fast
+    else
+        install_err "install_yum_enable_repo does not support os=$install_os_release_id"
     fi
 }
 
