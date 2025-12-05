@@ -10,7 +10,7 @@ sirepo_dev_main() {
     install_source_bashrc
     install_repo_eval beamsim-codes
     install_yum_install fedora-workstation-repositories
-    install_yum_enable_repo google-chrome
+    install_yum_repo_set_enabled google-chrome
     install_yum install google-chrome-stable
     # rerun source, because beamsim-codes installs pyenv
     install_source_bashrc

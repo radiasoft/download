@@ -682,17 +682,27 @@ install_yum_add_repo() {
     fi
 }
 
-install_yum_enable_repo() {
+install_yum_repo_set_enabled() {
     declare repo=$1
+    # Common case is 1
+    declare enabled=${2:-1}
     if [[ $(type -t dnf5) ]]; then
         install_yum_install dnf-plugins-core
-        install_yum config-manager setopt "$repo".enabled=1
-    elif [[ $(type -t dnf) ]]; then
+        install_yum config-manager setopt "$repo.enabled=$enabled"
+        return
+    fi
+    declare e
+    if (( $enabled == 1 )); then
+        e=enabled
+    else
+        e=disabled
+    fi
+    if [[ $(type -t dnf) ]]; then
         # dnf 4 or before
         install_yum_install dnf-plugins-core
-        install_yum config-manager --set-enabled google-chrome
+        install_yum config-manager --set-"$e" "$repo"
     elif [[ $(type -t yum-config-manager) ]]; then
-        install_yum config-manager --set-enabled google-chrome
+        install_yum config-manager --set-"$e" "$repo"
         install_yum makecache fast
     else
         install_err "install_yum_enable_repo does not support os=$install_os_release_id"

@@ -125,7 +125,7 @@ EOF
     if install_os_is_almalinux && ! install_yum repolist | grep -q '^crb '; then
         # Provides packages like perl(IPC::Run) needed by moreutils (below)
         # TODO(robnagler) will break with dnf5, probably
-        install_yum config-manager --set-enabled crb
+        install_yum_repo_set_enabled crb
     fi
 }
 
