@@ -149,10 +149,6 @@ beamsim_codes_init_vars() {
 }
 
 beamsim_codes_install() {
-    # Ensure everything is up to date first
-    # If there are codes already installed, they'll update common,
-    # etc. first, which may be required for later codes.
-    install_yum update
     # POSIT: codes do not have special or spaces
     install_repo_eval code ${*:-$(beamsim_codes_install_list)}
     install_repo_eval fedora-patches
