@@ -68,8 +68,7 @@ cadopenmc_python_install() {
 }
 
 cadopenmc_python_install_CAD_to_OpenMC() {
-    codes_download https://github.com/openmsr/CAD_to_OpenMC.git
-    perl -pi -e "s/'(numpy|trimesh)',//" pyproject.toml
+    codes_download https://github.com/united-neux/CAD_to_OpenMC.git
     codes_python_install
 }
 

@@ -25,7 +25,6 @@ impactx_main() {
  #install(EXPORT ImpactXTargets
  #    FILE ImpactXTargets.cmake
 EOF
-    codes_cmake_fix_lib_dir
     CXXFLAGS=-Wno-template-body \
         codes_cmake2  \
         -DAMReX_OMP=ON \

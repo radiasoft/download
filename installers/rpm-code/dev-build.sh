@@ -38,10 +38,5 @@ bash $PWD/dev-server.sh
 fi
 if [[ $1 == common ]]; then
     cd ~/src/radiasoft/container-rpm-code
-    if [[ ! $(docker images | grep radiasoft/fedora) ]]; then
-        cd ../container-fedora
-        radia_run container-build
-        cd -
-    fi
     radia_run container-build
 fi

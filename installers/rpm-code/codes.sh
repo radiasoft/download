@@ -15,23 +15,11 @@ $(cat "$easy")"
 codes_cmake() {
     mkdir build
     cd build
-    declare t=Release
-    if [[ ${CODES_DEBUG_FLAG:-} ]]; then
-        t=Debug
-    fi
-    CLICOLOR=0 cmake -D CMAKE_RULE_MESSAGES:BOOL=OFF -D CMAKE_BUILD_TYPE:STRING="$t" "$@" ..
+    codes_cmake_internal "$@" ..
 }
 
 codes_cmake2() {
-    declare t=Release
-    if [[ ${CODES_DEBUG_FLAG:-} ]]; then
-        t=Debug
-    fi
-    CLICOLOR=0 cmake -S . -B build \
-        -D CMAKE_RULE_MESSAGES:BOOL=OFF \
-        -D CMAKE_BUILD_TYPE:STRING="$t" \
-        -D CMAKE_INSTALL_PREFIX="${codes_dir[prefix]}" \
-        "$@"
+    codes_cmake_internal -S . -B build -D CMAKE_INSTALL_PREFIX="${codes_dir[prefix]}" "$@"
 }
 
 codes_cmake_build() {
@@ -53,6 +41,15 @@ codes_cmake_fix_lib_dir() {
 set(CMAKE_INSTALL_LIBDIR "lib" CACHE PATH "Library installation directory." FORCE)
 GNUInstallDirs_get_absolute_install_dir(CMAKE_INSTALL_FULL_LIBDIR CMAKE_INSTALL_LIBDIR)
 })'
+}
+
+codes_cmake_internal() {
+    codes_cmake_fix_lib_dir
+    declare t=Release
+    if [[ ${CODES_DEBUG_FLAG:-} ]]; then
+        t=Debug
+    fi
+    CLICOLOR=0 cmake -D CMAKE_RULE_MESSAGES:BOOL=OFF -D CMAKE_BUILD_TYPE:STRING="$t" "$@"
 }
 
 codes_curl() {
@@ -262,6 +259,22 @@ codes_err() {
     return 1
 }
 
+codes_execstack_clear() {
+    declare f x=/dev/null
+    # Only check files to be included in the rpm
+    if [[ -e $rpm_code_exclude_f ]]; then
+        x=$rpm_code_exclude_f
+    fi
+    # exclude things
+    find "${codes_dir[lib]}" -name \*.so* ! -type l \
+        | sort | grep -vxFf "$x" - \
+        | while IFS= read -r f; do
+        if [[ $(execstack -q "$f") =~ ^X ]]; then
+            execstack -c "$f"
+        fi
+    done
+}
+
 codes_install() {
     declare module=$1
     shift
@@ -302,7 +315,9 @@ codes_install() {
     if [[ -d $d ]]; then
         install_err "$d created, and shouldn't be; see codes_cmake_fix_lib_dir"
     fi
+    codes_execstack_clear
     cd "$prev"
+
 }
 
 codes_install_python_done() {

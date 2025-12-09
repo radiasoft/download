@@ -97,5 +97,5 @@ elegant_main() {
 }
 
 elegant_python_install() {
-    install_pip_install sdds
+    install_pip_install soliday.sdds
 }

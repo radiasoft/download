@@ -45,7 +45,6 @@ trilinos_main() {
         -D Trilinos_ENABLE_Tpetra:BOOL=ON
         -D Trilinos_ENABLE_Zoltan2:BOOL=ON
     )
-    codes_cmake_fix_lib_dir
     codes_cmake "${x[@]}"
     # may need to use "make -j1 install" in dev
     codes_make_install

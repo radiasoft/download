@@ -5,23 +5,15 @@ _rsbeam_codes=(
     rsflash
     rslaser
     rsopt
-    rswarp
 )
 
 rsbeams_main() {
-    rsbeams_init_vars
     codes_dependencies common ml
     declare r
     for r in "${_rsbeam_codes[@]}"; do
         codes_download radiasoft/"$r"
         cd ..
     done
-}
-
-rsbeams_init_vars() {
-    if install_version_fedora_lt_36; then
-        _rsbeam_codes+=('rssynergia')
-    fi
 }
 
 rsbeams_python_install() {

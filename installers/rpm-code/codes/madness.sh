@@ -12,7 +12,6 @@ madness_main() {
     codes_yum_dependencies gperftools
     codes_dependencies common
     codes_download https://github.com/m-a-d-n-e-s-s/madness.git
-    codes_cmake_fix_lib_dir
     codes_cmake \
         -D CMAKE_INSTALL_PREFIX="${codes_dir[prefix]}" \
         -D ENABLE_GPERFTOOLS=ON

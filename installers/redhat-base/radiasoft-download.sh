@@ -38,6 +38,7 @@ _redhat_base_pkgs() {
         git
         grep
         gsl-devel
+        execstack
         hostname
         iproute
         iputils

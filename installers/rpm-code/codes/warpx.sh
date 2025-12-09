@@ -4,7 +4,6 @@ warpx_main() {
     codes_dependencies common amrex openpmdapi pyamrex
     # POSIT: Same version as amrex and pyamrex
     codes_download https://github.com/ECP-WarpX/WarpX/archive/refs/tags/25.11.tar.gz warpx-25.11 warpx 25.11
-    codes_cmake_fix_lib_dir
     CXXFLAGS=-Wno-template-body \
         codes_cmake2 \
         -D WarpX_DIMS='1;2;RZ;3' \

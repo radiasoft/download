@@ -93,7 +93,8 @@ _common_python() {
         pint
 
         # conflict between warpx and bnlcrl
-        periodictable
+        # pywarpx 25.11 requires periodictable~=1.5
+        'periodictable~=1.5'
 
         # Needed by rscode-rsbeams
         unyt
@@ -173,11 +174,9 @@ common_main() {
         libffi-devel
         libtool
         llvm-libs
+        perl-FindBin
         valgrind-devel
     )
-    if ! install_version_fedora_lt_36; then
-        rpms+=('perl-FindBin')
-    fi
     codes_yum_dependencies "${rpms[@]}"
     install_repo_eval fedora-patches
     install_source_bashrc

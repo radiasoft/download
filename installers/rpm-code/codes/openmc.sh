@@ -23,7 +23,6 @@ openmc_moab() {
     local p="$PWD"
     # 20230827 fixes pymoab/core.pyx:1509:48: no suitable method found
     codes_download https://bitbucket.org/fathomteam/moab.git # bfccfc78e6cb3ddc02c39be437a64696bf126d86
-    codes_cmake_fix_lib_dir
     # This cmake module uses python-config which doesn't work with venv
     # https://mail.python.org/archives/list/python-ideas@python.org/thread/QTCPOM5YBOKCWWNPDP7Z4QL2K6OWGSHL/
     # So, just use native cmake find_package(PythonLibs) which
@@ -47,7 +46,6 @@ openmc_openmc() {
     # broken builds. This was the first one to show a successful
     # build.
     codes_download openmc-dev/openmc master
-    codes_cmake_fix_lib_dir
     CC=mpicc CXX=mpicxx codes_cmake2 \
         -D HDF5_PREFER_PARALLEL=on \
         -D OPENMC_USE_DAGMC=on \

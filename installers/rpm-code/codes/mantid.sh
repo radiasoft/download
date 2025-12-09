@@ -76,7 +76,6 @@ mantid_ipykernel() {
 
 mantid_nexus_install() {
     codes_download nexusformat/code
-    codes_cmake_fix_lib_dir
     codes_cmake -DENABLE_HDF5=1 -DENABLE_CXX=1 -DCMAKE_INSTALL_PREFIX="${codes_dir[prefix]}"
     codes_make
     codes_make_install
