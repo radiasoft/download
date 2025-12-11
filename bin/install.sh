@@ -300,15 +300,18 @@ install_init_vars_versions() {
     if [[ -r $x ]]; then
         export install_os_release_id=$(source "$x"; echo "${ID,,}")
         export install_os_release_version_id=$(source "$x"; echo "${VERSION_ID%%.*}")
-        return
-    fi
-    # COMPAT: darwin doesn't support ${x,,}
-    export install_os_release_id=$(uname | tr A-Z a-z)
-    if install_os_is_darwin; then
-        export install_os_release_version_id=$(sw_vers -productVersion)
     else
-        # Have something legal; unlikely to get here
-        export install_os_release_version_id=0
+    # COMPAT: darwin doesn't support ${x,,}
+        export install_os_release_id=$(uname | tr A-Z a-z)
+        if install_os_is_darwin; then
+            export install_os_release_version_id=$(sw_vers -productVersion)
+        else
+            # Have something legal; unlikely to get here
+            export install_os_release_version_id=0
+        fi
+    fi
+    if ! [[ $install_os_release_version_id && $install_os_release_id ]]; then
+        install_err 'unable to determine operating system version'
     fi
 }
 
