@@ -22,8 +22,8 @@ declare -a _beamsim_codes_all=(
 
     # libraries
     boost
-    ml
     pydot
+    ml
     rsbeams
 
     # Jupyter stuff
