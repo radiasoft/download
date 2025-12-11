@@ -27,6 +27,7 @@ srw_main() {
 srw_python_install() {
     install_pip_install primme
     install_pip_install srwpy==4.1.1
+    # Remove when merged: https://github.com/ochubar/SRW/pull/57
     declare d=$(codes_python_lib_dir)
     cd "$d/srwpy"
     declare -a f=( srwlib.py uti_io.py srwl_bl.py )

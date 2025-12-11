@@ -265,14 +265,16 @@ codes_execstack_clear() {
     if [[ -e $rpm_code_exclude_f ]]; then
         x=$rpm_code_exclude_f
     fi
-    # exclude things
-    find "${codes_dir[lib]}" -name \*.so* ! -type l \
-        | sort | grep -vxFf "$x" - \
-        | while IFS= read -r f; do
+    declare y=$(find "${codes_dir[lib]}" -name \*.so* ! -type l | sort | grep -vxFf "$x" -)
+    if [[ ! $y ]]; then
+        return
+    fi
+    # strip execstack bit
+    while IFS= read -r f; do
         if [[ $(execstack -q "$f") =~ ^X ]]; then
             execstack -c "$f"
         fi
-    done
+    done <<<"$y"
 }
 
 codes_install() {
