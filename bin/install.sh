@@ -299,7 +299,7 @@ install_init_vars_versions() {
     # always set these vars
     if [[ -r $x ]]; then
         export install_os_release_id=$(source "$x"; echo "${ID,,}")
-        export install_os_release_version_id=$(source "$x"; echo "${VERSION_ID%%.*")
+        export install_os_release_version_id=$(source "$x"; echo "${VERSION_ID%%.*}")
         return
     fi
     # COMPAT: darwin doesn't support ${x,,}
