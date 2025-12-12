@@ -11,6 +11,7 @@ set -euo pipefail
 _vagrant_dev_update_tgz_base=vagrant-dev-update.tgz
 _vagrant_dev_update_tgz_path=/vagrant/$_vagrant_dev_update_tgz_base
 _vagrant_dev_host_os=$install_os_release_id
+_vagrant_dev_resize_disk=
 
 vagrant_dev_box_add() {
     # Returns: $box
@@ -63,6 +64,12 @@ vagrant_dev_first_up() {
     if [[ ! $vagrant_dev_no_vbguest ||  ! $vagrant_dev_no_mounts && $vagrant_dev_private_net ]]; then
         p='install_yum kernel kernel-devel kernel-headers kernel-tools perl'
     fi
+    declare resize=
+    if [[ $_vagrant_dev_resize_disk ]]; then
+        #TODO(robnagler) this is fragile
+        resize='growpart /dev/vda 4
+        btrfs filesystem resize max /'
+    fi
     vagrant_dev_vagrantfile "$os" "$host" "$ip" 1
     vagrant up
     vagrant ssh -c 'sudo su -' <<"EOF"
@@ -71,6 +78,7 @@ ${install_debug:+set -x}
 # TODO(robnagler) group write can't be set or slurm munged fails to start
 # the group permission is only set in vagrant/libvirt it seems
 chmod a-w /
+$resize
 systemctl stop firewalld || true
 systemctl disable firewalld || true
 if [[ -e /etc/selinux/config ]]; then
@@ -80,6 +88,9 @@ fi
 $i
 EOF
     vagrant halt
+    if [[ $_vagrant_dev_resize_disk ]]; then
+        qemu-img resize /var/lib/libvirt/images/"$(basename "$PWD")"_default.img
+    fi
 }
 
 vagrant_dev_ignore_git_dir_ownership() {
@@ -208,6 +219,11 @@ vagrant_dev_modifiers() {
         vagrant_dev_no_mounts=1
         vagrant_dev_no_vbguest=1
         vagrant_dev_private_net=1
+        if vagrant_dev_want_libvirt; then
+            # TODO(robnagler) might want version check for fedora and version
+            # (( install_version_fedora >= 43 )
+            _vagrant_dev_resize_disk=1
+        fi
     elif [[ ${vagrant_dev_barebones:=} ]]; then
         # allow individual overrides
         vagrant_dev_no_dev_env=${vagrant_dev_no_dev_env-1}
