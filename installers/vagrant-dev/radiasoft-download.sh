@@ -11,7 +11,7 @@ set -euo pipefail
 _vagrant_dev_update_tgz_base=vagrant-dev-update.tgz
 _vagrant_dev_update_tgz_path=/vagrant/$_vagrant_dev_update_tgz_base
 _vagrant_dev_host_os=$install_os_release_id
-_vagrant_dev_resize_disk=
+_vagrant_dev_fedora43=
 
 vagrant_dev_box_add() {
     # Returns: $box
@@ -38,7 +38,11 @@ vagrant_dev_box_add() {
         fi
     fi
     if ! vagrant box list | grep -F -q "$box"; then
-        vagrant box add --provider "$provider" "$box"
+        if [[ $_vagrant_dev_fedora43 ]]; then
+            vagrant box add --name generic/fedbora43 https://dl.fedoraproject.org/pub/fedora/linux/releases/43/Cloud/x86_64/images/Fedora-Cloud-Base-Vagrant-libvirt-43-1.6.x86_64.vagrant.libvirt.box
+        else
+            vagrant box add --provider "$provider" "$box"
+        fi
     fi
 }
 
@@ -65,10 +69,10 @@ vagrant_dev_first_up() {
         p='install_yum kernel kernel-devel kernel-headers kernel-tools perl'
     fi
     declare resize=
-    if [[ $_vagrant_dev_resize_disk ]]; then
+    if [[ $_vagrant_dev_fedora43 ]]; then
         #TODO(robnagler) this is fragile
         resize='growpart /dev/vda 4
-        btrfs filesystem resize max /'
+btrfs filesystem resize max /'
     fi
     vagrant_dev_vagrantfile "$os" "$host" "$ip" 1
     vagrant up
@@ -88,7 +92,7 @@ fi
 $i
 EOF
     vagrant halt
-    if [[ $_vagrant_dev_resize_disk ]]; then
+    if [[ $_vagrant_dev_fedora43 ]]; then
         qemu-img resize /var/lib/libvirt/images/"$(basename "$PWD")"_default.img
     fi
 }
@@ -135,7 +139,6 @@ vagrant_dev_init_nfs() {
 
 vagrant_dev_main() {
     declare f os= host= ip= update=
-    vagrant_dev_modifiers
     for a in "$@"; do
         case $a in
             fedora|centos|almalinux)
@@ -161,6 +164,7 @@ expects: fedora|centos|almalinux, <ip address>, update, v[1-9].radia.run"
     if [[ ! $os ]]; then
         install_err 'usage: radia_run vagrant-dev fedora|centos|almalinux [host|ip] [update]'
     fi
+    vagrant_dev_modifiers "$os"
     if [[ $install_server =~ ^file: ]]; then
         install_err "File URLs do not work in VM install_server=$install_server
 Set up a development server"
@@ -215,14 +219,13 @@ vagrant_dev_memballoon() {
 }
 
 vagrant_dev_modifiers() {
+    declare os=$1
     if [[ ${vagrant_dev_vm_devbox:=} ]]; then
         vagrant_dev_no_mounts=1
         vagrant_dev_no_vbguest=1
         vagrant_dev_private_net=1
-        if vagrant_dev_want_libvirt; then
-            # TODO(robnagler) might want version check for fedora and version
-            # (( install_version_fedora >= 43 )
-            _vagrant_dev_resize_disk=1
+        if vagrant_dev_want_libvirt && [[ $os == fedora ]] && (( install_version_fedora >= 43 )); then
+            _vagrant_dev_fedora43=1
         fi
     elif [[ ${vagrant_dev_barebones:=} ]]; then
         # allow individual overrides
