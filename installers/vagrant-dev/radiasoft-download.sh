@@ -68,6 +68,9 @@ vagrant_dev_first_up() {
     vagrant ssh -c 'sudo su -' <<"EOF"
 $(install_export_this_script)
 ${install_debug:+set -x}
+# TODO(robnagler) group write can't be set or slurm munged fails to start
+# the group permission is only set in vagrant/libvirt it seems
+chmod a-w /
 systemctl stop firewalld || true
 systemctl disable firewalld || true
 if [[ -e /etc/selinux/config ]]; then
