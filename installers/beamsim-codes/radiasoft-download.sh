@@ -46,7 +46,6 @@ declare -a _beamsim_codes_all=(
     h5hut
     parmetis
     hypre
-    metis
     trilinos
     opal
 
