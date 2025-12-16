@@ -37,7 +37,7 @@ radia_run slurm-dev
     install_sudo perl -pi -e "s{^NodeName=.*}{NodeName=localhost CPUs=$c State=UNKNOWN}" \
          /etc/slurm/slurm.conf
     # rpm doesn't create slurm user so can't set perms on log, etc, ... directories
-    mkdir /etc/systemd/system/slurmctld.service.d
+    mkdir -p /etc/systemd/system/slurmctld.service.d
     cat > /etc/systemd/system/slurmctld.service.d/rs-override.conf <<'EOF'
 [Service]
 User=root
