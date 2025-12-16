@@ -28,7 +28,6 @@ radia_run slurm-dev
         n=1
         slurm_dev_nfs
     fi
-    install one at at time
     install_yum_install slurm-slurmd slurm-slurmctld
     declare k=/etc/munge/munge.key
     if ! install_sudo test -e "$k"; then
@@ -37,6 +36,13 @@ radia_run slurm-dev
     fi
     install_sudo perl -pi -e "s{^NodeName=.*}{NodeName=localhost CPUs=$c State=UNKNOWN}" \
          /etc/slurm/slurm.conf
+    # rpm doesn't create slurm user so can't set perms on log, etc, ... directories
+    mkdir /etc/systemd/system/slurmctld.service.d
+    cat > /etc/systemd/system/slurmctld.service.d/rs-override.conf <<'EOF'
+[Service]
+User=root
+Group=root
+EOF
     declare f
     for f in munge slurmctld slurmd; do
         install_sudo systemctl start "$f"
