@@ -75,11 +75,11 @@ declare -a _beamsim_codes_all=(
 
     rshellweg
 
-    # forthon
-    # openpmd-viewer
+    forthon
+    openpmd-viewer
     # Does not compile with python 3.13
-    # pygist
-    # warp
+    pygist
+    warp
 
 
     xraylib

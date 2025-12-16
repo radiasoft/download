@@ -21,14 +21,14 @@ radia_run slurm-dev
     if (( $EUID == 0 )); then
         install_err 'run as vagrant, not root'
     fi
-    install_yum update
-    declare c=2 n=
+    declare c=${slurm_dev_cpus:-2}
     if [[ ${slurm_dev_want_nfs:-} && $(hostname) != $_slurm_dev_nfs_server ]]; then
         # specify 4 CPUs if non-local
         c=4
         n=1
         slurm_dev_nfs
     fi
+    install one at at time
     install_yum_install slurm-slurmd slurm-slurmctld
     declare k=/etc/munge/munge.key
     if ! install_sudo test -e "$k"; then
