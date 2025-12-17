@@ -1,11 +1,12 @@
 #!/bin/bash
 
 codes_assert_easy_install() {
+    declare pyenv_prefix=${1:-${codes_dir[pyenv_prefix]}}
     if [[ ${rpm_code_debug:-} ]]; then
         # local environment may have easy-install.pth
         return
     fi
-    declare easy=$(find "${codes_dir[pyenv_prefix]}"/lib -name easy-install.pth)
+    declare easy=$(find "$pyenv_prefix"/lib -name easy-install.pth)
     if [[ $easy ]]; then
         install_err "$easy: packages used python setup.py install instead of pip:
 $(cat "$easy")"
@@ -323,15 +324,15 @@ codes_install() {
 }
 
 codes_install_python_done() {
-    declare pp=${codes_dir[pyenv_prefix]}
-    if [[ ! $pp ]]; then
-        install_err 'pyenv prefix not working'
+    declare pyenv_prefix=${1:-${codes_dir[pyenv_prefix]}}
+    if [[ ! $pyenv_prefix ]]; then
+        install_err 'pyenv prefix not set properly'
     fi
-    rm -rf "$pp"/man
+    rm -rf "$pyenv_prefix"/man
     # Ensure pyenv paths are up to date
     # See https://github.com/biviosoftware/home-env/issues/8
     pyenv rehash
-    codes_assert_easy_install
+    codes_assert_easy_install "$pyenv_prefix"
 }
 
 codes_is_common() {
@@ -422,6 +423,7 @@ codes_python_include_dir() {
 }
 
 codes_python_lib_dir() {
+    # POSIT used by warp.sh in a different pyenv so don't use codes[pyenv_prefix]
     python -c 'import sysconfig; print(sysconfig.get_path("purelib"))'
 }
 
