@@ -3,9 +3,9 @@
 warp_python_install() {
     warp_prereq
     codes_download https://bitbucket.org/berkeleylab/warp.git
+    warp_patch_numpy
     cd pywarp90
     warp_local
-    warp_patch_numpy
     # Parallel makes sometimes fail
     make install
     make pinstall
@@ -31,9 +31,7 @@ warp_main() {
 }
 
 warp_patch_numpy() {
-    perl -pi -e 's/\bnp\.int\b/np.int_/' $(find . -name '*.py')
-    pwd
-    sleep 1000 || true
+    perl -pi -e 's/\bnp\.int\b/np.int64/' $(find . -name '*.py')
 }
 
 warp_prereq() {
