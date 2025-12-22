@@ -33,14 +33,12 @@ declare -a _beamsim_codes_all=(
     # create a delay here so radiasoft.repo in radiasoft/rpm-code
     # is "old" by the time bnlcrl (or other fast build) happens
     # otherwise, the cache will be stale
-    jspec
+    elegant
 
     bnlcrl
     # depends on ml
     srw
     radia
-
-    elegant
 
     h5hut
     parmetis
@@ -100,6 +98,7 @@ declare -a _beamsim_codes_all=(
     # rshellweg
     # pyzgoubi
     # zgoubi
+    # jspec
 )
 
 # Some of these are deps and others are just build deps.
