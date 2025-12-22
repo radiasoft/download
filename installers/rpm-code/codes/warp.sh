@@ -35,12 +35,12 @@ warp_patch_numpy() {
 }
 
 warp_prereq() {
-    install_pip_install Forthon openPMD-viewer
+    install_pip_install Forthon==0.10.9 openPMD-viewer==1.11.0
     warp_prereq_pygist
 }
 
 warp_prereq_pygist() {
-    codes_download https://bitbucket.org/dpgrote/pygist.git
+    codes_download https://bitbucket.org/dpgrote/pygist.git a3601a80aeccc2e63ece23c603281d689cb67576
     warp_prereq_pygist_patch
     python setup.py config
     python setup.py build

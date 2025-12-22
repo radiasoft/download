@@ -58,11 +58,15 @@ openmc_python_install() {
     codes_python_install
     cd ../moab/build
     codes_python_install
-    install_pip_install \
-        "neutronics_material_maker[density]" \
-        dagmc_geometry_slice_plotter \
-        openmc-data-downloader \
-        git+https://github.com/svalinn/pydagmc.git \
-        pymeshlab \
-        vtk
+    # allow the last three to float
+    declare -a x=(
+        'neutronics_material_maker[density]==1.2.1'
+        'pymeshlab=2025.7'
+        'vtk==9.5.2'
+        # Allow these versions to float, because we are using develop branch
+        'dagmc_geometry_slice_plotter'
+        'openmc-data-downloader'
+        'git+https://github.com/svalinn/pydagmc.git'
+    )
+    install_pip_install "${x[@]}"
 }

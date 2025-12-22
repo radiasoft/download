@@ -17,7 +17,7 @@ epics_install() {
         USR_CFLAGS=--std=gnu11 \
         USR_CXXFLAGS=-Wno-template-body
     # Needs to happen here to get access to files in $b
-    EPICS_BASE="$b" EPICS_HOST_ARCH="$a" install_pip_install  pcaspy
+    EPICS_BASE="$b" EPICS_HOST_ARCH="$a" install_pip_install pcaspy==0.8.1
     # leave bin because there are other files (.pl & .pm) that may be referenced
     # Some of these are large, e.g. modules
     rm -rf modules documentation html src test
@@ -47,5 +47,5 @@ EOF
 }
 
 epics_python_install() {
-    install_pip_install p4p
+    install_pip_install p4p==4.2.1
 }

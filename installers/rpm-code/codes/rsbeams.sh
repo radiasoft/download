@@ -17,7 +17,7 @@ rsbeams_main() {
 }
 
 rsbeams_python_install() {
-    install_pip_install DFO-LS Libensemble yt
+    install_pip_install DFO-LS==1.6 yt==4.4.2 libensemble==1.5.0
     declare r
     for r in "${_rsbeam_codes[@]}"; do
         cd "$r"

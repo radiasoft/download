@@ -97,5 +97,5 @@ elegant_main() {
 }
 
 elegant_python_install() {
-    install_pip_install soliday.sdds
+    install_pip_install soliday.sdds==5.7.3
 }

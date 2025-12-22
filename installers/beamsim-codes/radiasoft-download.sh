@@ -26,9 +26,8 @@ declare -a _beamsim_codes_all=(
     ml
     rsbeams
 
-    # Jupyter stuff
+    # Jupyter utility
     ndiff
-    ipykernel
 
     # Sirepo codes
     # create a delay here so radiasoft.repo in radiasoft/rpm-code
@@ -73,16 +72,12 @@ declare -a _beamsim_codes_all=(
     slepc
     fenics
 
-    rshellweg
-
     warp
 
     xraylib
     bmad
     shadow3
 
-    pyzgoubi
-    zgoubi
 
     # Other codes
     epics
@@ -96,10 +91,15 @@ declare -a _beamsim_codes_all=(
     # geant4
     # julia
     # madness
-    # mantid
+    # NOTE: mantid requires ipykernel so add that back into common
+    # and lock version same as jupyter-base and add a note there, too
+    # mantid ipykernel==??
     # mlopal
     # requires boost python and unused
     # mgis
+    # rshellweg
+    # pyzgoubi
+    # zgoubi
 )
 
 # Some of these are deps and others are just build deps.
