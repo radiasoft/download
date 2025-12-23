@@ -67,12 +67,10 @@ geant4_main() {
     codes_yum_dependencies expat-devel
     codes_dependencies common
     codes_download https://gitlab.cern.ch/geant4/geant4/-/archive/v11.2.1/geant4-v11.2.1.tar.gz
-    codes_cmake \
-        -DCMAKE_INSTALL_LIBDIR="${codes_dir[lib]}" \
-        -DCMAKE_INSTALL_PREFIX="${codes_dir[prefix]}" \
+    CXXFLAGS=-Wno-template-body codes_cmake2 \
         -DGEANT4_BUILD_MULTITHREADED=ON \
         -DGEANT4_USE_OPENGL_X11=OFF \
         -DGEANT4_USE_QT=OFF
-    codes_make install
+    codes_cmake_build install
     geant4_install_data_download_script
 }

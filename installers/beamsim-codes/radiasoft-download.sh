@@ -76,16 +76,14 @@ declare -a _beamsim_codes_all=(
     bmad
     shadow3
 
-
     # Other codes
     epics
     epics-asyn
     epics-pvxs
 
     # Deps of container-beamsim-jupyter-base
-    geant4
     julia
-    madness
+    geant4
 
     # Codes not installed
     # aravis
@@ -101,6 +99,8 @@ declare -a _beamsim_codes_all=(
     # pyzgoubi
     # zgoubi
     # jspec
+    # Couldn't build this. Was having problems with c++ 17 even though it sets the standard to that.
+    # madness
 )
 
 # Some of these are deps, others are just build deps, and others are
