@@ -82,13 +82,15 @@ declare -a _beamsim_codes_all=(
     epics-asyn
     epics-pvxs
 
+    # Deps of container-beamsim-jupyter-base
+    geant4
+    julia
+    madness
+
     # Codes not installed
     # aravis
     # It's needed by pymesh, maybe, but not installed currently.
     # cgal
-    # geant4
-    # julia
-    # madness
     # NOTE: mantid requires ipykernel so add that back into common
     # and lock version same as jupyter-base and add a note there, too
     # mantid ipykernel==??
@@ -101,7 +103,8 @@ declare -a _beamsim_codes_all=(
     # jspec
 )
 
-# Some of these are deps and others are just build deps.
+# Some of these are deps, others are just build deps, and others are
+# deps of jupyter.
 # If something is missed from this list, it will get installed,
 # which is probably no harm done. trilinos is the big one to not install.
 declare -a _beamsim_codes_install_skip=(
@@ -118,6 +121,11 @@ declare -a _beamsim_codes_install_skip=(
     openpmd
     pygist
     pyzgoubi
+
+    # Deps of container-beamsim-jupyter-base
+    geant4
+    julia
+    madness
 )
 
 beamsim_codes_build() {

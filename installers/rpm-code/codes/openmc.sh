@@ -61,7 +61,7 @@ openmc_python_install() {
     # allow the last three to float
     declare -a x=(
         'neutronics_material_maker[density]==1.2.1'
-        'pymeshlab=2025.7'
+        'pymeshlab==2025.7'
         'vtk==9.5.2'
         # Allow these versions to float, because we are using develop branch
         'dagmc_geometry_slice_plotter'

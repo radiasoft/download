@@ -128,7 +128,6 @@ _common_python() {
         'f90nml==1.5.0'
         # Needed by rscode-openpmd
         'tqdm==4.67.1'
-        #TODO(robnagler) astunparse==1.6.3
         'astunparse==1.6.3'
 
         #conflict between rscode-mantid and rscode-ml
