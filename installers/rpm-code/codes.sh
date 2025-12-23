@@ -261,12 +261,13 @@ codes_err() {
 }
 
 codes_execstack_clear() {
+    declare lib_dir=${1:-${codes_dir[lib]}}
     declare f x=/dev/null
     # Only check files to be included in the rpm
     if [[ -e $rpm_code_exclude_f ]]; then
         x=$rpm_code_exclude_f
     fi
-    declare y=$(find "${codes_dir[lib]}" -name \*.so* ! -type l | sort | grep -vxFf "$x" -)
+    declare y=$(find "$lib_dir" -name \*.so* ! -type l | sort | grep -vxFf "$x" -)
     if [[ ! $y ]]; then
         return
     fi
