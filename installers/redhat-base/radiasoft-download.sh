@@ -38,7 +38,6 @@ _redhat_base_pkgs() {
         git
         grep
         gsl-devel
-        execstack
         hostname
         iproute
         iputils
@@ -86,7 +85,7 @@ _redhat_base_pkgs() {
     if install_os_is_centos_7; then
         x+=( createrepo pkgconfig )
     else
-        x+=( createrepo_c opendkim-tools pkgconf-pkg-config )
+        x+=( createrepo_c opendkim-tools pkgconf-pkg-config execstack )
     fi
     install_yum_install "${x[@]}"
 }
