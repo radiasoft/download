@@ -292,11 +292,6 @@ install_init_vars_oci() {
 
 install_init_vars_versions() {
     declare x=/etc/os-release
-    : ${install_version_fedora:=43}
-    : ${install_version_python:=3.13.9}
-    : ${install_version_python_venv:=py${install_version_python%%.*}}
-    : ${install_version_centos:=7}
-    # always set these vars
     if [[ -r $x ]]; then
         export install_os_release_id=$(source "$x"; echo "${ID,,}")
         export install_os_release_version_id=$(source "$x"; echo "${VERSION_ID%%.*}")
@@ -313,6 +308,16 @@ install_init_vars_versions() {
     if ! [[ $install_os_release_version_id && $install_os_release_id ]]; then
         install_err 'unable to determine operating system version'
     fi
+    : ${install_version_fedora:=43}
+    : ${install_version_centos:=7}
+    if [[ ! ${install_version_python:-} ]]; then
+        if install_os_is_centos_7; then
+            install_version_python=3.9.15
+        else
+            install_version_python=3.13.9
+        fi
+    fi
+    : ${install_version_python_venv:=py${install_version_python%%.*}}
 }
 
 install_init_vars_servers() {
@@ -336,7 +341,6 @@ install_init_vars_virt() {
     if [[ -r $f ]] && grep -s -q /docker "$f" || [[ -e /.dockerenv ]] || [[ ${container:-} == oci ]]; then
         export install_virt_docker=1
     fi
-
     f=/dev/disk/by-id
     # disk works outside docker, but inside docker systemd-detect-virt works
     if [[ -r $f && $(ls "$f") =~ VBOX ]] || [[ $(systemd-detect-virt --vm 2>/dev/null || true) == oracle ]]; then
