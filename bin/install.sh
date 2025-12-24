@@ -295,7 +295,7 @@ install_init_vars_versions() {
     : ${install_version_fedora:=43}
     : ${install_version_python:=3.13.9}
     : ${install_version_python_venv:=py${install_version_python%%.*}}
-    : ${install_version_centos:=9}
+    : ${install_version_centos:=7}
     # always set these vars
     if [[ -r $x ]]; then
         export install_os_release_id=$(source "$x"; echo "${ID,,}")
