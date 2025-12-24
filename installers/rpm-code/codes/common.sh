@@ -20,12 +20,11 @@ _common_h5py() {
 }
 
 _common_nvm() {
-    # Required when NVM_DIR is set
+    # POSIT: same as container-jupyter
+    # Required to exist when NVM_DIR is set
     mkdir -p "$NVM_DIR"
     PROFILE=/dev/null codes_download https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh '' nvm 0.40.3
     install_source_bashrc
-    #TODO(pjm): fixed version of node until sirepo #725 is fixed
-    #nvm install node
     nvm install 24.5.0
 }
 
