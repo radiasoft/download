@@ -1,0 +1,46 @@
+[build-system]
+requires = [
+  "scikit-build-core>=0.10",
+  "numpy",
+]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "shadow3"
+version = "23.9.19"
+description = "SHADOW is an open source ray tracing code for modeling optical systems"
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [
+{ name = "Franco Cerrina and Manuel Sanchez del Rio", email = "srio@esrf.eu" }
+]
+requires-python = ">=3.8"
+dependencies = [
+  "numpy",
+]
+
+[project.urls]
+Homepage = "https://github.com/oasys-kit/shadow3"
+
+[tool.scikit-build]
+minimum-version = "0.10"
+#cmake.version = "3.18"
+
+# Python package is `Shadow` at repo root
+wheel.packages = ["Shadow"]
+
+# Make sure all build sources end up in the sdist
+sdist.include = [
+  "Shadow",
+  "src",
+  "data",
+  "dlls",
+  "docs",
+  "examples",
+  "tests",
+  "MANIFEST.in",
+  "make.sh",
+  "make_mac.sh",
+  "clean.sh",
+  "setup.py",
+]

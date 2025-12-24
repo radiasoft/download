@@ -162,6 +162,7 @@ install_err() {
         install_msg "${msg[*]}
 If you don't know what to do, please contact support@radiasoft.net."
     fi
+    #DEBUG: sleep 100000000 || true
     if [[ -z $install_verbose ]]; then
         install_clean >& /dev/null
     fi
@@ -186,6 +187,7 @@ install_err_stack() {
 }
 
 install_err_trap() {
+    #DEBUG: sleep 1000000 || true
     set +e
     trap - EXIT
     install_err_stack "${FUNCNAME[@]:-}"
@@ -290,23 +292,26 @@ install_init_vars_oci() {
 
 install_init_vars_versions() {
     declare x=/etc/os-release
-    : ${install_version_fedora:=36}
-    : ${install_version_python:=3.9.15}
+    : ${install_version_fedora:=43}
+    : ${install_version_python:=3.13.9}
     : ${install_version_python_venv:=py${install_version_python%%.*}}
     : ${install_version_centos:=7}
     # always set these vars
     if [[ -r $x ]]; then
         export install_os_release_id=$(source "$x"; echo "${ID,,}")
-        export install_os_release_version_id=$(source "$x"; echo "$VERSION_ID")
-        return
-    fi
-    # COMPAT: darwin doesn't support ${x,,}
-    export install_os_release_id=$(uname | tr A-Z a-z)
-    if install_os_is_darwin; then
-        export install_os_release_version_id=$(sw_vers -productVersion)
+        export install_os_release_version_id=$(source "$x"; echo "${VERSION_ID%%.*}")
     else
-        # Have something legal; unlikely to get here
-        export install_os_release_version_id=0
+    # COMPAT: darwin doesn't support ${x,,}
+        export install_os_release_id=$(uname | tr A-Z a-z)
+        if install_os_is_darwin; then
+            export install_os_release_version_id=$(sw_vers -productVersion)
+        else
+            # Have something legal; unlikely to get here
+            export install_os_release_version_id=0
+        fi
+    fi
+    if ! [[ $install_os_release_version_id && $install_os_release_id ]]; then
+        install_err 'unable to determine operating system version'
     fi
 }
 
@@ -639,6 +644,9 @@ install_yum() {
     declare yum=yum
     declare flags=( -y )
     if [[ $(type -t dnf5) ]]; then
+        if [[ $(readlink /usr/bin/dnf) != dnf5 ]]; then
+            install_err 'dnf6 or above is not supported'
+        fi
         yum=dnf5
     else
         # dnf5 does not support --color
@@ -663,11 +671,8 @@ install_yum_add_repo() {
         return
     fi
     if [[ $(type -t dnf5) ]]; then
-        if [[ $(readlink /usr/bin/dnf) != dnf5 ]]; then
-            install_err 'dnf6 or above is not supported'
-        fi
         install_yum_install dnf-plugins-core
-        install_yum addrepo --from-repofile="$repo"
+        install_yum config-manager addrepo --from-repofile="$repo"
     elif [[ $(type -t dnf) ]]; then
         # dnf 4 or before
         install_yum_install dnf-plugins-core
@@ -677,6 +682,33 @@ install_yum_add_repo() {
         install_yum makecache fast
     else
         install_err "install_yum_add_repo does not support os=$install_os_release_id"
+    fi
+}
+
+install_yum_repo_set_enabled() {
+    declare repo=$1
+    # Common case is 1
+    declare enabled=${2:-1}
+    if [[ $(type -t dnf5) ]]; then
+        install_yum_install dnf-plugins-core
+        install_yum config-manager setopt "$repo.enabled=$enabled"
+        return
+    fi
+    declare e
+    if (( $enabled == 1 )); then
+        e=enabled
+    else
+        e=disabled
+    fi
+    if [[ $(type -t dnf) ]]; then
+        # dnf 4 or before
+        install_yum_install dnf-plugins-core
+        install_yum config-manager --set-"$e" "$repo"
+    elif [[ $(type -t yum-config-manager) ]]; then
+        install_yum config-manager --set-"$e" "$repo"
+        install_yum makecache fast
+    else
+        install_err "install_yum_enable_repo does not support os=$install_os_release_id"
     fi
 }
 

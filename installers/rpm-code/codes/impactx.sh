@@ -1,9 +1,10 @@
 #!/bin/bash
 
 impactx_main() {
-    codes_dependencies common amrex openpmdapi pyamrex
+    # use warpx provides ablastr so a good dependency
+    codes_dependencies warpx
     # POSIT: Same version as amrex and pyamrex
-    codes_download https://github.com/ECP-WarpX/impactx/archive/24.09.tar.gz  impactx-24.09 impactx 24.09
+    codes_download https://github.com/ECP-WarpX/impactx/archive/25.11.tar.gz  impactx-25.11 impactx 25.11
     # Impactx defaults to appending all options to the binary filename.
     # So, create a symlink from that name to impactx.
     # This is already done for lib files.
@@ -24,20 +25,15 @@ impactx_main() {
  #install(EXPORT ImpactXTargets
  #    FILE ImpactXTargets.cmake
 EOF
-    codes_cmake_fix_lib_dir
-    codes_cmake2  \
-      -DAMReX_OMP=ON \
-      -DCMAKE_INSTALL_PREFIX="${codes_dir[prefix]}"  \
-      -DImpactX_PYTHON=ON \
-      -DImpactX_amrex_internal=OFF \
-      -DImpactX_openpmd_internal=OFF \
-      -DImpactX_pyamrex_internal=OFF
-    # TODO(e-carlin): When
-    # https://github.com/ECP-WarpX/impactx/issues/634 is fixed we can
-    # remove this and instead create rscode-ablastr and depend on it.
-    # rscode-warpx also installs ablastr so this would conflict with
-    # it.
-    echo '' > build/_deps/fetchedablastr-build/cmake_install.cmake
+    CXXFLAGS=-Wno-template-body \
+        codes_cmake2  \
+        -DAMReX_OMP=ON \
+        -DImpactX_PYTHON=ON \
+        -DImpactX_amrex_internal=OFF \
+        -DImpactX_openpmd_internal=OFF \
+        -DImpactX_pyamrex_internal=OFF
     codes_cmake_build install
     codes_cmake_build pip_install
+    # so does not conflict with warp's ablastr
+    rm -f "${codes_dir[pyenv_prefix]}"/lib/libablstr.a
 }

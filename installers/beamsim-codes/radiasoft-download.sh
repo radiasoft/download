@@ -21,77 +21,90 @@ declare -a _beamsim_codes_all=(
     genesis
 
     # libraries
-    pydot
     boost
+    pydot
     ml
-
     rsbeams
-    rshellweg
 
-    amrex
+    # Jupyter utility
+    ndiff
 
-    bmad
-
+    # Sirepo codes
     # create a delay here so radiasoft.repo in radiasoft/rpm-code
     # is "old" by the time bnlcrl (or other fast build) happens
     # otherwise, the cache will be stale
-    jspec
+    elegant
 
     bnlcrl
     # depends on ml
     srw
     radia
 
-    ipykernel
-
-    elegant
-
-    epics
-
-    hypre
-
     h5hut
     parmetis
-    metis
+    hypre
     trilinos
     opal
 
+    openpmdapi
+    pydicom
     impactt
+
+    # Depends on genesis and lume-base installed by impactt
+    genesis4
+
+    # depends on openpmdapi
+    amrex
+    pyamrex
+    warpx
+    # depends on warpx
     impactx
 
     madx
-    mantid
 
     openmc
     cadopenmc
 
-    # needs hypre and metis
+    # Also needs hypre and metis
     petsc
     slepc
     fenics
 
-    mgis
-    ndiff
-
-    pydicom
-
-    pymesh
-
-    forthon
-    openpmd
-    pygist
     warp
 
-    warpx
-
+    xraylib
+    bmad
     shadow3
 
-    pyzgoubi
-    zgoubi
+    # Other codes
+    epics
+    epics-asyn
+    epics-pvxs
 
+    # Deps of container-beamsim-jupyter-base
+    julia
+    geant4
+
+    # Codes not installed
+    # aravis
+    # It's needed by pymesh, maybe, but not installed currently.
+    # cgal
+    # NOTE: mantid requires ipykernel so add that back into common
+    # and lock version same as jupyter-base and add a note there, too
+    # mantid ipykernel==??
+    # mlopal
+    # requires boost python and unused
+    # mgis
+    # rshellweg
+    # pyzgoubi
+    # zgoubi
+    # jspec
+    # Couldn't build this. Was having problems with c++ 17 even though it sets the standard to that.
+    # madness
 )
 
-# Some of these are deps and others are just build deps.
+# Some of these are deps, others are just build deps, and others are
+# deps of jupyter.
 # If something is missed from this list, it will get installed,
 # which is probably no harm done. trilinos is the big one to not install.
 declare -a _beamsim_codes_install_skip=(
@@ -108,6 +121,11 @@ declare -a _beamsim_codes_install_skip=(
     openpmd
     pygist
     pyzgoubi
+
+    # Deps of container-beamsim-jupyter-base
+    geant4
+    julia
+    madness
 )
 
 beamsim_codes_build() {
@@ -132,10 +150,6 @@ beamsim_codes_init_vars() {
 }
 
 beamsim_codes_install() {
-    # Ensure everything is up to date first
-    # If there are codes already installed, they'll update common,
-    # etc. first, which may be required for later codes.
-    install_yum update
     # POSIT: codes do not have special or spaces
     install_repo_eval code ${*:-$(beamsim_codes_install_list)}
     install_repo_eval fedora-patches

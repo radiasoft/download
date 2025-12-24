@@ -3,8 +3,11 @@
 zgoubi_main() {
     codes_dependencies common pyzgoubi
     codes_download radiasoft/zgoubi
+    set -x
     # Lots of warnings so disable
-    perl -pi -e 's{-Wall}{-w}' CMakeLists.txt
-    codes_cmake -DCMAKE_INSTALL_PREFIX:PATH="${codes_dir[prefix]}"
-    codes_make_install
+    # PUBLIC is on target fminigraf.c
+    perl -pi -e 's{-Wall}{-w};s{(?<=PUBLIC)}{ -std=gnu11}' CMakeLists.txt
+    perl -pi -e 'm{^#include..string.h} && ($_ .= qq{#include <time.h>\n})' zpop/liblns/fminigraf.c
+    codes_cmake2
+    codes_cmake_build install
 }

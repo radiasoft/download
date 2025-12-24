@@ -29,7 +29,6 @@ mantid_install() {
     codes_download mantidproject/mantid v6.4.0
     codes_cmake2 \
         -DBOOST_ROOT="${codes_dir[prefix]}" \
-        -DCMAKE_INSTALL_PREFIX="$install_prefix" \
         -DENABLE_DOCS=OFF \
         -DENABLE_MANTIDQT=OFF \
         -DENABLE_OPENCASCADE=OFF \
@@ -77,7 +76,6 @@ mantid_ipykernel() {
 
 mantid_nexus_install() {
     codes_download nexusformat/code
-    codes_cmake_fix_lib_dir
     codes_cmake -DENABLE_HDF5=1 -DENABLE_CXX=1 -DCMAKE_INSTALL_PREFIX="${codes_dir[prefix]}"
     codes_make
     codes_make_install

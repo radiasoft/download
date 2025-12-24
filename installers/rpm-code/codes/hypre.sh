@@ -2,7 +2,7 @@
 
 hypre_main() {
     codes_dependencies common
-    codes_download https://github.com/hypre-space/hypre/archive/v2.30.0.tar.gz
+    codes_download https://github.com/hypre-space/hypre/archive/refs/tags/v3.0.0.tar.gz hypre-3.0.0 hypre 3.0.0
     cd src
     local -a a=()
     if [[ ${1:-} == 'gpu-only' ]]; then

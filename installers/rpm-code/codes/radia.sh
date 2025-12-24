@@ -40,7 +40,7 @@ EOF
 }
 
 radia_python_install() {
-    install_pip_install trimesh
+    install_pip_install trimesh==4.9.0
     cd Radia/cpp/py
     MODE=mpi python setup.py build_ext
     codes_python_lib_copy "$(find . -name radia*.so)"

@@ -9,8 +9,7 @@ _common_h5py() {
     # will list the h5py versions that tensorflow supports
 
     declare p="$PWD"
-    # https://git.radiasoft.org/download/issues/422
-    codes_download h5py/h5py 3.10.0
+    codes_download h5py/h5py 3.15.1
     declare mpicc=$(type -p mpicc)
     if [[ ! $mpicc ]]; then
         install_err mpicc not found
@@ -21,12 +20,11 @@ _common_h5py() {
 }
 
 _common_nvm() {
-    # Required when NVM_DIR is set
+    # POSIT: same as container-jupyter
+    # Required to exist when NVM_DIR is set
     mkdir -p "$NVM_DIR"
     PROFILE=/dev/null codes_download https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh '' nvm 0.40.3
     install_source_bashrc
-    #TODO(pjm): fixed version of node until sirepo #725 is fixed
-    #nvm install node
     nvm install 24.5.0
 }
 
@@ -38,109 +36,129 @@ _common_python() {
     # Need to set here
     codes_dir[pyenv_prefix]=$(realpath "$(pyenv prefix)")
     declare -a d=(
+        #TODO(robnagler) 3.1.6 doesn't compile with py3.13,
         # https://github.com/radiasoft/download/issues/813
-        'mpi4py==3.1.6'
-        # https://github.com/radiasoft/download/issues/627
-        'numpy==1.23.5'
+        #'mpi4py==3.1.6'
+        'mpi4py==4.1.1'
+        # tensorflow==2.20.0 requires numpy 2.2.6
+        'numpy==2.2.6'
         # required by cmyt 1.3.0 (required by yt)
-        # https://github.com/radiasoft/download/issues/497
-        'matplotlib>=3.5.0'
+        'matplotlib==3.10.7'
         scipy
         Cython
     )
     install_pip_install "${d[@]}"
     _common_h5py
     d=(
+        # Needed by a number of codes
+        'pydantic==2.12.4'
+        'pydantic_core==2.41.5'
+        'pydantic-settings==2.12.0'
+        'typing-extensions==4.15.0'
+        'prettytable==3.17.0'
+
+        # genesis4 and impactt
+        'eval_type_backport==0.3.0'
+        'lark==1.3.1'
+        'lume-base==0.3.3'
+
+        # impactt
+        'polars-lts-cpu==1.33.1'
+
         # Needed by omega
-        openpmd-beamphysics
+        'openpmd-beamphysics==0.10.2'
 
         # pillow and python-dateutil installed by matplotlib
         # pipdeptree is useful for debugging
-        pipdeptree
+        'pipdeptree==2.30.0'
 
-        # tfs-pandas (required by sirepo-bluesky which is required by rscode-bluesky)
-        'pandas>=2.0,<2.1.0'
-        'sympy==1.12.1'
-        tables
+        'pandas==2.3.3'
+        # torch==2.9.1 requires sympy>=1.13.3
+        'sympy==1.14.0'
 
-        # Conflict between rscode-pyzgoubi and rscode-ml so just include here
-        PyYAML
+        # Needed by rscode-ml so just include here
+        'PyYAML==6.0.3'
 
-        # Needed by rscode-bluesky and rscode-ml
-        cachetools
-        lxml
-        pydantic
-        scikit-image==0.18.3
-        tifffile
-        typing-extensions
-        tzdata
+        # Needed by rscode-ml
+        'cachetools==6.2.2'
+        'lxml==6.0.2'
 
+        #TODO(robnagler) was scikit-image==0.18.3
+        'scikit-image==0.25.2'
+        'tifffile==2025.10.16'
+        'tzdata==2025.2'
 
-        # Needed by rscode-bluesky and rscode-rsbeams
+        # Needed by fenics and shadow
+        'scikit_build_core==0.11.6'
+
+        # Needed by fenics
+        'nanobind==2.9.2'
+
+        # Sirepo and genesis4/lume
+        'Jinja2==3.1.6'
+        'psutil==7.1.3'
+
+        # Needed by rscode-rsbeams
         # https://github.com/jupyter/notebook/issues/2435
         # yt (in rscode-rsbeams) installs jedi, which needs to be forced to 0.17.2
         # keep consistent with container-beamsim-jupyter
-        dill
-        httpx
-        ipython
-        jedi==0.17.2
-        parso
-        prompt_toolkit
-        fsspec
+        'dill==0.4.0'
+        'httpx==0.28.1'
+        'ipython==9.8.0'
+        # jedi==0.17.2
+        'jedi==0.19.2'
+        'parso==0.8.5'
+        'prompt_toolkit==3.0.52'
+        'fsspec==2025.10.0'
 
-        # Needed by rscode-bluesky and rscode-impactt
-        pint
+        # Needed by rscode-impactt
+        'pint==0.25.2'
 
         # conflict between warpx and bnlcrl
-        periodictable
+        # pywarpx 25.11 requires periodictable~=1.5
+        'periodictable==2.0.2'
 
-        # conflict between rscode-bluesky and rscode-rsbeams
-        unyt
+        # Needed by rscode-rsbeams
+        'unyt==3.0.4'
 
         # fortran namelist parser, usable by many codes
         # fixed version because 1.5 writes to /tests which causes a rpm conflict
-        f90nml==1.4.4
-        # Conflict between rscode-bluesky and rscode-openpmd
-        tqdm
-        astunparse==1.6.3
+        #TODO(robnagler) f90nml==1.4.4
+        'f90nml==1.5.0'
+        # Needed by rscode-openpmd
+        'tqdm==4.67.1'
+        'astunparse==1.6.3'
 
         #conflict between rscode-mantid and rscode-ml
         # version needs to be tensorflow_2_3_1_deps (see ml.sh)
-        'wrapt>=1.11.1'
+        'wrapt==2.0.1'
 
-        # conflict between rscode-bluesky and rscode-openmc
-        asteval
-        jsonschema
-        tenacity
-        toolz
-        tzlocal
-        uncertainties
-
-        # conflict between rscode-bluesky and rscode-impactt
-        prettytable
+        # Needed by rscode-openmc
+        'asteval==1.0.7'
+        'jsonschema==4.25.1'
+        'tenacity==9.1.2'
+        'toolz==1.1.0'
+        'tzlocal==5.3.1'
+        'uncertainties==3.2.3'
 
         # conflict between rscode-openmc and rscode-ml
-        protobuf
+        'protobuf==6.33.1'
 
         # conflict between rscode-openmc and rscode-radia
-        trimesh
-
-        # conflict between rscode-rsbeams and rscode-ipykernel
-        ipykernel
+        'trimesh==4.9.0'
 
         # conflict between rsbeams and cadopenmc
-        # later versions force numpy 2.x
-        nlopt==2.7.1
+        #TODO(robnagler) upgrade to for numpy 2.x nlopt==2.7.1
+        'nlopt==2.9.1'
     )
     install_pip_install "${d[@]}"
+    # Otherwise compile errors for strdup (gnu11), BLOSC/2 don't compile either
+    PYTABLES_NO_EMBEDDED_LIBS=1 CFLAGS=-std=gnu11 BLOSC_DIR=/usr BLOSC2_DIR=/usr pip install tables==3.10.2
 
     # Lots of dependencies so we install here to avoid rpm collisions.
     # Slows down builds of pykern, but doesn't affect development.
     codes_download pykern
     codes_python_install
-    # xraylib puts files in include; needs to be in common
-    # https://github.com/radiasoft/containers/issues/92
-    install -d -m 755 "${codes_dir[pyenv_prefix]}"/include
     cd "$prev_d"
     rm -f "${codes_dir[pyenv_prefix]}"/cache/*
 }
@@ -150,6 +168,9 @@ common_main() {
     declare rpms=(
         $mpi-devel
         blas-devel
+        # python tables
+        blosc-devel
+        blosc2-devel
         cmake
         fftw-$mpi-devel
         flex
@@ -165,11 +186,9 @@ common_main() {
         libffi-devel
         libtool
         llvm-libs
+        perl-FindBin
         valgrind-devel
     )
-    if ! install_version_fedora_lt_36; then
-        rpms+=('perl-FindBin')
-    fi
     codes_yum_dependencies "${rpms[@]}"
     install_repo_eval fedora-patches
     install_source_bashrc

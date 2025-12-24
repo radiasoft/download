@@ -1,9 +1,15 @@
 #!/bin/bash
 
+
 parmetis_main() {
+    echo "${codes_dir[prefix]}"
     codes_dependencies common
-    #http://glaros.dtc.umn.edu/gkhome/metis/parmetis/download
-    codes_download_foss parmetis-4.0.3.tar.gz
-    make config prefix="${codes_dir[prefix]}"
-    codes_make_install
+    for f in GKlib METIS ParMETIS; do
+        codes_download KarypisLab/"$f"
+        codes_cmake_fix_lib_dir
+        # gklib_path is hardwired incorrectly in Makefile
+        make config prefix="${codes_dir[prefix]}" gklib_path="${codes_dir[prefix]}"
+        codes_make_install
+        cd ..
+    done
 }

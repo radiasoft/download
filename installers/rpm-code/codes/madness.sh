@@ -1,20 +1,15 @@
 #!/bin/bash
 
 madness_main() {
-    # TODO(e-carlin): enable tbb: "-D MADNESS_TASK_BACKEND=TBB"
-    # tbb from fedora repos is too old. Need to have at least 4.3.5.
-    # https://github.com/oneapi-src/oneTBB
-    # TODO(e-carlin):  enable mkl: "-D ENABLE_MKL=ON"
-    # It is an intel lib and not available in fedora repos. Need to add intel repos.
-    # Add repo: https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl-download.html?operatingsystem=linux&distributions=dnf
-    # dnf install -y intel-mkl
-    # https://www.r-bloggers.com/2020/10/installing-and-switching-to-mkl-on-fedora/
+    # requested https://github.com/radiasoft/download/issues/609
     codes_yum_dependencies gperftools
     codes_dependencies common
-    codes_download https://github.com/m-a-d-n-e-s-s/madness.git
-    codes_cmake_fix_lib_dir
-    codes_cmake \
-        -D CMAKE_INSTALL_PREFIX="${codes_dir[prefix]}" \
+    # TODO(robnagler) This commit was around the time of the last build 2/19/2024, but still fails
+    codes_download m-a-d-n-e-s-s/madness df98068830cf126c70bac6468668f244b8ec28eb
+    # Tried this, but it didn't help
+    # -D BUILD_TESTING=OFF
+    # -D CMAKE_CXX_STANDARD=17 \
+    codes_cmake2 \
         -D ENABLE_GPERFTOOLS=ON
-    codes_make_install
+    codes_cmake_build install
 }

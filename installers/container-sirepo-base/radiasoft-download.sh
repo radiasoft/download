@@ -19,9 +19,9 @@ container_sirepo_base_main() {
 }
 
 container_sirepo_base_root() {
-    build_yum install fedora-workstation-repositories
-    build_yum config-manager --set-enabled google-chrome
-    build_yum install google-chrome-stable
+    install_yum_install fedora-workstation-repositories
+    install_yum_repo_set_enabled google-chrome
+    install_yum_install google-chrome-stable
 }
 
 container_sirepo_base_run_user() {

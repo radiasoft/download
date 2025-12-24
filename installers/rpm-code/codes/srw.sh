@@ -25,8 +25,15 @@ srw_main() {
 }
 
 srw_python_install() {
-    install_pip_install primme
-    install_pip_install srwpy==4.1.0
+    install_pip_install primme==3.2.3 srwpy==4.1.1
+    # Remove when merged: https://github.com/ochubar/SRW/pull/57
+    declare d=$(codes_python_lib_dir)
+    cd "$d/srwpy"
+    declare -a f=( srwlib.py uti_io.py srwl_bl.py )
+    chmod u+w "${f[@]}"
+    perl -pi -e 's{\brepr\(}{str(}g' "${f[@]}"
+    chmod u-w "${f[@]}"
+    cd -
     _srw_srwpy_backwards_compatible
 }
 
@@ -55,7 +62,7 @@ _srw_srwpy_backwards_compatible() {
     )
 
     declare d=$(codes_python_lib_dir)
-    install -m 444 /dev/stdin $d/srwpy_import_warning.py <<EOF
+    install -m 444 /dev/stdin "$d"/srwpy_import_warning.py <<EOF
 import sys
 
 displayed = False
@@ -68,7 +75,7 @@ def check(calling_module):
 EOF
     declare m
     for m in "${old_modules[@]}"; do
-        install -m 444 /dev/stdin $d/$m.py <<EOF
+        install -m 444 /dev/stdin "$d/$m.py" <<EOF
 from srwpy.$m import *
 import srwpy_import_warning
 

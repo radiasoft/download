@@ -1,7 +1,13 @@
 #!/bin/bash
 
+bmad_python_install() {
+    codes_download bmad-sim/pytao 53246bc2893ae2333edb504c5bf7824641be3cf9
+    install_pip_install .
+}
+
 bmad_main() {
-    codes_yum_dependencies cairo-devel pango-devel plplot-fortran-devel
+    # bc needed by build
+    codes_yum_dependencies cairo-devel pango-devel plplot-fortran-devel bc
     codes_dependencies common xraylib
     _bmad_deps
     # bc is only used to compute compile time
@@ -101,7 +107,7 @@ _bmad_install() {
 
 _bmad_deps() {
     declare p=$PWD
-    codes_download https://github.com/jsberg-bnl/bmad-dependencies-lean.git
+    codes_download jsberg-bnl/bmad-dependencies-lean
     codes_cmake \
         -DBUILD_FGSL=ON \
         -DBUILD_HDF5=OFF \

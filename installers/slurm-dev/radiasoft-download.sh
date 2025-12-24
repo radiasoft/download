@@ -21,8 +21,7 @@ radia_run slurm-dev
     if (( $EUID == 0 )); then
         install_err 'run as vagrant, not root'
     fi
-    install_yum update
-    declare c=2 n=
+    declare c=${slurm_dev_cpus:-2}
     if [[ ${slurm_dev_want_nfs:-} && $(hostname) != $_slurm_dev_nfs_server ]]; then
         # specify 4 CPUs if non-local
         c=4
@@ -37,6 +36,13 @@ radia_run slurm-dev
     fi
     install_sudo perl -pi -e "s{^NodeName=.*}{NodeName=localhost CPUs=$c State=UNKNOWN}" \
          /etc/slurm/slurm.conf
+    # rpm doesn't create slurm user so can't set perms on log, etc, ... directories
+    mkdir -p /etc/systemd/system/slurmctld.service.d
+    cat > /etc/systemd/system/slurmctld.service.d/rs-override.conf <<'EOF'
+[Service]
+User=root
+Group=root
+EOF
     declare f
     for f in munge slurmctld slurmd; do
         install_sudo systemctl start "$f"

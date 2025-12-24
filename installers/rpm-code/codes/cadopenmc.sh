@@ -1,15 +1,13 @@
 #!/bin/bash
 _cadopenmc_gmsh_py_d=gmsh-py
 
-_cadopenmc_gmsh_version=4.11.1
+_cadopenmc_gmsh_version=4.15.0
 
 cadopenmc_gmsh() {
-    # https://gmsh.info/src/gmsh-"$_cadopenmc_gmsh_version"-source.tgz
-    codes_download_foss gmsh-"$_cadopenmc_gmsh_version"-source.tar.xz
+    codes_download https://gmsh.info/src/gmsh-"$_cadopenmc_gmsh_version"-source.tgz
     # Even though not installing, we need CMAKE_INSTALL_PREFIX to allow gmsh to find
     # opencascade.
     codes_cmake2 \
-        -D CMAKE_INSTALL_PREFIX="${codes_dir[prefix]}" \
         -D ENABLE_BUILD_SHARED=ON \
         -D ENABLE_CAIRO=OFF \
         -D ENABLE_FLTK=OFF \
@@ -36,7 +34,7 @@ cadopenmc_main() {
 
 cadopenmc_opencascade() {
     # opencascade.com
-    codes_download_foss opencascade-7.7.0.tar.gz
+    codes_download https://github.com/Open-Cascade-SAS/OCCT/archive/refs/tags/V7_9_2.tar.gz OCCT-7_9_2 OCCT 7.9.2
     codes_cmake2 \
         -D BUILD_CPP_STANDARD=C++11 \
         -D BUILD_Inspector=OFF \
@@ -48,7 +46,6 @@ cadopenmc_opencascade() {
         -D BUILD_MODULE_ModelingData=ON \
         -D BUILD_MODULE_Visualization=OFF \
         -D BUILD_SAMPLES_QT=OFF \
-        -D CMAKE_INSTALL_PREFIX="${codes_dir[prefix]}" \
         -D INSTALL_SAMPLES=OFF \
         -D INSTALL_TEST_CASES=OFF \
         -D USE_DRACO=OFF \
@@ -71,8 +68,7 @@ cadopenmc_python_install() {
 }
 
 cadopenmc_python_install_CAD_to_OpenMC() {
-    codes_download https://github.com/openmsr/CAD_to_OpenMC.git
-    perl -pi -e "s/'(numpy|trimesh)',//" pyproject.toml
+    codes_download https://github.com/united-neux/CAD_to_OpenMC.git
     codes_python_install
 }
 

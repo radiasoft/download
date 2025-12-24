@@ -1,0 +1,66 @@
+diff --git src/c/shadow_bind_python.c src/c/shadow_bind_python.c
+index 10cd26d..23c10a7 100644
+--- src/c/shadow_bind_python.c
++++ src/c/shadow_bind_python.c
+@@ -410,7 +410,7 @@ static int OE_set_##name(Shadow_OE* self, PyObject* value, void* closure) \
+   npy_intp dims[1] = {arrdim}; \
+   if(PyArray_Check(value) && PyArray_ISCONTIGUOUS(value) && PyArray_NDIM(value)==1 && PyArray_Size(value)==arrdim && PyArray_ISSTRING(value)){ \
+     res = PyArray_New(&PyArray_Type,nd,dims,fkind,strides,self->pl.name,length,NPY_WRITEABLE,NULL); \
+-    PyArray_CastTo((PyArrayObject*)res,(PyArrayObject*)value); \
++    PyArray_CopyInto((PyArrayObject*)res,(PyArrayObject*)value);     \
+   } \
+   else{ \
+     PyErr_SetString(PyExc_TypeError, "not a conform array of string."); \
+@@ -453,7 +453,7 @@ static int OE_set_##name(Shadow_OE* self, PyObject* value, void* closure) \
+   npy_intp dims[1] = {arrdim}; \
+   if(PyArray_Check(value) && PyArray_ISCONTIGUOUS(value) && PyArray_NDIM(value)==1 && PyArray_Size(value)==arrdim && PyArray_ISSTRING(value)){ \
+     res = PyArray_New(&PyArray_Type,nd,dims,fkind,strides,self->pl.name,length,NPY_WRITEABLE,NULL); \
+-    PyArray_CastTo((PyArrayObject*)res,(PyArrayObject*)value); \
++    PyArray_CopyInto((PyArrayObject*)res,(PyArrayObject*)value);     \
+   } \
+   else{ \
+     PyErr_SetString(PyExc_TypeError, "not a conform array of string."); \
+@@ -971,7 +971,7 @@ static PyObject* FastCDFfromZeroIndex(PyObject *self, PyObject *args){
+   dataR = (npy_double*) malloc(size*sizeof(npy_double));
+ /* build arrR */
+   arrR  = PyArray_SimpleNewFromData(1, xdims, NPY_FLOAT64, (void*) dataR);
+-  PyArray_FLAGS(arrR) |= NPY_OWNDATA;
++  PyArray_ENABLEFLAGS(arrR, NPY_ARRAY_OWNDATA);
+ /* cycle */
+   for(i=0;i<size;i++){
+     tmpx  = (npy_double*) PyArray_GETPTR1(x,i);
+@@ -1010,7 +1010,7 @@ static PyObject* FastCDFfromOneIndex(PyObject *self, PyObject *args){
+   dataR = (npy_double*) malloc(size*sizeof(npy_double));
+ /* build arrR */
+   arrR  = PyArray_SimpleNewFromData(1, xdims, NPY_FLOAT64, (void*) dataR); 
+-  PyArray_FLAGS(arrR) |= NPY_OWNDATA;
++  PyArray_ENABLEFLAGS(arrR, NPY_ARRAY_OWNDATA);
+ /* cycle */
+   for(i=0;i<size;i++){
+     tmpF  = (npy_double*) PyArray_GETPTR1(index,i);
+@@ -1073,7 +1073,7 @@ static PyObject* FastCDFfromTwoIndex(PyObject *self, PyObject *args){
+   dataR = (npy_double*) malloc(size*sizeof(npy_double));
+ /* build arrR */
+   arrR  = PyArray_SimpleNewFromData(1, xdims, NPY_FLOAT64, (void*) dataR);
+-  PyArray_FLAGS(arrR) |= NPY_OWNDATA;
++  PyArray_ENABLEFLAGS(arrR, NPY_ARRAY_OWNDATA);
+ /* cycle */
+   for(i=0;i<size;i++){
+     tmpF1 = (npy_double*) PyArray_GETPTR1(index1,i);
+diff --git src/c/wranc.c src/c/wranc.c
+index 38819b7..2c9b9cb 100644
+--- src/c/wranc.c
++++ src/c/wranc.c
+@@ -4,6 +4,7 @@ renames file from myrand48.c to ranc.c
+ */
+ 
+ #include <stdlib.h>
++#include <stdio.h>
+ 
+ extern double drand48();
+ extern void srand48(long);
+@@ -53,4 +54,3 @@ double wranc_(int* iseed) {
+ */
+     return rand_val;
+ }
+-

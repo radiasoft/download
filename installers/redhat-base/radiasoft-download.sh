@@ -38,6 +38,7 @@ _redhat_base_pkgs() {
         git
         grep
         gsl-devel
+        execstack
         hostname
         iproute
         iputils
@@ -94,8 +95,14 @@ _redhat_base_profile_d() {
     # POSIT: install_file_from_stdin doesn't use other install_*
     install_sudo bash -euo pipefail <<END_SUDO
 $(declare -f install_file_from_stdin)
-echo "export RADIA_RUN_SERVER='$install_server'" \
-    | install_file_from_stdin 444 root root /etc/profile.d/rs-redhat-base.sh
+cat <<'END_CAT' | install_file_from_stdin 444 root root /etc/profile.d/rs-redhat-base.sh
+: \${RADIA_RUN_SERVER:='$install_server'}
+: \${install_depot_server:='$install_depot_server'}
+: \${install_version_centos:='$install_version_centos'}
+: \${install_version_fedora:='$install_version_fedora'}
+: \${install_version_python:='$install_version_python'}
+export RADIA_RUN_SERVER install_depot_server install_version_centos install_version_fedora install_version_python
+END_CAT
 END_SUDO
 }
 
@@ -120,7 +127,7 @@ EOF
     if install_os_is_almalinux && ! install_yum repolist | grep -q '^crb '; then
         # Provides packages like perl(IPC::Run) needed by moreutils (below)
         # TODO(robnagler) will break with dnf5, probably
-        install_yum config-manager --set-enabled crb
+        install_yum_repo_set_enabled crb
     fi
 }
 

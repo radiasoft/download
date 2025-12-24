@@ -4,7 +4,6 @@ bnlcrl_main() {
 }
 
 bnlcrl_python_install() {
-    codes_download mrakitin/bnlcrl
-    perl -pi -e 's{http://henke.lbl.gov}{https://henke.lbl.gov}' bnlcrl/package_data/json/defaults_delta.json
+    codes_download radiasoft/bnlcrl pyproject
     codes_python_install
 }

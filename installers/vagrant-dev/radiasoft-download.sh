@@ -11,6 +11,7 @@ set -euo pipefail
 _vagrant_dev_update_tgz_base=vagrant-dev-update.tgz
 _vagrant_dev_update_tgz_path=/vagrant/$_vagrant_dev_update_tgz_base
 _vagrant_dev_host_os=$install_os_release_id
+_vagrant_dev_fedora43=
 
 vagrant_dev_box_add() {
     # Returns: $box
@@ -37,7 +38,11 @@ vagrant_dev_box_add() {
         fi
     fi
     if ! vagrant box list | grep -F -q "$box"; then
-        vagrant box add --provider "$provider" "$box"
+        if [[ $_vagrant_dev_fedora43 ]]; then
+            vagrant box add --name generic/fedbora43 https://dl.fedoraproject.org/pub/fedora/linux/releases/43/Cloud/x86_64/images/Fedora-Cloud-Base-Vagrant-libvirt-43-1.6.x86_64.vagrant.libvirt.box
+        else
+            vagrant box add --provider "$provider" "$box"
+        fi
     fi
 }
 
@@ -63,11 +68,21 @@ vagrant_dev_first_up() {
     if [[ ! $vagrant_dev_no_vbguest ||  ! $vagrant_dev_no_mounts && $vagrant_dev_private_net ]]; then
         p='install_yum kernel kernel-devel kernel-headers kernel-tools perl'
     fi
+    declare resize=
+    if [[ $_vagrant_dev_fedora43 ]]; then
+        #TODO(robnagler) this is fragile
+        resize='growpart /dev/vda 4
+btrfs filesystem resize max /'
+    fi
     vagrant_dev_vagrantfile "$os" "$host" "$ip" 1
     vagrant up
     vagrant ssh -c 'sudo su -' <<"EOF"
 $(install_export_this_script)
 ${install_debug:+set -x}
+# TODO(robnagler) group write can't be set or slurm munged fails to start
+# the group permission is only set in vagrant/libvirt it seems
+chmod a-w /
+$resize
 systemctl stop firewalld || true
 systemctl disable firewalld || true
 if [[ -e /etc/selinux/config ]]; then
@@ -77,6 +92,9 @@ fi
 $i
 EOF
     vagrant halt
+    if [[ $_vagrant_dev_fedora43 ]]; then
+        qemu-img resize /var/lib/libvirt/images/"$(basename "$PWD")"_default.img
+    fi
 }
 
 vagrant_dev_ignore_git_dir_ownership() {
@@ -121,7 +139,6 @@ vagrant_dev_init_nfs() {
 
 vagrant_dev_main() {
     declare f os= host= ip= update=
-    vagrant_dev_modifiers
     for a in "$@"; do
         case $a in
             fedora|centos|almalinux)
@@ -147,6 +164,7 @@ expects: fedora|centos|almalinux, <ip address>, update, v[1-9].radia.run"
     if [[ ! $os ]]; then
         install_err 'usage: radia_run vagrant-dev fedora|centos|almalinux [host|ip] [update]'
     fi
+    vagrant_dev_modifiers "$os"
     if [[ $install_server =~ ^file: ]]; then
         install_err "File URLs do not work in VM install_server=$install_server
 Set up a development server"
@@ -201,10 +219,14 @@ vagrant_dev_memballoon() {
 }
 
 vagrant_dev_modifiers() {
+    declare os=$1
     if [[ ${vagrant_dev_vm_devbox:=} ]]; then
         vagrant_dev_no_mounts=1
         vagrant_dev_no_vbguest=1
         vagrant_dev_private_net=1
+        if vagrant_dev_want_libvirt && [[ $os == fedora ]] && (( install_version_fedora >= 43 )); then
+            _vagrant_dev_fedora43=1
+        fi
     elif [[ ${vagrant_dev_barebones:=} ]]; then
         # allow individual overrides
         vagrant_dev_no_dev_env=${vagrant_dev_no_dev_env-1}
@@ -384,7 +406,17 @@ if [[ -d src/radiasoft ]]; then
     fi
 fi
 EOF2
-tar czf $_vagrant_dev_update_tgz_path --ignore-failed-read .netrc .gitconfig .bash_history .{post,pre}_bivio_bashrc .emacs.d/lisp/{post,pre}-bivio-init.el .ssh/{id_*,config} bconf.d >& /dev/null
+declare -a x=(
+    \$(find bin ! -type l ! -name '*~' -type f)
+    .netrc
+    .gitconfig
+    .bash_history
+    .{post,pre}_bivio_bashrc
+    .emacs.d/lisp/{post,pre}-bivio-init.el
+    .ssh/{id_*,config}
+    bconf.d
+)
+tar czf $_vagrant_dev_update_tgz_path --ignore-failed-read "\${x[@]}" >& /dev/null
 EOF3
         if [[ ! -r $_vagrant_dev_update_tgz_base ]]; then
             install_err "failed to create $_vagrant_dev_update_tgz_base; no NFS setup or git status?"

@@ -1,11 +1,12 @@
 #!/bin/bash
 
 codes_assert_easy_install() {
+    declare pyenv_prefix=${1:-${codes_dir[pyenv_prefix]}}
     if [[ ${rpm_code_debug:-} ]]; then
         # local environment may have easy-install.pth
         return
     fi
-    declare easy=$(find "${codes_dir[pyenv_prefix]}"/lib -name easy-install.pth)
+    declare easy=$(find "$pyenv_prefix"/lib -name easy-install.pth)
     if [[ $easy ]]; then
         install_err "$easy: packages used python setup.py install instead of pip:
 $(cat "$easy")"
@@ -15,19 +16,11 @@ $(cat "$easy")"
 codes_cmake() {
     mkdir build
     cd build
-    declare t=Release
-    if [[ ${CODES_DEBUG_FLAG:-} ]]; then
-        t=Debug
-    fi
-    CLICOLOR=0 cmake -D CMAKE_RULE_MESSAGES:BOOL=OFF -D CMAKE_BUILD_TYPE:STRING="$t" "$@" ..
+    codes_cmake_internal "$@" ..
 }
 
 codes_cmake2() {
-    declare t=Release
-    if [[ ${CODES_DEBUG_FLAG:-} ]]; then
-        t=Debug
-    fi
-    CLICOLOR=0 cmake -S . -B build -D CMAKE_RULE_MESSAGES:BOOL=OFF -D CMAKE_BUILD_TYPE:STRING="$t" "$@"
+    codes_cmake_internal -S . -B build -D CMAKE_INSTALL_PREFIX="${codes_dir[prefix]}" "$@"
 }
 
 codes_cmake_build() {
@@ -49,6 +42,15 @@ codes_cmake_fix_lib_dir() {
 set(CMAKE_INSTALL_LIBDIR "lib" CACHE PATH "Library installation directory." FORCE)
 GNUInstallDirs_get_absolute_install_dir(CMAKE_INSTALL_FULL_LIBDIR CMAKE_INSTALL_LIBDIR)
 })'
+}
+
+codes_cmake_internal() {
+    codes_cmake_fix_lib_dir
+    declare t=Release
+    if [[ ${CODES_DEBUG_FLAG:-} ]]; then
+        t=Debug
+    fi
+    CLICOLOR=0 cmake -D CMAKE_RULE_MESSAGES:BOOL=OFF -D CMAKE_BUILD_TYPE:STRING="$t" "$@"
 }
 
 codes_curl() {
@@ -258,6 +260,25 @@ codes_err() {
     return 1
 }
 
+codes_execstack_clear() {
+    declare lib_dir=${1:-${codes_dir[lib]}}
+    declare f x=/dev/null
+    # Only check files to be included in the rpm
+    if [[ -e $rpm_code_exclude_f ]]; then
+        x=$rpm_code_exclude_f
+    fi
+    declare y=$(find "$lib_dir" -name \*.so* ! -type l | sort | grep -vxFf "$x" -)
+    if [[ ! $y ]]; then
+        return
+    fi
+    # strip execstack bit
+    while IFS= read -r f; do
+        if [[ $(execstack -q "$f") =~ ^X ]]; then
+            execstack -c "$f"
+        fi
+    done <<<"$y"
+}
+
 codes_install() {
     declare module=$1
     shift
@@ -274,6 +295,7 @@ codes_install() {
     install_source_bashrc
     declare -A codes_dir=()
     codes_dir_setup
+    declare install_debug=1 install_verbose=1
     install_script_eval "codes/$module.sh"
     cd "$prev"
     declare p=$(codes_module_function python_install)
@@ -297,19 +319,21 @@ codes_install() {
     if [[ -d $d ]]; then
         install_err "$d created, and shouldn't be; see codes_cmake_fix_lib_dir"
     fi
+    codes_execstack_clear
     cd "$prev"
+
 }
 
 codes_install_python_done() {
-    declare pp=${codes_dir[pyenv_prefix]}
-    if [[ ! $pp ]]; then
-        install_err 'pyenv prefix not working'
+    declare pyenv_prefix=${1:-${codes_dir[pyenv_prefix]}}
+    if [[ ! $pyenv_prefix ]]; then
+        install_err 'pyenv prefix not set properly'
     fi
-    rm -rf "$pp"/man
+    rm -rf "$pyenv_prefix"/man
     # Ensure pyenv paths are up to date
     # See https://github.com/biviosoftware/home-env/issues/8
     pyenv rehash
-    codes_assert_easy_install
+    codes_assert_easy_install "$pyenv_prefix"
 }
 
 codes_is_common() {
@@ -385,8 +409,8 @@ codes_num_cores() {
 }
 
 codes_python_install() {
-    # normal python install
-    install_pip_install .
+    # Not all installs are with cmake, but this helps any cmake builds
+    CMAKE_BUILD_PARALLEL_LEVEL=$(codes_num_cores) install_pip_install "$@" .
     codes_assert_easy_install
 }
 
@@ -400,6 +424,7 @@ codes_python_include_dir() {
 }
 
 codes_python_lib_dir() {
+    # POSIT used by warp.sh in a different pyenv so don't use codes[pyenv_prefix]
     python -c 'import sysconfig; print(sysconfig.get_path("purelib"))'
 }
 
