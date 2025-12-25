@@ -121,6 +121,7 @@ rpm_code_main() {
         else
             mkdir -p "$rpm_code_install_dir"
             install_file_from_stdin 444 root root "$rpm_code_install_dir"/radiasoft.repo <<EOF
+[radiasoft-dev]
 name=RadiaSoft fedora/$install_version_fedora/x86_64 dev
 baseurl=https://depot.radiasoft.org/yum/fedora/\$releasever/\$basearch/dev
 enabled=1
