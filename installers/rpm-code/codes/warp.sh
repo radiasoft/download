@@ -84,7 +84,7 @@ index b56702a..aaf8c08 100644
 EOF
 }
 
-tmp_ignore_warp_test() {
+warp_test() {
     # We want to see the error so '|| true'
     x=$(mpiexec -n 2 python -c 'import warp' 2>&1 || true)
     if [[ ! $x =~ '# 2 proc' ]]; then
