@@ -296,6 +296,8 @@ codes_install() {
     declare -A codes_dir=()
     codes_dir_setup
     declare install_debug=1 install_verbose=1
+    install_debug_setup
+    # Revert install_debug_check in install_main
     install_script_eval "codes/$module.sh"
     cd "$prev"
     declare p=$(codes_module_function python_install)
@@ -345,7 +347,9 @@ codes_is_function() {
 }
 
 codes_main() {
+    # Sets install_debug/verbose inside the function
     codes_install "$@"
+    install_debug_setup
 }
 
 codes_make() {

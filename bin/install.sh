@@ -36,12 +36,7 @@ install_args() {
         esac
         shift
     done
-    if [[ -n $install_debug ]]; then
-        if [[ ${BASH_SOURCE:-} ]]; then
-            export PS4='+ [${BASH_SOURCE:+${BASH_SOURCE##*/}}:${LINENO}] '
-        fi
-        set -x
-    fi
+    install_debug_setup
     if [[ ! $install_repo ]]; then
         install_err "Usage: curl $install_server | bash -s repo [args...]
 Must supply repo argument"
@@ -64,6 +59,20 @@ install_clean() {
     for f in ${install_clean_cmds[@]+"${install_clean_cmds[@]}"}; do
         eval "$f" || true
     done
+}
+
+install_debug_setup() {
+    if [[ $install_debug ]]; then
+        if [[ ${BASH_SOURCE:-} ]]; then
+            export PS4='+ [${BASH_SOURCE:+${BASH_SOURCE##*/}}:${LINENO}] '
+        fi
+        set -x
+    else
+        set +x
+        if [[ ${BASH_SOURCE:-} ]]; then
+            unset PS4
+        fi
+    fi
 }
 
 install_depot_server() {

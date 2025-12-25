@@ -9,11 +9,6 @@ warp_python_install() {
     # Parallel makes sometimes fail
     make install
     make pinstall
-    cd /tmp
-    x=$(mpiexec -n 2 python -c 'import warp' 2>&1)
-    if [[ ! $x =~ '# 2 proc' ]]; then
-        codes_err "mpiexec failed for warp: $x"
-    fi
 }
 
 warp_local() {
@@ -87,4 +82,12 @@ index b56702a..aaf8c08 100644
      puts("u_sigfpe called, but with bad parameter");
 
 EOF
+}
+
+warp_test() {
+    # We want to see the error so '|| true'
+    x=$(mpiexec -n 2 python -c 'import warp' 2>&1 || true)
+    if [[ ! $x =~ '# 2 proc' ]]; then
+        codes_err "mpiexec failed for warp: $x"
+    fi
 }
