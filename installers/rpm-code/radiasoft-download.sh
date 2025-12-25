@@ -120,6 +120,13 @@ rpm_code_main() {
             f+=( --update )
         else
             mkdir -p "$rpm_code_install_dir"
+            install_file_from_stdin 444 root root "$rpm_code_install_dir"/radiasoft.repo <<EOF
+name=RadiaSoft fedora/$install_version_fedora/x86_64 dev
+baseurl=https://depot.radiasoft.org/yum/fedora/\$releasever/\$basearch/dev
+enabled=1
+gpgcheck=0
+metadata_expire=1m
+EOF
         fi
         rpm_code_install_rpm "$base"
         createrepo -q "${f[@]+${f[@]}}" "$rpm_code_install_dir"
