@@ -84,10 +84,11 @@ index b56702a..aaf8c08 100644
 EOF
 }
 
-warp_test() {
-    # We want to see the error so '|| true'
-    x=$(mpiexec -n 2 python -c 'import warp' 2>&1 || true)
-    if [[ ! $x =~ '# 2 proc' ]]; then
-        codes_err "mpiexec failed for warp: $x"
-    fi
-}
+#TODO(robnagler) cannot be run without docker --shm-size increase
+# warp_test() {
+#     # We want to see the error so '|| true'
+#     x=$(mpiexec -n 2 python -c 'import warp' 2>&1 || true)
+#     if [[ ! $x =~ '# 2 proc' ]]; then
+#         codes_err "mpiexec failed for warp: $x"
+#     fi
+# }
