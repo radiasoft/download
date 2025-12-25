@@ -44,9 +44,9 @@ _common_python() {
         Cython
     )
     install_pip_install "${d[@]}"
-    _common_h5py
     # Necessary, because mpi4py vendors openmpi and mpich
     install_pip_install --no-binary=mpi4py mpi4py==4.1.1
+    _common_h5py
     d=(
         # Needed by a number of codes
         'pydantic==2.12.4'
