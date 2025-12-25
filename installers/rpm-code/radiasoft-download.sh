@@ -113,7 +113,7 @@ rpm_code_main() {
     if [[ ${rpm_code_is_proprietary:-} ]]; then
         rpm_code_install_proprietary "$base"
     else
-        declare f=()
+        declare -a f=()
         declare p=$(umask)
         umask 022
         if [[ -d $rpm_code_install_dir ]]; then
@@ -122,7 +122,7 @@ rpm_code_main() {
             mkdir -p "$rpm_code_install_dir"
         fi
         rpm_code_install_rpm "$base"
-        createrepo -q "${f[@]}" "$rpm_code_install_dir"
+        createrepo -q "${f[@]+${f[@]}}" "$rpm_code_install_dir"
         umask "$p"
     fi
 }
