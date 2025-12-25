@@ -6,7 +6,7 @@ code_main() {
     declare args=( "$@" )
     if [[ ! -e /etc/yum.repos.d/radiasoft.repo ]]; then
         #TODO(robnagler) always install from dev? Since we promote binaries, makes sense.
-        install_yum_add_repo "$(install_depot_server)/yum/$install_os_release_id/$install_os_release_version_id/$(arch)/dev/radiasoft.repo"
+        install_yum_add_repo "$install_depot_server/yum/$install_os_release_id/$install_os_release_version_id/$(arch)/dev/radiasoft.repo"
     fi
     if [[ ! ${args:+1} ]]; then
         echo 'List of available codes:'

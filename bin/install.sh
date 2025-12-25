@@ -67,11 +67,7 @@ install_clean() {
 }
 
 install_depot_server() {
-    declare force=${1:-}
-    if [[ ! $force && ${install_server:-github} != github ]]; then
-        echo -n "$install_server"
-        return
-    fi
+    # Deprecated: Use $install_depot_server
     echo -n "$install_depot_server"
 }
 
@@ -120,10 +116,7 @@ install_file_from_stdin() {
 }
 
 install_foss_server() {
-    # foss is best served from depot_sever, because the sources
-    # are static and large. You can override this by setting
-    # $install_depot_server.
-    echo -n "$(install_depot_server force)"/foss
+    echo -n "$install_depot_server"/foss
 }
 
 install_git_clone() {
@@ -437,7 +430,7 @@ install_proprietary_server() {
     # will be the local server (dev). Having a copy of the code
     # locally in dev is better than sharing the proprietary
     # key in dev.
-    echo -n "$(install_depot_server)/$install_proprietary_key"
+    echo -n "$install_depot_server/$install_proprietary_key"
 }
 
 install_repo() {
