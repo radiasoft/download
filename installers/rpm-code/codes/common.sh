@@ -36,10 +36,6 @@ _common_python() {
     # Need to set here
     codes_dir[pyenv_prefix]=$(realpath "$(pyenv prefix)")
     declare -a d=(
-        #TODO(robnagler) 3.1.6 doesn't compile with py3.13,
-        # https://github.com/radiasoft/download/issues/813
-        #'mpi4py==3.1.6'
-        'mpi4py==4.1.1'
         # tensorflow==2.20.0 requires numpy 2.2.6
         'numpy==2.2.6'
         # required by cmyt 1.3.0 (required by yt)
@@ -48,6 +44,8 @@ _common_python() {
         Cython
     )
     install_pip_install "${d[@]}"
+    # Necessary, because mpi4py vendors openmpi and mpich
+    install_pip_install --no-binary=mpi4py mpi4py==4.1.1
     _common_h5py
     d=(
         # Needed by a number of codes

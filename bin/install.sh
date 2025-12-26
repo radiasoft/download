@@ -36,12 +36,7 @@ install_args() {
         esac
         shift
     done
-    if [[ -n $install_debug ]]; then
-        if [[ ${BASH_SOURCE:-} ]]; then
-            export PS4='+ [${BASH_SOURCE:+${BASH_SOURCE##*/}}:${LINENO}] '
-        fi
-        set -x
-    fi
+    install_debug_setup
     if [[ ! $install_repo ]]; then
         install_err "Usage: curl $install_server | bash -s repo [args...]
 Must supply repo argument"
@@ -66,12 +61,22 @@ install_clean() {
     done
 }
 
-install_depot_server() {
-    declare force=${1:-}
-    if [[ ! $force && ${install_server:-github} != github ]]; then
-        echo -n "$install_server"
-        return
+install_debug_setup() {
+    if [[ $install_debug ]]; then
+        if [[ ${BASH_SOURCE:-} ]]; then
+            export PS4='+ [${BASH_SOURCE:+${BASH_SOURCE##*/}}:${LINENO}] '
+        fi
+        set -x
+    else
+        set +x
+        if [[ ${BASH_SOURCE:-} ]]; then
+            unset PS4
+        fi
     fi
+}
+
+install_depot_server() {
+    # Deprecated: Use $install_depot_server
     echo -n "$install_depot_server"
 }
 
@@ -120,10 +125,7 @@ install_file_from_stdin() {
 }
 
 install_foss_server() {
-    # foss is best served from depot_sever, because the sources
-    # are static and large. You can override this by setting
-    # $install_depot_server.
-    echo -n "$(install_depot_server force)"/foss
+    echo -n "$install_depot_server"/foss
 }
 
 install_git_clone() {
@@ -292,11 +294,6 @@ install_init_vars_oci() {
 
 install_init_vars_versions() {
     declare x=/etc/os-release
-    : ${install_version_fedora:=43}
-    : ${install_version_python:=3.13.9}
-    : ${install_version_python_venv:=py${install_version_python%%.*}}
-    : ${install_version_centos:=7}
-    # always set these vars
     if [[ -r $x ]]; then
         export install_os_release_id=$(source "$x"; echo "${ID,,}")
         export install_os_release_version_id=$(source "$x"; echo "${VERSION_ID%%.*}")
@@ -313,6 +310,16 @@ install_init_vars_versions() {
     if ! [[ $install_os_release_version_id && $install_os_release_id ]]; then
         install_err 'unable to determine operating system version'
     fi
+    : ${install_version_fedora:=43}
+    : ${install_version_centos:=7}
+    if [[ ! ${install_version_python:-} ]]; then
+        if install_os_is_centos_7; then
+            install_version_python=3.9.15
+        else
+            install_version_python=3.13.9
+        fi
+    fi
+    : ${install_version_python_venv:=py${install_version_python%%.*}}
 }
 
 install_init_vars_servers() {
@@ -336,7 +343,6 @@ install_init_vars_virt() {
     if [[ -r $f ]] && grep -s -q /docker "$f" || [[ -e /.dockerenv ]] || [[ ${container:-} == oci ]]; then
         export install_virt_docker=1
     fi
-
     f=/dev/disk/by-id
     # disk works outside docker, but inside docker systemd-detect-virt works
     if [[ -r $f && $(ls "$f") =~ VBOX ]] || [[ $(systemd-detect-virt --vm 2>/dev/null || true) == oracle ]]; then
@@ -433,7 +439,7 @@ install_proprietary_server() {
     # will be the local server (dev). Having a copy of the code
     # locally in dev is better than sharing the proprietary
     # key in dev.
-    echo -n "$(install_depot_server)/$install_proprietary_key"
+    echo -n "$install_depot_server/$install_proprietary_key"
 }
 
 install_repo() {

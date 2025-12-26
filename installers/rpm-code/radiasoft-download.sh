@@ -113,8 +113,25 @@ rpm_code_main() {
     if [[ ${rpm_code_is_proprietary:-} ]]; then
         rpm_code_install_proprietary "$base"
     else
+        declare -a f=()
+        declare p=$(umask)
+        umask 022
+        if [[ -d $rpm_code_install_dir ]]; then
+            f+=( --update )
+        else
+            mkdir -p "$rpm_code_install_dir"
+            install_file_from_stdin 444 root root "$rpm_code_install_dir"/radiasoft.repo <<EOF
+[radiasoft-dev]
+name=RadiaSoft fedora/$install_version_fedora/x86_64 dev
+baseurl=https://depot.radiasoft.org/yum/fedora/\$releasever/\$basearch/dev
+enabled=1
+gpgcheck=0
+metadata_expire=1m
+EOF
+        fi
         rpm_code_install_rpm "$base"
-        (umask 022; createrepo -q --update "$rpm_code_install_dir")
+        createrepo -q "${f[@]+${f[@]}}" "$rpm_code_install_dir"
+        umask "$p"
     fi
 }
 
