@@ -124,9 +124,9 @@ _common_python() {
         # Needed by rsbeams and keep in sync with below
         'ipython==9.8.0'
         # Needed by container-beamsim-jupyter-base and mantid
-        'jupyter-core-5.9.1'
-        'jupyter-client-8.7.0'
-        'ipykernel-7.1.0'
+        'jupyter-core==5.9.1'
+        'jupyter-client==8.7.0'
+        'ipykernel==7.1.0'
 
         # Needed by rscode-impactt
         'pint==0.25.2'
