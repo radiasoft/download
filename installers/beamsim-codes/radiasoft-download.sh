@@ -89,9 +89,7 @@ declare -a _beamsim_codes_all=(
     # aravis
     # It's needed by pymesh, maybe, but not installed currently.
     # cgal
-    # NOTE: mantid requires ipykernel so add that back into common
-    # and lock version same as jupyter-base and add a note there, too
-    # mantid ipykernel==??
+    # mantid
     # mlopal
     # requires boost python and unused
     # mgis
