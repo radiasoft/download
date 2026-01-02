@@ -70,7 +70,7 @@ python_ci_main() {
             # GitHub CI runners are limited on disk space so use --no-cache-dir to limit disk usage as much as
             # possible. See git.radiasoft.org/downloads/issues/562
             _pip install --no-cache-dir -e .
-            export PYKERN_PKCLI_TEST_MAX_FAILURES=1 PYKERN_PKCLI_TEST_RESTARTABLE=1
+            export PYKERN_PKCLI_TEST_MAX_FAILURES=1 PYKERN_PKCLI_TEST_RESTARTABLE=1 PYKERN_PKCLI_TEST_MAX_PROCS=${PYKERN_PKCLI_TEST_MAX_PROCS:-4}
             if [[ -f test.sh ]]; then
                 bash test.sh
             else
