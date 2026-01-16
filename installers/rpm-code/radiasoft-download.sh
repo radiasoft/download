@@ -56,7 +56,7 @@ rpm_code_dependencies_done() {
 }
 
 rpm_code_is_common() {
-    [[ $1 == common ]]
+    [[ $1 =~ common ]]
 }
 
 rpm_code_install_rpm() {
@@ -142,6 +142,8 @@ rpm_code_yum_dependencies() {
     install_yum_install "$@"
     declare i
     for i in "$@"; do
-        echo "$i"
+        if [[ ! $i =~ ^- ]]; then
+            echo "$i"
+        fi
     done >> $rpm_build_depends_f
 }
