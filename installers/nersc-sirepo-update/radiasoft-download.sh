@@ -31,6 +31,7 @@ nersc_sirepo_update_docker() {
 nersc_sirepo_update_main() {
     declare channel=${1:-}
     declare root_dir=${2:-}
+    declare image=${3:-radiasoft/sirepo-nersc}
     if [[ ! $channel =~ ^(alpha|beta|prod)$ ]]; then
         install_err "invalid channel=${channel:-<missing arg>}"
     fi
@@ -42,7 +43,7 @@ nersc_sirepo_update_main() {
     declare d=$root_dir/"$v"/radiasoft
     mkdir -p "$d"
     cd "$d"
-    declare i=radiasoft/sirepo:$channel
+    declare i=$image:$channel
     nersc_sirepo_update_shifter pull "$i"
     nersc_sirepo_update_python_repos "$i"
     chmod -R a+rX "$PYENV_ROOT"
