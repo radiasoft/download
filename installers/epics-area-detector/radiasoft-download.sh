@@ -66,10 +66,8 @@ EOF
 
 _epics_synapps_patch() {
     find . -name CONFIG_SITE -print0 | xargs -0 -n 1 perl -pi -e '$. == 1 && ($_ .= qq{USR_CFLAGS += -Wno-error=incompatible-pointer-types\n})'
-    perl -pi -e '/cbfSrc|GraphicsMagick/ && ($_ = q{})' areaDetector-R3-12-1/ADSupport/supportApp/Makefile
     perl -pi -e 's{void Find.*\(\).*}{}' sequencer-mirror-R2-2-9/src/lemon/lemon.c
     perl -pi -e 's{(?<=static void monitor\()\)}{scanparmRecord *psr)}' sscan-R2-11-6/sscanApp/src/scanparmRecord.c
-    perl -pi -e 's{(static long \w+)\(\)}{$1(busyRecord *)}' busy-R1-7-4/busyApp/src/devBusySoft{,Raw}.c
     perl -pi -e 's{(static long \w+)\(\)}{$1(busyRecord *)}' busy-R1-7-4/busyApp/src/devBusySoft{,Raw}.c
     perl -pi -e '
         s{(?<=checkLinks\()\);}{struct transformRecord *ptran);};
@@ -123,12 +121,7 @@ _epics_synapps_patch() {
         s{(?=^typedef struct acalcoutDSET)}{typedef long (*slicops_fix)(acalcoutRecord *);};
         s{DEVSUPFUN(?=\s+(?:write|init_record);)}{slicops_fix};
     ' calc-R3-7-5/calcApp/src/aCalcoutRecord.c
-    perl -pi -e 'm{bool;} && ($_ = q{})' areaDetector-R3-12-1/ADSupport/supportApp/bloscSrc/blosc/shuffle.c
-    perl -pi -e 's{(?<=#ifdef )linux}{slicops_not_defined}' areaDetector-R3-12-1/ADSupport/supportApp/xml2Src/threads.c
-    perl -pi -e '
-        s{(?<=winner_function\)\()\);}{unsigned *, unsigned *);};
-        s{(?<=winner_ref_function\)\()\);}{unsigned *, unsigned *);};
-    ' areaDetector-R3-12-1/ADSupport/supportApp/szipSrc/rice.c
+    # Do not build ADSupport
     cat > areaDetector-R3-12-1/configure/CONFIG_SITE.local <<'EOF'
 ADSUPPORT=
 XML2_INCLUDE = /usr/include/libxml2
