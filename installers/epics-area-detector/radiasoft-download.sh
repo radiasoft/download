@@ -81,6 +81,50 @@ _epics_synapps_patch() {
         s{(?<=process\()\);}{dbCommon *pcommon);};
         s{(?<=init_record\()\);}{dbCommon *pcommon, int pass);};
     ' calc-R3-7-5/calcApp/src/transformRecord.c
+    perl -pi -e '
+        s{(?<=writeValue\()\);}{scalcoutRecord *pcalc);;};
+        s{(?<=init_record\()\);}{scalcoutRecord *pcalc, int pass);};
+        s{(?<=process\()\);}{scalcoutRecord *pcalc);};
+        s{(?<=special\()\);}{dbAddr	*paddr, int after);};
+        s{(?<=cvt_dbaddr\()\);}{dbAddr *paddr);};
+        s{(?<=get_units\()\);}{dbAddr *paddr, char *units);};
+        s{(?<=get_precision\()\);}{dbAddr *paddr, long *precision);};
+        s{(?<=get_graphic_double\()\);}{dbAddr *paddr, struct dbr_grDouble *pgd);};
+        s{(?<=get_control_double\()\);}{dbAddr *paddr, struct dbr_ctrlDouble *pcd);};
+        s{(?<=get_alarm_double\()\);}{dbAddr *paddr, struct dbr_alDouble *pad);};
+        s{(?<=checkAlarms\()\);}{scalcoutRecord *pcalc);};
+        s{(?<=execOutput\()\);}{scalcoutRecord *pcalc);};
+        s{(?<=monitor\()\);}{scalcoutRecord *pcalc);};
+        s{(?<=fetch_values\()\);}{scalcoutRecord *pcalc);};
+        s{(?<=checkLinksCallback\()\);}{CALLBACK *pcallback);};
+        s{(?<=checkLinks\()\);}{scalcoutRecord *pcalc);};
+        s{(?<=writeValue\()\);}{scalcoutRecord *pcalc);};
+        s{(?=^typedef struct scalcoutDSET)}{typedef long (*slicops_fix)(scalcoutRecord *);};
+        s{DEVSUPFUN(?=\s+(?:write|init_record);)}{slicops_fix};
+    ' calc-R3-7-5/calcApp/src/sCalcoutRecord.c
+    perl -pi -e '
+        s{(?<=init_record\()\);}{acalcoutRecord *pcalc, int pass);};
+        s{(?<=process\()\);}{acalcoutRecord *pcalc);};
+        s{(?<=special\()\);}{dbAddr	*paddr, int after);};
+        s{(?<=cvt_dbaddr\()\);}{dbAddr *paddr);};
+        s{(?<=get_array_info\()\);}{struct dbAddr *paddr, long *no_elements, long *offset);};
+        s{(?<=put_array_info\()\);}{struct dbAddr *paddr, long nNew);};
+        s{(?<=get_units\()\);}{dbAddr *paddr, char *units);};
+        s{(?<=get_precision\()\);}{dbAddr *paddr, long *precision);};
+        s{(?<=get_graphic_double\()\);}{dbAddr *paddr, struct dbr_grDouble *pgd);};
+        s{(?<=get_control_double\()\);}{dbAddr *paddr, struct dbr_ctrlDouble *pcd);};
+        s{(?<=get_alarm_double\()\);}{dbAddr *paddr, struct dbr_alDouble *pad);};
+        s{(?<=checkAlarms\()\);}{acalcoutRecord *pcalc);};
+        s{(?<=execOutput\()\);}{acalcoutRecord *pcalc);};
+        s{(?<=monitor\()\);}{acalcoutRecord *pcalc);};
+        s{(?<=fetch_values\()\);}{acalcoutRecord *pcalc);};
+        s{(?<=checkLinksCallback\()\);}{CALLBACK *pcallback);};
+        s{(?<=checkLinks\()\);}{acalcoutRecord *pcalc);};
+        s{(?=^typedef struct acalcoutDSET)}{typedef long (*slicops_fix)(acalcoutRecord *);};
+        s{DEVSUPFUN(?=\s+(?:write|init_record);)}{slicops_fix};
+    ' calc-R3-7-5/calcApp/src/aCalcoutRecord.c
+
+
     patch asyn-R4-44-2/asyn/devGpib/devCommonGpib.c <<'EOF'
 @@ -51,7 +51,8 @@ long  devGpib_initAi(aiRecord * pai)
      long result;
