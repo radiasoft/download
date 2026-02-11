@@ -66,7 +66,6 @@ EOF
 
 _epics_synapps_patch() {
     find . -name CONFIG_SITE -print0 | xargs -0 -n 1 perl -pi -e '$. == 1 && ($_ .= qq{USR_CFLAGS += -Wno-error=incompatible-pointer-types\n})'
-    perl -pi -e '/USR_CFLAGS/ && ($_ .= qq{WITH_GRAPHICSMAGICK = NO\nWITH_CBF = NO\n})' areaDetector-R3-12-1/{ADSupport,ADCore}/configure/CONFIG_SITE
     perl -pi -e '/cbfSrc|GraphicsMagick/ && ($_ = q{})' areaDetector-R3-12-1/ADSupport/supportApp/Makefile
     perl -pi -e 's{void Find.*\(\).*}{}' sequencer-mirror-R2-2-9/src/lemon/lemon.c
     perl -pi -e 's{(?<=static void monitor\()\)}{scanparmRecord *psr)}' sscan-R2-11-6/sscanApp/src/scanparmRecord.c
@@ -130,6 +129,43 @@ _epics_synapps_patch() {
         s{(?<=winner_function\)\()\);}{unsigned *, unsigned *);};
         s{(?<=winner_ref_function\)\()\);}{unsigned *, unsigned *);};
     ' areaDetector-R3-12-1/ADSupport/supportApp/szipSrc/rice.c
+    cat > areaDetector-R3-12-1/configure/CONFIG_SITE.local <<'EOF'
+ADSUPPORT=
+XML2_INCLUDE = /usr/include/libxml2
+BUILD_IOCS=YES
+WITH_BOOST=NO
+BOOST_EXTERNAL=NO
+WITH_PVA=YES
+WITH_QSRV=YES
+WITH_BLOSC=NO
+BLOSC_EXTERNAL=NO
+WITH_BITSHUFFLE=NO
+BITSHUFFLE_EXTERNAL=NO
+WITH_GRAPHICSMAGICK=NO
+GRAPHICSMAGICK_EXTERNAL=NO
+GRAPHICSMAGICK_PREFIX_SYMBOLS=NO
+WITH_HDF5=NO
+HDF5_EXTERNAL=NO
+WITH_JSON=NO
+WITH_JPEG=NO
+JPEG_EXTERNAL=NO
+WITH_NETCDF=NO
+NETCDF_EXTERNAL=NO
+WITH_NEXUS=NO
+NEXUS_EXTERNAL=NO
+WITH_OPENCV=NO
+OPENCV_EXTERNAL=NO
+WITH_SZIP=NO
+SZIP_EXTERNAL=NO
+WITH_TIFF=NO
+TIFF_EXTERNAL=NO
+XML2_EXTERNAL=YES
+WITH_ZLIB=NO
+ZLIB_EXTERNAL=NO
+ARAVIS_INCLUDE  = /usr/local/include/aravis-0.8
+GLIB_INCLUDE = /usr/include/glib-2.0 /usr/lib64/glib-2.0/include
+glib-2.0_DIR = /usr/lib64
+EOF
     patch asyn-R4-44-2/asyn/devGpib/devCommonGpib.c <<'EOF'
 @@ -51,7 +51,8 @@ long  devGpib_initAi(aiRecord * pai)
      long result;
