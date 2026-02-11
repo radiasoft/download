@@ -65,12 +65,13 @@ EOF
 }
 
 _epics_synapps_patch() {
-    perl -pi -e '$. == 1 && ($_ .= qq{USR_CFLAGS += -Wno-error=incompatible-pointer-types\n})' $(find . -name CONFIG_SITE)
+    find . -name CONFIG_SITE -print0 | xargs -0 -n 1 perl -pi -e '$. == 1 && ($_ .= qq{USR_CFLAGS += -Wno-error=incompatible-pointer-types\n})'
+    perl -pi -e '/USR_CFLAGS/ && ($_ .= qq{WITH_GRAPHICSMAGICK = NO\nWITH_CBF = NO\n})' areaDetector-R3-12-1/{ADSupport,ADCore}/configure/CONFIG_SITE
+    perl -pi -e '/cbfSrc|GraphicsMagick/ && ($_ = q{})' areaDetector-R3-12-1/ADSupport/supportApp/Makefile
     perl -pi -e 's{void Find.*\(\).*}{}' sequencer-mirror-R2-2-9/src/lemon/lemon.c
     perl -pi -e 's{(?<=static void monitor\()\)}{scanparmRecord *psr)}' sscan-R2-11-6/sscanApp/src/scanparmRecord.c
     perl -pi -e 's{(static long \w+)\(\)}{$1(busyRecord *)}' busy-R1-7-4/busyApp/src/devBusySoft{,Raw}.c
     perl -pi -e 's{(static long \w+)\(\)}{$1(busyRecord *)}' busy-R1-7-4/busyApp/src/devBusySoft{,Raw}.c
-
     perl -pi -e '
         s{(?<=checkLinks\()\);}{struct transformRecord *ptran);};
         s{(?<=checkLinksCallback\()\);}{CALLBACK *pcallback);};
