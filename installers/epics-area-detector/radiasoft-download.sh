@@ -65,7 +65,7 @@ EOF
 }
 
 _epics_synapps_patch() {
-    perl -pi -e '$. == 1 && ($_ .= qq{USR_CFLAGS += -Wno-error=incompatible-pointer-types\n})' */configure/CONFIG_SITE
+    perl -pi -e '$. == 1 && ($_ .= qq{USR_CFLAGS += -Wno-error=incompatible-pointer-types\n})' $(find . -name CONFIG_SITE)
     perl -pi -e 's{void Find.*\(\).*}{}' sequencer-mirror-R2-2-9/src/lemon/lemon.c
     perl -pi -e 's{(?<=static void monitor\()\)}{scanparmRecord *psr)}' sscan-R2-11-6/sscanApp/src/scanparmRecord.c
     perl -pi -e 's{(static long \w+)\(\)}{$1(busyRecord *)}' busy-R1-7-4/busyApp/src/devBusySoft{,Raw}.c
@@ -123,8 +123,12 @@ _epics_synapps_patch() {
         s{(?=^typedef struct acalcoutDSET)}{typedef long (*slicops_fix)(acalcoutRecord *);};
         s{DEVSUPFUN(?=\s+(?:write|init_record);)}{slicops_fix};
     ' calc-R3-7-5/calcApp/src/aCalcoutRecord.c
-
-
+    perl -pi -e 'm{bool;} && ($_ = q{})' areaDetector-R3-12-1/ADSupport/supportApp/bloscSrc/blosc/shuffle.c
+    perl -pi -e 's{(?<=#ifdef )linux}{slicops_not_defined}' areaDetector-R3-12-1/ADSupport/supportApp/xml2Src/threads.c
+    perl -pi -e '
+        s{(?<=winner_function\)\()\);}{unsigned *, unsigned *);};
+        s{(?<=winner_ref_function\)\()\);}{unsigned *, unsigned *);};
+    ' areaDetector-R3-12-1/ADSupport/supportApp/szipSrc/rice.c
     patch asyn-R4-44-2/asyn/devGpib/devCommonGpib.c <<'EOF'
 @@ -51,7 +51,8 @@ long  devGpib_initAi(aiRecord * pai)
      long result;
