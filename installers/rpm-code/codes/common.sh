@@ -38,7 +38,7 @@ _common_nvm() {
     mkdir -p "$NVM_DIR"
     PROFILE=/dev/null codes_download https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh '' nvm 0.40.3
     install_source_bashrc
-    nvm install 24.5.0
+    nvm install 25.6.1
 }
 
 _common_python() {
