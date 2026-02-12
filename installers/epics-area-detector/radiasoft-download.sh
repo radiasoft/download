@@ -5,7 +5,7 @@
 # Install epics, asyn, and synaps
 #
 _asyn_version=R4-45
-_epics_version=7.0.8.1
+_epics_version=7.0.9
 _synapps_version=R6-3
 
 _epics_base() {
@@ -13,9 +13,14 @@ _epics_base() {
     mkdir -p "$d"
     cd "$d"
     b=base-"$_epics_version"
-    _epics_untar https://epics-controls.org/download/base/"$b".tar.gz "$b" "$EPICS_BASE"
+    _epics_untar https://epics.anl.gov/download/base/base-"$_epics_version".tar.gz "$b" "$EPICS_BASE"
     cd "$EPICS_BASE"
-    make -j4
+    make -j4 \
+        EPICS_HOST_ARCH=linux-x86_64 \
+        LINKER_USE_RPATH=YES \
+        SHARED_LIBRARIES=YES \
+        USR_CFLAGS=--std=gnu11 \
+        USR_CXXFLAGS=-Wno-template-body
 }
 
 _epics_main() {
@@ -24,8 +29,7 @@ _epics_main() {
     bivio_path_remove "$EPICS_BASE"/bin
     # re2c is for synapps; rpcgen and libtirpc-devel is for asyn; ExtUtils for busy
     install_yum_install libtirpc-devel re2c rpcgen perl-ExtUtils-Command
-    # perl-FindBin \
-    if rpm -q rscode-epics &> /dev/null; then
+    if rpm -q xrscode-epics &> /dev/null; then
         # development VM build already has epics, not inside install_main
         cd "$EPICS_BASE"
     else

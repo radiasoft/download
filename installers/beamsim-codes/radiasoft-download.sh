@@ -78,7 +78,6 @@ declare -a _beamsim_codes_all=(
 
     # Other codes
     epics
-    epics-asyn
     epics-pvxs
 
     # Deps of container-beamsim-jupyter-base
