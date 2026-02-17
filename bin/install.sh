@@ -136,6 +136,7 @@ install_git_clone() {
     declare repo=$1
     declare branch=${2:-}
     declare b=${repo##*/}
+    declare -a flags=( -q -c advice.detachedHead=false --depth 1 )
     if [[ $b == $repo ]]; then
         repo=radiasoft/$repo
     fi
@@ -144,16 +145,18 @@ install_git_clone() {
         repo=https://github.com/$repo
     fi
     if [[ $repo =~ ^https://github.com(.+) && ${GITHUB_TOKEN:+1} ]]; then
-        repo=https://$GITHUB_TOKEN@github.com/${BASH_REMATCH[1]}
+        flags+=( -c credential.helper='!/bin/bash -c "echo username=x; echo password=\$GITHUB_TOKEN"' )
     fi
     if [[ ! $branch ]]; then
         declare x=${b%%.git}
         x=${x^^}
         x=RADIA_RUN_GIT_CLONE_BRANCH_${x//[^A-Z0-9_]/_}
         branch=${!x:-}
+        if [[ $branch ]]; then
+            flags+=( --branch "$branch" )
+        fi
     fi
-    git clone -q -c advice.detachedHead=false --depth 1 \
-        ${branch:+--branch "$branch"} "$repo"
+    git clone "${flags[@]}" "$repo"
 }
 
 install_err() {
@@ -747,4 +750,7 @@ install_yum_install() {
     install_yum install "${flags[@]:+${flags[@]}}" "${todo[@]}"
 }
 
-install_main "$@"
+# This is not like other vars in that it does not begin with install_ on purpose
+if [[ ! ${no_install_main:-} ]]; then
+    install_main "$@"
+fi
