@@ -1,26 +1,44 @@
 #!/bin/bash
 
 openmc_dagmc() {
-    local p="$PWD"
+    declare p="$PWD"
     codes_download svalinn/DAGMC develop
     CC=mpicc CXX=mpicxx codes_cmake2 \
         -D BUILD_STATIC_LIBS=OFF \
         -D BUILD_TALLY=ON \
+        -D DOUBLE_DOWN=ON \
+        -D DOUBLE_DOWN_DIR="${codes_dir[prefix]}" \
         -D MOAB_DIR="${codes_dir[prefix]}"
     codes_cmake_build install
     cd "$p"
 }
 
+openmc_double_down() {
+    declare p="$PWD"
+    codes_download pshriwise/double-down v1.1.0
+    perl -pi -e 's{avx2}{avx}' CMakeLists.txt
+    codes_cmake2 -D MOAB_DIR="${codes_dir[prefix]}"
+    codes_cmake_build install
+    cd "$p"
+}
+
 openmc_main() {
-    codes_yum_dependencies eigen3-devel
+    codes_yum_dependencies eigen3-devel embree-devel
     codes_dependencies common
+    openmc_patch_embree
     openmc_moab
+    openmc_double_down
     openmc_dagmc
     openmc_openmc
 }
 
+openmc_patch_embree() {
+    # Incorrect value in cmake config
+    perl -pi -e 's{(?<=EMBREE_ROOT_DIR.)(?=/include)}{/usr}' /usr/lib64/cmake/embree-4.4.0/embree-config.cmake
+}
+
 openmc_moab() {
-    local p="$PWD"
+    declare p="$PWD"
     # 20230827 fixes pymoab/core.pyx:1509:48: no suitable method found
     codes_download https://bitbucket.org/fathomteam/moab.git # bfccfc78e6cb3ddc02c39be437a64696bf126d86
     # This cmake module uses python-config which doesn't work with venv
@@ -33,12 +51,14 @@ openmc_moab() {
         -D ENABLE_HDF5=ON \
         -D ENABLE_MPI=ON \
         -D MPI_HOME="$(dirname $(dirname $(type -p mpicxx)))" \
-        -D ENABLE_PYMOAB=ON \
-        -D PYTHON_INCLUDE_DIR="$(codes_python_include_dir)"\
-        -D PYTHON_LIBRARY="$(codes_python_lib_dir)"
+        -D ENABLE_PYMOAB=ON
+
+#        -D PYTHON_INCLUDE_DIR="$(codes_python_include_dir)"\
+#        -D PYTHON_LIBRARY="$(codes_python_lib_dir)"
     codes_cmake_build install
     cd "$p"
 }
+
 
 openmc_openmc() {
     # Python 3.9 support was dropped a few commits after this. The
