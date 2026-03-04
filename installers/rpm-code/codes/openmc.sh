@@ -33,8 +33,8 @@ openmc_main() {
 }
 
 openmc_patch_embree() {
-    # Incorrect value in cmake config
-    perl -pi -e 's{(?<=EMBREE_ROOT_DIR.)(?=/include)}{/usr}' /usr/lib64/cmake/embree-4.4.0/embree-config.cmake
+    # Incorrect value in cmake config released with Fedora 43
+    install_sudo perl -pi -e 's{(?<=EMBREE_ROOT_DIR.)(?=/include)}{/usr}' /usr/lib64/cmake/embree-4.4.0/embree-config.cmake
 }
 
 openmc_moab() {
