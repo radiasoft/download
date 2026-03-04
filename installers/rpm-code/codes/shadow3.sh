@@ -18,6 +18,8 @@ shadow3_python_install() {
     codes_python_install --no-build-isolation
     # Don't need and might conflict
     pip uninstall -y scikit-build-core
+    # required by SYNED
+    install_pip_install json-tricks
     install_pip_install --no-deps OASYS1-ShadowOui==1.5.229 SYNED==1.0.49 OASYS1-ShadowOui-Advanced-Tools==1.0.133
     local p=$(codes_python_lib_dir)/orangecontrib
     local u=$p/shadow/util
