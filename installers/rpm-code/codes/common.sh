@@ -158,6 +158,7 @@ _common_python() {
 
         # conflict between rscode-openmc and rscode-ml
         'protobuf==6.33.1'
+        'rich==14.3.3'
 
         # conflict between rscode-openmc and rscode-radia
         'trimesh==4.9.0'
