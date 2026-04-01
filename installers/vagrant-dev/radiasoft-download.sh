@@ -68,33 +68,22 @@ vagrant_dev_first_up() {
     if [[ ! $vagrant_dev_no_vbguest ||  ! $vagrant_dev_no_mounts && $vagrant_dev_private_net ]]; then
         p='install_yum kernel kernel-devel kernel-headers kernel-tools perl'
     fi
-    declare resize=
-    if [[ $_vagrant_dev_fedora43 ]]; then
-        #TODO(robnagler) this is fragile
-        resize='growpart /dev/vda 4
-btrfs filesystem resize max /'
-    fi
     vagrant_dev_vagrantfile "$os" "$host" "$ip" 1
     vagrant up
-    vagrant ssh -c 'sudo su -' <<"EOF"
+    vagrant ssh -c 'sudo su -' <<EOF
 $(install_export_this_script)
 ${install_debug:+set -x}
 # TODO(robnagler) group write can't be set or slurm munged fails to start
 # the group permission is only set in vagrant/libvirt it seems
 chmod a-w /
-$resize
 systemctl stop firewalld || true
 systemctl disable firewalld || true
 if [[ -e /etc/selinux/config ]]; then
     # Early in setup so perl might not yet be installed. Use sed instead.
     sed -i 's/^SELINUX=.*/SELINUX=disabled/' /etc/selinux/config
 fi
-$i
 EOF
     vagrant halt
-    if [[ $_vagrant_dev_fedora43 ]]; then
-        qemu-img resize /var/lib/libvirt/images/"$(basename "$PWD")"_default.img
-    fi
 }
 
 vagrant_dev_ignore_git_dir_ownership() {
@@ -131,9 +120,9 @@ vagrant_dev_init_nfs() {
     fi
     vagrant_dev_prepare_sudo
     if [[ ! -r /etc/exports ]]; then
-        sudo touch /etc/exports
+        install_sudo touch /etc/exports
         # vagrant requires /etc/exports readable by an ordinary user
-        sudo chmod 644 /etc/exports
+        install_sudo chmod 644 /etc/exports
     fi
 }
 
@@ -191,7 +180,7 @@ Set up a development server"
     vagrant_dev_prepare "$update"
     vagrant_dev_first_up "$os" "$host" "$ip"
     vagrant_dev_vagrantfile "$os" "$host" "$ip" ''
-    vagrant up
+    vagrant_dev_second_up
     if [[ $vagrant_dev_no_dev_env ]]; then
         return
     fi
@@ -355,9 +344,9 @@ vagrant_dev_prepare_host() {
         return
     fi
     vagrant_dev_prepare_sudo
-    sudo mkdir -p -m 0755 "$(dirname "$f")"
+    install_sudo mkdir -p -m 0755 "$(dirname "$f")"
     echo '* 0.0.0.0/0 ::/0' | sudo dd of="$f"
-    sudo chmod 644 "$f"
+    install_sudo chmod 644 "$f"
 }
 
 vagrant_dev_prepare_sudo() {
@@ -365,7 +354,7 @@ vagrant_dev_prepare_sudo() {
         return
     fi
     install_msg 'We need access to sudo on your Mac to configure virtualbox'
-    if ! sudo true; then
+    if ! install_sudo true; then
         install_err 'must have access to sudo'
     fi
     _vagrant_dev_prepare_sudo=1
@@ -436,6 +425,20 @@ vagrant_dev_private_net() {
     cat <<EOF
     config.vm.network "private_network", ip: "$ip"$x
 EOF
+}
+
+vagrant_dev_second_up() {
+    if [[ $_vagrant_dev_fedora43 ]]; then
+        install_msg "need to run this:
+vagrant halt
+sudo qemu-img resize /var/lib/libvirt/images/"$(basename "$PWD")"_default.img 100G
+vagrant ssh -c 'sudo su -' <<EOF
+    growpart /dev/vda 4
+    btrfs filesystem resize max /
+EOF
+"
+    fi
+    vagrant up
 }
 
 vagrant_dev_vagrantfile() {
