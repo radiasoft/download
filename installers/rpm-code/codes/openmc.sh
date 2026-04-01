@@ -23,48 +23,29 @@ openmc_double_down() {
 }
 
 openmc_main() {
-    codes_yum_dependencies eigen3-devel embree-devel
-    codes_dependencies common
-    openmc_patch_embree
+    codes_yum_dependencies eigen3-devel
+    codes_dependencies embree
     openmc_moab
     openmc_double_down
     openmc_dagmc
     openmc_openmc
 }
 
-openmc_patch_embree() {
-    # Incorrect value in cmake config released with Fedora 43
-    install_sudo perl -pi -e 's{(?<=EMBREE_ROOT_DIR.)(?=/include)}{/usr}' /usr/lib64/cmake/embree-4.4.0/embree-config.cmake
-}
-
 openmc_moab() {
     declare p="$PWD"
-    # 20230827 fixes pymoab/core.pyx:1509:48: no suitable method found
-    codes_download https://bitbucket.org/fathomteam/moab.git # bfccfc78e6cb3ddc02c39be437a64696bf126d86
-    # This cmake module uses python-config which doesn't work with venv
-    # https://mail.python.org/archives/list/python-ideas@python.org/thread/QTCPOM5YBOKCWWNPDP7Z4QL2K6OWGSHL/
-    # So, just use native cmake find_package(PythonLibs) which
-    # does the same thing
-#    echo 'find_package(PythonLibs REQUIRED)' > pymoab/cmake/FindPythonDev.cmake
+    codes_download https://bitbucket.org/fathomteam/moab.git
     CC=mpicc CXX=mpicxx codes_cmake2 \
         -D BUILD_SHARED_LIBS=ON \
         -D ENABLE_HDF5=ON \
         -D ENABLE_MPI=ON \
         -D MPI_HOME="$(dirname $(dirname $(type -p mpicxx)))" \
         -D ENABLE_PYMOAB=ON
-
-#        -D PYTHON_INCLUDE_DIR="$(codes_python_include_dir)"\
-#        -D PYTHON_LIBRARY="$(codes_python_lib_dir)"
     codes_cmake_build install
     cd "$p"
 }
 
 
 openmc_openmc() {
-    # Python 3.9 support was dropped a few commits after this. The
-    # commits directly before 3.9 support being dropped all showed
-    # broken builds. This was the first one to show a successful
-    # build.
     codes_download openmc-dev/openmc master
     CC=mpicc CXX=mpicxx codes_cmake2 \
         -D HDF5_PREFER_PARALLEL=on \

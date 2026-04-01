@@ -38,7 +38,7 @@ codes_cmake_clean() {
 
 codes_cmake_fix_lib_dir() {
     # otherwise uses ~/.local/lib64
-    find . \( -name CMakeLists.txt -o -name \*.cmake \) -print0 | xargs -0 perl -pi -e '/include\(GNUInstallDirs/ && ($_ .= q{
+    find . \( -name CMakeLists.txt -o -name \*.cmake \) -print0 | xargs -0 perl -pi -e '/include\(GNUInstallDirs/i && ($_ .= q{
 set(CMAKE_INSTALL_LIBDIR "lib" CACHE PATH "Library installation directory." FORCE)
 GNUInstallDirs_get_absolute_install_dir(CMAKE_INSTALL_FULL_LIBDIR CMAKE_INSTALL_LIBDIR)
 })'
