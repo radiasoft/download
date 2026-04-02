@@ -16,7 +16,7 @@ openmc_dagmc() {
 openmc_double_down() {
     declare p="$PWD"
     codes_download pshriwise/double-down v1.1.0
-    perl -pi -e 's{avx2}{avx}' CMakeLists.txt
+    perl -pi -e 's{avx2}{avx}; s{-march=native}{}' CMakeLists.txt
     codes_cmake2 -D MOAB_DIR="${codes_dir[prefix]}"
     codes_cmake_build install
     cd "$p"
