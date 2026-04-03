@@ -62,7 +62,7 @@ declare -a _beamsim_codes_all=(
 
     madx
 
-    embree
+    # embree
     openmc
     cadopenmc
 
