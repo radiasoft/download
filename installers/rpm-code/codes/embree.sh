@@ -7,7 +7,7 @@ embree_main() {
     codes_cmake2 \
         -DEMBREE_COMPACT_POLYS=ON \
         -DEMBREE_IGNORE_CMAKE_CXX_FLAGS=OFF \
-        -DEMBREE_ISA_AVX2=OFF \
+        -DEMBREE_ISA_AVX2=ON \
         -DEMBREE_ISA_AVX512=OFF \
         -DEMBREE_ISA_AVX=ON \
         -DEMBREE_ISA_SSE2=ON \

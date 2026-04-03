@@ -6,17 +6,18 @@ openmc_dagmc() {
     CC=mpicc CXX=mpicxx codes_cmake2 \
         -D BUILD_STATIC_LIBS=OFF \
         -D BUILD_TALLY=ON \
-        -D DOUBLE_DOWN=OFF \
+        -D DOUBLE_DOWN=ON \
         -D DOUBLE_DOWN_DIR="${codes_dir[prefix]}" \
         -D MOAB_DIR="${codes_dir[prefix]}"
     codes_cmake_build install
     cd "$p"
 }
 
-UNUSED_openmc_double_down() {
+openmc_double_down() {
     declare p="$PWD"
     codes_download pshriwise/double-down v1.1.0
-    perl -pi -e 's{avx2}{avx}; s{-march=native}{}' CMakeLists.txt
+    # Leave avx2, but don't use native, since that might be avx512
+    perl -pi -e 's{-march=native}{}' CMakeLists.txt
     codes_cmake2 -D MOAB_DIR="${codes_dir[prefix]}"
     codes_cmake_build install
     cd "$p"
@@ -24,9 +25,9 @@ UNUSED_openmc_double_down() {
 
 openmc_main() {
     codes_yum_dependencies eigen3-devel
-    codes_dependencies common # embree
+    codes_dependencies embree
     openmc_moab
-    # openmc_double_down
+    openmc_double_down
     openmc_dagmc
     openmc_openmc
 }
