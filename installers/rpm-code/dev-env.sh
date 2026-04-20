@@ -28,3 +28,7 @@ export install_proprietary_key=proprietary_code
 # for convenience to test rpm-perl, not used here
 export rpm_perl_install_dir=$(_root)/radiasoft/rsconf/run/rpm
 unset _root
+if [[ ! -e $radiasoft_repo_file ]]; then
+    echo 'setting up one time'
+    bash dev-setup.sh
+fi
