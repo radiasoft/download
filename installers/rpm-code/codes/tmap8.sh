@@ -1,7 +1,7 @@
 #!/bin/bash
 
 tmap8_main() {
-    codes_yum_dependencies bison flex libtirpc-devel python3-devel
+    codes_yum_dependencies bison flex libtirpc-devel
     codes_dependencies common
     codes_download idaholab/TMAP8 main
     declare moose_dir=$PWD/moose
