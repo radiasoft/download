@@ -3,7 +3,7 @@
 tmap8_main() {
     codes_yum_dependencies bison flex libtirpc-devel
     codes_dependencies common
-    codes_download idaholab/TMAP8 main
+    codes_download idaholab/TMAP8 ec0413009094eb9efc8c06e5133cd3f63621e051
     declare moose_dir=$PWD/moose
     declare petsc_prefix=${codes_dir[prefix]}/petsc
     declare libmesh_dir=${codes_dir[prefix]}/libmesh
@@ -27,6 +27,7 @@ tmap8_main() {
         -not -path "*/libmesh/*" \
         -name "*.so*" \
         -exec cp --no-dereference --preserve=links {} "$lib_dir/" \;
+    find "$lib_dir" -name "*.so*" ! -type l -exec strip --strip-unneeded {} \;
     # MOOSE and its modules look for data at <prefix>/share/<name>/data at runtime
     install -d -m 755 "${codes_dir[share]}/moose"
     cp -a "$moose_dir/framework/data" "${codes_dir[share]}/moose/"
@@ -36,6 +37,7 @@ tmap8_main() {
         install -d -m 755 "${codes_dir[share]}/$mod"
         cp -a "$d" "${codes_dir[share]}/$mod/"
     done
+    strip --strip-unneeded tmap8-opt
     install -m 555 tmap8-opt "${codes_dir[bin]}/tmap8-bin"
     # Wrapper so the binary finds its libs regardless of the build tree
     declare lp="${lib_dir}:${codes_dir[prefix]}/libmesh/lib:${codes_dir[prefix]}/petsc/lib"
