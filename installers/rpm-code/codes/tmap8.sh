@@ -1,7 +1,7 @@
 #!/bin/bash
 
 tmap8_main() {
-    codes_yum_dependencies bison flex libtirpc-devel
+    codes_yum_dependencies bison flex libtirpc-devel patchelf
     codes_dependencies common
     codes_download idaholab/TMAP8 ec0413009094eb9efc8c06e5133cd3f63621e051
     declare moose_dir=$PWD/moose
@@ -9,6 +9,7 @@ tmap8_main() {
     declare libmesh_dir=${codes_dir[prefix]}/libmesh
     tmap8_petsc "$moose_dir" "$petsc_prefix"
     tmap8_wasp "$moose_dir"
+    tmap8_moose_python "$moose_dir"
     tmap8_libmesh "$moose_dir" "$petsc_prefix" "$libmesh_dir"
     # python3-config --includes returns the virtualenv include dir whose headers are
     # symlinks; those symlinks are broken in the container RPM install. Point CPATH
@@ -46,6 +47,26 @@ tmap8_main() {
 export LD_LIBRARY_PATH="${lp}\${LD_LIBRARY_PATH:+:}\${LD_LIBRARY_PATH:-}"
 exec "${codes_dir[bin]}/tmap8-bin" "\$@"
 EOF
+}
+
+tmap8_moose_python() {
+    declare moose_dir=$1
+    declare hit_src=$moose_dir/framework/contrib/hit
+    declare python_inc
+    python_inc=$(python3 -c 'import sysconfig; print(sysconfig.get_config_var("INCLUDEPY"))')
+    # build hit.so (Cython binding to the WASP HIT parser) needed by pyhit
+    CPATH=$python_inc \
+        make -C "$hit_src" -j"$(codes_num_cores)" bindings
+    # rewrite build-tree RUNPATH to the installed WASP lib dir so pyhit
+    # works without LD_LIBRARY_PATH after the RPM is deployed
+    patchelf --set-rpath "${codes_dir[lib]}/tmap8" "$hit_src/hit.so"
+    declare site
+    site=$(codes_python_lib_dir)
+    for pkg in pyhit moosetree mooseutils mms; do
+        cp -r "$moose_dir/python/$pkg" "$site/"
+    done
+    # hit.so must be importable as a top-level module (pyhit does `import hit`)
+    install -m 755 "$hit_src/hit.so" "$site/"
 }
 
 tmap8_wasp() {
