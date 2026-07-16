@@ -62,6 +62,7 @@ EOF
     fi
     install_source_bashrc
     _bivio_home_env_update -f
+    install_source_bashrc
     b_pet
     bivio sql init_dbms || true
     # always recreate db
