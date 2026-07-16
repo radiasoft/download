@@ -62,12 +62,6 @@ EOF
     fi
     install_source_bashrc
     _bivio_home_env_update -f
-    # Needed for bashrc_b_env_aliases to contain complete set
-    cd ~/src/biviosoftware
-    gcl perl-Artisans
-    ln -s ../biviosoftware/perl-Artisans ~/src/perl/Artisans
-    cd
-    install_source_bashrc
     b_pet
     bivio sql init_dbms || true
     # always recreate db
