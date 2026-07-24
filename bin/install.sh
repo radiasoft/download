@@ -326,11 +326,13 @@ install_init_vars_versions() {
 }
 
 install_init_vars_rhel() {
-    if ! [[ ${install_version_rhel:-} || ${install_version_centos:-} ]]; then
-        install_version_rhel=7
+    if [[ ${install_version_rhel:-} ]]; then
+        install_version_centos=$install_version_rhel
     elif [[ ${install_version_centos:-} ]]; then
-        # Backward compatibility
         install_version_rhel=$install_version_centos
+    else
+        install_version_rhel=7
+        install_version_centos=$install_version_rhel
     fi
 }
 
@@ -638,6 +640,7 @@ install_vars_export() {
         install_proprietary_key
         install_version_fedora
         install_version_python
+        install_version_centos
         install_version_rhel
         $(compgen -A variable RADIA_RUN_)
         $(compgen -A variable GITHUB_)
