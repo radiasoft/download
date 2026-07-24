@@ -314,7 +314,7 @@ install_init_vars_versions() {
         install_err 'unable to determine operating system version'
     fi
     : ${install_version_fedora:=43}
-    : ${install_version_centos:=7}
+    install_init_vars_rhel
     if [[ ! ${install_version_python:-} ]]; then
         if install_os_is_centos_7; then
             install_version_python=3.9.15
@@ -323,6 +323,17 @@ install_init_vars_versions() {
         fi
     fi
     : ${install_version_python_venv:=py${install_version_python%%.*}}
+}
+
+install_init_vars_rhel() {
+    if [[ ${install_version_rhel:-} ]]; then
+        install_version_centos=$install_version_rhel
+    elif [[ ${install_version_centos:-} ]]; then
+        install_version_rhel=$install_version_centos
+    else
+        install_version_rhel=7
+        install_version_centos=$install_version_rhel
+    fi
 }
 
 install_init_vars_servers() {
@@ -630,6 +641,7 @@ install_vars_export() {
         install_version_fedora
         install_version_python
         install_version_centos
+        install_version_rhel
         $(compgen -A variable RADIA_RUN_)
         $(compgen -A variable GITHUB_)
     )

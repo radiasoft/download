@@ -98,9 +98,10 @@ cat <<'END_CAT' | install_file_from_stdin 444 root root /etc/profile.d/rs-redhat
 : \${RADIA_RUN_SERVER:='$install_server'}
 : \${install_depot_server:='$install_depot_server'}
 : \${install_version_centos:='$install_version_centos'}
+: \${install_version_rhel:='$install_version_rhel'}
 : \${install_version_fedora:='$install_version_fedora'}
 : \${install_version_python:='$install_version_python'}
-export RADIA_RUN_SERVER install_depot_server install_version_centos install_version_fedora install_version_python
+export RADIA_RUN_SERVER install_depot_server install_version_centos install_version_rhel install_version_fedora install_version_python
 END_CAT
 END_SUDO
 }
