@@ -26,9 +26,9 @@ vagrant_dev_box_add() {
         box=generic/fedora$install_version_fedora
     elif [[ $box == centos ]]; then
         if [[ $_vagrant_dev_host_os == ubuntu ]]; then
-            box=generic/centos${install_version_rhel:-install_version_centos}
+            box=generic/centos$install_version_rhel
         else
-            box=centos/${install_version_rhel:-install_version_centos}
+            box=centos/$install_version_rhel
         fi
     elif [[ $box == almalinux ]]; then
         if [[ $_vagrant_dev_host_os == ubuntu ]]; then
