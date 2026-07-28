@@ -1,12 +1,12 @@
 #!/bin/bash
 
 tmap8_main() {
-    codes_yum_dependencies bison flex libtirpc-devel patchelf
+    codes_yum_dependencies bison flex libtirpc-devel
     codes_dependencies common
     codes_download idaholab/TMAP8 ec0413009094eb9efc8c06e5133cd3f63621e051
     declare moose_dir=$PWD/moose
-    declare petsc_prefix=${codes_dir[prefix]}/petsc
-    declare libmesh_dir=${codes_dir[prefix]}/libmesh
+    declare petsc_prefix=${codes_dir[prefix]}/tmap8/petsc
+    declare libmesh_dir=${codes_dir[prefix]}/tmap8/libmesh
     tmap8_petsc "$moose_dir" "$petsc_prefix"
     tmap8_wasp "$moose_dir"
     tmap8_moose_python "$moose_dir"
@@ -40,9 +40,9 @@ tmap8_main() {
     # python3-config --includes returns the virtualenv include dir whose headers are
     # symlinks; those symlinks are broken in the container RPM install. Point CPATH
     # at the base Python include dir (real files) so GCC always finds Python.h.
-    declare python_inc
-    python_inc=$(python3 -c 'import sysconfig; print(sysconfig.get_config_var("INCLUDEPY"))')
-    CPATH=$python_inc \
+    # codes_python_include_dir gives the same base path (verified: unlike
+    # python3-config, distutils.sysconfig.get_python_inc() isn't venv-relative).
+    CPATH=$(codes_python_include_dir) \
     MOOSE_DIR=$moose_dir PETSC_DIR=$petsc_prefix LIBMESH_DIR=$libmesh_dir METHOD=opt \
         codes_make
     # Headers/archives are only needed to compile/link against petsc; nothing in
@@ -60,9 +60,11 @@ tmap8_main() {
     # empirically: tmap8 runs identically with libmesh_dir removed entirely), so
     # nothing under it is needed once tmap8-opt is linked.
     rm -rf "$libmesh_dir"
-    # Collect all MOOSE/TMAP8 shared libs from the build tree into a single
-    # directory; petsc and libmesh are already installed to their own prefixes.
-    declare lib_dir=${codes_dir[lib]}/tmap8
+    # Collect all MOOSE/TMAP8 shared libs from the build tree into codes_dir[lib]
+    # directly (flat, like libopenmc.so does), rather than a tmap8-only
+    # subdirectory; petsc and libmesh are already installed to their own
+    # prefixes.
+    declare lib_dir=${codes_dir[lib]}
     mkdir -p "$lib_dir"
     find . \
         -not -path "*/petsc/*" \
@@ -82,10 +84,9 @@ tmap8_main() {
     strip --strip-unneeded tmap8-opt
     install -m 555 tmap8-opt "${codes_dir[bin]}/tmap8-bin"
     # Wrapper so the binary finds its libs regardless of the build tree
-    declare lp="${lib_dir}:${codes_dir[prefix]}/petsc/lib"
-    install -m 555 /dev/stdin "${codes_dir[bin]}/tmap8" <<EOF
+    install_file_from_stdin 555 vagrant vagrant "${codes_dir[bin]}/tmap8" <<EOF
 #!/bin/bash
-export LD_LIBRARY_PATH="${lp}\${LD_LIBRARY_PATH:+:}\${LD_LIBRARY_PATH:-}"
+export LD_LIBRARY_PATH="$lib_dir:$petsc_prefix/lib\${LD_LIBRARY_PATH:+:}\${LD_LIBRARY_PATH:-}"
 exec "${codes_dir[bin]}/tmap8-bin" "\$@"
 EOF
 }
@@ -93,21 +94,16 @@ EOF
 tmap8_moose_python() {
     declare moose_dir=$1
     declare hit_src=$moose_dir/framework/contrib/hit
-    declare python_inc
-    python_inc=$(python3 -c 'import sysconfig; print(sysconfig.get_config_var("INCLUDEPY"))')
     # build hit.so (Cython binding to the WASP HIT parser) needed by pyhit
-    CPATH=$python_inc \
+    CPATH=$(codes_python_include_dir) \
         make -C "$hit_src" -j"$(codes_num_cores)" bindings
-    # rewrite build-tree RUNPATH to the installed WASP lib dir so pyhit
-    # works without LD_LIBRARY_PATH after the RPM is deployed
-    patchelf --set-rpath "${codes_dir[lib]}/tmap8" "$hit_src/hit.so"
-    declare site
-    site=$(codes_python_lib_dir)
+    # `import hit` (pyhit does this) relies on LD_LIBRARY_PATH including
+    # codes_dir[lib] to find the WASP libs it's linked against.
     for pkg in pyhit moosetree mooseutils mms; do
-        cp -r "$moose_dir/python/$pkg" "$site/"
+        cp -r "$moose_dir/python/$pkg" "$(codes_python_lib_dir)/"
     done
     # hit.so must be importable as a top-level module (pyhit does `import hit`)
-    install -m 755 "$hit_src/hit.so" "$site/"
+    install -m 555 "$hit_src/hit.so" "$(codes_python_lib_dir)/"
 }
 
 tmap8_wasp() {
