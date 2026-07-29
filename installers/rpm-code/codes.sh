@@ -326,6 +326,12 @@ codes_install() {
 
 }
 
+codes_install_file_from_stdin() {
+    declare tgt=$1
+    declare mode=${2:-555}
+    install_file_from_stdin "$mode" "$USER" "$(id -gn)" "$tgt"
+}
+
 codes_install_python_done() {
     declare pyenv_prefix=${1:-${codes_dir[pyenv_prefix]}}
     if [[ ! $pyenv_prefix ]]; then
