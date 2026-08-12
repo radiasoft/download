@@ -76,6 +76,7 @@ declare -a _beamsim_codes_all=(
     xraylib
     bmad
     shadow3
+    tmap8
 
     # Other codes
     epics
