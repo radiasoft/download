@@ -43,7 +43,7 @@ tmap8_moose_python() {
     # `import hit` relies on LD_LIBRARY_PATH including
     # codes_dir[lib] to find the WASP libs it's linked against.
     chmod -R a+rX "$MOOSE_DIR"/python/ "$hit_so"
-    cp -a "$MOOSE_DIR"/python/{moosetree,mooseutils,mms} "$hit_so" "$(codes_python_lib_dir)/"
+    cp -a "$MOOSE_DIR"/python/{moosetree,mooseutils,mms,pyhit} "$hit_so" "$(codes_python_lib_dir)/"
     # avoids Failed to determine data file path for 'moose' & solid_mechanics
     install -d -m 755 "${codes_dir[share]}"/{solid_mechanics,moose}{,/data}
 }
