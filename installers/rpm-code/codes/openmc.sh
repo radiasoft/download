@@ -39,8 +39,7 @@ openmc_moab() {
         -D BUILD_SHARED_LIBS=ON \
         -D ENABLE_HDF5=ON \
         -D ENABLE_MPI=ON \
-        -D MPI_HOME="$(dirname $(dirname $(type -p mpicxx)))" \
-        -D ENABLE_PYMOAB=ON
+        -D MPI_HOME="$(dirname $(dirname $(type -p mpicxx)))"
     codes_cmake_build install
     cd "$p"
 }
@@ -58,7 +57,9 @@ openmc_openmc() {
 openmc_python_install() {
     cd openmc
     codes_python_install
-    cd ../moab/build
+    # ENABLE_PYMOAB=ON (openmc_moab) is deprecated; install pymoab via pip
+    # from the moab source (which uses scikit-build-core) instead
+    cd ../moab
     codes_python_install
     # allow the last three to float
     declare -a x=(
@@ -69,6 +70,7 @@ openmc_python_install() {
         'dagmc_geometry_slice_plotter'
         'openmc-data-downloader'
         'git+https://github.com/svalinn/pydagmc.git'
+        'git+https://github.com/aprilnovak/cortex.git@TEA#subdirectory=tea'
     )
     install_pip_install "${x[@]}"
 }
