@@ -152,9 +152,9 @@ install_git_clone() {
         x=${x^^}
         x=RADIA_RUN_GIT_CLONE_BRANCH_${x//[^A-Z0-9_]/_}
         branch=${!x:-}
-        if [[ $branch ]]; then
-            flags+=( --branch "$branch" )
-        fi
+    fi
+    if [[ $branch ]]; then
+        flags+=( --branch "$branch" )
     fi
     git clone "${flags[@]}" "$repo"
 }
