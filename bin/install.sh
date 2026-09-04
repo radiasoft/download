@@ -389,6 +389,16 @@ install_not_strict_cmd() {
     set -euo pipefail
 }
 
+install_num_cores() {
+    # allow user override
+    if [[ ${install_num_cores:-} ]]; then
+        echo "$install_num_cores"
+        return
+    fi
+    # do not cache result, since $install_ can cross machine boundaries
+    lscpu | perl -n -e 'BEGIN {$r = 1}; /^(?:Socket|Core).*?(\d+)/ && ($r *= $1); END {print($r)}'
+}
+
 install_os_is_almalinux() {
     [[ $install_os_release_id =~ almalinux ]]
 }
