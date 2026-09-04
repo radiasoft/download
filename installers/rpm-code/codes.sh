@@ -406,7 +406,7 @@ codes_num_cores() {
             install_msg 'codes_num_cores: restricting to one core'
             codes_num_cores=1
         else
-            codes_num_cores=$(lscpu | perl -n -e 'BEGIN {$r = 1}; /^(?:Socket|Core).*?(\d+)/ && ($r *= $1); END {print($r)}')
+            codes_num_cores=$(install_num_cores)
         fi
     fi
     echo "$codes_num_cores"

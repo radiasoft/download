@@ -30,6 +30,9 @@ pyenv_install() {
     pip install --upgrade build setuptools
     pyenv virtualenv "$install_version_python" "$install_version_python_venv"
     pyenv global "$install_version_python_venv"
+    # venv does not inherit site-packages so install again
+    pip install --upgrade pip
+    pip install --upgrade build setuptools
 }
 
 pyenv_main() {
