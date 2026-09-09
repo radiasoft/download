@@ -1,20 +1,32 @@
 #!/bin/bash
 #
-# Basic JupyterLab environment, shared by the jupyter container builds.
+# Common JupyterLab environment for jupyter container image builds.
 #
-# Runs as the build run user. Callers install any rpms they need and add
-# their own extras (julia/IJulia, widgets, matplotlib styles) themselves.
+# install_repo_eval jupyterlab-basic as_root|as_run_user
 #
-# To run: install_repo_eval jupyterlab-basic
+# Set jupyterlab_basic_rpmfusion=1 for ffmpeg and texlive, which are several
+# gigabytes.
 #
 jupyterlab_basic_main() {
-    umask 022
-    if [[ $(pyenv version-name) != py3 ]]; then
-        install_err "environment is not right, missing pyenv: $(env)"
-    fi
-    _jupyterlab_basic_vars
-    _jupyterlab_basic_pip
-    _jupyterlab_basic_config
+    declare mode=$1
+    case $mode in
+        as_root)
+            _jupyterlab_basic_rpmfusion
+            ;;
+        as_run_user)
+            # POSIT: pyenv installer venv
+            if [[ $(pyenv version-name) != py3 ]]; then
+                install_err "environment is not right, missing pyenv: $(env)"
+            fi
+            _jupyterlab_basic_vars
+            _jupyterlab_basic_pip
+            _jupyterlab_basic_rsbeams_style
+            _jupyterlab_basic_config
+            ;;
+        *)
+            install_err "unknown mode=$mode"
+            ;;
+    esac
 }
 
 _jupyterlab_basic_config() {
@@ -45,10 +57,7 @@ EOF
 }
 
 _jupyterlab_basic_pip() {
-    if [[ ${jupyterlab_basic_pip[@]:+1} ]]; then
-        install_pip_install "${jupyterlab_basic_pip[@]}"
-        return
-    fi
+    # POSIT: versions same in container-jupyterhub/build.sh
     # These lists were created by pip installing packages and seeing which
     # versions were installed. The "Successfully installed" line which pip outputs
     declare x=(
@@ -123,6 +132,34 @@ _jupyterlab_basic_pip() {
         'pamela==1.2.0'
     )
     install_pip_install "${x[@]}"
+}
+
+_jupyterlab_basic_rpmfusion() {
+    : ${jupyterlab_basic_rpmfusion:=}
+    if [[ ! $jupyterlab_basic_rpmfusion ]]; then
+        return
+    fi
+    # ffmpeg is only in rpmfusion http://rpmfusion.org/Configuration
+    declare f
+    for f in free nonfree; do
+        install_yum install \
+            "https://download1.rpmfusion.org/$f/fedora/rpmfusion-$f-release-$install_os_release_version_id.noarch.rpm"
+    done
+    install_yum install ffmpeg texlive-scheme-medium texlive-collection-latexextra
+    # ffmpeg installed from rpmfusion so disable it for other packages
+    install_yum_repo_set_enabled 'rpmfusion*' 0
+}
+
+_jupyterlab_basic_rsbeams_style() {
+    declare src
+    # https://github.com/radiasoft/container-beamsim-jupyter-base/issues/27
+    declare d=~/.config/matplotlib/stylelib
+    mkdir -p "$d"
+    install_tmp_dir
+    install_git_clone rsbeams
+    for src in rsbeams/rsbeams/rsplot/stylelib/*; do
+        cp "$src" "$d/$(basename "$src")"
+    done
 }
 
 _jupyterlab_basic_vars() {
