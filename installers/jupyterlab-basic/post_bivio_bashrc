@@ -1,0 +1,24 @@
+#!/bin/bash
+#
+# Avoid: "pyenv-virtualenv: prompt changing will be removed from future release."
+export PYENV_VIRTUALENV_DISABLE_PROMPT=1
+
+export LC_ALL=en_US.utf8
+export LANG=en_US.utf8
+export LANGUAGE=en_US.utf8
+
+#
+# Fixups for Bivio environment running in terminado.
+#
+# We don't want PROMPT_COMMAND for anything
+unset PROMPT_COMMAND
+if [[ ${PS1:-} ]]; then
+    export PS1='\W$ '
+    export TERM=xterm-256color
+fi
+
+# Allow user customizations
+bivio_path_insert "$HOME/jupyter/bin" force
+if [[ -r $HOME/jupyter/bashrc ]]; then
+    source "$HOME/jupyter/bashrc"
+fi
