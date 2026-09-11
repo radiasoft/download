@@ -122,6 +122,7 @@ _jupyterlab_basic_pip() {
         'jupyterlab-launcher==0.13.1'
         'jupyterlab-favorites==3.3.1'
         'plotly==6.5.0'
+        'seaborn==0.13.2'
 
         # jupyterhub
         'jupyterhub==5.4.3'
