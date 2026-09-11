@@ -50,7 +50,20 @@ codes_cmake_internal() {
     if [[ ${CODES_DEBUG_FLAG:-} ]]; then
         t=Debug
     fi
-    CLICOLOR=0 cmake -D CMAKE_RULE_MESSAGES:BOOL=OFF -D CMAKE_BUILD_TYPE:STRING="$t" "$@"
+    declare -a c=()
+    if [[ ${codes_is_nvidia:-} ]]; then
+        # nvcc rejects a host gcc newer than 14, and cannot parse the builtin
+        # type traits libstdc++ 14 uses, which makes pybind11's factory
+        # specializations ambiguous. warpx overflows the ptxas constant bank
+        # without --disable-optimizer-constants.
+        c=(
+            -D "CMAKE_CUDA_FLAGS=-D_GLIBCXX_DO_NOT_USE_BUILTIN_TRAITS -Xptxas --disable-optimizer-constants"
+            -D CMAKE_CUDA_HOST_COMPILER=/usr/bin/g++-14
+            -D CMAKE_CXX_COMPILER=/usr/bin/g++-14
+            -D CMAKE_C_COMPILER=/usr/bin/gcc-14
+        )
+    fi
+    CLICOLOR=0 cmake -D CMAKE_RULE_MESSAGES:BOOL=OFF -D CMAKE_BUILD_TYPE:STRING="$t" "${c[@]}" "$@"
 }
 
 codes_curl() {
@@ -412,6 +425,10 @@ codes_num_cores() {
     echo "$codes_num_cores"
 }
 
+codes_nvidia_module() {
+    echo "$1${codes_is_nvidia:+-nvidia}"
+}
+
 codes_python_install() {
     # Not all installs are with cmake, but this helps any cmake builds
     CMAKE_BUILD_PARALLEL_LEVEL=$(codes_num_cores) install_pip_install "$@" .
@@ -434,6 +451,15 @@ codes_python_lib_dir() {
 
 codes_python_version() {
     python -c 'import platform; print(platform.python_version())'
+}
+
+codes_run_main() {
+    # install_script_eval always calls main so cannot be used to load a script
+    declare code=$1
+    declare f=$code.sh
+    install_download "codes/$f" > "$f"
+    source "./$f"
+    "${code//-/_}_main"
 }
 
 codes_yum_dependencies() {
