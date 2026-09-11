@@ -18,11 +18,17 @@ if [[ $1 == common ]]; then
         cd -
     fi
 else
-    export required_image="radiasoft/rpm-code:fedora-$install_version_fedora"
+    declare i=rpm-code
+    declare m='You need to dev-build.sh common'
+    if [[ $1 =~ -nvidia$ ]]; then
+        i=rpm-code-nvidia
+        m='You need to build radiasoft/container-rpm-code-nvidia'
+    fi
+    export required_image="radiasoft/$i:fedora-$install_version_fedora"
     set +e
     docker image inspect $required_image > /dev/null
     if [[ $? -ne 0 ]]; then
-        echo "$required_image image not found. You need to dev-build.sh common"
+        echo "$required_image image not found. $m"
         exit 1
     fi
     set -e

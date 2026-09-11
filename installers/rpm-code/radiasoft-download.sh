@@ -59,6 +59,10 @@ rpm_code_is_common() {
     [[ $1 =~ common ]]
 }
 
+rpm_code_is_nvidia() {
+    [[ $1 =~ -nvidia$ ]]
+}
+
 rpm_code_install_rpm() {
     declare base=$1
     # Y2100
@@ -99,6 +103,8 @@ rpm_code_main() {
     declare image=radiasoft/rpm-code
     if rpm_code_is_common "$code"; then
         image=radiasoft/fedora
+    elif rpm_code_is_nvidia "$code"; then
+        image=radiasoft/rpm-code-nvidia
     fi
     if [[ ${rpm_code_debug:-} ]]; then
         # emulate what rpm-build does
