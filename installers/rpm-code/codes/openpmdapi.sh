@@ -1,9 +1,11 @@
 #!/bin/bash
 
 openpmdapi_main() {
-    codes_dependencies common
     # POSIT: Version that impactx and warpx want
-    codes_download https://github.com/openPMD/openPMD-api/archive/refs/tags/0.16.1.tar.gz openPMD-api-0.16.1 openpmdapi 0.16.1
+    : ${openpmdapi_version:=0.16.1}
+    codes_dependencies common
+    codes_download "https://github.com/openPMD/openPMD-api/archive/refs/tags/$openpmdapi_version.tar.gz" \
+        "openPMD-api-$openpmdapi_version" openpmdapi "$openpmdapi_version"
     CXXFLAGS=-Wno-template-body \
          codes_cmake2  \
         -DopenPMD_INSTALL_PYTHONDIR="$(codes_python_lib_dir)" \

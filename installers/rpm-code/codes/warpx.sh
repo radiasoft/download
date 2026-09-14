@@ -4,7 +4,7 @@ warpx_main() {
     declare -a c=()
     # POSIT: Same version as amrex and pyamrex
     : ${warpx_version:=25.11}
-    codes_dependencies common $(codes_nvidia_module amrex) openpmdapi $(codes_nvidia_module pyamrex)
+    codes_dependencies common $(codes_nvidia_module amrex) $(codes_nvidia_module openpmdapi) $(codes_nvidia_module pyamrex)
     if [[ ${codes_is_nvidia:-} ]]; then
         # POSIT: oldest gpus are Volta (sm_70)
         c=(
