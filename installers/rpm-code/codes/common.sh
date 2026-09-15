@@ -71,13 +71,10 @@ _common_python() {
         # genesis4 and impactt
         'eval_type_backport==0.3.0'
         'lark==1.3.1'
-        'lume-base==0.3.3'
-
-        # impactt
-        'polars-lts-cpu==1.33.1'
+        'lume-base==0.5.0'
 
         # Needed by omega
-        'openpmd-beamphysics==0.10.2'
+        'openpmd-beamphysics==0.16.1'
 
         # pillow and python-dateutil installed by matplotlib
         # pipdeptree is useful for debugging
@@ -134,6 +131,12 @@ _common_python() {
         # conflict between warpx and bnlcrl
         'periodictable==2.0.2'
 
+        # conflict between rscode-openmc (dagmc_geometry_slice_plotter ->
+        # streamlit -> altair) and rscode-impactt (lume-impact -> bokeh);
+        # 2.26.0 removes Series from the narwhals.stable.v1 shim that
+        # plotly (pulled in by streamlit) still relies on
+        'narwhals==2.25.0'
+
         # Needed by rscode-rsbeams
         'unyt==3.0.4'
 
@@ -165,6 +168,10 @@ _common_python() {
 
         # conflict between rsbeams and cadopenmc
         'nlopt==2.9.1'
+
+        # conflict between rscode-srw (srwpy -> scikit-learn) and tables/
+        # blosc2 (installed below)
+        'threadpoolctl==3.6.0'
     )
     install_pip_install "${d[@]}"
     # Otherwise compile errors for strdup (gnu11), BLOSC/2 don't compile either
