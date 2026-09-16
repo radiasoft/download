@@ -4,7 +4,7 @@ impactt_main() {
     # openpmdapi provides openpmd-beamphysics which is required by lume-base
     # pydicom is required by one of lume-base deps
     codes_dependencies common openpmdapi pydicom
-    codes_download https://github.com/impact-lbl/impact-t.git V2.3.2
+    codes_download https://github.com/impact-lbl/impact-t.git v3.1.5
     cd src
     codes_cmake2
     codes_cmake_build install
@@ -15,9 +15,13 @@ impactt_main() {
 }
 
 impactt_python_install() {
-    codes_download https://github.com/ColwynGulliford/distgen.git v2.1.6
+    codes_download https://github.com/ColwynGulliford/distgen.git v2.3.1
     codes_python_install
-    # https://github.com/ChristopherMayes/lume-impact/blob/5593a87d722a91d3d66df2804731a281fddd3aa1/pyproject.toml#L20
-    codes_download https://github.com/ChristopherMayes/lume-impact.git v0.9.7
+    codes_download https://github.com/lume-science/lume-impact.git v0.12.1
     codes_python_install
+    # lume-impact pulls in polars + polars-runtime-32 (the split-runtime
+    # packaging), which we don't want, because it requires a newer CPU;
+    # replace it with the CPU-compatible variant
+    pip uninstall -y polars polars-runtime-32
+    install_pip_install --force-reinstall --no-deps polars-lts-cpu==1.33.1
 }
