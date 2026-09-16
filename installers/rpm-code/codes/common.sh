@@ -136,6 +136,9 @@ _common_python() {
         # 2.26.0 removes Series from the narwhals.stable.v1 shim that
         # plotly (pulled in by streamlit) still relies on
         'narwhals==2.25.0'
+        # POSIT: keep in sync with installers/jupyterlab-basic's plotly pin,
+        # so rscode-common and rscode-jupyterlab-basic don't conflict
+        'plotly==6.5.0'
 
         # Needed by rscode-rsbeams
         'unyt==3.0.4'
