@@ -70,6 +70,10 @@ openmc_python_install() {
         'dagmc_geometry_slice_plotter'
         'openmc-data-downloader'
         'git+https://github.com/svalinn/pydagmc.git'
+        # sirepo still needs the old "tea" package (TEA branch); beamsim
+        # needs the new "cortex-tea" package (tea-packaging branch). The
+        # package names differ so both can be installed simultaneously.
+        'git+https://github.com/aprilnovak/cortex.git@TEA#subdirectory=tea'
         'git+https://github.com/aprilnovak/cortex.git@tea-packaging#subdirectory=tea'
     )
     install_pip_install "${x[@]}"
