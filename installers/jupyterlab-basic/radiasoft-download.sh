@@ -146,7 +146,12 @@ _jupyterlab_basic_rpmfusion() {
         install_yum install \
             "https://download1.rpmfusion.org/$f/fedora/rpmfusion-$f-release-$install_os_release_version_id.noarch.rpm"
     done
-    install_yum install ffmpeg texlive-scheme-medium texlive-collection-latexextra
+    # Fedora's own ffmpeg-free (libswresample-free et al) may already be
+    # installed and conflicts with rpmfusion's ffmpeg-libs build of the
+    # same files; --allowerasing lets dnf swap them for the rpmfusion
+    # versions (the standard rpmfusion multimedia migration technique)
+    install_yum install --allowerasing ffmpeg
+    install_yum install texlive-scheme-medium texlive-collection-latexextra
     # ffmpeg installed from rpmfusion so disable it for other packages
     install_yum_repo_set_enabled 'rpmfusion*' 0
 }
