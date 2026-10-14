@@ -62,6 +62,8 @@ declare -a _beamsim_codes_all=(
 
     madx
 
+    rftrack
+
     embree
     openmc
     cadopenmc
