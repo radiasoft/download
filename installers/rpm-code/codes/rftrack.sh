@@ -2,12 +2,11 @@
 
 rftrack_main() {
     codes_dependencies common
-    codes_download radiasoft/rslume
+    codes_download https://github.com/lume-science/lume-rftrack.git
 }
 
 rftrack_python_install() {
     install_pip_install RF-Track==2.7.3
-    # rslume depends on sirepo
-    cd rslume
-    codes_python_install --no-deps
+    cd lume-rftrack
+    codes_python_install
 }

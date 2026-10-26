@@ -46,7 +46,9 @@ openmc_moab() {
 
 
 openmc_openmc() {
-    codes_download openmc-dev/openmc master
+    # master is stale (frozen since the 0.15.3 release); real development,
+    # including v0.16.0 and later, happens on develop
+    codes_download openmc-dev/openmc v0.16.0
     CC=mpicc CXX=mpicxx codes_cmake2 \
         -D HDF5_PREFER_PARALLEL=on \
         -D OPENMC_USE_DAGMC=on \
