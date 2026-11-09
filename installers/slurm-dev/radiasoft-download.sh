@@ -37,12 +37,13 @@ radia_run slurm-dev
     install_sudo perl -pi -e "s{^NodeName=.*}{NodeName=localhost CPUs=$c State=UNKNOWN}" \
          /etc/slurm/slurm.conf
     # rpm doesn't create slurm user so can't set perms on log, etc, ... directories
-    mkdir -p /etc/systemd/system/slurmctld.service.d
-    cat > /etc/systemd/system/slurmctld.service.d/rs-override.conf <<'EOF'
+    install_sudo mkdir -p /etc/systemd/system/slurmctld.service.d
+    install_sudo tee /etc/systemd/system/slurmctld.service.d/rs-override.conf > /dev/null <<'EOF'
 [Service]
 User=root
 Group=root
 EOF
+    install_sudo systemctl daemon-reload
     declare f
     for f in munge slurmctld slurmd; do
         install_sudo systemctl start "$f"
