@@ -2,9 +2,14 @@
 
 _slurm_dev_nfs_server=v.radia.run
 
+# Written after the packages are installed, so if it is missing, a previous run
+# stopped early and has to be finished
+_slurm_dev_override=/etc/systemd/system/slurmctld.service.d/rs-override.conf
+
 slurm_dev_main() {
-    if [[ $(type -t sbatch) ]]; then
-        install_msg 'sbatch already installed, nothing to do'
+    # sudo: the directory may not be readable (depends on umask when created)
+    if [[ $(type -t sbatch) ]] && install_sudo test -e "$_slurm_dev_override"; then
+        install_msg 'slurm already installed, nothing to do'
         return
     fi
     if ! install_os_is_fedora; then
@@ -37,12 +42,13 @@ radia_run slurm-dev
     install_sudo perl -pi -e "s{^NodeName=.*}{NodeName=localhost CPUs=$c State=UNKNOWN}" \
          /etc/slurm/slurm.conf
     # rpm doesn't create slurm user so can't set perms on log, etc, ... directories
-    mkdir -p /etc/systemd/system/slurmctld.service.d
-    cat > /etc/systemd/system/slurmctld.service.d/rs-override.conf <<'EOF'
+    install_sudo mkdir -p "${_slurm_dev_override%/*}"
+    install_sudo tee "$_slurm_dev_override" > /dev/null <<'EOF'
 [Service]
 User=root
 Group=root
 EOF
+    install_sudo systemctl daemon-reload
     declare f
     for f in munge slurmctld slurmd; do
         install_sudo systemctl start "$f"
